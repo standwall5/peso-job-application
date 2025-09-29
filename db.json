@@ -1,0 +1,141 @@
+{
+  "companies": [
+    {
+      "id": 1,
+      "name": "Tech Innovations Inc.",
+      "location": "Quezon City, Philippines",
+      "industry": "Information Technology",
+      "website": "https://techinnovations.ph",
+      "logo": "https://upload.wikimedia.org/wikipedia/commons/2/28/Patrick_Star_character.png",
+      "contactEmail": "hr@techinnovations.ph",
+      "description": "A leading software development company in the Philippines.",
+      "login": {
+        "email": "techinnovations@peso.ph",
+        "password": "password123"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Creative Studio",
+      "location": "Remote",
+      "industry": "Design & Media",
+      "website": "https://creativestudio.com",
+      "logo": "https://preview.redd.it/my-drawing-of-spongebob-v0-vjthps05s4bf1.jpeg?width=640&crop=smart&auto=webp&s=04620fb325e60e21924cc5c8e4aaab670ab28bc0",
+      "contactEmail": "jobs@creativestudio.com",
+      "description": "We provide creative solutions for global brands.",
+      "login": {
+        "email": "creativestudio@peso.ph",
+        "password": "password123"
+      }
+    }
+  ],
+
+  "jobs": [
+    {
+      "id": 1,
+      "companyId": 1,
+      "title": "Frontend Developer",
+      "location": "Quezon City, Philippines",
+      "employmentType": "Full-time",
+      "description": "Develop and maintain web applications using React.",
+      "requirements": ["React", "JavaScript", "CSS", "Git"],
+      "salary": "₱40,000 - ₱60,000 / month",
+      "postedDate": "2025-09-20",
+      "deadline": "2025-10-15",
+      "status": "Active"
+    },
+    {
+      "id": 2,
+      "companyId": 2,
+      "title": "Graphic Designer",
+      "location": "Remote",
+      "employmentType": "Contract",
+      "description": "Design marketing materials and social media content.",
+      "requirements": ["Photoshop", "Illustrator", "Figma"],
+      "salary": "₱25,000 / project",
+      "postedDate": "2025-09-18",
+      "deadline": "2025-10-05",
+      "status": "Active"
+    }
+  ],
+
+  "users": [
+    {
+      "id": 101,
+      "name": "Alice Dela Cruz",
+      "email": "alice@mail.com",
+      "phone": "09171234567",
+      "resumeUrl": "https://res.cloudinary.com/your_cloud/raw/upload/v1695999999/peso/resumes/alice.pdf",
+      "skills": ["JavaScript", "React", "CSS"],
+      "createdAt": "2025-09-25"
+    },
+    {
+      "id": 102,
+      "name": "Juan Santos",
+      "email": "juan@mail.com",
+      "phone": "09181231234",
+      "resumeUrl": "https://res.cloudinary.com/your_cloud/raw/upload/v1695999999/peso/resumes/juan.pdf",
+      "skills": ["Photoshop", "Illustrator", "Figma"],
+      "createdAt": "2025-09-27"
+    }
+  ],
+
+  "applications": [
+    {
+      "id": 5001,
+      "jobId": 1,
+      "userId": 101,
+      "status": "Pending",
+      "appliedDate": "2025-09-26",
+      "examId": 9001
+    },
+    {
+      "id": 5002,
+      "jobId": 2,
+      "userId": 102,
+      "status": "Pending",
+      "appliedDate": "2025-09-27",
+      "examId": 9002
+    }
+  ],
+
+  "exams": [
+    {
+      "id": 9001,
+      "jobId": 1,
+      "userId": 101,
+      "questions": [
+        { "id": 1, "question": "❤ - ☐ = ❤, ☐ = ?", "points": 0.5 },
+        { "id": 2, "question": "❤ + ❤ = 8, ❤ = ?", "points": 0.5 }
+      ],
+      "answers": [
+        { "questionId": 1, "answer": "0" },
+        { "questionId": 2, "answer": "4" }
+      ],
+      "score": 1.0,
+      "status": "Completed",
+      "takenDate": "2025-09-28"
+    },
+    {
+      "id": 9002,
+      "jobId": 2,
+      "userId": 102,
+      "questions": [
+        {
+          "id": 1,
+          "question": "What is the primary use of Photoshop?",
+          "points": 1
+        },
+        {
+          "id": 2,
+          "question": "Name one vector-based design software.",
+          "points": 1
+        }
+      ],
+      "answers": [],
+      "score": 0,
+      "status": "Not Started",
+      "takenDate": null
+    }
+  ]
+}

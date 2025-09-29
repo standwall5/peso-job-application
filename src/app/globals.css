@@ -1,0 +1,215 @@
+@import "tailwindcss";
+
+:root {
+  --foreground: #171717;
+  --text: #040316;
+  --background: #fbfbfe;
+  --primary: #4238ff;
+  --secondary: #e6d1ff;
+  --accent: #ffa8a8;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  /* background: var(--background); */
+  /* background-image: url("https://i.imgur.com/as1eDDA.png"); */
+  background-image: url("../../public/assets/paranaqueCityHall.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+
+  color: var(--text);
+  font-family: Poppins, sans-serif;
+}
+
+.overlay {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(
+    rgba(255, 255, 255, 0.85),
+    rgba(255, 255, 255, 0.85)
+  );
+}
+
+/* Navigation Bar */
+
+nav {
+  font-family: "Poppins", sans-serif;
+  display: fixed;
+  /* margin-top: 2rem; */
+  height: auto;
+  width: 100%;
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
+  padding: 1rem 3rem 0;
+  border-bottom: 1px solid black;
+}
+
+.nav-container ul {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.nav-img-container img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.nav-img-container {
+  aspect-ratio: 2/1;
+  width: 90px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Content/Main */
+
+.content {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Second Navbar Version */
+
+.nav-container-simple ul {
+  display: flex;
+  align-items: center;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid black;
+}
+
+.nav-container-simple ul li:first-child {
+  margin-right: auto;
+}
+
+.nav-container-simple ul li {
+  padding: 0 1rem;
+}
+
+.nav-container-simple ul li a {
+  text-decoration: none;
+  color: black;
+  transition: 0.2s ease;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.nav-container-simple img {
+  width: 90px;
+}
+
+/* Footer */
+
+/* Add to your global CSS or a module */
+.page-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+footer {
+  border-top: 1px solid black;
+
+  margin-top: auto;
+  padding: 1rem;
+  text-align: center;
+
+  width: 100%;
+}
+
+footer ul {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+footer img {
+  width: 50px;
+}
+
+/* Navigation Button */
+
+.nav-button-default {
+  border: none;
+  background: none;
+  padding: 0.5rem 1rem;
+  color: black;
+  transition: 0.2s;
+  border-bottom: 1px solid #305b8100;
+}
+
+.nav-button-default:hover {
+  color: #305b81;
+  border-bottom: 1px solid #305b81;
+}
+
+.nav-button-active {
+  padding: 0.5rem 1rem;
+  color: var(--text);
+  background-color: #edfcff;
+  transition: 0.2s;
+  border-radius: 0.2rem;
+  font-weight: bold;
+  border: 1px solid rgb(95, 95, 95);
+}
+
+.nav-button-active:hover {
+  color: black;
+  background-color: #87aece;
+}
+
+.custom-button {
+  padding: 0.5rem 2rem;
+  color: white;
+  background-color: #7adaef;
+  transition: 0.2s;
+  border-radius: 0.5rem;
+  border: 1px solid black;
+  align-self: center; /* or center, or flex-end as needed */
+  flex: none;
+}
+
+.custom-button:hover {
+  color: black;
+  background-color: #448bc5;
+}
+
+.box {
+  background-color: #edfcff;
+  border-radius: 1rem;
+  border: 1px solid black;
+}
