@@ -27,28 +27,41 @@ const Page = () => {
 
   return (
     <section className={styles.section}>
+      <header className={styles.welcome}>
+        <h2>Welcome to PESO Paranaque</h2>
+        <div className={styles.search}>
+          <input
+            type="text"
+            placeholder="Search jobs here..."
+            value={search ?? ""}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+      </header>
       <div className={styles.jobList}>
         {filteredJobs.length > 0 ? (
           filteredJobs.map((job: any) => (
-            <div key={job.id} className={styles.jobCard}>
-              <div className="jobCompany">
-                {job.company?.logo && (
-                  <img
-                    src={job.company.logo}
-                    alt={job.company.name + " logo"}
-                    className={styles.companyLogo}
-                    style={{
-                      width: "48px",
-                      height: "48px",
-                      objectFit: "contain",
-                    }}
-                  />
-                )}
-                <span>{job.company?.name}</span>
+            <Link key={job.id} href={`/job-opportunities/${job.id}`}>
+              <div key={job.id} className={styles.jobCard}>
+                <div className={styles.jobCompany}>
+                  {job.company?.logo && (
+                    <img
+                      src={job.company.logo}
+                      alt={job.company.name + " logo"}
+                      className={styles.companyLogo}
+                      style={{
+                        width: "48px",
+                        height: "48px",
+                        objectFit: "contain",
+                      }}
+                    />
+                  )}
+                  <span>{job.company?.name}</span>
+                </div>
+                <h2>{job.title}</h2>
+                <p>{job.description}</p>
               </div>
-              <h2>{job.title}</h2>
-              <p>{job.description}</p>
-            </div>
+            </Link>
           ))
         ) : (
           <p>No jobs found.</p>

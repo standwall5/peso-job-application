@@ -1,11 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import styles from "./page.module.css";
+import styles from "../page.module.css";
 
 const Page = () => {
   const params = useParams();
-  const companyId = params.companyId || params.id; // depende sa folder name mo
+  const companyId = params.companyId || params.id;
 
   const [jobs, setJobs] = useState<any[]>([]);
   const [search, setSearch] = useState("");
@@ -44,8 +44,8 @@ const Page = () => {
                     alt={job.company.name + " logo"}
                     className={styles.companyLogo}
                     style={{
-                      width: "48px",
-                      height: "48px",
+                      width: "64px",
+                      height: "64px",
                       objectFit: "contain",
                     }}
                   />

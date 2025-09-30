@@ -5,6 +5,28 @@
   border-radius: 8px;
   background: #fff;
   aspect-ratio: 1/1;
+  display: flex;
+  /* justify-content: center; */
+  flex-direction: column;
+  /* align-items: center; */
+  text-align: center;
+  transition: 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* <-- add this line */
+}
+
+.jobCard:hover {
+  background-color: #e8faff;
+  border-bottom: 4px solid black;
+}
+
+.jobCompany {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.jobCompany img {
+  border-radius: 100%;
 }
 
 .section {
@@ -14,6 +36,11 @@
   justify-content: start;
   /* height: 80vh; */
   flex: 1;
+}
+
+.section a {
+  text-decoration: none;
+  color: black;
 }
 
 /* Header */
@@ -27,6 +54,8 @@
   background-color: #edfcff;
   padding: 3rem;
   border-radius: 0.5rem;
+  gap: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* <-- add this line */
 }
 
 .search input {
