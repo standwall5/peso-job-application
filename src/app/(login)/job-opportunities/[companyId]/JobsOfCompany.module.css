@@ -1,0 +1,63 @@
+/* JobsOfCompany.module.css */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  min-width: 60vw;
+  min-height: 80vh;
+  max-width: 60vw;
+  max-height: 80vh;
+  width: 60vw;
+  height: 80vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.applicationContainer {
+  display: flex;
+  height: 85%;
+  margin: 2rem;
+  gap: 2rem;
+}
+
+.applicationCompany {
+  align-self: center;
+  aspect-ratio: 1/1.5;
+  height: 80%;
+}
+
+.applicationDetails {
+  display: block;
+  justify-content: flex-start;
+}
+
+.applicationNav {
+  display: flex;
+  border-bottom: 1px solid grey;
+  gap: 2rem;
+  padding: 0;
+}
+
+.applicationNav li {
+  cursor: pointer;
+  padding: 0 1rem;
+}
+
+.applicationNav li.active {
+  border-bottom: 2px solid #305b81; /* or your accent color */
+  /* font-weight: bold; */
+  color: #305b81;
+}

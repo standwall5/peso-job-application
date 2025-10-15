@@ -1,15 +1,18 @@
 @import "tailwindcss";
 
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 :root {
   --foreground: #171717;
   --text: #040316;
   --background: #fbfbfe;
-  --primary: #4238ff;
-  --secondary: #e6d1ff;
-  --accent: #ffa8a8;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  --highlight: #eaffee;
+  --accent: #80e7b1;
+  --button: #7adaef;
 }
 
 @theme inline {
