@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import styles from "./SignUp.module.css";
 import { signup } from "@/lib/auth-actions";
-import { reset } from "ol/transform";
 
 const SignUpForm = () => {
   const [district, setDistrict] = useState("District 1");
