@@ -6,9 +6,24 @@ import { createClient } from "@/utils/supabase/client";
 import BlocksWave from "@/components/BlocksWave";
 const supabase = createClient();
 
+interface Job {
+  id: number;
+  company_id: number;
+  manpower_needed: number;
+}
+
+interface Company {
+  id: number;
+  name: string;
+  logo: string | null;
+  industry: string;
+  location: string;
+  description: string;
+}
+
 const PublicCompanyList = () => {
-  const [jobs, setJobs] = useState<any[]>([]);
-  const [companies, setCompanies] = useState<any[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -32,11 +47,11 @@ const PublicCompanyList = () => {
   }, []);
 
   const getJobCount = (companyId: number) =>
-    jobs.filter((job: any) => job.company_id === companyId).length;
+    jobs.filter((job) => job.company_id === companyId).length;
   const getManpowerCount = (companyId: number) =>
     jobs
-      .filter((job: any) => job.company_id === companyId)
-      .reduce((sum: number, job: any) => sum + (job.manpower_needed || 0), 0);
+      .filter((job) => job.company_id === companyId)
+      .reduce((sum, job) => sum + (job.manpower_needed || 0), 0);
 
   const filteredCompanies = companies.filter(
     (company) =>
@@ -76,7 +91,7 @@ const PublicCompanyList = () => {
         {loading ? (
           <BlocksWave />
         ) : filteredCompanies.length > 0 ? (
-          filteredCompanies.map((company: any) => (
+          filteredCompanies.map((company) => (
             <Link key={company.id} href={`/job-opportunities/${company.id}`}>
               <div key={company.id} className={styles.jobCard}>
                 <div className={styles.jobCompany}>

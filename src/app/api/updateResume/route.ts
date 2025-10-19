@@ -26,7 +26,7 @@ export async function POST(req: Request) {
   const body = await req.json();
 
   // 1. Update applicants table for personal info
-  const applicantUpdateFields: Record<string, any> = {};
+  const applicantUpdateFields: Record<string, string | null> = {};
   if (body.name !== undefined) applicantUpdateFields.name = body.name;
   if (body.address !== undefined) applicantUpdateFields.address = body.address;
   if (body.district !== undefined)

@@ -77,10 +77,23 @@ const SimpleNavBar = (props: { pathname: string }) => {
   );
 };
 
+interface Job {
+  id: number;
+  company_id: number;
+  title: string;
+  description: string;
+}
+
+interface Company {
+  id: number;
+  name: string;
+  logo: string | null;
+}
+
 const PrivateNavBar = (props: { pathname: string }) => {
-  const [companies, setCompanies] = useState<any[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [userLoggedIn, setUserLoggedIn] = useState();
-  const [jobs, setJobs] = useState<any[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
   const [search, setSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotificationsDropdown, setShowNotificationsDropdown] =
@@ -135,7 +148,7 @@ const PrivateNavBar = (props: { pathname: string }) => {
   }, []);
 
   const searchResults = jobs.filter(
-    (job: any) =>
+    (job) =>
       job.title.toLowerCase().includes(search.toLowerCase()) ||
       job.description.toLowerCase().includes(search.toLowerCase())
   );
@@ -160,7 +173,7 @@ const PrivateNavBar = (props: { pathname: string }) => {
                   setShowDropdown(
                     value !== "" &&
                       jobs.some(
-                        (job: any) =>
+                        (job) =>
                           job.title
                             .toLowerCase()
                             .includes(value.toLowerCase()) ||
@@ -198,7 +211,7 @@ const PrivateNavBar = (props: { pathname: string }) => {
                 <div
                   className={`${styles.searchResultContainer} ${styles.searchDropdown} ${styles.dropdownContent}`}
                 >
-                  {searchResults.map((job: any) => (
+                  {searchResults.map((job) => (
                     <div key={job.id} className={styles.searchResultContent}>
                       {job.title}
                     </div>

@@ -5,9 +5,24 @@ import privateStyles from "@app/job-opportunities/components/PrivateCompanyList.
 import Link from "next/link";
 import BlocksWave from "@/components/BlocksWave";
 
+interface Job {
+  id: number;
+  company_id: number;
+  manpower_needed: number;
+}
+
+interface Company {
+  id: number;
+  name: string;
+  logo: string | null;
+  description: string;
+  industry: string;
+  location: string;
+}
+
 const PrivateCompanyList = () => {
-  const [jobs, setJobs] = useState<any[]>([]);
-  const [companies, setCompanies] = useState<any[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,11 +45,11 @@ const PrivateCompanyList = () => {
   }, []);
 
   const getJobCount = (companyId: number) =>
-    jobs.filter((job: any) => job.company_id === companyId).length;
+    jobs.filter((job) => job.company_id === companyId).length;
   const getManpowerCount = (companyId: number) =>
     jobs
-      .filter((job: any) => job.company_id === companyId)
-      .reduce((sum: number, job: any) => sum + (job.manpower_needed || 0), 0);
+      .filter((job) => job.company_id === companyId)
+      .reduce((sum, job) => sum + (job.manpower_needed || 0), 0);
 
   return (
     <section className={styles.section}>
@@ -55,7 +70,7 @@ const PrivateCompanyList = () => {
         {loading ? (
           <BlocksWave />
         ) : companies.length > 0 ? (
-          companies.map((company: any) => (
+          companies.map((company) => (
             <Link key={company.id} href={`/job-opportunities/${company.id}`}>
               <div key={company.id} className={styles.jobCard}>
                 <div className={styles.jobCompany}>

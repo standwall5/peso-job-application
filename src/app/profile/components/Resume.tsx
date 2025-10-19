@@ -1,6 +1,37 @@
 import React, { forwardRef } from "react";
 
-const Resume = forwardRef(
+interface Education {
+  school?: string;
+  degree?: string;
+  location?: string;
+  start_date?: string;
+  end_date?: string;
+}
+
+interface WorkExperience {
+  company: string;
+  position: string;
+  location: string;
+  start_date: string;
+  end_date: string;
+}
+
+interface ResumeProps {
+  profilePicUrl: string | null;
+  name?: string;
+  birthDate?: string;
+  address?: string;
+  barangay?: string;
+  district?: string;
+  email?: string;
+  phone?: string;
+  education?: Education;
+  skills?: string[];
+  workExperiences?: WorkExperience[];
+  profileIntroduction?: string;
+}
+
+const Resume = forwardRef<HTMLDivElement, ResumeProps>(
   (
     {
       profilePicUrl,
@@ -102,14 +133,14 @@ const Resume = forwardRef(
           >
             <div>
               <div style={{ fontWeight: 700 }}>
-                <strong>{education.school}</strong>
+                <strong>{education?.school}</strong>
               </div>
-              <div>{education.degree}</div>
+              <div>{education?.degree}</div>
             </div>
             <div style={{ textAlign: "right" }}>
-              <div>{education.location}</div>
+              <div>{education?.location}</div>
               <div>
-                {education.start_date} - {education.end_date}
+                {education?.start_date} - {education?.end_date}
               </div>
             </div>
           </div>
@@ -122,7 +153,7 @@ const Resume = forwardRef(
             Skills & Interests
           </h6>
           <ul style={{ textAlign: "left", listStyle: "none", padding: 0 }}>
-            {(skills ?? []).map((skill, idx) => (
+            {(skills ?? []).map((skill: string, idx: number) => (
               <li key={idx}>{skill}</li>
             ))}
           </ul>
@@ -135,7 +166,7 @@ const Resume = forwardRef(
             Work Experiences
           </h6>
           {(Array.isArray(workExperiences) ? workExperiences : []).map(
-            (work, idx) => (
+            (work: WorkExperience, idx: number) => (
               <div
                 style={{
                   display: "flex",
@@ -176,5 +207,7 @@ const Resume = forwardRef(
     );
   }
 );
+
+Resume.displayName = "Resume";
 
 export default Resume;

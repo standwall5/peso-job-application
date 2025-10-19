@@ -7,11 +7,30 @@ import { createClient } from "@/utils/supabase/client";
 
 // TODO: implement login redirect when clicking apply; remove modal
 
+interface Job {
+  id: number;
+  title: string;
+  description: string;
+  place_of_assignment: string;
+  sex: string;
+  education: string;
+  eligibility: string;
+  posted_date: string;
+  company?: {
+    name: string;
+    logo: string | null;
+  };
+  companies?: {
+    name: string;
+    logo: string | null;
+  };
+}
+
 const PublicJobList = () => {
   const params = useParams();
   const companyId = params.companyId || params.id;
 
-  const [jobs, setJobs] = useState<any[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
   const [search, setSearch] = useState("");
   const [loginModal, setLoginModal] = useState(false);
   // const [loginModal, setLoginModal] = useState<any | null>(null);
@@ -67,7 +86,7 @@ const PublicJobList = () => {
     <section className={styles.section}>
       <div className={styles.jobList}>
         {filteredJobs.length > 0 ? (
-          filteredJobs.map((job: any) => (
+          filteredJobs.map((job) => (
             <div
               key={job.id}
               className={`${styles.jobCard} ${jobStyle.jobSpecificCard}`}

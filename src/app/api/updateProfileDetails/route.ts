@@ -26,7 +26,7 @@ export async function POST(req: Request) {
   const body = await req.json();
 
   // Only update allowed fields from the form
-  const updateData: Record<string, any> = {};
+  const updateData: Record<string, string> = {};
   if (typeof body.preferred_poa === "string")
     updateData.preferred_poa = body.preferred_poa;
   if (typeof body.applicant_type === "string")

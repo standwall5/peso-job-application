@@ -9,7 +9,53 @@ import BlocksWave from "@/components/BlocksWave";
 import Link from "next/link";
 import Toast from "@/components/toast/Toast";
 
-function getCroppedImg(imageSrc: string, pixelCrop: any): Promise<Blob> {
+interface WorkExperience {
+  company: string;
+  position: string;
+  location: string;
+  start_date: string;
+  end_date: string;
+}
+
+interface Education {
+  school: string;
+  degree: string;
+  attainment: string;
+  location: string;
+  start_date: string;
+  end_date: string;
+}
+
+interface Resume {
+  education: Education;
+  skills: string[];
+  work_experiences: WorkExperience[] | WorkExperience;
+  profile_introduction: string;
+}
+
+interface User {
+  name: string;
+  birth_date: string;
+  age: number;
+  address: string;
+  sex: string;
+  barangay: string;
+  district: string;
+  email: string;
+  phone: string;
+  profile_pic_url: string | null;
+  preferred_poa: string;
+  applicant_type: string;
+}
+
+interface PixelCrop {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+function getCroppedImg(imageSrc: string, pixelCrop: PixelCrop): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const image = new window.Image();
     image.src = imageSrc;
@@ -40,8 +86,8 @@ function getCroppedImg(imageSrc: string, pixelCrop: any): Promise<Blob> {
 }
 
 const Profile = () => {
-  const [user, setUser] = useState<any>(null);
-  const [resume, setResume] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [resume, setResume] = useState<Resume | null>(null);
   const [showEditResume, setShowEditResume] = useState(false);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -65,8 +111,10 @@ const Profile = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
-  const [workExperiences, setWorkExperiences] = useState<any>(null);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<PixelCrop | null>(
+    null
+  );
+  const [workExperiences, setWorkExperiences] = useState<WorkExperience[]>([]);
 
   // Resume Edit
   const [editName, setEditName] = useState(user?.name ?? "");
@@ -169,7 +217,15 @@ const Profile = () => {
         setWorkExperiences([resume.work_experiences]); // wrap single object in array
       }
     } else {
-      setWorkExperiences([{ company: "", start_date: "", end_date: "" }]);
+      setWorkExperiences([
+        {
+          company: "",
+          position: "",
+          location: "",
+          start_date: "",
+          end_date: "",
+        },
+      ]);
     }
   }, [resume]);
 
@@ -253,7 +309,7 @@ const Profile = () => {
     multiple: false,
   });
 
-  const onCropComplete = useCallback((_: any, area: any) => {
+  const onCropComplete = useCallback((_: unknown, area: PixelCrop) => {
     setCroppedAreaPixels(area);
   }, []);
 
@@ -276,10 +332,14 @@ const Profile = () => {
     const result = await res.json();
     if (result.url) {
       setDateNow(Date.now());
-      setUser((prev: any) => ({
-        ...prev,
-        profile_pic_url: result.url + "?t=" + dateNow,
-      }));
+      setUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              profile_pic_url: result.url + "?t=" + dateNow,
+            }
+          : null
+      );
     }
     setUploading(false);
     setShowModal(false);
@@ -853,114 +913,123 @@ const Profile = () => {
                     </div>
                     <div className={styles.workExperiencesRow}>
                       <label>Work Experience (Optional)</label>
-                      {workExperiences.map((exp, idx) => (
-                        <div
-                          className={styles.rowInput}
-                          key={idx}
-                          style={{
-                            marginBottom: "1rem",
-                            border: "1px solid black",
-                            backgroundColor: "white",
-                            padding: "1rem",
-                            borderRadius: "6px",
-                          }}
-                        >
-                          <div>
-                            <label htmlFor={`company-${idx}`}>Company</label>
-                            <input
-                              id={`company-${idx}`}
-                              type="text"
-                              name={`company-${idx}`}
-                              value={exp.company ?? ""}
-                              placeholder="Company"
-                              onChange={(e) => {
-                                const newArr = [...workExperiences];
-                                newArr[idx].company = e.target.value;
-                                setWorkExperiences(newArr);
-                              }}
-                            />
+                      {workExperiences.map(
+                        (exp: WorkExperience, idx: number) => (
+                          <div
+                            className={styles.rowInput}
+                            key={idx}
+                            style={{
+                              marginBottom: "1rem",
+                              border: "1px solid black",
+                              backgroundColor: "white",
+                              padding: "1rem",
+                              borderRadius: "6px",
+                            }}
+                          >
+                            <div>
+                              <label htmlFor={`company-${idx}`}>Company</label>
+                              <input
+                                id={`company-${idx}`}
+                                type="text"
+                                name={`company-${idx}`}
+                                value={exp.company ?? ""}
+                                placeholder="Company"
+                                onChange={(e) => {
+                                  const newArr = [...workExperiences];
+                                  newArr[idx].company = e.target.value;
+                                  setWorkExperiences(newArr);
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor={`position-${idx}`}>
+                                Position
+                              </label>
+                              <input
+                                id={`position-${idx}`}
+                                type="text"
+                                name={`position-${idx}`}
+                                value={exp.position ?? ""}
+                                placeholder="Position"
+                                onChange={(e) => {
+                                  const newArr = [...workExperiences];
+                                  newArr[idx].position = e.target.value;
+                                  setWorkExperiences(newArr);
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor={`location-${idx}`}>
+                                Location
+                              </label>
+                              <input
+                                id={`location-${idx}`}
+                                type="text"
+                                name={`location-${idx}`}
+                                value={exp.location ?? ""}
+                                placeholder="Location"
+                                onChange={(e) => {
+                                  const newArr = [...workExperiences];
+                                  newArr[idx].location = e.target.value;
+                                  setWorkExperiences(newArr);
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor={`startDate-${idx}`}>
+                                Start Date
+                              </label>
+                              <input
+                                id={`startDate-${idx}`}
+                                type="number"
+                                min="1800"
+                                max="2099"
+                                name={`startDate-${idx}`}
+                                value={exp.start_date ?? ""}
+                                placeholder="Start Date"
+                                onChange={(e) => {
+                                  const newArr = [...workExperiences];
+                                  newArr[idx].start_date = e.target.value;
+                                  setWorkExperiences(newArr);
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor={`endDate-${idx}`}>End Date</label>
+                              <input
+                                id={`endDate-${idx}`}
+                                type="number"
+                                min="1800"
+                                max="2099"
+                                name={`endDate-${idx}`}
+                                value={exp.end_date ?? ""}
+                                placeholder="End Date"
+                                onChange={(e) => {
+                                  const newArr = [...workExperiences];
+                                  newArr[idx].end_date = e.target.value;
+                                  setWorkExperiences(newArr);
+                                }}
+                              />
+                            </div>
+                            {workExperiences.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setWorkExperiences(
+                                    workExperiences.filter(
+                                      (_: WorkExperience, i: number) =>
+                                        i !== idx
+                                    )
+                                  )
+                                }
+                                style={{ marginTop: "1rem" }}
+                              >
+                                Remove
+                              </button>
+                            )}
                           </div>
-                          <div>
-                            <label htmlFor={`position-${idx}`}>Position</label>
-                            <input
-                              id={`position-${idx}`}
-                              type="text"
-                              name={`position-${idx}`}
-                              value={exp.position ?? ""}
-                              placeholder="Position"
-                              onChange={(e) => {
-                                const newArr = [...workExperiences];
-                                newArr[idx].position = e.target.value;
-                                setWorkExperiences(newArr);
-                              }}
-                            />
-                          </div>
-                          <div>
-                            <label htmlFor={`location-${idx}`}>Location</label>
-                            <input
-                              id={`location-${idx}`}
-                              type="text"
-                              name={`location-${idx}`}
-                              value={exp.location ?? ""}
-                              placeholder="Location"
-                              onChange={(e) => {
-                                const newArr = [...workExperiences];
-                                newArr[idx].location = e.target.value;
-                                setWorkExperiences(newArr);
-                              }}
-                            />
-                          </div>
-                          <div>
-                            <label htmlFor={`startDate-${idx}`}>
-                              Start Date
-                            </label>
-                            <input
-                              id={`startDate-${idx}`}
-                              type="number"
-                              min="1800"
-                              max="2099"
-                              name={`startDate-${idx}`}
-                              value={exp.start_date ?? ""}
-                              placeholder="Start Date"
-                              onChange={(e) => {
-                                const newArr = [...workExperiences];
-                                newArr[idx].start_date = e.target.value;
-                                setWorkExperiences(newArr);
-                              }}
-                            />
-                          </div>
-                          <div>
-                            <label htmlFor={`endDate-${idx}`}>End Date</label>
-                            <input
-                              id={`endDate-${idx}`}
-                              type="number"
-                              min="1800"
-                              max="2099"
-                              name={`endDate-${idx}`}
-                              value={exp.end_date ?? ""}
-                              placeholder="End Date"
-                              onChange={(e) => {
-                                const newArr = [...workExperiences];
-                                newArr[idx].end_date = e.target.value;
-                                setWorkExperiences(newArr);
-                              }}
-                            />
-                          </div>
-                          {workExperiences.length > 1 && (
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setWorkExperiences(
-                                  workExperiences.filter((_, i) => i !== idx)
-                                )
-                              }
-                              style={{ marginTop: "1rem" }}
-                            >
-                              Remove
-                            </button>
-                          )}
-                        </div>
-                      ))}
+                        )
+                      )}
                       <button
                         type="button"
                         onClick={() =>
@@ -985,13 +1054,17 @@ const Profile = () => {
                         Skills<span style={{ color: "red" }}>*</span>
                       </label>
                       <div className={`${styles.row} ${styles.skillsRow}`}>
-                        {skills.map((skill, idx) => (
+                        {skills.map((skill: string, idx: number) => (
                           <span key={idx} style={{ marginRight: "-1rem" }}>
                             {skill}
                             <button
                               type="button"
                               onClick={() =>
-                                setSkills(skills.filter((_, i) => i !== idx))
+                                setSkills(
+                                  skills.filter(
+                                    (_: string, i: number) => i !== idx
+                                  )
+                                )
                               }
                               style={{ marginLeft: 4 }}
                             >
@@ -1087,7 +1160,13 @@ const Profile = () => {
                       end_date: resume?.education?.end_date,
                     }}
                     skills={resume?.skills}
-                    workExperiences={resume?.work_experiences}
+                    workExperiences={
+                      Array.isArray(resume?.work_experiences)
+                        ? resume.work_experiences
+                        : resume?.work_experiences
+                        ? [resume.work_experiences]
+                        : []
+                    }
                     profileIntroduction={resume?.profile_introduction}
                   />
                 </div>
