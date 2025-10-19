@@ -13,6 +13,9 @@
   --highlight: #eaffee;
   --accent: #80e7b1;
   --button: #7adaef;
+  --green-button: #80e7b1;
+  --warning-bg: #fffdf1;
+  --nav: #1278d4;
 }
 
 @theme inline {
@@ -30,15 +33,26 @@
 }
 
 body {
-  /* background: var(--background); */
-  /* background-image: url("https://i.imgur.com/as1eDDA.png"); */
-  background-image: url("../../public/assets/paranaqueCityHall.jpg");
+  color: var(--text);
+  font-family: Poppins, sans-serif;
+}
+
+.logged-in-bg {
+  /* background-image: url("https://static.wikia.nocookie.net/nickelodeon/images/1/14/ConchStreetStock.png"); */
+  background-color: white;
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
+}
 
-  color: var(--text);
-  font-family: Poppins, sans-serif;
+.public-bg {
+  /* background: var(--background); */
+  /* background-image: url("https://i.imgur.com/as1eDDA.png"); */
+  background-image: url("/assets/paranaqueCityHall.jpg");
+  /* background-image: url("https://static.wikia.nocookie.net/nickelodeon/images/1/14/ConchStreetStock.png"); */
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
 }
 
 .overlay {
@@ -215,4 +229,55 @@ footer img {
   background-color: #edfcff;
   border-radius: 1rem;
   border: 1px solid black;
+}
+
+.green-button {
+  background-color: var(--green-button);
+  width: max-content;
+  padding: 0.5rem 2rem;
+  text-align: center;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  color: white;
+  text-transform: uppercase;
+  transition: 0.25s;
+}
+
+.green-button:hover {
+  background-color: #5fcaaf;
+}
+
+.red-button {
+  background-color: #ff556e;
+  width: max-content;
+
+  padding: 0.5rem 2rem;
+  text-align: center;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  color: white;
+  text-transform: uppercase;
+  transition: 0.25s;
+}
+
+.red-button:hover {
+  background-color: #d14473;
+}
+
+.grey-button {
+  text-decoration: none;
+  background-color: #808285;
+  width: max-content;
+
+  padding: 0.5rem 2rem;
+  text-align: center;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  color: white;
+  text-transform: uppercase;
+  transition: 0.25s;
+}
+
+.grey-button:hover {
+  background-color: #65696e;
 }

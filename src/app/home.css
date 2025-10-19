@@ -13,7 +13,7 @@ section {
   gap: 5rem;
   width: 65rem;
   height: 28rem;
-  background-color: #edfcff;
+  background-color: var(--highlight);
   border-radius: 1rem;
   border: 1px solid black;
 }

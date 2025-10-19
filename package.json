@@ -9,12 +9,17 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.75.0",
     "bcrypt": "^6.0.0",
     "bootstrap": "^5.3.8",
     "cloudinary": "^2.7.0",
+    "html2pdf.js": "^0.12.1",
     "next": "15.5.4",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "react-dropzone": "^14.3.8",
+    "react-easy-crop": "^5.5.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

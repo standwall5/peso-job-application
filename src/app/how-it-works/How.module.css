@@ -1,0 +1,53 @@
+.howContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  /* background-color: black; */
+  width: 80vw;
+  height: 35vw;
+  margin: 2rem 0;
+}
+
+.coachingContainer {
+  background-color: #fff;
+  width: 30%;
+  height: 100%;
+}
+
+.coachingContent {
+  height: 100%;
+  width: 100%;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tutorialContainer {
+  background-color: var(--highlight);
+  width: 70%;
+  height: 100%;
+}
+
+.tutorialContent {
+  height: 80%;
+  width: 80%;
+  margin-top: 2rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: grey;
+}
+
+.coachingContainer,
+.tutorialContainer {
+  border: 1px solid black;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  text-transform: uppercase;
+}

@@ -1,0 +1,91 @@
+.signUpContainer {
+  width: 80vw;
+  height: 70vh;
+  background-color: var(--highlight);
+  border: 1px solid black;
+  margin: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 0.5rem;
+}
+
+.signUpContent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 2rem;
+  gap: 2rem;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.signUpContent h2 {
+  font-weight: bold;
+}
+
+.signUpForm {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  height: 80%;
+  width: 80%;
+  gap: 1rem;
+  /* grid-template-rows: auto auto auto auto auto auto auto; */
+}
+
+.signUpForm input,
+.signUpForm select {
+  background-color: #fff;
+  border: 1px solid black;
+  padding: 0 1rem;
+  text-transform: uppercase;
+  outline: none;
+}
+.fullRow {
+  grid-column: span 4;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.fullRow > * {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+}
+
+.signUpButtonContainer {
+  grid-column: span 4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3rem;
+  /* flex-grow: 0; */
+  /* width: 100%; */
+}
+
+.passwordContainer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.passwordContainer input {
+  width: 100%;
+  height: 100%;
+  /* padding-right: 2.5rem; space for the eye icon */
+}
+
+.passwordContainer svg {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #888;
+  z-index: 2;
+  user-select: none;
+}

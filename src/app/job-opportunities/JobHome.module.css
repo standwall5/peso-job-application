@@ -1,0 +1,119 @@
+.jobCard {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  background: #fff;
+  aspect-ratio: 1/1;
+  display: flex;
+  /* justify-content: center; */
+  flex-direction: column;
+  /* align-items: center; */
+  text-align: center;
+  transition: 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* <-- add this line */
+  height: 20rem;
+  gap: 2rem;
+  cursor: pointer;
+}
+
+.jobCard:hover {
+  background-color: var(--highlight);
+  border-bottom: 4px solid black;
+}
+
+.jobStats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.manpowerCount h3 {
+  color: rgb(74, 207, 74);
+}
+
+.manpowerCount,
+.jobStats {
+  width: 8rem;
+}
+
+.jobCompany {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.companyLogoContainer img {
+  border-radius: 100%;
+  width: 8rem;
+  aspect-ratio: 1/1;
+}
+
+.companyLogoContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+  justify-content: start;
+  /* height: 80vh; */
+  flex: 1;
+}
+
+.section a {
+  text-decoration: none;
+  color: black;
+}
+
+/* Header */
+
+.welcomeSearch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  background-color: var(--highlight);
+  padding: 3rem;
+  border-radius: 0.5rem;
+  gap: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* <-- add this line */
+}
+
+.search input {
+  width: 25rem;
+  background-color: #ffffff;
+  padding: 0.5rem 1rem;
+  /* border-radius: 4rem; */
+  border: 1px solid black;
+  /* border-bottom: 4px solid rgb(61, 61, 61); */
+  outline: none;
+  position: relative;
+  font-weight: bold;
+}
+
+.search input:focus {
+  outline: none;
+}
+
+.search input::placeholder {
+  color: black;
+  font-weight: bold;
+}
+
+/* Job List/Grid */
+
+.jobList {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 5 columns */
+  gap: 2rem;
+  width: 100%;
+  margin-top: 2rem;
+}
