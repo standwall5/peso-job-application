@@ -20,10 +20,19 @@ interface Company {
   location: string;
 }
 
-const PrivateCompanyList = () => {
+interface PublicCompanyListProps {
+  searchParent: string;
+  onSearchChange?: (value: string) => void;
+}
+
+const PrivateCompanyList = ({
+  searchParent,
+  onSearchChange,
+}: PublicCompanyListProps) => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState(searchParent || "");
 
   useEffect(() => {
     async function fetchAll() {
@@ -50,6 +59,14 @@ const PrivateCompanyList = () => {
     jobs
       .filter((job) => job.company_id === companyId)
       .reduce((sum, job) => sum + (job.manpower_needed || 0), 0);
+
+  const filteredCompanies = companies.filter(
+    (company) =>
+      company.name.toLowerCase().includes(search.toLowerCase()) ||
+      company.industry.toLowerCase().includes(search.toLowerCase()) ||
+      company.location.toLowerCase().includes(search.toLowerCase()) ||
+      company.description.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <section className={styles.section}>

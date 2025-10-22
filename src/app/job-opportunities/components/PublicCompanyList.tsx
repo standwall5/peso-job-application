@@ -21,10 +21,18 @@ interface Company {
   description: string;
 }
 
-const PublicCompanyList = () => {
+interface PublicCompanyListProps {
+  searchParent: string;
+  onSearchChange?: (value: string) => void;
+}
+
+const PublicCompanyList = ({
+  searchParent,
+  onSearchChange,
+}: PublicCompanyListProps) => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(searchParent || "");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

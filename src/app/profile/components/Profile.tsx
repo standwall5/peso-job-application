@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import styles from "./Profile.module.css";
 import Cropper from "react-easy-crop";
 import { useDropzone } from "react-dropzone";
+
 import Resume from "./Resume";
 import BlocksWave from "@/components/BlocksWave";
 import Link from "next/link";
@@ -26,7 +27,7 @@ interface Education {
   end_date: string;
 }
 
-interface Resume {
+interface ResumeData {
   education: Education;
   skills: string[];
   work_experiences: WorkExperience[] | WorkExperience;
@@ -87,7 +88,7 @@ function getCroppedImg(imageSrc: string, pixelCrop: PixelCrop): Promise<Blob> {
 
 const Profile = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [resume, setResume] = useState<Resume | null>(null);
+  const [resume, setResume] = useState<ResumeData | null>(null);
   const [showEditResume, setShowEditResume] = useState(false);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -144,43 +145,62 @@ const Profile = () => {
   // Showing edit states
   const [showEdit, setShowEdit] = useState(false);
 
+  // Fetch user + resume
   useEffect(() => {
     async function fetchAll() {
       try {
-        const userResponse = await fetch("/api/getUser");
-        const resumeResponse = await fetch("/api/getResume");
-        const userData = await userResponse.json();
-        const resumeData = await resumeResponse.json();
-        setUser(userData || null);
-        setResume(resumeData || null);
+        const [userResponse, resumeResponse] = await Promise.all([
+          fetch("/api/getUser"),
+          fetch("/api/getResume"),
+        ]);
+
+        let userData: User | null = null;
+        if (userResponse.ok) {
+          const json = await userResponse.json();
+          userData =
+            json && Object.keys(json).length > 0 ? (json as User) : null;
+        }
+
+        let resumeData: ResumeData | null = null;
+        if (resumeResponse.ok) {
+          const json = await resumeResponse.json();
+          resumeData =
+            json && Object.keys(json).length > 0 ? (json as ResumeData) : null;
+        } // non-OK (e.g. 404) => keep as null
+
+        setUser(userData);
+        setResume(resumeData);
       } catch (err) {
         console.error("Fetch failed:", err);
         setUser(null);
         setResume(null);
       } finally {
         setLoading(false);
-        console.log(resume);
       }
     }
     fetchAll();
   }, []);
 
+  // Refresh user (toast success)
   useEffect(() => {
     if (showEditSuccess) {
-      async function fetchAll() {
+      async function refreshUser() {
         try {
-          const userResponse = await fetch("/api/getUser");
-          const userData = await userResponse.json();
-          setUser(userData || null);
+          const res = await fetch("/api/getUser");
+          if (res.ok) {
+            const json = await res.json();
+            setUser(json || null);
+          }
         } catch (err) {
           console.error("Fetch failed:", err);
           setUser(null);
         }
       }
-      fetchAll();
+      refreshUser();
     }
   }, [showEditSuccess]);
 
+  // Sync basic edit fields when user/resume or when opening edit
   useEffect(() => {
     setEditPreferredPoa(user?.preferred_poa ?? "");
     setEditApplicantType(user?.applicant_type ?? "");
@@ -197,24 +217,20 @@ const Profile = () => {
       setEditEducationAttainment(resume?.education?.attainment ?? "");
       setEditDegree(resume?.education?.degree ?? "");
       setEditIntroduction(resume?.profile_introduction ?? "");
-      // ...other fields
+      setEditSchool(resume?.education?.school ?? "");
+      setEditEducationLocation(resume?.education?.location ?? "");
+      setEditEducationStartDate(resume?.education?.start_date ?? "");
+      setEditEducationEndDate(resume?.education?.end_date ?? "");
     }
   }, [showEditResume, user, resume]);
 
-  useEffect(() => {
-    setEditSchool(resume?.education?.school ?? "");
-    setEditEducationLocation(resume?.education?.location ?? "");
-    setEditEducationStartDate(resume?.education?.start_date ?? "");
-    setEditEducationEndDate(resume?.education?.end_date ?? "");
-  }, [resume, showEditResume]);
-
-  // When initializing or syncing workExperiences state:
+  // Work experiences init/sync
   useEffect(() => {
     if (resume?.work_experiences) {
       if (Array.isArray(resume.work_experiences)) {
         setWorkExperiences(resume.work_experiences);
       } else {
-        setWorkExperiences([resume.work_experiences]); // wrap single object in array
+        setWorkExperiences([resume.work_experiences]);
       }
     } else {
       setWorkExperiences([
@@ -229,6 +245,7 @@ const Profile = () => {
     }
   }, [resume]);
 
+  // Skills init/sync
   useEffect(() => {
     if (Array.isArray(resume?.skills)) {
       setSkills(resume.skills);
@@ -252,6 +269,7 @@ const Profile = () => {
         .save();
     }
   };
+
   const handleProfileDetailsSave = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget as HTMLFormElement);
@@ -287,15 +305,24 @@ const Profile = () => {
           start_date: editEducationStartDate,
           end_date: editEducationEndDate,
         },
-        skills: skills,
+        skills,
         work_experiences: workExperiences,
         profile_introduction: editIntroduction,
-        // ...other fields as needed
       }),
     });
+    // refetch the resume so preview shows up immediately
+    try {
+      const res = await fetch("/api/getResume");
+      if (res.ok) {
+        const json = await res.json();
+        setResume(
+          json && Object.keys(json).length > 0 ? (json as ResumeData) : null
+        );
+      }
+    } catch {}
+    setShowEditResume(false);
     setShowEditSuccess(true);
   };
-  // ...and so on for other fields
 
   // Dropzone for drag-and-drop or click-to-select
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -348,16 +375,17 @@ const Profile = () => {
     setZoom(1);
     setCroppedAreaPixels(null);
   };
+
+  // Toast auto-hide
   useEffect(() => {
     if (showEditSuccess) {
       const timer = setTimeout(() => setShowEditSuccess(false), 5000);
       return () => clearTimeout(timer);
     }
   }, [showEditSuccess]);
+
   if (loading) return <BlocksWave />;
   if (!user) return <div>No user found.</div>;
-
-  // Success Modal
 
   return (
     <>
@@ -384,13 +412,7 @@ const Profile = () => {
               minWidth: 340,
             }}
           >
-            <h3
-              style={{
-                textAlign: "center",
-              }}
-            >
-              Edit Profile Picture
-            </h3>
+            <h3 style={{ textAlign: "center" }}>Edit Profile Picture</h3>
             <div
               style={{
                 display: "flex",
@@ -398,7 +420,6 @@ const Profile = () => {
                 alignItems: "center",
               }}
             >
-              {/* Show current profile pic if no file selected */}
               {!selectedFile && (
                 <>
                   <img
@@ -435,7 +456,6 @@ const Profile = () => {
                 </>
               )}
 
-              {/* Show cropper if file selected */}
               {selectedFile && (
                 <>
                   <div
@@ -492,6 +512,7 @@ const Profile = () => {
         </div>
       )}
 
+      {/* Always mounted toast; slide via show prop */}
       <Toast
         show={showEditSuccess}
         onClose={() => setShowEditSuccess(false)}
@@ -640,9 +661,6 @@ const Profile = () => {
                 </span>
               </div>
             )}
-            {/* {showEditSuccess && (
-              
-            )} */}
 
             <button
               className="grey-button"
@@ -656,6 +674,7 @@ const Profile = () => {
             </button>
           </div>
         </div>
+
         <div className={styles.profileOptionsContainer}>
           <div className={styles.profileOptionsContent}>
             <ul className={styles.profileOptionsNav}>
@@ -676,10 +695,15 @@ const Profile = () => {
                 Applied Jobs
               </li>
             </ul>
-            {profileOptionsNav === "viewResume" &&
-              (editIntroduction === "" && showEditResume ? (
-                <>
-                  <form className={styles.editResume}>
+
+            {profileOptionsNav === "viewResume" && (
+              <>
+                {showEditResume ? (
+                  // Edit form takes priority even if resume is null
+                  <form
+                    className={styles.editResume}
+                    onSubmit={handleResumeSave}
+                  >
                     <h2>Personal Information</h2>
                     <div className={styles.row}>
                       <div>
@@ -689,7 +713,6 @@ const Profile = () => {
                           name="name"
                           value={editName}
                           placeholder="Full Name"
-                          // onChange={...}
                           onChange={(e) => setEditName(e.target.value)}
                         />
                       </div>
@@ -702,7 +725,6 @@ const Profile = () => {
                           name="birthDate"
                           value={editBirthDate}
                           placeholder="YYYY-MM-DD"
-                          // onChange={...}
                           onChange={(e) => setEditBirthDate(e.target.value)}
                           required
                         />
@@ -714,7 +736,6 @@ const Profile = () => {
                           name="age"
                           value={user?.age ?? ""}
                           placeholder="Age"
-                          // onChange={...}
                           disabled
                         />
                       </div>
@@ -745,7 +766,6 @@ const Profile = () => {
                           name="address"
                           value={editAddress}
                           placeholder="Address"
-                          // onChange={...}
                           onChange={(e) => setEditAddress(e.target.value)}
                         />
                       </div>
@@ -754,7 +774,6 @@ const Profile = () => {
                         <select
                           name="barangay"
                           value={editBarangay}
-                          // onChange={...}
                           onChange={(e) => setEditBarangay(e.target.value)}
                         >
                           <option value="" disabled>
@@ -796,7 +815,7 @@ const Profile = () => {
                           name="district"
                           value={editDistrict}
                           onChange={(e) => {
-                            setEditDistrict(e.target.value); // reset barangay when district changes
+                            setEditDistrict(e.target.value);
                           }}
                           required
                         >
@@ -808,6 +827,7 @@ const Profile = () => {
                         </select>
                       </div>
                     </div>
+
                     <div className={styles.educationRow}>
                       <label>Education</label>
                       <div
@@ -835,6 +855,17 @@ const Profile = () => {
                           />
                         </div>
                         <div>
+                          <label htmlFor="educationDegree">Degree</label>
+                          <input
+                            id="educationDegree"
+                            type="text"
+                            name="educationDegree"
+                            value={editDegree}
+                            placeholder="Degree"
+                            onChange={(e) => setEditDegree(e.target.value)}
+                          />
+                        </div>
+                        <div>
                           <label htmlFor="educationLocation">Location</label>
                           <input
                             id="educationLocation"
@@ -847,6 +878,7 @@ const Profile = () => {
                             }
                           />
                         </div>
+
                         <div className={styles.row}>
                           <div>
                             <label htmlFor="educationAttainment">
@@ -911,6 +943,7 @@ const Profile = () => {
                         </div>
                       </div>
                     </div>
+
                     <div className={styles.workExperiencesRow}>
                       <label>Work Experience (Optional)</label>
                       {workExperiences.map(
@@ -1016,10 +1049,7 @@ const Profile = () => {
                                 type="button"
                                 onClick={() =>
                                   setWorkExperiences(
-                                    workExperiences.filter(
-                                      (_: WorkExperience, i: number) =>
-                                        i !== idx
-                                    )
+                                    workExperiences.filter((_, i) => i !== idx)
                                   )
                                 }
                                 style={{ marginTop: "1rem" }}
@@ -1049,6 +1079,7 @@ const Profile = () => {
                         Add Work Experience
                       </button>
                     </div>
+
                     <div>
                       <label>
                         Skills<span style={{ color: "red" }}>*</span>
@@ -1060,11 +1091,7 @@ const Profile = () => {
                             <button
                               type="button"
                               onClick={() =>
-                                setSkills(
-                                  skills.filter(
-                                    (_: string, i: number) => i !== idx
-                                  )
-                                )
+                                setSkills(skills.filter((_, i) => i !== idx))
                               }
                               style={{ marginLeft: 4 }}
                             >
@@ -1099,6 +1126,7 @@ const Profile = () => {
                         </button>
                       </div>
                     </div>
+
                     <div>
                       <label htmlFor="introduction">
                         Introduction<span style={{ color: "red" }}>*</span>
@@ -1110,93 +1138,84 @@ const Profile = () => {
                         rows={3}
                         cols={40}
                         style={{ width: "100%" }}
-                        // onChange={...}
                         onChange={(e) => setEditIntroduction(e.target.value)}
                       />
                     </div>
+
+                    {/* Actions inside the form for proper submit */}
+                    <div style={{ marginTop: "1rem", display: "flex", gap: 8 }}>
+                      <button
+                        type="button"
+                        className={styles.resumeButton}
+                        onClick={() => setShowEditResume(false)}
+                      >
+                        Cancel
+                      </button>
+                      <button type="submit" className={styles.resumeButton}>
+                        Save
+                      </button>
+                    </div>
                   </form>
-                </>
-              ) : editIntroduction === "" ? (
-                <div
-                  style={{
-                    textAlign: "center",
-                    margin: "2rem 0",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <h3>No resume found.</h3>
-                  <p>Click below to create your resume.</p>
-                  <button
-                    className={styles.createResumeButton}
-                    onClick={() => setShowEditResume(true)}
-                  >
-                    Create Resume
-                  </button>
-                </div>
-              ) : (
-                <div className={styles.resume}>
-                  <Resume
-                    ref={resumeRef}
-                    profilePicUrl={
-                      user.profile_pic_url
-                        ? user.profile_pic_url + "?t=" + dateNow
-                        : "/assets/images/default_profile.png"
-                    }
-                    name={user?.name}
-                    birthDate={user?.birth_date}
-                    address={user?.address}
-                    barangay={user?.barangay}
-                    district={user?.district}
-                    email={user?.email}
-                    phone={user?.phone}
-                    education={{
-                      school: resume?.education?.school,
-                      degree: resume?.education?.degree,
-                      location: resume?.education?.location,
-                      start_date: resume?.education?.start_date,
-                      end_date: resume?.education?.end_date,
+                ) : resume ? (
+                  <div className={styles.resume}>
+                    <Resume
+                      ref={resumeRef}
+                      profilePicUrl={
+                        user.profile_pic_url
+                          ? user.profile_pic_url + "?t=" + dateNow
+                          : "/assets/images/default_profile.png"
+                      }
+                      name={user?.name}
+                      birthDate={user?.birth_date}
+                      address={user?.address}
+                      barangay={user?.barangay}
+                      district={user?.district}
+                      email={user?.email}
+                      phone={user?.phone}
+                      education={{
+                        school: resume?.education?.school,
+                        degree: resume?.education?.degree,
+                        location: resume?.education?.location,
+                        start_date: resume?.education?.start_date,
+                        end_date: resume?.education?.end_date,
+                      }}
+                      skills={resume?.skills}
+                      workExperiences={
+                        Array.isArray(resume?.work_experiences)
+                          ? resume.work_experiences
+                          : resume?.work_experiences
+                          ? [resume.work_experiences]
+                          : []
+                      }
+                      profileIntroduction={resume?.profile_introduction}
+                    />
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      textAlign: "center",
+                      margin: "2rem 0",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
-                    skills={resume?.skills}
-                    workExperiences={
-                      Array.isArray(resume?.work_experiences)
-                        ? resume.work_experiences
-                        : resume?.work_experiences
-                        ? [resume.work_experiences]
-                        : []
-                    }
-                    profileIntroduction={resume?.profile_introduction}
-                  />
-                </div>
-              ))}
-            {editIntroduction === "" && showEditResume ? (
-              <>
-                <button
-                  className={styles.resumeButton}
-                  onClick={() => setShowEditResume((prev) => !prev)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className={styles.resumeButton}
-                  onClick={handleResumeSave}
-                >
-                  Save
-                </button>
+                  >
+                    <h3>No resume found.</h3>
+                    <p>Click below to create your resume.</p>
+                    <button
+                      className={styles.createResumeButton}
+                      onClick={() => setShowEditResume(true)}
+                    >
+                      Create Resume
+                    </button>
+                  </div>
+                )}
               </>
-            ) : editIntroduction === "" ? (
-              <>
-                {/* <button
-                  className={`${styles.resumeButton} ${styles.createResumeButton}`}
-                  onClick={() => setShowEditResume((prev) => !prev)}
-                >
-                  Create Resume
-                </button> */}
-              </>
-            ) : (
-              <>
+            )}
+
+            {resume && !showEditResume ? (
+              <div style={{ marginTop: "1rem", display: "flex", gap: 8 }}>
                 <button
                   className={styles.resumeButton}
                   onClick={handleDownload}
@@ -1205,15 +1224,15 @@ const Profile = () => {
                 </button>
                 <button
                   className={styles.resumeButton}
-                  onClick={() => setShowEditResume((prev) => !prev)}
+                  onClick={() => setShowEditResume(true)}
                 >
                   Edit Resume
                 </button>
-              </>
-            )}
+              </div>
+            ) : null}
+
             {profileOptionsNav === "appliedJobs" && (
               <div className={styles.appliedJobs}>
-                {/* Render exam content here */}
                 <p>Exam section for this job/applicant.</p>
               </div>
             )}

@@ -190,7 +190,7 @@ const PrivateNavBar = (props: { pathname: string }) => {
                 }}
                 placeholder="location, company, job-title, category of job"
               />
-              <Link href="/searchResults?" className={styles.searchIcon}>
+              <Link href={`/search/${search}`} className={styles.searchIcon}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"

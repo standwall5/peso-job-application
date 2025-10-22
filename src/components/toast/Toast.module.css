@@ -1,5 +1,5 @@
 .toast {
-  position: absolute;
+  position: fixed;
   top: 25px;
   right: 30px;
   border-radius: 12px;
@@ -7,12 +7,20 @@
   padding: 20px 35px 20px 25px;
   box-shadow: 0 6px 20px -5px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  transform: translateX(calc(100% + 30px));
-  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
+  transform: translateX(120%); /* keep it off-screen without affecting layout */
+  transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35),
+    opacity 0.2s ease;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 3000;
+  max-width: min(90vw, 420px);
+  will-change: transform;
 }
 
 .active {
   transform: translateX(0%);
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .toastContent {
@@ -26,12 +34,11 @@
   justify-content: center;
   width: 35px;
   height: 35px;
-  background-color: var(--accent);
+  background-color: #4070f4;
   color: #fff;
   font-size: 20px;
   border-radius: 50%;
   overflow: hidden;
-  min-width: unset; /* Remove min-width to avoid stretching */
 }
 
 .message {
