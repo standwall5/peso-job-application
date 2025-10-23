@@ -7,6 +7,7 @@ import PrivateCompanyList from "./components/PrivateCompanyList";
 
 const Companies = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [search, setSearch] = useState("");
   const supabase = createClient();
 
   useEffect(() => {
@@ -20,10 +21,14 @@ const Companies = () => {
   // In your job/company page
   if (!user) {
     // Show public view
-    return <PublicCompanyList />;
+    return (
+      <PublicCompanyList searchParent={search} onSearchChange={setSearch} />
+    );
   } else {
     // Show logged-in view
-    return <PrivateCompanyList />;
+    return (
+      <PrivateCompanyList searchParent={search} onSearchChange={setSearch} />
+    );
   }
 };
 
