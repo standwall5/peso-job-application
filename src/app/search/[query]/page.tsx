@@ -8,7 +8,7 @@ import PublicSearch from "./components/PublicSearch";
 import PrivateSearch from "./components/PrivateSearch";
 import { useParams } from "next/navigation";
 
-const page = () => {
+const Query = () => {
   const [user, setUser] = useState<User | null>(null);
   const params = useParams();
   const query = Array.isArray(params.query)
@@ -34,4 +34,4 @@ const page = () => {
   }
 };
 
-export default page;
+export default Query;
