@@ -4,7 +4,7 @@ import PrivateCompanyList from "@/app/job-opportunities/components/PrivateCompan
 const PrivateHome = () => {
   // If no resume, prompt create resume
   // This page is company list
-  return <PrivateCompanyList />;
+  return <PrivateCompanyList searchParent={""} />;
 };
 
 export default PrivateHome;
