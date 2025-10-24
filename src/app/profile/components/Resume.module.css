@@ -56,6 +56,13 @@
   margin-bottom: 24px;
 }
 
+.educationRow,
+.workExpRow,
+.personalInfo,
+.profileText {
+  width: 100%;
+}
+
 .educationRow {
   display: flex;
   justify-content: space-between;
@@ -85,6 +92,6 @@
 }
 
 .profileText {
-  text-align: center;
+  text-align: left;
   margin-bottom: 24px;
 }

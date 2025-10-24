@@ -2,9 +2,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "@/app/job-opportunities/JobHome.module.css";
 import Link from "next/link";
-import { createClient } from "@/utils/supabase/client";
 import BlocksWave from "@/components/BlocksWave";
-const supabase = createClient();
 
 interface Job {
   id: number;

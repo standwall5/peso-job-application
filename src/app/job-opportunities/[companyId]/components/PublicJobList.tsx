@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import styles from "@/app/job-opportunities/JobHome.module.css";
 import jobStyle from "../JobsOfCompany.module.css";
 import { createClient } from "@/utils/supabase/client";
+import Link from "next/link";
 
 // TODO: implement login redirect when clicking apply; remove modal
 
@@ -95,10 +96,10 @@ const PublicJobList = () => {
               <div
                 className={`${styles.jobCompany} ${jobStyle.companyInformation}`}
               >
-                {job.company?.logo && (
+                {job.companies?.logo && (
                   <img
-                    src={job.company.logo}
-                    alt={job.company.name + " logo"}
+                    src={job.companies.logo}
+                    alt={job.companies.name + " logo"}
                     className={styles.companyLogo}
                     style={{
                       width: "64px",
@@ -107,7 +108,7 @@ const PublicJobList = () => {
                     }}
                   />
                 )}
-                <span>{job.company?.name}</span>
+                <span>{job.companies?.name}</span>
               </div>
               <div className={jobStyle.jobDetails}>
                 <h2>{job.title}</h2>
@@ -122,6 +123,7 @@ const PublicJobList = () => {
                     day: "numeric",
                   })}
                 </p>
+
                 <button className="green-button">Apply</button>
               </div>
             </div>
@@ -136,23 +138,25 @@ const PublicJobList = () => {
           onClick={() => setLoginModal(false)}
         >
           <div
-            className={`${jobStyle.modal} ${jobStyle.warningModal}`}
+            className={`${jobStyle.modal} warningModal`}
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setLoginModal(false)}
-              style={{ fontWeight: "bold", right: 40, position: "absolute" }}
+              style={{ fontWeight: "bold", right: 30, position: "absolute" }}
             >
               X
             </button>
-            <div className={jobStyle.warningContainer}>
+            <div className="warningContainer">
               <h2>Log in to Apply</h2>
-              <div className={jobStyle.warningContent}>
+              <div className="warningContent">
                 <p>
                   To submit your application, <br /> please sign in first to
                   proceed.
                 </p>
-                <button className="custom-button">Login</button>
+                <Link className="custom-button" href="/login">
+                  Login
+                </Link>
               </div>
             </div>
           </div>

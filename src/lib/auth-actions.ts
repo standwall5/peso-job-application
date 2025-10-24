@@ -15,16 +15,37 @@ export async function login(formData: FormData) {
     password: formData.get("password") as string,
   };
 
-  const { error } = await supabase.auth.signInWithPassword(data);
+  const { data: authData, error } = await supabase.auth.signInWithPassword(
+    data
+  );
 
   if (error) {
     console.log("Login error:", error);
 
+    return { error: "Wrong email or password." };
+  }
+
+  // Check if user is admin
+  const user = authData?.user;
+  if (!user) {
     redirect("/error");
   }
 
-  revalidatePath("/", "layout");
-  redirect("/");
+  const { data: pesoUser, error: pesoError } = await supabase
+    .from("peso")
+    .select("*")
+    .eq("auth_id", user.id)
+    .single();
+
+  if (pesoUser) {
+    // ✅ PESO admin
+    redirect("/admin/");
+  } else {
+    // 👤 Regular applicant
+    revalidatePath("/", "layout");
+
+    redirect("/");
+  }
 }
 
 export async function signup(formData: FormData) {

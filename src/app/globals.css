@@ -219,9 +219,24 @@ footer img {
   align-self: center; /* or center, or flex-end as needed */
   flex: none;
 }
-
 .custom-button:hover {
   color: black;
+  background-color: #448bc5;
+}
+
+.blue-button {
+  padding: 0.5rem 2rem;
+  color: white;
+  background-color: #7adaef;
+  transition: 0.2s;
+  border-radius: 0.5rem;
+  align-self: center; /* or center, or flex-end as needed */
+  flex: none;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+.blue-button:hover {
+  /* color: black; */
   background-color: #448bc5;
 }
 
@@ -280,4 +295,53 @@ footer img {
 
 .grey-button:hover {
   background-color: #65696e;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  padding: 2rem;
+  border-radius: 8px;
+
+  max-width: 60vw;
+  max-height: 80vh;
+
+  overflow-y: auto;
+  position: relative;
+}
+
+.warningModal {
+  background-color: var(--warning-bg);
+  height: auto;
+  width: auto;
+  border: 1px solid black;
+  border-radius: 0.5rem;
+  padding: 4rem;
+}
+
+.warningContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+}
+
+.warningContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
 }

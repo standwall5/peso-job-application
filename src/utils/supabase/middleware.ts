@@ -39,21 +39,48 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith("/login") &&
-    !request.nextUrl.pathname.startsWith("/auth") &&
-    !request.nextUrl.pathname.startsWith("/error") &&
-    !request.nextUrl.pathname.startsWith("/signup") &&
-    !request.nextUrl.pathname.startsWith("/job-opportunities") &&
-    !request.nextUrl.pathname.startsWith("/how-it-works") &&
-    !request.nextUrl.pathname.startsWith("/about")
-  ) {
-    // no user, potentially respond by redirecting the user to the login page
+  const pathname = request.nextUrl.pathname;
+  const publicPaths = [
+    "/login",
+    "/auth",
+    "/error",
+    "/signup",
+    "/job-opportunities",
+    "/how-it-works",
+    "/about",
+    "/api",
+  ];
+
+  if (!user && !publicPaths.some((p) => pathname.startsWith(p))) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
+
+  // If authenticated, check if they are a PESO user
+  if (user) {
+    const { data: pesoUser } = await supabase
+      .from("peso")
+      .select("id")
+      .eq("auth_id", user.id)
+      .single();
+
+    // Redirect applicant away from /admin
+    if (!pesoUser && pathname.startsWith("/admin")) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
+      return NextResponse.redirect(url);
+    }
+
+    // Redirect peso users away from applicant pages (optional)
+    if (pesoUser && pathname === "/") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/admin";
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // Check if user is a PESO admin
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
   // If you're creating a new response object with NextResponse.next() make sure to:

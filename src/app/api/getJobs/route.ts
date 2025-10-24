@@ -3,7 +3,9 @@ import { createClient } from "@/utils/supabase/server"; // ensure this is server
 
 export async function GET() {
   const supabase = await createClient();
-  const { data: jobs, error } = await supabase.from("jobs").select("*");
+  const { data: jobs, error } = await supabase
+    .from("jobs")
+    .select("*, companies(*)");
 
   if (error) {
     console.error("Fetch jobs error:", error);

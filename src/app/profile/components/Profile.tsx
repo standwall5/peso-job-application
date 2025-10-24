@@ -4,7 +4,6 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import styles from "./Profile.module.css";
 import Cropper from "react-easy-crop";
 import { useDropzone } from "react-dropzone";
-
 import Resume from "./Resume";
 import BlocksWave from "@/components/BlocksWave";
 import Link from "next/link";
@@ -86,6 +85,27 @@ function getCroppedImg(imageSrc: string, pixelCrop: PixelCrop): Promise<Blob> {
   });
 }
 
+interface Job {
+  id: number;
+  title: string;
+  description: string;
+  place_of_assignment: string;
+  sex: string;
+  education: string;
+  eligibility: string;
+  posted_date: string;
+  companies: {
+    name: string;
+    logo: string | null;
+  };
+}
+
+interface UserApplication {
+  job_id: number;
+  applied_date: string;
+  status: string;
+}
+
 const Profile = () => {
   const [user, setUser] = useState<User | null>(null);
   const [resume, setResume] = useState<ResumeData | null>(null);
@@ -95,6 +115,7 @@ const Profile = () => {
   const [profileOptionsNav, setProfileOptionsNav] = useState("viewResume");
   const [dateNow, setDateNow] = useState<number>(Date.now());
   const resumeRef = useRef<HTMLDivElement>(null);
+  const [jobs, setJobs] = useState<Job[]>([]);
 
   const [editPreferredPoa, setEditPreferredPoa] = useState(
     user?.preferred_poa ?? ""
@@ -144,6 +165,38 @@ const Profile = () => {
 
   // Showing edit states
   const [showEdit, setShowEdit] = useState(false);
+
+  // Fetch applied jobs
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const jobsRes = await fetch("/api/getJobs");
+        const jobsData = await jobsRes.json();
+        setJobs(jobsData || []);
+      } catch (error) {
+        console.log(error);
+        setJobs([]);
+      }
+    }
+    fetchData();
+  }, []);
+
+  const [userApplications, setUserApplications] = useState<UserApplication[]>(
+    []
+  );
+  async function fetchUserApplications() {
+    try {
+      const res = await fetch("/api/getUserApplications");
+      const data = await res.json();
+      // data is an array of { job_id: number, created_at: string }
+      setUserApplications(data);
+    } catch (err) {
+      console.log("Error: " + err);
+    }
+  }
+  useEffect(() => {
+    fetchUserApplications();
+  }, []);
 
   // Fetch user + resume
   useEffect(() => {
@@ -383,6 +436,96 @@ const Profile = () => {
       return () => clearTimeout(timer);
     }
   }, [showEditSuccess]);
+
+  const getApplicationDate = (id: number) =>
+    userApplications.find((app) => app.job_id === id);
+
+  const filteredJobs = jobs.filter((job) =>
+    userApplications.some((app) => app.job_id === job.id)
+  );
+
+  const jobCards = filteredJobs.map((job) => {
+    return (
+      <div key={job.id} className={`${styles.jobCard}`}>
+        <div className={`${styles.jobCompany}`}>
+          {job.companies?.logo && (
+            <img
+              src={job.companies.logo}
+              alt={job.companies.name + " logo"}
+              className={styles.companyLogo}
+              style={{
+                width: "64px",
+                height: "64px",
+                objectFit: "contain",
+              }}
+            />
+          )}
+          <span>{job.companies?.name}</span>
+          <span>{job.title}</span>
+        </div>
+        <div className={styles.jobDetails}>
+          <span>
+            {getApplicationDate(job.id)?.applied_date &&
+            !isNaN(new Date(getApplicationDate(job.id)!.applied_date).getTime())
+              ? new Date(
+                  getApplicationDate(job.id)!.applied_date
+                ).toLocaleString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "No application date"}
+          </span>
+          <span
+            className={`${styles.status} ${
+              getApplicationDate(job.id)?.status ? styles.pending : ""
+            }`}
+          >
+            {getApplicationDate(job.id)?.status === "Pending" ? (
+              <>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="size-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                  />
+                </svg>
+                {getApplicationDate(job.id)!.status}
+              </>
+            ) : getApplicationDate(job.id)?.status === "Referred" ? (
+              <>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="size-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                  />
+                </svg>
+
+                {getApplicationDate(job.id)!.status}
+              </>
+            ) : null}
+          </span>
+        </div>
+      </div>
+    );
+  });
 
   if (loading) return <BlocksWave />;
   if (!user) return <div>No user found.</div>;
@@ -1214,7 +1357,9 @@ const Profile = () => {
               </>
             )}
 
-            {resume && !showEditResume ? (
+            {resume &&
+            !showEditResume &&
+            profileOptionsNav !== "appliedJobs" ? (
               <div style={{ marginTop: "1rem", display: "flex", gap: 8 }}>
                 <button
                   className={styles.resumeButton}
@@ -1232,9 +1377,7 @@ const Profile = () => {
             ) : null}
 
             {profileOptionsNav === "appliedJobs" && (
-              <div className={styles.appliedJobs}>
-                <p>Exam section for this job/applicant.</p>
-              </div>
+              <div className={styles.appliedJobs}>{jobCards}</div>
             )}
           </div>
         </div>
