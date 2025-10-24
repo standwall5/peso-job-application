@@ -224,7 +224,7 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
                   {searchResults.map((job) => (
                     <div key={job.id} className={styles.searchResultContent}>
                       <Link
-                        href={`/search/${job.title}`}
+                        href={`/search/${job.title.toLowerCase()}`}
                         style={{ display: "flex", alignItems: "center" }}
                       >
                         {job.companies?.logo && (
