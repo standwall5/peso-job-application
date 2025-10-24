@@ -86,8 +86,8 @@ const PrivateCompanyList = ({
       >
         {loading ? (
           <BlocksWave />
-        ) : companies.length > 0 ? (
-          companies.map((company) => (
+        ) : filteredCompanies.length > 0 ? (
+          filteredCompanies.map((company) => (
             <Link key={company.id} href={`/job-opportunities/${company.id}`}>
               <div key={company.id} className={styles.jobCard}>
                 <div className={styles.jobCompany}>

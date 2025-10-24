@@ -987,7 +987,9 @@ const Profile = () => {
                         }}
                       >
                         <div>
-                          <label htmlFor="school">School</label>
+                          <label htmlFor="school">
+                            School<span style={{ color: "red" }}>*</span>
+                          </label>
                           <input
                             id="school"
                             type="text"
@@ -995,10 +997,13 @@ const Profile = () => {
                             value={editSchool}
                             placeholder="School"
                             onChange={(e) => setEditSchool(e.target.value)}
+                            required
                           />
                         </div>
                         <div>
-                          <label htmlFor="educationDegree">Degree</label>
+                          <label htmlFor="educationDegree">
+                            Degree<span style={{ color: "red" }}>*</span>
+                          </label>
                           <input
                             id="educationDegree"
                             type="text"
@@ -1006,10 +1011,13 @@ const Profile = () => {
                             value={editDegree}
                             placeholder="Degree"
                             onChange={(e) => setEditDegree(e.target.value)}
+                            required
                           />
                         </div>
                         <div>
-                          <label htmlFor="educationLocation">Location</label>
+                          <label htmlFor="educationLocation">
+                            Location<span style={{ color: "red" }}>*</span>
+                          </label>
                           <input
                             id="educationLocation"
                             type="text"
@@ -1019,6 +1027,7 @@ const Profile = () => {
                             onChange={(e) =>
                               setEditEducationLocation(e.target.value)
                             }
+                            required
                           />
                         </div>
 
@@ -1053,7 +1062,7 @@ const Profile = () => {
                           </div>
                           <div>
                             <label htmlFor="educationStartDate">
-                              Start Date
+                              Start Date<span style={{ color: "red" }}>*</span>
                             </label>
                             <input
                               id="educationStartDate"
@@ -1066,10 +1075,13 @@ const Profile = () => {
                               onChange={(e) =>
                                 setEditEducationStartDate(e.target.value)
                               }
+                              required
                             />
                           </div>
                           <div>
-                            <label htmlFor="educationEndDate">End Date</label>
+                            <label htmlFor="educationEndDate">
+                              End Date<span style={{ color: "red" }}>*</span>
+                            </label>
                             <input
                               id="educationEndDate"
                               type="number"
@@ -1081,6 +1093,7 @@ const Profile = () => {
                               onChange={(e) =>
                                 setEditEducationEndDate(e.target.value)
                               }
+                              required
                             />
                           </div>
                         </div>
@@ -1224,9 +1237,7 @@ const Profile = () => {
                     </div>
 
                     <div>
-                      <label>
-                        Skills<span style={{ color: "red" }}>*</span>
-                      </label>
+                      <label>Skills</label>
                       <div className={`${styles.row} ${styles.skillsRow}`}>
                         {skills.map((skill: string, idx: number) => (
                           <span key={idx} style={{ marginRight: "-1rem" }}>
@@ -1282,6 +1293,7 @@ const Profile = () => {
                         cols={40}
                         style={{ width: "100%" }}
                         onChange={(e) => setEditIntroduction(e.target.value)}
+                        required
                       />
                     </div>
 

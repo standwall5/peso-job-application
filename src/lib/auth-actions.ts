@@ -22,6 +22,17 @@ export async function login(formData: FormData) {
   if (error) {
     console.log("Login error:", error);
 
+    // Check for not confirmed error
+    if (
+      error.message?.toLowerCase().includes("email not confirmed") ||
+      error.message?.toLowerCase().includes("not confirmed")
+    ) {
+      return {
+        error:
+          "Your account is not authenticated. Please check your email for a verification link.",
+      };
+    }
+
     return { error: "Wrong email or password." };
   }
 
@@ -96,8 +107,17 @@ export async function signup(formData: FormData) {
   const { data: signUpData, error } = await supabase.auth.signUp(data);
 
   if (error) {
-    console.log("Signup error:", error);
-    redirect("/error");
+    console.log("Sign error:", error);
+    if (
+      error.message?.toLowerCase().includes("user already registered") ||
+      error.message?.toLowerCase().includes("email already registered") ||
+      error.message?.toLowerCase().includes("email already in use") ||
+      error.status === 400 // Supabase sometimes returns 400 for duplicate emails
+    ) {
+      return { error: "An account with this email already exists." };
+    }
+
+    return { error: "Signup failed. Please try again." };
   }
 
   if (signUpData?.user) {
@@ -112,8 +132,13 @@ export async function signup(formData: FormData) {
 
     if (applicantError) {
       console.log("Applicant insert error:", applicantError);
-      redirect("/error");
+      return { error: "Signup failed, please try again." };
     }
+
+    return {
+      success:
+        "Signup successful! Please check your email to verify your account before logging in.",
+    };
   }
 
   revalidatePath("/", "layout");

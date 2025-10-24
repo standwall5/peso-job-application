@@ -82,6 +82,10 @@ interface Job {
   company_id: number;
   title: string;
   description: string;
+  companies?: {
+    name: string;
+    logo?: string | null;
+  };
 }
 
 interface Company {
@@ -90,7 +94,13 @@ interface Company {
   logo: string | null;
 }
 
-const PrivateNavBar = (props: { pathname: string }) => {
+interface ApplicantUser {
+  id: string;
+  email: string;
+  profile_pic_url?: string;
+}
+
+const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [userLoggedIn, setUserLoggedIn] = useState();
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -213,7 +223,29 @@ const PrivateNavBar = (props: { pathname: string }) => {
                 >
                   {searchResults.map((job) => (
                     <div key={job.id} className={styles.searchResultContent}>
-                      {job.title}
+                      <Link
+                        href={`/search/${job.title}`}
+                        style={{ display: "flex", alignItems: "center" }}
+                      >
+                        {job.companies?.logo && (
+                          <img
+                            src={job.companies.logo}
+                            alt={job.companies.name + " logo"}
+                            style={{
+                              width: 24,
+                              height: 24,
+                              objectFit: "contain",
+                              marginRight: 8,
+                            }}
+                          />
+                        )}
+                        <strong>{job.title}</strong>
+                        {job.companies?.name && (
+                          <span style={{ marginLeft: 8, color: "#888" }}>
+                            &mdash; {job.companies.name}
+                          </span>
+                        )}
+                      </Link>
                     </div>
                   ))}
                 </div>
@@ -273,9 +305,9 @@ const PrivateNavBar = (props: { pathname: string }) => {
               )}
             </div>
           </li>
-          <li>
-            <Link href="/profile">
-              <svg
+          <li className={styles.profileIconContainer}>
+            <Link href="/profile" className={styles.profileIcon}>
+              {/* <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -288,7 +320,14 @@ const PrivateNavBar = (props: { pathname: string }) => {
                   strokeLinejoin="round"
                   d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
                 />
-              </svg>
+              </svg> */}
+              <img
+                src={
+                  props.user?.profile_pic_url ||
+                  "/assets/images/default_profile.png"
+                }
+                alt="Profile Icon"
+              />
             </Link>
           </li>
           <li>
@@ -651,31 +690,51 @@ const Navbar = () => {
   const [user, setUser] = useState<User | null>(null);
   const [mounted, setMounted] = useState(false);
 
+  // useEffect(() => {
+  //   setMounted(true);
+  //   const supabase = createClient();
+
+  //   supabase.auth.getUser().then(({ data }) => {
+  //     setUser(data.user);
+  //   });
+
+  //   const { data: authListener } = supabase.auth.onAuthStateChange(
+  //     (_event, session) => {
+  //       setUser(session?.user ?? null);
+  //     }
+  //   );
+
+  //   return () => {
+  //     authListener?.subscription.unsubscribe();
+  //   };
+  // }, [pathname]); // <-- Add pathname as a dependency
+
   useEffect(() => {
     setMounted(true);
-    const supabase = createClient();
 
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-    });
+    async function fetchUser() {
+      const res = await fetch("/api/getUser");
+      const data = await res.json();
+      setUser(data && !data.error ? data : null);
+    }
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-      }
-    );
+    fetchUser();
 
-    return () => {
-      authListener?.subscription.unsubscribe();
-    };
-  }, [pathname]); // <-- Add pathname as a dependency
+    // Optionally, you can set up a polling interval or use a custom event to refetch on auth changes
+  }, [pathname]);
 
   if (!mounted) return null;
 
   if (!user) {
     return <SimpleNavBar pathname={pathname} />;
   } else {
-    return <PrivateNavBar pathname={pathname} />;
+    // Map Supabase User to ApplicantUser, ensuring email is a string
+    const applicantUser: ApplicantUser = {
+      id: user.id,
+      email: user.email ?? "",
+      profile_pic_url: (user as ApplicantUser).profile_pic_url, // adjust if your user object has this property elsewhere
+    };
+    return <PrivateNavBar pathname={pathname} user={applicantUser} />;
   }
 };
 

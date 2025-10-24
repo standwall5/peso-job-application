@@ -24,12 +24,20 @@ interface Job {
   };
 }
 
-const PrivateJobList = () => {
+interface PrivateJobListProps {
+  searchParent?: string;
+  onSearchChange?: (value: string) => void;
+}
+
+const PrivateJobList = ({
+  searchParent,
+  onSearchChange,
+}: PrivateJobListProps) => {
   const params = useParams();
   const companyId = params.companyId || params.id;
 
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(searchParent || "");
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [applicationSelect, setApplicationSelect] = useState("previewResume");
   const [modal, setModal] = useState(false);
@@ -47,13 +55,31 @@ const PrivateJobList = () => {
       if (error) {
         // handle error (optional)
         console.log(error);
-        setJobs([]);
         return;
       }
       setJobs(data || []);
     }
     if (companyId) fetchData();
   }, [companyId]);
+
+  useEffect(() => {
+    async function fetchData() {
+      const supabase = createClient();
+      // Fetch jobs for this company, including company details
+      const { data, error } = await supabase
+        .from("jobs")
+        .select("*, companies(*)");
+
+      if (error) {
+        // handle error (optional)
+        console.log(error);
+        return;
+      }
+      setJobs(data || []);
+    }
+    fetchData();
+    setSearch(searchParent || "");
+  }, [search]);
 
   const [userApplications, setUserApplications] = useState<number[]>([]);
   async function fetchUserApplications() {

@@ -16,6 +16,8 @@
   --green-button: #80e7b1;
   --warning-bg: #fffdf1;
   --nav: #1278d4;
+
+  --test: #5bcaa5;
 }
 
 @theme inline {
@@ -225,6 +227,7 @@ footer img {
 }
 
 .blue-button {
+  text-decoration: none;
   padding: 0.5rem 2rem;
   color: white;
   background-color: #7adaef;
@@ -322,12 +325,13 @@ footer img {
 }
 
 .warningModal {
+  position: relative;
   background-color: var(--warning-bg);
   height: auto;
   width: auto;
   border: 1px solid black;
   border-radius: 0.5rem;
-  padding: 4rem;
+  padding: 2rem 4rem;
 }
 
 .warningContainer {

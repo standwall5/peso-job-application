@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import styles from "./SignUp.module.css";
 import { signup } from "@/lib/auth-actions";
+import Link from "next/link";
 
 const SignUpForm = () => {
   const [district, setDistrict] = useState("District 1");
@@ -10,12 +11,73 @@ const SignUpForm = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [modal, setModal] = useState(true);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+
+    const formData = new FormData(e.currentTarget);
+    const result = await signup(formData);
+
+    if (result?.error) {
+      setError(result.error);
+      setModal(true);
+    } else if (result?.success) {
+      setSuccess(result.success);
+      setModal(true);
+    }
+  }
+
+  const warningModal = () => {
+    return (
+      <div
+        className="modalOverlay"
+        onClick={() => {
+          setModal(false);
+        }}
+      >
+        <div className={`warningModal`} onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => {
+              setModal(false);
+            }}
+            style={{
+              fontWeight: "bold",
+              right: 20,
+              top: 20,
+              position: "absolute",
+            }}
+          >
+            X
+          </button>
+          <div className="warningContainer">
+            <h2>{success ? success : error}</h2>
+            <div className="warningContent">
+              {success ? (
+                <Link href="/login" className="blue-button">
+                  Back to login
+                </Link>
+              ) : (
+                <button onClick={() => setModal(false)} className="red-button">
+                  Close
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className={styles.signUpContainer}>
+      {modal && warningModal()}
       <div className={styles.signUpContent}>
         <h2>REGISTER</h2>
-        <form action="" className={styles.signUpForm}>
+        <form action="" className={styles.signUpForm} onSubmit={handleSubmit}>
           <input
             type="text"
             name="firstName"
@@ -295,9 +357,7 @@ const SignUpForm = () => {
             <button type="reset" className="red-button">
               Reset
             </button>
-            <button formAction={signup} className="green-button">
-              Submit
-            </button>
+            <button className="green-button">Submit</button>
           </div>
         </form>
       </div>
