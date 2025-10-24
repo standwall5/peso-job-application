@@ -72,7 +72,7 @@ const PrivateJobList = () => {
     fetchUserApplications();
   }, []);
 
-  const submitResume = async (job_id: any) => {
+  const submitResume = async (job_id: number) => {
     const response = await fetch("/api/submitResume", {
       method: "POST",
       headers: {
