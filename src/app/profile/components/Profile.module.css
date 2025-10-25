@@ -173,13 +173,13 @@
 
 .appliedJobs {
   align-items: flex-start;
+  gap: 1.5rem;
   padding: 0 2rem;
 }
 
 .appliedJobs,
 .resume {
   display: flex;
-  flex-direction: column;
   position: relative;
   margin: 2rem 0;
   overflow: auto;
