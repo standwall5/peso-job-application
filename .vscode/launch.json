@@ -1,0 +1,30 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    
+    {
+      "name": "Next.js dev (port 3000)",
+      "type": "node-terminal",
+      "request": "launch",
+      "cwd": "C:/Users/Administrator/peso-job-application/peso-job-application",
+      "command": "npm run dev",
+      "env": {
+        "PORT": "3000"
+      },
+      "serverReadyAction": {
+        "action": "debugWithChrome",
+        "pattern": "Local:\\s*http://localhost:(\\d+)",
+        "uriFormat": "http://localhost:%s"
+      }
+    },
+    {
+      "name": "Chrome",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}"
+    }
+  ]
+}
+
+
