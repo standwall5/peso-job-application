@@ -1,18 +1,18 @@
 import { createBrowserClient } from "@supabase/ssr";
 
+type QueryResultData = { data: never[]; error: null };
+
 type MinimalQueryResult = {
   select: () => MinimalQueryResult;
   eq: () => MinimalQueryResult;
   single: () => Promise<{ data: null; error: null }>;
-  then: <T = any, TResult1 = any, TResult2 = any>(
-    onFulfilled?:
-      | ((value: { data: []; error: null }) => TResult1 | PromiseLike<TResult1>)
-      | null,
-    onRejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null
-  ) => Promise<TResult1 | TResult2>;
-  catch: <TResult = never>(
-    onRejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null
-  ) => Promise<{ data: []; error: null } | TResult>;
+  then: (
+    onFulfilled?: ((value: QueryResultData) => unknown) | null,
+    onRejected?: ((reason: unknown) => unknown) | null
+  ) => Promise<unknown>;
+  catch: (
+    onRejected?: ((reason: unknown) => unknown) | null
+  ) => Promise<QueryResultData | unknown>;
 };
 
 type MinimalSupabaseClient = {
@@ -35,12 +35,14 @@ export function createClient():
         eq: () => result,
         single: async () => ({ data: null, error: null }),
         then: (onFulfilled, onRejected) =>
-          Promise.resolve({ data: [] as [], error: null }).then(
-            onFulfilled,
-            onRejected
+          Promise.resolve({ data: [], error: null }).then(
+            onFulfilled as (value: QueryResultData) => unknown,
+            onRejected as (reason: unknown) => unknown
           ),
         catch: (onRejected) =>
-          Promise.resolve({ data: [] as [], error: null }).catch(onRejected),
+          Promise.resolve({ data: [], error: null }).catch(
+            onRejected as (reason: unknown) => unknown
+          ),
       };
       return result;
     };
