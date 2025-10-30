@@ -5,14 +5,23 @@ export async function createClient() {
   const cookieStore = await cookies();
 
   // Development fallback: if Supabase env vars are missing, return a minimal stub
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  type MinimalSupabaseClient = {
+    auth: {
+      getUser: () => Promise<{ data: { user: null }; error: null }>;
+    };
+  };
+
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
     return {
       auth: {
         async getUser() {
           return { data: { user: null }, error: null };
         },
       },
-    } as any;
+    } as MinimalSupabaseClient;
   }
 
   return createServerClient(
