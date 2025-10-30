@@ -21,7 +21,7 @@ const SignUpForm: React.FC = () => {
     uppercase: false,
     lowercase: false,
     number: false,
-    special: false
+    special: false,
   });
   const [applicantType, setApplicantType] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -54,7 +54,7 @@ const SignUpForm: React.FC = () => {
     "acceptTerms",
     "email",
     "phoneNumber",
-    "preferredPlaceOfAssignment"
+    "preferredPlaceOfAssignment",
   ];
 
   // Automatically toggle form notice based on current errors
@@ -70,7 +70,10 @@ const SignUpForm: React.FC = () => {
     if (birth > today) return null;
     let age = today.getFullYear() - birth.getFullYear();
     const monthDiff = today.getMonth() - birth.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birth.getDate())
+    ) {
       age--;
     }
     return age >= 0 ? age : null;
@@ -109,7 +112,7 @@ const SignUpForm: React.FC = () => {
         uppercase: false,
         lowercase: false,
         number: false,
-        special: false
+        special: false,
       });
       return false;
     }
@@ -118,7 +121,7 @@ const SignUpForm: React.FC = () => {
       uppercase: /[A-Z]/.test(passwordValue),
       lowercase: /[a-z]/.test(passwordValue),
       number: /\d/.test(passwordValue),
-      special: /[!@#$%&]/.test(passwordValue)
+      special: /[!@#$%&]/.test(passwordValue),
     };
     setPasswordRequirements(requirements);
     return Object.values(requirements).every(Boolean);
@@ -145,7 +148,8 @@ const SignUpForm: React.FC = () => {
       e.key === "Home" ||
       e.key === "End" ||
       e.key === "Tab" ||
-      (e.ctrlKey || e.metaKey);
+      e.ctrlKey ||
+      e.metaKey;
     if (allowed) return;
     if (!/^\d$/.test(e.key)) {
       e.preventDefault();
@@ -170,12 +174,16 @@ const SignUpForm: React.FC = () => {
     const el = e.currentTarget;
     const start = el.selectionStart || 0;
     const end = el.selectionEnd || 0;
-    const newVal = phoneNumber.slice(0, start) + digits.slice(0, 11 - phoneNumber.length) + phoneNumber.slice(end);
+    const newVal =
+      phoneNumber.slice(0, start) +
+      digits.slice(0, 11 - phoneNumber.length) +
+      phoneNumber.slice(end);
     const final = newVal.slice(0, 11);
     setPhoneNumber(final);
 
     const newErrors = { ...errors };
-    if (final.length !== 11) newErrors.phoneNumber = "Phone number must be exactly 11 digits";
+    if (final.length !== 11)
+      newErrors.phoneNumber = "Phone number must be exactly 11 digits";
     else delete newErrors.phoneNumber;
     setErrors(newErrors);
   };
@@ -225,18 +233,22 @@ const SignUpForm: React.FC = () => {
       newErrors.email = "This field is required";
     } else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(v)) newErrors.email = "Please enter a valid email address";
+      if (!emailRegex.test(v))
+        newErrors.email = "Please enter a valid email address";
       else delete newErrors.email;
     }
     setErrors(newErrors);
   };
 
   // Preferred place handler
-  const handlePreferredPlaceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handlePreferredPlaceChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const v = e.target.value;
     setPreferredPlace(v);
     const newErrors = { ...errors };
-    if (!v) newErrors.preferredPlaceOfAssignment = "Please select preferred place";
+    if (!v)
+      newErrors.preferredPlaceOfAssignment = "Please select preferred place";
     else delete newErrors.preferredPlaceOfAssignment;
     setErrors(newErrors);
   };
@@ -252,7 +264,9 @@ const SignUpForm: React.FC = () => {
   };
 
   // GENERIC input change handler to clear errors for simple required fields
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const name = e.target.name;
     const value = (e.target as HTMLInputElement).value;
     const newErrors = { ...errors };
@@ -286,7 +300,10 @@ const SignUpForm: React.FC = () => {
 
     // Validate required text/select/file/checkbox fields (except sex/phone/birth which we handle below)
     for (const name of requiredFields) {
-      const element = formEl.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | null;
+      const element = formEl.elements.namedItem(name) as
+        | HTMLInputElement
+        | HTMLSelectElement
+        | null;
       if (!element) continue;
 
       if (element instanceof HTMLInputElement && element.type === "file") {
@@ -339,7 +356,8 @@ const SignUpForm: React.FC = () => {
 
     // Preferred place validation (required)
     if (!preferredPlace || preferredPlace.trim() === "") {
-      newErrors.preferredPlaceOfAssignment = "Preferred place of assignment is required";
+      newErrors.preferredPlaceOfAssignment =
+        "Preferred place of assignment is required";
     }
 
     // District validation
@@ -354,12 +372,17 @@ const SignUpForm: React.FC = () => {
       const today = new Date();
       const birth = new Date(birthDate);
       if (isNaN(birth.getTime())) newErrors.birthDate = "Invalid birth date";
-      else if (birth > today) newErrors.birthDate = "Birth date cannot be in the future";
+      else if (birth > today)
+        newErrors.birthDate = "Birth date cannot be in the future";
     }
 
     // Password match
-    const pw = (formEl.elements.namedItem("password") as HTMLInputElement | null)?.value;
-    const cpw = (formEl.elements.namedItem("confirmPassword") as HTMLInputElement | null)?.value;
+    const pw = (
+      formEl.elements.namedItem("password") as HTMLInputElement | null
+    )?.value;
+    const cpw = (
+      formEl.elements.namedItem("confirmPassword") as HTMLInputElement | null
+    )?.value;
     if (!pw) newErrors.password = "Password is required";
     if (!cpw) newErrors.confirmPassword = "Confirm password is required";
     if (pw && cpw && pw !== cpw) {
@@ -369,16 +392,18 @@ const SignUpForm: React.FC = () => {
       setModal(true);
     }
 
-     // require disability type when applicant is PWD
-if (applicantType === "Person with Disability (PWD)") {
-  const disability = (formEl.elements.namedItem("disabilityType") as HTMLSelectElement | null)?.value;
-  if (!disability || disability.trim() === "") {
-    newErrors.disabilityType = "Please select disability type";
-  }
-}
+    // require disability type when applicant is PWD
+    if (applicantType === "Person with Disability (PWD)") {
+      const disability = (
+        formEl.elements.namedItem("disabilityType") as HTMLSelectElement | null
+      )?.value;
+      if (!disability || disability.trim() === "") {
+        newErrors.disabilityType = "Please select disability type";
+      }
+    }
 
-    // Applicant-specific ID fields OPTIONAL 
-     if (Object.keys(newErrors).length > 0) {
+    // Applicant-specific ID fields OPTIONAL
+    if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       setTimeout(() => scrollToFirstError(newErrors), 50);
       return;
@@ -387,7 +412,10 @@ if (applicantType === "Person with Disability (PWD)") {
     // Submit
     setErrors({});
     const formData = new FormData(formEl);
-    formData.set("gender", gender === "Others" ? genderOther || "Others" : gender);
+    formData.set(
+      "gender",
+      gender === "Others" ? genderOther || "Others" : gender
+    );
     formData.set("phoneNumber", phoneNumber);
     formData.set("birthDate", birthDate);
     formData.set("email", emailValue);
@@ -435,7 +463,10 @@ if (applicantType === "Person with Disability (PWD)") {
                 Back to login
               </Link>
             ) : (
-              <button onClick={() => setModal(false)} className={styles.redButton}>
+              <button
+                onClick={() => setModal(false)}
+                className={styles.redButton}
+              >
                 Close
               </button>
             )}
@@ -450,9 +481,16 @@ if (applicantType === "Person with Disability (PWD)") {
       {modal && warningModal()}
       <div className={styles.signUpContent}>
         <h2>REGISTER</h2>
-        <form className={styles.signUpForm} ref={formRef} onSubmit={handleSubmit} noValidate>
+        <form
+          className={styles.signUpForm}
+          ref={formRef}
+          onSubmit={handleSubmit}
+          noValidate
+        >
           {showFormNotice && (
-            <div className={styles.formNotice}>Please fill in the highlighted required fields.</div>
+            <div className={styles.formNotice}>
+              Please fill in the highlighted required fields.
+            </div>
           )}
 
           {/* First row */}
@@ -460,16 +498,32 @@ if (applicantType === "Person with Disability (PWD)") {
             <label htmlFor="firstName" className={styles.fieldLabel}>
               First Name <span className={styles.redAsterisk}>*</span>
             </label>
-            <input id="firstName" name="firstName" type="text" onChange={handleInputChange} className={errors["firstName"] ? styles.errorInput : ""} />
-            {errors["firstName"] && <div className={styles.fieldError}>{errors["firstName"]}</div>}
+            <input
+              id="firstName"
+              name="firstName"
+              type="text"
+              onChange={handleInputChange}
+              className={errors["firstName"] ? styles.errorInput : ""}
+            />
+            {errors["firstName"] && (
+              <div className={styles.fieldError}>{errors["firstName"]}</div>
+            )}
           </div>
 
           <div className={styles.field}>
             <label htmlFor="lastName" className={styles.fieldLabel}>
               Last Name <span className={styles.redAsterisk}>*</span>
             </label>
-            <input id="lastName" name="lastName" type="text" onChange={handleInputChange} className={errors["lastName"] ? styles.errorInput : ""} />
-            {errors["lastName"] && <div className={styles.fieldError}>{errors["lastName"]}</div>}
+            <input
+              id="lastName"
+              name="lastName"
+              type="text"
+              onChange={handleInputChange}
+              className={errors["lastName"] ? styles.errorInput : ""}
+            />
+            {errors["lastName"] && (
+              <div className={styles.fieldError}>{errors["lastName"]}</div>
+            )}
           </div>
 
           <div className={styles.field}>
@@ -479,7 +533,7 @@ if (applicantType === "Person with Disability (PWD)") {
             <input id="middleName" name="middleName" type="text" />
           </div>
 
-           {/* EXT NAME as select */}
+          {/* EXT NAME as select */}
           <div className={styles.field}>
             <label htmlFor="extName" className={styles.fieldLabel}>
               Ext. Name (Optional)
@@ -504,7 +558,9 @@ if (applicantType === "Person with Disability (PWD)") {
               <option value="III">III</option>
               <option value="IV">IV</option>
             </select>
-            {errors["extName"] && <div className={styles.fieldError}>{errors["extName"]}</div>}
+            {errors["extName"] && (
+              <div className={styles.fieldError}>{errors["extName"]}</div>
+            )}
           </div>
 
           {/* birth / age / sex row */}
@@ -521,15 +577,26 @@ if (applicantType === "Person with Disability (PWD)") {
                 onChange={handleBirthDateChange}
                 className={errors["birthDate"] ? styles.errorInput : ""}
               />
-              {errors["birthDate"] && <div className={styles.fieldError}>{errors["birthDate"]}</div>}
+              {errors["birthDate"] && (
+                <div className={styles.fieldError}>{errors["birthDate"]}</div>
+              )}
             </div>
 
             <div style={{ flex: 1 }}>
               <label htmlFor="age" className={styles.fieldLabel}>
                 Age <span className={styles.redAsterisk}>*</span>
               </label>
-              <input id="age" name="age" type="number" value={calculatedAge !== null ? calculatedAge : ""} readOnly className={errors["age"] ? styles.errorInput : ""} />
-              {errors["age"] && <div className={styles.fieldError}>{errors["age"]}</div>}
+              <input
+                id="age"
+                name="age"
+                type="number"
+                value={calculatedAge !== null ? calculatedAge : ""}
+                readOnly
+                className={errors["age"] ? styles.errorInput : ""}
+              />
+              {errors["age"] && (
+                <div className={styles.fieldError}>{errors["age"]}</div>
+              )}
             </div>
 
             <div style={{ flex: 1 }}>
@@ -544,7 +611,7 @@ if (applicantType === "Person with Disability (PWD)") {
                 className={errors["gender"] ? styles.errorInput : ""}
               >
                 <option value="" disabled>
-                  Select Gender 
+                  Select Gender
                 </option>
                 <option value="Female">Female</option>
                 <option value="Male">Male</option>
@@ -562,10 +629,16 @@ if (applicantType === "Person with Disability (PWD)") {
                     className={errors["genderOther"] ? styles.errorInput : ""}
                     style={{ marginTop: 8 }}
                   />
-                  {errors["genderOther"] && <div className={styles.fieldError}>{errors["genderOther"]}</div>}
+                  {errors["genderOther"] && (
+                    <div className={styles.fieldError}>
+                      {errors["genderOther"]}
+                    </div>
+                  )}
                 </>
               )}
-              {errors["gender"] && <div className={styles.fieldError}>{errors["gender"]}</div>}
+              {errors["gender"] && (
+                <div className={styles.fieldError}>{errors["gender"]}</div>
+              )}
             </div>
           </div>
 
@@ -591,27 +664,54 @@ if (applicantType === "Person with Disability (PWD)") {
                   CHOOSE YOUR APPLICANT TYPE
                 </option>
                 <option value="Student">Student</option>
-                <option value="Indigenous Person (IP)">Indigenous Person (IP)</option>
+                <option value="Indigenous Person (IP)">
+                  Indigenous Person (IP)
+                </option>
                 <option value="Out of School Youth">Out of School Youth</option>
-                <option value="Person with Disability (PWD)">Person with Disability (PWD)</option>
-                <option value="Rehabilitation Program Graduate">Rehabilitation Program Graduate</option>
-                <option value="Reintegrated Individual (Former Detainee)">Reintegrated Individual (Former Detainee)</option>
-                <option value="Returning Oversees Filipino Worker (OFW)">Returning Oversees Filipino Worker (OFW)</option>
+                <option value="Person with Disability (PWD)">
+                  Person with Disability (PWD)
+                </option>
+                <option value="Rehabilitation Program Graduate">
+                  Rehabilitation Program Graduate
+                </option>
+                <option value="Reintegrated Individual (Former Detainee)">
+                  Reintegrated Individual (Former Detainee)
+                </option>
+                <option value="Returning Oversees Filipino Worker (OFW)">
+                  Returning Oversees Filipino Worker (OFW)
+                </option>
                 <option value="Senior Citizen">Senior Citizen</option>
-                <option value="Solo Parent/Single Parent">Solo Parent/Single Parent</option>
+                <option value="Solo Parent/Single Parent">
+                  Solo Parent/Single Parent
+                </option>
                 <option value="Others">Others</option>
               </select>
-              {errors["applicantType"] && <div className={styles.fieldError}>{errors["applicantType"]}</div>}
+              {errors["applicantType"] && (
+                <div className={styles.fieldError}>
+                  {errors["applicantType"]}
+                </div>
+              )}
             </div>
 
             {applicantType === "Person with Disability (PWD)" && (
               <>
                 <div style={{ flex: 1 }}>
                   <label htmlFor="disabilityType" className={styles.fieldLabel}>
-                    Disability Type <span className={styles.redAsterisk}>*</span>
+                    Disability Type{" "}
+                    <span className={styles.redAsterisk}>*</span>
                   </label>
-                  <select id="disabilityType" name="disabilityType" defaultValue="" className={errors["disabilityType"] ? styles.errorInput : ""} onChange={handleInputChange}>
-                    <option value="" disabled>Disability Type</option>
+                  <select
+                    id="disabilityType"
+                    name="disabilityType"
+                    defaultValue=""
+                    className={
+                      errors["disabilityType"] ? styles.errorInput : ""
+                    }
+                    onChange={handleInputChange}
+                  >
+                    <option value="" disabled>
+                      Disability Type
+                    </option>
                     <option value="Hearing">Hearing</option>
                     <option value="Visual">Visual</option>
                     <option value="Mobility">Mobility</option>
@@ -619,25 +719,54 @@ if (applicantType === "Person with Disability (PWD)") {
                     <option value="Psychosocial">Psychosocial</option>
                     <option value="Others">Others</option>
                   </select>
-                  {errors["disabilityType"] && <div className={styles.fieldError}>{errors["disabilityType"]}</div>}
+                  {errors["disabilityType"] && (
+                    <div className={styles.fieldError}>
+                      {errors["disabilityType"]}
+                    </div>
+                  )}
                 </div>
                 <div style={{ flex: 1 }}>
                   <label htmlFor="pwdNumber" className={styles.fieldLabel}>
                     PWD ID Number (Optional)
                   </label>
-                  <input id="pwdNumber" name="pwdNumber" type="text" onChange={handleInputChange} className={errors["pwdNumber"] ? styles.errorInput : ""} />
-                  {errors["pwdNumber"] && <div className={styles.fieldError}>{errors["pwdNumber"]}</div>}
+                  <input
+                    id="pwdNumber"
+                    name="pwdNumber"
+                    type="text"
+                    onChange={handleInputChange}
+                    className={errors["pwdNumber"] ? styles.errorInput : ""}
+                  />
+                  {errors["pwdNumber"] && (
+                    <div className={styles.fieldError}>
+                      {errors["pwdNumber"]}
+                    </div>
+                  )}
                 </div>
               </>
             )}
 
             {applicantType === "Senior Citizen" && (
               <div style={{ flex: 1 }}>
-                <label htmlFor="seniorCitizenNumber" className={styles.fieldLabel}>
+                <label
+                  htmlFor="seniorCitizenNumber"
+                  className={styles.fieldLabel}
+                >
                   Senior Citizen ID (Optional)
                 </label>
-                <input id="seniorCitizenNumber" name="seniorCitizenNumber" type="text" onChange={handleInputChange} className={errors["seniorCitizenNumber"] ? styles.errorInput : ""} />
-                {errors["seniorCitizenNumber"] && <div className={styles.fieldError}>{errors["seniorCitizenNumber"]}</div>}
+                <input
+                  id="seniorCitizenNumber"
+                  name="seniorCitizenNumber"
+                  type="text"
+                  onChange={handleInputChange}
+                  className={
+                    errors["seniorCitizenNumber"] ? styles.errorInput : ""
+                  }
+                />
+                {errors["seniorCitizenNumber"] && (
+                  <div className={styles.fieldError}>
+                    {errors["seniorCitizenNumber"]}
+                  </div>
+                )}
               </div>
             )}
 
@@ -646,8 +775,20 @@ if (applicantType === "Person with Disability (PWD)") {
                 <label htmlFor="soloParentNumber" className={styles.fieldLabel}>
                   Solo Parent ID (Optional)
                 </label>
-                <input id="soloParentNumber" name="soloParentNumber" type="text" onChange={handleInputChange} className={errors["soloParentNumber"] ? styles.errorInput : ""} />
-                {errors["soloParentNumber"] && <div className={styles.fieldError}>{errors["soloParentNumber"]}</div>}
+                <input
+                  id="soloParentNumber"
+                  name="soloParentNumber"
+                  type="text"
+                  onChange={handleInputChange}
+                  className={
+                    errors["soloParentNumber"] ? styles.errorInput : ""
+                  }
+                />
+                {errors["soloParentNumber"] && (
+                  <div className={styles.fieldError}>
+                    {errors["soloParentNumber"]}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -658,68 +799,157 @@ if (applicantType === "Person with Disability (PWD)") {
             <div className={styles.fullRow}>
               <div style={{ flex: 1 }}>
                 <label htmlFor="address" className={styles.fieldLabel}>
-                  (House No./Street/Subdivision) <span className={styles.redAsterisk}>*</span>
+                  (House No./Street/Subdivision){" "}
+                  <span className={styles.redAsterisk}>*</span>
                 </label>
-                <input id="address" name="address" type="text" onChange={handleInputChange} className={errors["address"] ? styles.errorInput : ""} />
-                {errors["address"] && <div className={styles.fieldError}>{errors["address"]}</div>}
+                <input
+                  id="address"
+                  name="address"
+                  type="text"
+                  onChange={handleInputChange}
+                  className={errors["address"] ? styles.errorInput : ""}
+                />
+                {errors["address"] && (
+                  <div className={styles.fieldError}>{errors["address"]}</div>
+                )}
               </div>
             </div>
 
             <div className={styles.geographicalRow}>
               <div className={styles.leftColumn}>
                 <div>
-                  <label htmlFor="province" className={styles.fieldLabel}>Province <span className={styles.redAsterisk}>*</span></label>
-                  <select id="province" name="province" defaultValue="" onChange={handleInputChange} className={errors["province"] ? styles.errorInput : ""}>
-                    <option value="" disabled>Select Province</option>
+                  <label htmlFor="province" className={styles.fieldLabel}>
+                    Province <span className={styles.redAsterisk}>*</span>
+                  </label>
+                  <select
+                    id="province"
+                    name="province"
+                    defaultValue=""
+                    onChange={handleInputChange}
+                    className={errors["province"] ? styles.errorInput : ""}
+                  >
+                    <option value="" disabled>
+                      Select Province
+                    </option>
                     <option value="Metro Manila">Metro Manila</option>
                     <option value="Cavite">Cavite</option>
                     <option value="Laguna">Laguna</option>
                     <option value="Rizal">Rizal</option>
                     <option value="Bulacan">Bulacan</option>
                   </select>
-                  {errors["province"] && <div className={styles.fieldError}>{errors["province"]}</div>}
+                  {errors["province"] && (
+                    <div className={styles.fieldError}>
+                      {errors["province"]}
+                    </div>
+                  )}
                 </div>
 
                 <div>
-                  <label htmlFor="district" className={styles.fieldLabel}>District <span className={styles.redAsterisk}>*</span></label>
-                  <select id="district" name="district" defaultValue="" onChange={handleDistrictChange} className={errors["district"] ? styles.errorInput : ""}>
-                    <option value="" disabled>Select District</option>
+                  <label htmlFor="district" className={styles.fieldLabel}>
+                    District <span className={styles.redAsterisk}>*</span>
+                  </label>
+                  <select
+                    id="district"
+                    name="district"
+                    defaultValue=""
+                    onChange={handleDistrictChange}
+                    className={errors["district"] ? styles.errorInput : ""}
+                  >
+                    <option value="" disabled>
+                      Select District
+                    </option>
                     <option value="District 1">District 1</option>
                     <option value="District 2">District 2</option>
                   </select>
-                  {errors["district"] && <div className={styles.fieldError}>{errors["district"]}</div>}
+                  {errors["district"] && (
+                    <div className={styles.fieldError}>
+                      {errors["district"]}
+                    </div>
+                  )}
                 </div>
 
                 <div>
-                  <label htmlFor="preferredPlaceOfAssignment" className={styles.fieldLabel}>Preferred Place of Assignment <span className={styles.redAsterisk}>*</span></label>
-                  <select id="preferredPlaceOfAssignment" name="preferredPlaceOfAssignment" value={preferredPlace} onChange={handlePreferredPlaceChange} className={errors["preferredPlaceOfAssignment"] ? styles.errorInput : ""}>
-                    <option value="" disabled>Select Preferred Place of Assignment</option>
+                  <label
+                    htmlFor="preferredPlaceOfAssignment"
+                    className={styles.fieldLabel}
+                  >
+                    Preferred Place of Assignment{" "}
+                    <span className={styles.redAsterisk}>*</span>
+                  </label>
+                  <select
+                    id="preferredPlaceOfAssignment"
+                    name="preferredPlaceOfAssignment"
+                    value={preferredPlace}
+                    onChange={handlePreferredPlaceChange}
+                    className={
+                      errors["preferredPlaceOfAssignment"]
+                        ? styles.errorInput
+                        : ""
+                    }
+                  >
+                    <option value="" disabled>
+                      Select Preferred Place of Assignment
+                    </option>
                     <option value="Paranaque">Paranaque</option>
                     <option value="Bacoor">Bacoor</option>
                     <option value="Las Piñas">Las Piñas</option>
                     <option value="Muntinlupa">Muntinlupa</option>
                   </select>
-                  {errors["preferredPlaceOfAssignment"] && <div className={styles.fieldError}>{errors["preferredPlaceOfAssignment"]}</div>}
+                  {errors["preferredPlaceOfAssignment"] && (
+                    <div className={styles.fieldError}>
+                      {errors["preferredPlaceOfAssignment"]}
+                    </div>
+                  )}
                 </div>
               </div>
 
               <div className={styles.rightColumn}>
                 <div>
-                  <label htmlFor="cityMunicipality" className={styles.fieldLabel}>City / Municipality <span className={styles.redAsterisk}>*</span></label>
-                  <select id="cityMunicipality" name="cityMunicipality" defaultValue="" onChange={handleInputChange} className={errors["cityMunicipality"] ? styles.errorInput : ""}>
-                    <option value="" disabled>Select City/Municipality</option>
+                  <label
+                    htmlFor="cityMunicipality"
+                    className={styles.fieldLabel}
+                  >
+                    City / Municipality{" "}
+                    <span className={styles.redAsterisk}>*</span>
+                  </label>
+                  <select
+                    id="cityMunicipality"
+                    name="cityMunicipality"
+                    defaultValue=""
+                    onChange={handleInputChange}
+                    className={
+                      errors["cityMunicipality"] ? styles.errorInput : ""
+                    }
+                  >
+                    <option value="" disabled>
+                      Select City/Municipality
+                    </option>
                     <option value="Parañaque">Parañaque</option>
                     <option value="Las Piñas">Las Piñas</option>
                     <option value="Muntinlupa">Muntinlupa</option>
                     <option value="Taguig">Taguig</option>
                   </select>
-                  {errors["cityMunicipality"] && <div className={styles.fieldError}>{errors["cityMunicipality"]}</div>}
+                  {errors["cityMunicipality"] && (
+                    <div className={styles.fieldError}>
+                      {errors["cityMunicipality"]}
+                    </div>
+                  )}
                 </div>
 
                 <div>
-                  <label htmlFor="barangay" className={styles.fieldLabel}>Barangay <span className={styles.redAsterisk}>*</span></label>
-                  <select id="barangay" name="barangay" defaultValue="" onChange={handleInputChange} className={errors["barangay"] ? styles.errorInput : ""}>
-                    <option value="" disabled>Select Barangay</option>
+                  <label htmlFor="barangay" className={styles.fieldLabel}>
+                    Barangay <span className={styles.redAsterisk}>*</span>
+                  </label>
+                  <select
+                    id="barangay"
+                    name="barangay"
+                    defaultValue=""
+                    onChange={handleInputChange}
+                    className={errors["barangay"] ? styles.errorInput : ""}
+                  >
+                    <option value="" disabled>
+                      Select Barangay
+                    </option>
                     {district === "District 1" && (
                       <>
                         <option value="Baclaran">Baclaran</option>
@@ -740,12 +970,18 @@ if (applicantType === "Person with Disability (PWD)") {
                         <option value="Moonwalk">Moonwalk</option>
                         <option value="San Antonio">San Antonio</option>
                         <option value="San Isidro">San Isidro</option>
-                        <option value="San Martin de Porres">San Martin de Porres</option>
+                        <option value="San Martin de Porres">
+                          San Martin de Porres
+                        </option>
                         <option value="Sun Valley">Sun Valley</option>
                       </>
                     )}
                   </select>
-                  {errors["barangay"] && <div className={styles.fieldError}>{errors["barangay"]}</div>}
+                  {errors["barangay"] && (
+                    <div className={styles.fieldError}>
+                      {errors["barangay"]}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -754,12 +990,26 @@ if (applicantType === "Person with Disability (PWD)") {
           {/* contact */}
           <div className={styles.fullRow}>
             <div>
-              <label htmlFor="email" className={styles.fieldLabel}>Email <span className={styles.redAsterisk}>*</span></label>
-              <input id="email" name="email" type="email" placeholder="@gmail.com" value={emailValue} onChange={handleEmailChange} className={errors["email"] ? styles.errorInput : ""} />
-              {errors["email"] && <div className={styles.fieldError}>{errors["email"]}</div>}
+              <label htmlFor="email" className={styles.fieldLabel}>
+                Email <span className={styles.redAsterisk}>*</span>
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="@gmail.com"
+                value={emailValue}
+                onChange={handleEmailChange}
+                className={errors["email"] ? styles.errorInput : ""}
+              />
+              {errors["email"] && (
+                <div className={styles.fieldError}>{errors["email"]}</div>
+              )}
             </div>
             <div>
-              <label htmlFor="phoneNumber" className={styles.fieldLabel}>Contact Number <span className={styles.redAsterisk}>*</span></label>
+              <label htmlFor="phoneNumber" className={styles.fieldLabel}>
+                Contact Number <span className={styles.redAsterisk}>*</span>
+              </label>
               <input
                 id="phoneNumber"
                 name="phoneNumber"
@@ -774,14 +1024,18 @@ if (applicantType === "Person with Disability (PWD)") {
                 maxLength={11}
                 className={errors["phoneNumber"] ? styles.errorInput : ""}
               />
-              {errors["phoneNumber"] && <div className={styles.fieldError}>{errors["phoneNumber"]}</div>}
+              {errors["phoneNumber"] && (
+                <div className={styles.fieldError}>{errors["phoneNumber"]}</div>
+              )}
             </div>
           </div>
 
           {/* password */}
           <div className={styles.fullRow}>
             <div style={{ flex: 1 }}>
-              <label htmlFor="password" className={styles.fieldLabel}>Password <span className={styles.redAsterisk}>*</span></label>
+              <label htmlFor="password" className={styles.fieldLabel}>
+                Password <span className={styles.redAsterisk}>*</span>
+              </label>
               <div className={styles.passwordContainer}>
                 <input
                   id="password"
@@ -803,23 +1057,53 @@ if (applicantType === "Person with Disability (PWD)") {
                 >
                   {showPassword ? (
                     // Eye open (visible) icon
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={styles.size6}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className={styles.size6}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"
+                      />
                     </svg>
                   ) : (
                     // Eye closed (hidden) icon
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={styles.size6}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className={styles.size6}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                      />
                     </svg>
                   )}
                 </button>
               </div>
-              {errors["password"] && <div className={styles.fieldError}>{errors["password"]}</div>}
+              {errors["password"] && (
+                <div className={styles.fieldError}>{errors["password"]}</div>
+              )}
             </div>
 
             <div style={{ flex: 1 }}>
-              <label htmlFor="confirmPassword" className={styles.fieldLabel}>Confirm Password <span className={styles.redAsterisk}>*</span></label>
+              <label htmlFor="confirmPassword" className={styles.fieldLabel}>
+                Confirm Password <span className={styles.redAsterisk}>*</span>
+              </label>
               <div className={styles.passwordContainer}>
                 <input
                   id="confirmPassword"
@@ -829,7 +1113,8 @@ if (applicantType === "Person with Disability (PWD)") {
                   onChange={(e) => {
                     setConfirmPassword(e.target.value);
                     const newErrors = { ...errors };
-                    if (e.target.value && e.target.value.trim() !== "") delete newErrors.confirmPassword;
+                    if (e.target.value && e.target.value.trim() !== "")
+                      delete newErrors.confirmPassword;
                     setErrors(newErrors);
                   }}
                   value={confirmPassword}
@@ -841,40 +1126,139 @@ if (applicantType === "Person with Disability (PWD)") {
                     setShowConfirm((v) => !v);
                   }}
                   className={styles.iconButton}
-                  aria-label={showConfirm ? "Hide confirm password" : "Show confirm password"}
+                  aria-label={
+                    showConfirm
+                      ? "Hide confirm password"
+                      : "Show confirm password"
+                  }
                 >
                   {showConfirm ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={styles.size6}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className={styles.size6}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"
+                      />
                     </svg>
                   ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={styles.size6}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className={styles.size6}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                      />
                     </svg>
                   )}
                 </button>
               </div>
-              {errors["confirmPassword"] && <div className={styles.fieldError}>{errors["confirmPassword"]}</div>}
+              {errors["confirmPassword"] && (
+                <div className={styles.fieldError}>
+                  {errors["confirmPassword"]}
+                </div>
+              )}
             </div>
           </div>
 
           <div className={styles.passwordRequirements}>
             <h4>Your password should contain:</h4>
-            <div className={`${styles.requirementItem} ${password.length === 0 ? styles["neutral"] : passwordRequirements.length ? styles["valid"] : styles["invalid"]}`}>
-              {password.length === 0 ? "○" : passwordRequirements.length ? "✓" : "✗"} At least 8 characters
+            <div
+              className={`${styles.requirementItem} ${
+                password.length === 0
+                  ? styles["neutral"]
+                  : passwordRequirements.length
+                  ? styles["valid"]
+                  : styles["invalid"]
+              }`}
+            >
+              {password.length === 0
+                ? "○"
+                : passwordRequirements.length
+                ? "✓"
+                : "✗"}{" "}
+              At least 8 characters
             </div>
-            <div className={`${styles.requirementItem} ${password.length === 0 ? styles["neutral"] : passwordRequirements.uppercase ? styles["valid"] : styles["invalid"]}`}>
-              {password.length === 0 ? "○" : passwordRequirements.uppercase ? "✓" : "✗"} At least 1 uppercase letter
+            <div
+              className={`${styles.requirementItem} ${
+                password.length === 0
+                  ? styles["neutral"]
+                  : passwordRequirements.uppercase
+                  ? styles["valid"]
+                  : styles["invalid"]
+              }`}
+            >
+              {password.length === 0
+                ? "○"
+                : passwordRequirements.uppercase
+                ? "✓"
+                : "✗"}{" "}
+              At least 1 uppercase letter
             </div>
-            <div className={`${styles.requirementItem} ${password.length === 0 ? styles["neutral"] : passwordRequirements.lowercase ? styles["valid"] : styles["invalid"]}`}>
-              {password.length === 0 ? "○" : passwordRequirements.lowercase ? "✓" : "✗"} At least 1 lowercase letter
+            <div
+              className={`${styles.requirementItem} ${
+                password.length === 0
+                  ? styles["neutral"]
+                  : passwordRequirements.lowercase
+                  ? styles["valid"]
+                  : styles["invalid"]
+              }`}
+            >
+              {password.length === 0
+                ? "○"
+                : passwordRequirements.lowercase
+                ? "✓"
+                : "✗"}{" "}
+              At least 1 lowercase letter
             </div>
-            <div className={`${styles.requirementItem} ${password.length === 0 ? styles["neutral"] : passwordRequirements.number ? styles["valid"] : styles["invalid"]}`}>
-              {password.length === 0 ? "○" : passwordRequirements.number ? "✓" : "✗"} At least 1 number
+            <div
+              className={`${styles.requirementItem} ${
+                password.length === 0
+                  ? styles["neutral"]
+                  : passwordRequirements.number
+                  ? styles["valid"]
+                  : styles["invalid"]
+              }`}
+            >
+              {password.length === 0
+                ? "○"
+                : passwordRequirements.number
+                ? "✓"
+                : "✗"}{" "}
+              At least 1 number
             </div>
-            <div className={`${styles.requirementItem} ${password.length === 0 ? styles["neutral"] : passwordRequirements.special ? styles["valid"] : styles["invalid"]}`}>
-              {password.length === 0 ? "○" : passwordRequirements.special ? "✓" : "✗"} At least 1 special character (!@#$%&)
+            <div
+              className={`${styles.requirementItem} ${
+                password.length === 0
+                  ? styles["neutral"]
+                  : passwordRequirements.special
+                  ? styles["valid"]
+                  : styles["invalid"]
+              }`}
+            >
+              {password.length === 0
+                ? "○"
+                : passwordRequirements.special
+                ? "✓"
+                : "✗"}{" "}
+              At least 1 special character (!@#$%&)
             </div>
           </div>
 
@@ -882,9 +1266,16 @@ if (applicantType === "Person with Disability (PWD)") {
           <div className={styles.fileUploadSection}>
             <div className={styles.uploadRow}>
               <div className={styles.uploadField}>
-                <label>Upload Valid ID <span className={styles.redAsterisk}>*</span></label>
+                <label>
+                  Upload Valid ID <span className={styles.redAsterisk}>*</span>
+                </label>
                 <div className={styles.fileInputContainer}>
-                  <label htmlFor="validIdInput" className={styles.chooseFileLabel}>Choose File</label>
+                  <label
+                    htmlFor="validIdInput"
+                    className={styles.chooseFileLabel}
+                  >
+                    Choose File
+                  </label>
                   <input
                     id="validIdInput"
                     type="file"
@@ -893,21 +1284,28 @@ if (applicantType === "Person with Disability (PWD)") {
                     required
                     onChange={(e) => {
                       const file = e.target.files?.[0];
-                      const fileNameSpan = (e.currentTarget as HTMLInputElement).parentElement?.querySelector(`.${styles.fileName}`) as HTMLElement | null;
+                      const fileNameSpan = (
+                        e.currentTarget as HTMLInputElement
+                      ).parentElement?.querySelector(
+                        `.${styles.fileName}`
+                      ) as HTMLElement | null;
                       const newErrors = { ...errors };
                       if (file) {
                         const maxSize = 5 * 1024 * 1024;
                         if (file.size > maxSize) {
                           alert("File size must be less than 5MB");
                           (e.target as HTMLInputElement).value = "";
-                          if (fileNameSpan) fileNameSpan.textContent = "No file chosen";
+                          if (fileNameSpan)
+                            fileNameSpan.textContent = "No file chosen";
                           newErrors.validId = "File too large";
                         } else {
-                          if (fileNameSpan) fileNameSpan.textContent = file.name;
+                          if (fileNameSpan)
+                            fileNameSpan.textContent = file.name;
                           delete newErrors.validId;
                         }
                       } else {
-                        if (fileNameSpan) fileNameSpan.textContent = "No file chosen";
+                        if (fileNameSpan)
+                          fileNameSpan.textContent = "No file chosen";
                         newErrors.validId = "This file is required";
                       }
                       setErrors(newErrors);
@@ -916,14 +1314,26 @@ if (applicantType === "Person with Disability (PWD)") {
                   />
                   <span className={styles.fileName}>No file chosen</span>
                 </div>
-                {errors["validId"] && <div className={styles.fieldError}>{errors["validId"]}</div>}
-                <p className={styles.fileInfo}>Accepted formats: JPG, PNG (Max: 5MB)</p>
+                {errors["validId"] && (
+                  <div className={styles.fieldError}>{errors["validId"]}</div>
+                )}
+                <p className={styles.fileInfo}>
+                  Accepted formats: JPG, PNG (Max: 5MB)
+                </p>
               </div>
 
               <div className={styles.uploadField}>
-                <label>Upload Selfie with ID <span className={styles.redAsterisk}>*</span></label>
+                <label>
+                  Upload Selfie with ID{" "}
+                  <span className={styles.redAsterisk}>*</span>
+                </label>
                 <div className={styles.fileInputContainer}>
-                  <label htmlFor="selfieWithIdInput" className={styles.chooseFileLabel}>Choose File</label>
+                  <label
+                    htmlFor="selfieWithIdInput"
+                    className={styles.chooseFileLabel}
+                  >
+                    Choose File
+                  </label>
                   <input
                     id="selfieWithIdInput"
                     type="file"
@@ -932,21 +1342,28 @@ if (applicantType === "Person with Disability (PWD)") {
                     required
                     onChange={(e) => {
                       const file = e.target.files?.[0];
-                      const fileNameSpan = (e.currentTarget as HTMLInputElement).parentElement?.querySelector(`.${styles.fileName}`) as HTMLElement | null;
+                      const fileNameSpan = (
+                        e.currentTarget as HTMLInputElement
+                      ).parentElement?.querySelector(
+                        `.${styles.fileName}`
+                      ) as HTMLElement | null;
                       const newErrors = { ...errors };
                       if (file) {
                         const maxSize = 5 * 1024 * 1024;
                         if (file.size > maxSize) {
                           alert("File size must be less than 5MB");
                           (e.target as HTMLInputElement).value = "";
-                          if (fileNameSpan) fileNameSpan.textContent = "No file chosen";
+                          if (fileNameSpan)
+                            fileNameSpan.textContent = "No file chosen";
                           newErrors.selfieWithId = "File too large";
                         } else {
-                          if (fileNameSpan) fileNameSpan.textContent = file.name;
+                          if (fileNameSpan)
+                            fileNameSpan.textContent = file.name;
                           delete newErrors.selfieWithId;
                         }
                       } else {
-                        if (fileNameSpan) fileNameSpan.textContent = "No file chosen";
+                        if (fileNameSpan)
+                          fileNameSpan.textContent = "No file chosen";
                         newErrors.selfieWithId = "This file is required";
                       }
                       setErrors(newErrors);
@@ -955,8 +1372,14 @@ if (applicantType === "Person with Disability (PWD)") {
                   />
                   <span className={styles.fileName}>No file chosen</span>
                 </div>
-                {errors["selfieWithId"] && <div className={styles.fieldError}>{errors["selfieWithId"]}</div>}
-                <p className={styles.fileInfo}>Ensure your face and ID are clearly visible</p>
+                {errors["selfieWithId"] && (
+                  <div className={styles.fieldError}>
+                    {errors["selfieWithId"]}
+                  </div>
+                )}
+                <p className={styles.fileInfo}>
+                  Ensure your face and ID are clearly visible
+                </p>
               </div>
             </div>
           </div>
@@ -965,14 +1388,46 @@ if (applicantType === "Person with Disability (PWD)") {
           <div className={styles.termsSection}>
             <h3>Terms and Conditions</h3>
             <div className={styles.termsText}>
-              <p><strong>By registering for this system, I agree to the following terms and conditions:</strong></p>
-              <p><strong>1.</strong> I understand that the information I provide will be used solely for employment-related purposes, including job matching, referrals, and verification by authorized personnel.</p>
-              <p><strong>2.</strong> I consent to the processing of my personal data in accordance with the Data Privacy Act of 2012 and the organization's data protection policies.</p>
-              <p><strong>3.</strong> I acknowledge that all information provided is accurate and complete to the best of my knowledge.</p>
-              <p><strong>4.</strong> I understand that false or misleading information may result in the rejection of my application or termination of my account.</p>
-              <p><strong>5.</strong> I agree to receive notifications and updates related to job opportunities and my application status.</p>
-              <p><strong>6.</strong> I understand that my personal data will be stored securely and will only be shared with potential employers with my consent.</p>
-              <p><strong>7.</strong> I have the right to access, correct, or delete my personal data at any time by contacting the system administrator.</p>
+              <p>
+                <strong>
+                  By registering for this system, I agree to the following terms
+                  and conditions:
+                </strong>
+              </p>
+              <p>
+                <strong>1.</strong> I understand that the information I provide
+                will be used solely for employment-related purposes, including
+                job matching, referrals, and verification by authorized
+                personnel.
+              </p>
+              <p>
+                <strong>2.</strong> I consent to the processing of my personal
+                data in accordance with the Data Privacy Act of 2012 and the
+                organization&apos;s data protection policies.
+              </p>
+              <p>
+                <strong>3.</strong> I acknowledge that all information provided
+                is accurate and complete to the best of my knowledge.
+              </p>
+              <p>
+                <strong>4.</strong> I understand that false or misleading
+                information may result in the rejection of my application or
+                termination of my account.
+              </p>
+              <p>
+                <strong>5.</strong> I agree to receive notifications and updates
+                related to job opportunities and my application status.
+              </p>
+              <p>
+                <strong>6.</strong> I understand that my personal data will be
+                stored securely and will only be shared with potential employers
+                with my consent.
+              </p>
+              <p>
+                <strong>7.</strong> I have the right to access, correct, or
+                delete my personal data at any time by contacting the system
+                administrator.
+              </p>
             </div>
             <label className={styles.termsCheckbox}>
               <input
@@ -991,7 +1446,9 @@ if (applicantType === "Person with Disability (PWD)") {
               />
               <span>Accept Terms and Conditions</span>
             </label>
-            {errors["acceptTerms"] && <div className={styles.fieldError}>{errors["acceptTerms"]}</div>}
+            {errors["acceptTerms"] && (
+              <div className={styles.fieldError}>{errors["acceptTerms"]}</div>
+            )}
           </div>
 
           <div className={styles.signUpButtonContainer}>
@@ -1007,7 +1464,7 @@ if (applicantType === "Person with Disability (PWD)") {
                   uppercase: false,
                   lowercase: false,
                   number: false,
-                  special: false
+                  special: false,
                 });
                 setCalculatedAge(null);
                 setApplicantType("");
@@ -1021,7 +1478,9 @@ if (applicantType === "Person with Disability (PWD)") {
                 setDistrict("");
                 setExtNameValue("None");
                 setShowFormNotice(false);
-                const form = document.querySelector("form") as HTMLFormElement | null;
+                const form = document.querySelector(
+                  "form"
+                ) as HTMLFormElement | null;
                 if (form) form.reset();
               }}
             >
