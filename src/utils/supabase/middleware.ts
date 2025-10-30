@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
+import { redirect } from "next/navigation";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
@@ -11,7 +12,7 @@ export async function updateSession(request: NextRequest) {
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   ) {
-    return supabaseResponse;
+    redirect("/error?reason=missing-env-vars");
   }
 
   const supabase = createServerClient(

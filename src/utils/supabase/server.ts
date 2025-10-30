@@ -1,27 +1,16 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export async function createClient() {
   const cookieStore = await cookies();
 
-  // Development fallback: if Supabase env vars are missing, return a minimal stub
-  type MinimalSupabaseClient = {
-    auth: {
-      getUser: () => Promise<{ data: { user: null }; error: null }>;
-    };
-  };
-
+  // Check if user exists, throw error
   if (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   ) {
-    return {
-      auth: {
-        async getUser() {
-          return { data: { user: null }, error: null };
-        },
-      },
-    } as MinimalSupabaseClient;
+    redirect("/error?reason=missing-env-vars");
   }
 
   return createServerClient(
