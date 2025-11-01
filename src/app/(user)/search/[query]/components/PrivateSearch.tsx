@@ -1,6 +1,6 @@
 import React from "react";
-import PrivateJobList from "@/app/job-opportunities/[companyId]/components/PrivateJobList";
-import PrivateCompanyList from "@/app/job-opportunities/components/PrivateCompanyList";
+import PrivateJobList from "@/app/(user)/job-opportunities/[companyId]/components/PrivateJobList";
+import PrivateCompanyList from "@/app/(user)/job-opportunities/components/PrivateCompanyList";
 import styles from "./Search.module.css";
 
 interface PrivateSearchProp {

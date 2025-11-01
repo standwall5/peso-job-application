@@ -1,9 +1,5 @@
 import React from "react";
-import { useParams } from "next/navigation";
-import styles from "@/app/job-opportunities/JobHome.module.css";
-import jobStyle from "@/app/job-opportunities/[companyId]/JobsOfCompany.module.css";
-import PublicJobList from "@/app/job-opportunities/[companyId]/components/PublicJobList";
-import PublicCompanyList from "@/app/job-opportunities/components/PublicCompanyList";
+import PublicCompanyList from "@/app/(user)/job-opportunities/components/PublicCompanyList";
 
 interface PublicSearchProp {
   search: string;
