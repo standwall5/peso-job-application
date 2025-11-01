@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import styles from "@/app/job-opportunities/JobHome.module.css";
+import styles from "@/app/(user)/job-opportunities/JobHome.module.css";
 import jobStyle from "../JobsOfCompany.module.css";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";

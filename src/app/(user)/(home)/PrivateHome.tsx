@@ -1,5 +1,5 @@
 import React from "react";
-import PrivateCompanyList from "@/app/job-opportunities/components/PrivateCompanyList";
+import PrivateCompanyList from "@/app/(user)/job-opportunities/components/PrivateCompanyList";
 
 const PrivateHome = () => {
   // If no resume, prompt create resume

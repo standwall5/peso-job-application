@@ -6,7 +6,6 @@ import Cropper from "react-easy-crop";
 import { useDropzone } from "react-dropzone";
 import Resume from "./Resume";
 import BlocksWave from "@/components/BlocksWave";
-import Link from "next/link";
 import Toast from "@/components/toast/Toast";
 
 interface WorkExperience {

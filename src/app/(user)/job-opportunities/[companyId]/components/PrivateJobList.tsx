@@ -1,12 +1,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import styles from "@/app/job-opportunities/JobHome.module.css";
+import styles from "@/app/(user)/job-opportunities/JobHome.module.css";
 import jobStyle from "../JobsOfCompany.module.css";
 import BlocksWave from "@/components/BlocksWave";
 
 import { createClient } from "@/utils/supabase/client";
-import UserProfile from "@/app/profile/components/UserProfile";
+import UserProfile from "@/app/(user)/profile/components/UserProfile";
 import Link from "next/link";
 
 interface Job {

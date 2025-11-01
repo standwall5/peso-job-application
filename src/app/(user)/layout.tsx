@@ -5,7 +5,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { createClient } from "@/utils/supabase/server";
-import { User } from "@supabase/supabase-js";
 
 const poppinsSans = Poppins({
   variable: "--font-poppins-sans",
