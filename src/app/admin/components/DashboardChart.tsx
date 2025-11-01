@@ -85,7 +85,7 @@ const DashboardChart = () => {
         align: "start" as const,
         color: "#d3fff9ff",
         font: {
-          weight: "bold",
+          weight: "bold" as const,
         },
         formatter: function (value: number) {
           return value;
