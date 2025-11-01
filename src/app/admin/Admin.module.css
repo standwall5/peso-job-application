@@ -1,0 +1,103 @@
+:root {
+  --accent: #33b499;
+}
+
+/* Layout Components */
+
+.sideBar {
+  background-color: var(--accent);
+  position: relative;
+  width: 20rem;
+  overflow: hidden;
+}
+
+.sideBarList {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  font-weight: bold;
+  font-family: Poppins, sans-serif;
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  padding-top: 5rem;
+}
+
+.sideBarList a {
+  text-decoration: none;
+  color: white;
+  transition: 0.25s;
+  font-size: 1.3rem;
+  width: 100%;
+}
+/* 
+.sideBar a:hover {
+  color: #bdffdd;
+} */
+.sideBarList li {
+  text-align: center;
+  transform: 0.25s;
+  border-radius: 0.5rem;
+  padding: 0.5rem 2rem;
+}
+.sideBarList li:hover {
+  background-color: #1c8678;
+}
+
+.sideBarPeso {
+  display: flex;
+  align-items: center;
+  color: white;
+  flex-flow: row wrap;
+  padding: 1.5rem;
+}
+
+.sideBarPeso img {
+  width: 5rem;
+}
+
+.sideBarPeso span {
+  font-size: 2rem;
+  font-weight: bold;
+  padding-top: 5px;
+}
+
+.header {
+  display: flex;
+  justify-content: flex-end;
+  /* border-bottom: 1px solid grey; */
+  width: 100%;
+  text-decoration: none;
+}
+
+.header img {
+  width: 64px;
+  filter: drop-shadow(1px 1px 0 var(--accent))
+    drop-shadow(-1px 1px 0 var(--accent)) drop-shadow(1px -1px 0 var(--accent))
+    drop-shadow(-1px -1px 0 var(--accent));
+}
+
+.header ul {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2rem;
+  padding: 1rem;
+  line-height: normal;
+  width: 100%;
+  border-bottom: 1px solid grey;
+}
+
+.header ul li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header ul li svg {
+  color: var(--accent);
+  transform: scale(1.2);
+  cursor: pointer;
+}

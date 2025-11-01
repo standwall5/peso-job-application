@@ -1,0 +1,49 @@
+/* Dashboard */
+
+.dashboardStats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5rem;
+  width: 100%;
+}
+
+.dashboardStats h1 {
+  text-align: center;
+  font-weight: bold;
+}
+
+.dashboardStatsCount ul {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  width: max-content;
+}
+
+.dashboardStatsCount ul li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.dashboardStatsCount ul li div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.dashboardStatsCount svg {
+  color: grey;
+}
+
+.dashboardContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5rem;
+  flex: 1;
+}

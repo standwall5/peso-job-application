@@ -36,7 +36,7 @@
 
 body {
   color: var(--text);
-  font-family: Poppins, sans-serif;
+  font-family: var(--font-poppins-sans), Arial, sans-serif;
 }
 
 .logged-in-bg {
@@ -348,4 +348,23 @@ footer img {
   gap: 1rem;
   justify-content: center;
   align-items: center;
+}
+
+/* Admin */
+
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex: 1;
+  background: #f9f9f9;
 }

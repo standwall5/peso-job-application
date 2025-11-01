@@ -4,6 +4,7 @@ import React, { useState, useCallback, useRef, useEffect } from "react";
 import styles from "./SignUp.module.css";
 import { signup } from "@/lib/auth-actions";
 import Link from "next/link";
+import { Fascinate_Inline } from "next/font/google";
 
 const SignUpForm: React.FC = () => {
   const [district, setDistrict] = useState<string>("");
@@ -13,7 +14,7 @@ const SignUpForm: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [modal, setModal] = useState(true);
+  const [modal, setModal] = useState(false);
   const [calculatedAge, setCalculatedAge] = useState<number | null>(null);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [passwordRequirements, setPasswordRequirements] = useState({

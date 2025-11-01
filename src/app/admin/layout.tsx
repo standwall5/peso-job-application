@@ -1,26 +1,16 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Poppins } from "next/font/google";
-import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import "@/app/globals.css";
+import styles from "@/app/admin/Admin.module.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { createClient } from "@/utils/supabase/server";
-import { User } from "@supabase/supabase-js";
+import Sidebar from "./components/Sidebar";
+import Header from "./components/Header";
 
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "700"], // add weights you need
+const poppinsSans = Poppins({
   variable: "--font-poppins-sans",
-});
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
@@ -28,7 +18,7 @@ export const metadata: Metadata = {
   description: "A job application platform by PESO",
 };
 
-export default async function RootLayout({
+export default async function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -39,10 +29,12 @@ export default async function RootLayout({
   const bgClass = user ? "logged-in-bg" : "public-bg";
 
   return (
-    <html lang="en">
-      <body className={`${poppins.className} ${bgClass}`}>
+    <div className="admin-layout">
+      <Sidebar />
+      <div className="main-content">
+        <Header />
         <main className="content">{children}</main>
-      </body>
-    </html>
+      </div>
+    </div>
   );
 }

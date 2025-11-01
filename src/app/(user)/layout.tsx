@@ -7,10 +7,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { createClient } from "@/utils/supabase/server";
 import { User } from "@supabase/supabase-js";
 
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "700"], // add weights you need
+const poppinsSans = Poppins({
   variable: "--font-poppins-sans",
+  subsets: ["latin"],
+  weight: ["400", "700"], // Add the weights you need
 });
 
 const geistSans = Geist({
@@ -39,10 +39,12 @@ export default async function RootLayout({
   const bgClass = user ? "logged-in-bg" : "public-bg";
 
   return (
-    <html lang="en">
-      <body className={`${poppins.className} ${bgClass}`}>
+    <div className="page-container">
+      <div className="overlay">
+        <Navbar />
         <main className="content">{children}</main>
-      </body>
-    </html>
+        <Footer />
+      </div>
+    </div>
   );
 }
