@@ -62,7 +62,7 @@ const Header = () => {
           >
             <img src="/assets/pesoLogo.png" alt="PESO" />
           </div>
-          <div>
+          <div ref={profileRef}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
