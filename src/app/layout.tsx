@@ -40,9 +40,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={`${poppins.className} ${bgClass}`}>
-        <main className="content">{children}</main>
-      </body>
+      <body className={`${poppins.className} ${bgClass}`}>{children}</body>
     </html>
   );
 }

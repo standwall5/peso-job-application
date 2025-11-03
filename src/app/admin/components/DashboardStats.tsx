@@ -21,7 +21,7 @@ const DashboardStats = () => {
               <path
                 d="M4.25 29.75L11.612 22.388M11.612 22.388C9.68924 20.4653 8.5 17.809 8.5 14.875C8.5 9.00697 13.257 4.25 19.125 4.25C24.993 4.25 29.75 9.00697 29.75 14.875C29.75 20.743 24.993 25.5 19.125 25.5C16.191 25.5 13.5347 24.3108 11.612 22.388Z"
                 stroke="currentColor"
-                stroke-width="1.5"
+                strokeWidth="1.5"
                 stroke-linecap="round"
                 stroke-linejoin="round"
               />

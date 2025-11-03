@@ -1,8 +1,30 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useRef, useState } from "react";
 import styles from "@/app/admin/Admin.module.css";
 import Link from "next/link";
+import { signout } from "@/lib/auth-actions";
+import headerStyles from "@/components/Navbar.module.css";
 
 const Header = () => {
+  const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(event.target as Node)
+      ) {
+        setShowSettingsDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div className={`${styles.header}`}>
       <ul>
@@ -31,19 +53,36 @@ const Header = () => {
           </svg>
         </li>
         <li>
-          <img src="/assets/pesoLogo.png" alt="PESO" />
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="size-6"
+          <div
+            className={headerStyles.dropdown}
+            onClick={() => {
+              setShowSettingsDropdown(true);
+            }}
+            ref={profileRef}
           >
-            <path
-              fillRule="evenodd"
-              d="M12.53 16.28a.75.75 0 0 1-1.06 0l-7.5-7.5a.75.75 0 0 1 1.06-1.06L12 14.69l6.97-6.97a.75.75 0 1 1 1.06 1.06l-7.5 7.5Z"
-              clipRule="evenodd"
-            />
-          </svg>
+            <img src="/assets/pesoLogo.png" alt="PESO" />
+          </div>
+          <div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="size-6"
+            >
+              <path
+                fillRule="evenodd"
+                d="M12.53 16.28a.75.75 0 0 1-1.06 0l-7.5-7.5a.75.75 0 0 1 1.06-1.06L12 14.69l6.97-6.97a.75.75 0 1 1 1.06 1.06l-7.5 7.5Z"
+                clipRule="evenodd"
+              />
+            </svg>
+            {showSettingsDropdown && (
+              <div
+                className={`${headerStyles.dropdownContent} ${headerStyles.settingsDropdown}`}
+              >
+                <button onClick={signout}>Logout</button>
+              </div>
+            )}
+          </div>
         </li>
       </ul>
     </div>
