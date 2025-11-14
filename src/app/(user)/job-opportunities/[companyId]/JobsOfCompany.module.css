@@ -16,7 +16,7 @@
   padding: 2rem 4rem;
   border-radius: 8px;
 
-  max-width: 60vw;
+  max-width: 40vw;
   max-height: 80vh;
 
   overflow-y: auto;
@@ -28,7 +28,8 @@
   width: 60vw;
   height: 80vh;
   min-width: 60vw;
-  min-height: 80vh;
+  max-width: 60vw;
+  max-height: 80vh;
 }
 
 .jobSpecificCard {
@@ -59,20 +60,31 @@
 .applicationContainer {
   display: flex;
   height: 85%;
-  margin: 2rem;
   gap: 2rem;
+  width: 100%;
 }
 
 .applicationJobCompany {
   align-self: center;
   aspect-ratio: 1/1.3;
-  height: 82%;
+  height: 77%;
+
+  /* height: 82%; */
+}
+
+.applicationJobCompanyAdmin {
+  align-self: center;
+  aspect-ratio: 1/1.2;
+  height: 77%;
 }
 
 .applicationDetails {
-  display: block;
-  justify-content: flex-start;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
   width: 100%;
+  overflow-x: hidden;
 }
 
 .applicationNav {
@@ -101,16 +113,30 @@
   position: relatve;
   align-items: center;
   justify-content: center;
-  height: 95%;
-  width: 100%;
+  height: 100%;
+  max-width: 90%;
   flex-direction: column;
-  overflow: auto;
   gap: 2rem;
-  padding: 2rem;
+  padding: 2rem 0;
+  overflow-x: hidden;
+  align-self: center;
 }
 
-.applicantDetailResume {
+/* .applicantDetailResume {
   padding-top: 5rem;
+  transform: scale(0.7);
+  margin-left: -5rem;
+  margin-top: 2rem;
+  padding: 0rem 1rem;
+  justify-self: flex-start;
+  overflow-y: scroll;
+} */
+
+.applicantDetailResume {
+  margin-top: -10rem;
+  transform: scale(0.7);
+  height: 100%;
+  margin-bottom: 2rem;
 }
 
 .applicantDetailButtons {
@@ -121,4 +147,35 @@
   position: absolute;
   bottom: 1.2rem;
   right: 16rem;
+}
+
+.jobApplied {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.applicantInformation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.applicantPicture img {
+  border-radius: 100%;
+}
+
+.applicantPicture {
+  border: 1px solid black;
+
+  border-radius: 100%;
+  width: 120px;
+  height: auto;
+}
+
+.applicantPersonalInfo {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
 }

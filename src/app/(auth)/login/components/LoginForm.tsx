@@ -1,16 +1,18 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import "@/app/home.css";
 import { login } from "@/lib/auth-actions";
 import { useState } from "react";
+import OneEightyRing from "@/components/OneEightyRing";
 
 const LoginForm = () => {
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+    setLoading(true);
 
     const formData = new FormData(e.currentTarget);
     const result = await login(formData);
@@ -18,6 +20,7 @@ const LoginForm = () => {
     if (result?.error) {
       setError(result.error);
     }
+    setLoading(false);
   }
 
   return (
@@ -51,7 +54,12 @@ const LoginForm = () => {
               name="password"
             />
             <Link href="/resetPassword">Forgot password?</Link>
-            <button className="custom-button">Login</button>
+            <button
+              className="custom-button"
+              style={{ display: "flex", alignItems: "center", gap: ".5rem" }}
+            >
+              {loading && <OneEightyRing color="white" />} Login
+            </button>
           </form>
           <p>
             No account yet? <Link href="/signup">Register now</Link>

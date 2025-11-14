@@ -1,0 +1,251 @@
+.jobseekers {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 8rem;
+  height: 100%;
+  width: 100%;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+}
+
+.search input {
+  display: flex;
+  border: 1px solid black;
+  border-radius: 0.2rem;
+  padding: 0.5rem 1rem;
+  width: 30rem;
+  height: 4rem;
+
+  border-radius: 2rem;
+  text-indent: 2rem;
+  transition: 0.25s;
+}
+
+.search input:focus {
+  border-radius: 4rem;
+  width: 35rem;
+  height: 5rem;
+  border: 1px solid var(--accent);
+}
+
+.searchIcon {
+  position: absolute;
+  left: 1rem;
+  color: grey;
+  z-index: 10;
+}
+
+.search input:focus ~ .searchIcon {
+  color: var(--accent);
+}
+
+/* .searchIcon {
+  background-color: var(--accent);
+  border: 1px solid var(--accent);
+  color: white;
+  padding: 0.5rem 1.5rem;
+  cursor: pointer;
+  border-radius: 0 2rem 2rem 0;
+} */
+
+.jobseekersTable {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 90%;
+  margin-top: 10rem;
+}
+
+.tableRow {
+  display: grid;
+  grid-template-columns: auto auto;
+  margin-bottom: 1rem;
+}
+
+/* .tableHeader,
+.tableRow {
+  display: grid;
+  grid-template-columns: 2.5fr 2fr 2fr 2fr 1.2fr 1.2fr 0.7fr;
+  align-items: center;
+  padding: 0.5rem 0;
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+} */
+
+.tableHeader,
+.tableRow {
+  display: grid;
+  grid-template-columns: 4fr 1fr 0.2fr;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+}
+
+.jobseekersDetailsHeader,
+.jobseekersDetails {
+  display: grid;
+  grid-template-columns: 0.8fr 2fr 2fr 2fr 2fr;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.5rem;
+  gap: 2rem;
+  width: 100%;
+  font-weight: bold;
+}
+
+.jobseekersDetails {
+  /* box-shadow: 2px 2px 10px 2px #88888852; */
+  border-radius: 0.5rem;
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+  transition: 0.25s;
+  height: auto;
+  padding: 1rem 2rem;
+}
+
+.jobseekersDetails:hover {
+  background-color: rgb(216, 216, 216);
+  cursor: pointer;
+}
+
+.avatarCell {
+  width: max-content;
+}
+
+.avatar {
+  aspect-ratio: 1/1;
+  width: 3rem;
+  border-radius: 50%;
+  border: 1px solid black;
+}
+
+.status {
+  padding: 0.2rem 0.7rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  filter: brightness();
+  transition: 0.25s;
+}
+
+.status.toreview {
+  background: #ccc;
+  color: #fff;
+}
+.status.referred {
+  background: #b2e5c8;
+  color: #081761;
+}
+.status.pending {
+  background: #ffa726;
+  color: #fff;
+}
+
+.detailsBtn {
+  /* background: #b2e5f9; */
+  background-color: var(--accent);
+  /* color: #081761; */
+  color: white;
+  border: none;
+  padding: 0.3rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.25s;
+}
+
+.detailsBtn:hover {
+  background: #34b17d;
+}
+
+.status:hover span {
+  filter: brightness(0.9);
+  cursor: pointer;
+}
+
+.checkbox input {
+  width: 30px; /* Adjust as needed */
+  height: 30px;
+  margin-top: 0.5rem;
+}
+
+/* Jobseekers.module.css */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  max-width: 700px;
+  width: 100%;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+.applicationNav {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1rem;
+  list-style: none;
+  padding: 0;
+}
+
+.applicationNav li {
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+}
+
+.applicationNav .active {
+  background: #b2e5f9;
+  color: #081761;
+  font-weight: bold;
+}
+
+.notFound {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: var(--accent);
+  gap: 1rem;
+}
+
+.notFound svg {
+  width: 15rem;
+  color: var(--accent);
+}

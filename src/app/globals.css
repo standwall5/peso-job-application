@@ -6,6 +6,10 @@
   box-sizing: border-box;
 }
 
+*:focus {
+  outline: none;
+}
+
 :root {
   --foreground: #171717;
   --text: #040316;
@@ -115,6 +119,13 @@ nav {
   display: flex;
   flex: 1;
   align-items: center;
+  justify-content: center;
+}
+
+.admin-content {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
   justify-content: center;
 }
 

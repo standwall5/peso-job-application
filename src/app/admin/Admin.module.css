@@ -9,6 +9,10 @@
   position: relative;
   width: 20rem;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .sideBarList {
@@ -16,34 +20,55 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 0.5rem;
+  gap: 1rem;
   font-weight: bold;
   font-family: Poppins, sans-serif;
   height: 100%;
-  width: 100%;
+  width: 90%;
   padding: 0;
   padding-top: 5rem;
+  margin: 0 1rem;
 }
 
-.sideBarList a {
+.sideBarList span {
   text-decoration: none;
   color: white;
   transition: 0.25s;
   font-size: 1.3rem;
   width: 100%;
+  cursor: pointer;
+}
+
+.sideBarList a {
+  text-decoration: none;
 }
 /* 
 .sideBar a:hover {
   color: #bdffdd;
 } */
-.sideBarList li {
-  text-align: center;
+.sideBarList .menuItem {
+  text-align: left;
   transform: 0.25s;
+  width: 100%;
   border-radius: 0.5rem;
   padding: 0.5rem 2rem;
+  cursor: pointer;
+  transition: 0.25s;
 }
-.sideBarList li:hover {
-  background-color: #1c8678;
+
+.sideBarList .menuItem:hover,
+.menuItem.active {
+  background-color: #ffffff;
+}
+
+.menuItem:hover span,
+.menuItem.active > span {
+  color: var(--accent);
+}
+
+.menuItem:hover .subMenu li,
+.menuItem:hover .subMenu a {
+  color: var(--accent);
 }
 
 .sideBarPeso {
@@ -52,6 +77,8 @@
   color: white;
   flex-flow: row wrap;
   padding: 1.5rem;
+  align-self: flex-start;
+  justify-self: flex-start;
 }
 
 .sideBarPeso img {
@@ -100,4 +127,64 @@
   color: var(--accent);
   transform: scale(1.2);
   cursor: pointer;
+}
+
+.subMenu {
+  max-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  text-align: left;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s,
+    transform 0.25s, margin 0.25s;
+  color: white;
+  margin-top: 0;
+}
+
+.subMenu:hover {
+  background-color: none;
+}
+
+.subMenu.open {
+  max-height: 200px; /* or enough for your content */
+  opacity: 1;
+  transform: translateY(0);
+  margin-top: 0.5rem;
+}
+
+.active {
+  color: #081761 !important;
+  transition: 0.25s;
+}
+
+.subMenu > li {
+  color: white;
+  transition: 0.25s;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  height: max-content;
+  margin: 0.2rem 0;
+  margin-left: -2rem;
+}
+
+/* .subMenu a {
+  color: white;
+  transition: 0.25s;
+} */
+
+.subMenu > li:hover,
+.subMenu.active:hover,
+.subMenu li.active {
+  background-color: #1d8df5 !important;
+  color: white !important;
+}
+
+.subMenu > li:hover a {
+  color: white !important;
+}
+
+.menuItem.active > .subMenu li {
+  color: var(--accent);
 }

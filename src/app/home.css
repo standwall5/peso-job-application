@@ -44,6 +44,10 @@ section {
   position: relative;
 }
 
+.login-section form button {
+  margin-top: 1rem;
+}
+
 .login-section form input {
   background-color: white;
   border: 1px solid black;

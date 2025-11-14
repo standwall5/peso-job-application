@@ -1,0 +1,174 @@
+.createCompanyWrapper {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  /* background-color: #f7f7f7; */
+}
+.nav {
+  position: relative;
+  max-width: max-content;
+  margin-left: 3rem;
+}
+
+.nav ul {
+  display: flex;
+  padding: 0 0 0.5rem;
+  gap: 2rem;
+  border-bottom: 2px solid grey;
+}
+
+.nav ul li {
+  text-align: start;
+  cursor: pointer;
+}
+
+.tabIndicator {
+  position: absolute;
+  bottom: 0.95rem;
+  left: 0;
+  height: 4px;
+  background: #0571d3;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+}
+
+.content {
+  align-self: center;
+  background-color: white;
+  width: 90%;
+  height: 80%;
+  border-radius: 0.5rem;
+  /* border: 1px solid black; */
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 2px 8px;
+}
+
+.createCompany {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.createCompany img {
+  width: 20rem;
+  border: 1px solid black;
+  border-radius: 100%;
+}
+
+.companyDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.companyDetails > input,
+.companyDetails > textarea,
+.companyDetails > select {
+  border: 1px solid black;
+  padding: 0.5rem 1rem;
+  width: 25rem;
+}
+
+.companyDetails > input::placeholder,
+.companyDetails > textarea::placeholder {
+  text-align: center;
+}
+
+/* Logo upload */
+
+.logoUpload {
+  border: 2px dashed #0571d3;
+  border-radius: 1rem;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  background: #f7faff;
+  padding: 2rem;
+  transition: 0.25s;
+}
+
+.logoUpload:hover {
+  filter: brightness(0.7);
+}
+
+.logoPreview {
+  aspect-ratio: 1/1;
+  width: 96px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.uploadText {
+  color: #0571d3;
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+}
+
+/* Manage Company */
+
+.postJobs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1rem;
+  gap: 0.5rem;
+  width: 100%;
+  height: 100%;
+}
+
+.jobRow,
+.jobHeader {
+  width: 90%;
+  display: grid;
+  align-items: center;
+  justify-content: space-evenly;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  background-color: rgb(231, 231, 231);
+  padding: 1rem;
+  font-weight: bold;
+  border: 1px solid black;
+  border-radius: 0.5rem;
+  gap: 2rem;
+  text-align: center;
+  transition: 0.25s;
+  cursor: pointer;
+}
+
+.jobHeader {
+  background-color: #1d8df5;
+  color: white;
+}
+
+.jobRow span {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: rgb(231, 231, 231);
+  transition: 0.25s;
+}
+
+.jobRow p,
+.jobHeader p {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.jobRow:hover {
+  background-color: #33b499;
+  color: white;
+}
+.jobRow:hover span {
+  color: white;
+}

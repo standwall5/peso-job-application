@@ -32,8 +32,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = await createClient();
-
   return (
     <div className="page-container">
       <div className="overlay">
