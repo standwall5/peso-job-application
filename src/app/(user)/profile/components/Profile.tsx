@@ -770,6 +770,9 @@ const Profile = () => {
                     placeholder={
                       user?.preferred_poa || "No preferred place of assignment"
                     }
+                    value={
+                      user?.preferred_poa
+                    }
                     name="preferred_poa"
                   />
                 </span>
@@ -777,7 +780,10 @@ const Profile = () => {
                   <strong>APPLICANT TYPE: </strong>
                   <input
                     type="text"
-                    placeholder={user?.applicant_type || "No no applicant type"}
+                    placeholder={user?.applicant_type}
+                    value={
+                      user?.applicant_type || "No applicant type"
+                    }
                     name="applicant_type"
                   />
                 </span>
