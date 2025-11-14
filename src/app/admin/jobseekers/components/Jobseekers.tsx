@@ -10,6 +10,7 @@ import jobStyle from "@/app/(user)/job-opportunities/[companyId]/JobsOfCompany.m
 import OneEightyRing from "@/components/OneEightyRing";
 import Link from "next/link";
 
+// ...existing code...
 interface Application {
   id: number;
   name: string;
@@ -17,7 +18,7 @@ interface Application {
   place: string;
   date: string;
   status: string;
-  resume: string;
+  resume: SelectedResume | null; // updated
   avatar: string;
   selected: boolean;
   applied_date?: string;
@@ -38,10 +39,55 @@ interface Application {
   };
 }
 
+// New interface for the selected resume
+interface WorkExperience {
+  company: string;
+  position: string;
+  start_date: string;
+  end_date: string;
+  description?: string;
+}
+
+interface SelectedResume {
+  profile_pic_url: string | null;
+  applicant: {
+    name: string;
+    birth_date: string;
+    address: string;
+    barangay: string;
+    district: string;
+    email: string;
+    phone: string;
+    preferred_poa?: string;
+    applicant_type?: string;
+  };
+  company: {
+    id: number;
+    name: string;
+    logo?: string | null;
+  };
+  job: {
+    id?: number;
+    title: string;
+    place_of_assignment: string;
+    sex: string;
+    education: string;
+    eligibility: string;
+    posted_date: string;
+  };
+  education: string[] | string;
+  skills: string[] | string;
+  work_experiences: WorkExperience[];
+  profile_introduction?: string;
+}
+
+// ...existing code...
+// ...existing code...
+
 const Jobseekers = () => {
   const [showModal, setShowModal] = useState(false);
   const [applicationSelect, setApplicationSelect] = useState("previewResume");
-  const [selectedResume, setSelectedResume] = useState<any>(null);
+ const [selectedResume, setSelectedResume] = useState<SelectedResume | null>(null);
   const [search, setSearch] = useState("");
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(false);
