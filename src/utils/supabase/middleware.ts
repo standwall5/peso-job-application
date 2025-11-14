@@ -12,7 +12,9 @@ export async function updateSession(request: NextRequest) {
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   ) {
-    redirect("/error?reason=missing-env-vars");
+    const url = request.nextUrl.clone();
+    url.pathname = "/error?reason=missing-env-vars";
+    return NextResponse.redirect(url);
   }
 
   const supabase = createServerClient(

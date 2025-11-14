@@ -413,47 +413,43 @@ const Jobseekers = () => {
                     </div>
                   </div>
                 )}
-                {applicationSelect === "exam" &&
-                selectedResume.includes(selectedResume.company.id) ? (
-                  <div className={jobStyle.applicantDetail}>
-                    {/* Render exam content here */}
-                    <p>Exam section for this job/applicant.</p>
-                  </div>
-                ) : (
-                  applicationSelect === "exam" && (
-                    <div
-                      className={jobStyle.modalOverlay}
-                      onClick={() => {
-                        setShowModal(false);
-                        setApplicationSelect("previewResume");
-                      }}
-                    >
-                      <div
-                        className={`warningModal`}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <button
-                          onClick={() => {
-                            setShowModal(false);
-                          }}
-                          style={{
-                            fontWeight: "bold",
-                            right: 40,
-                            position: "absolute",
-                          }}
-                        >
-                          X
-                        </button>
-                        <div className="warningContainer">
-                          <h2>Please submit resume to continue with exam</h2>
-                          <div className="warningContent">
-                            <button className="custom-button">Login</button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                { applicationSelect === "exam" && (
+                  <div className={`${jobStyle.applicantDetail}`}>
+                <p>Exam section (TEMPLATE)</p>
+                </div>
+                    // <div
+                    //   className={jobStyle.modalOverlay}
+                    //   onClick={() => {
+                    //     setShowModal(false);
+                    //     setApplicationSelect("previewResume");
+                    //   }}
+                    // >
+                    //   <div
+                    //     className={`warningModal`}
+                    //     onClick={(e) => e.stopPropagation()}
+                    //   >
+                    //     <button
+                    //       onClick={() => {
+                    //         setShowModal(false);
+                    //       }}
+                    //       style={{
+                    //         fontWeight: "bold",
+                    //         right: 40,
+                    //         position: "absolute",
+                    //       }}
+                    //     >
+                    //       X
+                    //     </button>
+                    //     <div className="warningContainer">
+                    //       <h2>Please submit resume to continue with exam</h2>
+                    //       <div className="warningContent">
+                    //         <button className="custom-button">Login</button>
+                    //       </div>
+                    //     </div>
+                    //   </div>
+                    // </div>
                   )
-                )}
+                }
               </div>
             </div>
           </div>

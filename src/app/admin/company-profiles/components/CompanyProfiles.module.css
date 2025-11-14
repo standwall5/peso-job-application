@@ -53,7 +53,7 @@
   filter: drop-shadow(rgba(41, 255, 159, 0.9) 0px 0px 10px);
 }
 
-.searchContainer {
+/* .searchContainer {
   display: flex;
   align-items: center;
   flex-grow: 2;
@@ -72,6 +72,48 @@
   color: white;
   padding: 0.5rem 1.5rem;
   cursor: pointer;
+} */
+
+ .searchContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  position: fixed;
+  top: 7rem;
+  left: 40%;
+  z-index: 1000;
+}
+
+.search input {
+  display: flex;
+  border: 1px solid black;
+  border-radius: 0.2rem;
+  padding: 0.5rem 1rem;
+  width: 30rem;
+  height: 4rem;
+
+  border-radius: 2rem;
+  text-indent: 2rem;
+  transition: 0.25s;
+}
+
+.search input:focus {
+  border-radius: 4rem;
+  width: 35rem;
+  height: 5rem;
+  border: 1px solid var(--accent);
+}
+
+.searchIcon {
+  position: absolute;
+  left: 1rem;
+  color: grey;
+  z-index: 10;
+}
+
+.search input:focus ~ .searchIcon {
+  color: var(--accent);
 }
 
 .jobseekersTable {

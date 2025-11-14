@@ -6,7 +6,8 @@
 
 .sideBar {
   background-color: var(--accent);
-  position: relative;
+  position: sticky;
+  top: 0;
   width: 20rem;
   overflow: hidden;
   display: flex;
