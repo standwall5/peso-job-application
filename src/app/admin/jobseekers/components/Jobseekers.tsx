@@ -43,12 +43,22 @@ interface Application {
 interface WorkExperience {
   company: string;
   position: string;
+  location: string;
   start_date: string;
   end_date: string;
   description?: string;
 }
 
+interface Education {
+  school?: string;
+  degree?: string;
+  location?: string;
+  start_date?: string;
+  end_date?: string;
+}
+
 interface SelectedResume {
+  includes(id: number): unknown;
   profile_pic_url: string | null;
   applicant: {
     name: string;
@@ -75,7 +85,7 @@ interface SelectedResume {
     eligibility: string;
     posted_date: string;
   };
-  education: string[] | string;
+  education: Education;
   skills: string[] | string;
   work_experiences: WorkExperience[];
   profile_introduction?: string;
@@ -258,7 +268,7 @@ const Jobseekers = () => {
         )}
       </div>
 
-      {showModal && (
+      {showModal && selectedResume && (
         <div
           className={jobStyle.modalOverlay}
           onClick={() => setShowModal(false)}
@@ -280,7 +290,7 @@ const Jobseekers = () => {
                 <div className={jobStyle.applicantInformation}>
                   <div className={jobStyle.applicantPicture}>
                     <img
-                      src={selectedResume.profile_pic_url}
+                      src={selectedResume.profile_pic_url || "/assets/images/default_profile.png"}
                       alt={selectedResume.applicant.name}
                     />
                   </div>
@@ -304,7 +314,7 @@ const Jobseekers = () => {
                 <div
                   key={selectedResume.company.id}
                   className={`${jobHomeStyle.jobCardAdmin} ${jobStyle.applicationJobCompanyAdmin}`}
-                  onClick={() => setShowModal(selectedResume.company)}
+                  onClick={() => setShowModal(selectedResume.company ? true : false)}
                 >
                   <div
                     className={`${jobHomeStyle.jobCompany} ${jobStyle.companyInformation}`}
@@ -383,7 +393,15 @@ const Jobseekers = () => {
                         email={selectedResume.applicant.email}
                         phone={selectedResume.applicant.phone}
                         education={selectedResume.education}
-                        skills={selectedResume.skills}
+                        skills={
+                          Array.isArray(selectedResume.skills)
+                            ? selectedResume.skills
+                            : typeof selectedResume.skills === "string"
+                            ? selectedResume.skills
+                                .split(",")
+                                .map((s) => s.trim())
+                            : undefined
+                        }
                         workExperiences={selectedResume.work_experiences}
                         profileIntroduction={
                           selectedResume.profile_introduction
