@@ -15,15 +15,15 @@ const SimpleNavBar = (props: { pathname: string }) => {
       <div className="nav-container-simple">
         <ul>
           <li>
-            <Link href="/">
+            <Link href="/job-opportunities">
               <Image src={PesoLogo} alt="PESO Logo" />
             </Link>
           </li>
           <li>
-            <Link href="/">
+            <Link href="/login">
               <button
                 className={
-                  props.pathname === "/"
+                  props.pathname === "/login"
                     ? "nav-button-active"
                     : "nav-button-default"
                 }

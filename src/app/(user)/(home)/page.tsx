@@ -5,6 +5,7 @@ import Link from "next/link";
 import Slogan from "/assets/loginSlogan.webp";
 import LoginPage from "@/app/(auth)/login/page";
 import PrivateHome from "@/app/(user)/(home)/PrivateHome";
+import PublicCompanyList from "../job-opportunities/components/PublicCompanyList";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
