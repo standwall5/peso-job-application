@@ -55,7 +55,7 @@ interface Exam {
   description: string;
 }
 
-interface ExamType extends Array<Exam> {}
+type ExamType = Exam[];
 
 const CompanyProfiles = () => {
   // ================== State ==================
