@@ -8,9 +8,10 @@ const supabase = createClient(
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const examId = Number(params.id);
+  const { id } = await params;
+  const examId = Number(id);
 
   if (!examId) {
     return NextResponse.json({ error: "Invalid exam id" }, { status: 400 });
