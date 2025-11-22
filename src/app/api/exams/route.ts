@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
+interface QuestionInput {
+  question_text: string;
+  question_type: string;
+  position: number;
+  choices?: { choice_text: string; is_correct: boolean }[];
+}
+
 export async function GET() {
   const supabase = await createClient();
 
@@ -113,7 +120,7 @@ export async function PUT(req: Request) {
   await supabase.from("questions").delete().eq("exam_id", id);
 
   // Insert new questions
-  const questionsToInsert = questions.map((q) => ({
+  const questionsToInsert = questions.map((q: QuestionInput) => ({
     exam_id: id,
     question_text: q.question_text,
     question_type:
