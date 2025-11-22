@@ -3,7 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 
 export async function GET(
   request: Request,
-  { params }: { params: { chatId: string } }
+  { params }: { params: Promise<{ chatId: string }> },
 ) {
   const supabase = await createClient();
 
@@ -25,10 +25,13 @@ export async function GET(
 
   if (adminError || !adminData) {
     console.error("Admin lookup error:", adminError);
-    return NextResponse.json({ error: "Unauthorized - Admin access required" }, { status: 403 });
+    return NextResponse.json(
+      { error: "Unauthorized - Admin access required" },
+      { status: 403 },
+    );
   }
 
-  const { chatId } = params;
+  const { chatId } = await params;
 
   if (!chatId) {
     return NextResponse.json({ error: "Chat ID is required" }, { status: 400 });
@@ -43,7 +46,10 @@ export async function GET(
 
   if (sessionError || !chatSession) {
     console.error("Chat session lookup error:", sessionError);
-    return NextResponse.json({ error: "Chat session not found" }, { status: 404 });
+    return NextResponse.json(
+      { error: "Chat session not found" },
+      { status: 404 },
+    );
   }
 
   // Get messages for this session
