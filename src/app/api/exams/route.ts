@@ -1,11 +1,17 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
+interface ChoiceInput {
+  choice_text: string;
+  is_correct?: boolean;
+  position?: number;
+}
+
 interface QuestionInput {
   question_text: string;
   question_type: string;
   position: number;
-  choices?: { choice_text: string; is_correct: boolean }[];
+  choices?: ChoiceInput[];
 }
 
 export async function GET() {
@@ -151,14 +157,18 @@ export async function PUT(req: Request) {
   });
 
   // Prepare choices for insert
-  const choicesToInsert = [];
-  questions.forEach((q) => {
+  const choicesToInsert: {
+    question_id: number;
+    choice_text: string;
+    position: number;
+  }[] = [];
+  questions.forEach((q: QuestionInput) => {
     if (q.choices && q.choices.length > 0) {
-      q.choices.forEach((c) => {
+      q.choices.forEach((c: ChoiceInput, index: number) => {
         choicesToInsert.push({
           question_id: positionToQuestionId[q.position],
           choice_text: c.choice_text,
-          position: c.position,
+          position: c.position ?? index,
         });
       });
     }
