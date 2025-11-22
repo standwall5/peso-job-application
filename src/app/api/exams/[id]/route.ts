@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!, // admin-only endpoint
-);
-
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!, // admin-only endpoint
+  );
+
   const { id } = await params;
   const examId = Number(id);
 
