@@ -49,13 +49,28 @@ interface Job {
   };
 }
 
-interface Exam {
+interface Choice {
+  id: number;
+  question_id: number;
+  choice_text: string;
+  position: number;
+}
+
+interface Question {
+  id: number;
+  exam_id: number;
+  question_text: string;
+  question_type: string;
+  position: number;
+  choices: Choice[];
+}
+
+interface ExamType {
   id: number;
   title: string;
   description: string;
+  questions: Question[];
 }
-
-type ExamType = Exam[];
 
 const CompanyProfiles = () => {
   // ================== State ==================
