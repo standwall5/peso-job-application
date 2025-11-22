@@ -3,10 +3,13 @@ import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY! // admin-only endpoint
+  process.env.SUPABASE_SERVICE_ROLE_KEY!, // admin-only endpoint
 );
 
-export async function GET(req: Request, { params }: any) {
+export async function GET(
+  req: Request,
+  { params }: { params: { id: string } },
+) {
   const examId = Number(params.id);
 
   if (!examId) {
@@ -34,7 +37,7 @@ export async function GET(req: Request, { params }: any) {
   if (qErr) {
     return NextResponse.json(
       { error: "Failed to load questions" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 

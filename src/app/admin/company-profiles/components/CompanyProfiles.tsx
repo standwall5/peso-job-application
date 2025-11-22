@@ -49,12 +49,13 @@ interface Job {
   };
 }
 
-interface ExamType {
-  map(arg0: (e: any) => React.JSX.Element): React.ReactNode;
+interface Exam {
   id: number;
   title: string;
   description: string;
 }
+
+interface ExamType extends Array<Exam> {}
 
 const CompanyProfiles = () => {
   // ================== State ==================
@@ -67,7 +68,7 @@ const CompanyProfiles = () => {
   const [showManageCompany, setShowManageCompany] = useState(false);
   const [showCompany, setShowCompany] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Companies | null>(
-    null
+    null,
   );
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const router = useRouter();
@@ -100,7 +101,7 @@ const CompanyProfiles = () => {
       company.industry.toLowerCase().includes(search.toLowerCase()) ||
       company.totalManpower.toString().includes(search.toLowerCase()) ||
       company.totalJobsPosted.toString().includes(search.toLowerCase()) ||
-      company.description.toLowerCase().includes(search.toLowerCase())
+      company.description.toLowerCase().includes(search.toLowerCase()),
   );
 
   // ================== Render ==================
