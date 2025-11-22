@@ -1,5 +1,6 @@
 // Dropdown Component Usage Examples
 
+import React, { useState } from "react";
 import Dropdown, { DropdownItem, DropdownDivider } from "./Dropdown";
 
 /**
@@ -43,7 +44,11 @@ function Example2() {
       <Dropdown isOpen={showNotifications} position="center">
         <DropdownItem
           icon={
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
               <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" />
             </svg>
           }
@@ -53,7 +58,11 @@ function Example2() {
         </DropdownItem>
         <DropdownItem
           icon={
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
               <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" />
             </svg>
           }
