@@ -3,6 +3,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import styles from "./ManageCompany.module.css";
+import PostJobsModal from "./PostJobsModal";
+import Exam from "./Exam";
 
 interface Companies {
   id: number;
@@ -42,8 +44,36 @@ interface Job {
     logo: string | null;
   };
 }
+interface Choice {
+  id: number;
+  question_id: number;
+  choice_text: string;
+  position: number;
+}
 
-const ManageCompany = ({ company }: { company: Companies }) => {
+interface Question {
+  id: number;
+  exam_id: number;
+  question_text: string;
+  question_type: string;
+  position: number;
+  choices: Choice[];
+}
+
+interface ExamType {
+  id: number;
+  title: string;
+  description: string;
+  questions: Question[];
+}
+
+const ManageCompany = ({
+  company,
+  exam,
+}: {
+  company: Companies;
+  exam: ExamType;
+}) => {
   const [nav, setNav] = useState("createCompany");
   const [activeIndex, setActiveIndex] = useState(0);
   const tabRefs = useRef<(HTMLLIElement | null)[]>([]);
@@ -51,9 +81,15 @@ const ManageCompany = ({ company }: { company: Companies }) => {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [jobs, setJobs] = useState(company.jobs);
+  const [exams, setExams] = useState<ExamType[]>([]);
+
+  const [selectedExam, setSelectedExam] = useState(exam);
   const Logo = () => {
     setLogoPreview(company.logo);
   };
+
+  const [showModal, setShowModal] = useState(false);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { "image/*": [] },
@@ -64,6 +100,16 @@ const ManageCompany = ({ company }: { company: Companies }) => {
       setLogoPreview(URL.createObjectURL(file));
     },
   });
+
+  const fetchExams = () => {
+    fetch("/api/exams")
+      .then((response) => response.json())
+      .then((data) => setExams(data));
+  };
+
+  useEffect(() => {
+    fetchExams();
+  }, []);
 
   useEffect(() => {
     const currentTab = tabRefs.current[activeIndex];
@@ -177,7 +223,27 @@ const ManageCompany = ({ company }: { company: Companies }) => {
           <p>Posted Date</p>
         </div>
         {company.jobs.map((job) => (
-          <div key={job.id} className={styles.jobRow}>
+          <div
+            key={job.id}
+            className={styles.jobRow}
+            onClick={() => {
+              setSelectedJob({
+                id: job.id,
+                title: job.title,
+                description: "", // Provide a default or fetch actual description if available
+                place_of_assignment: job.place_of_assignment,
+                sex: job.sex,
+                education: job.education,
+                eligibility: job.eligibility,
+                posted_date: job.posted_date,
+                companies: {
+                  name: company.name,
+                  logo: company.logo || null,
+                },
+              });
+              setShowModal(true);
+            }}
+          >
             <p>{job.title}</p>
             <p>{job.place_of_assignment}</p>
             <p>{job.sex}</p>
@@ -211,12 +277,25 @@ const ManageCompany = ({ company }: { company: Companies }) => {
             </p>
           </div>
         ))}
+        {showModal && selectedJob && (
+          <PostJobsModal
+            company={company}
+            job={selectedJob}
+            exams={exams}
+            fetchExams={fetchExams}
+            onClose={() => setShowModal(false)}
+          />
+        )}
       </div>
     );
   };
 
   const createExamTab = () => {
-    return <div className={styles.createExam}>exam</div>;
+    return exams ? (
+      <Exam exam={exams} fetchExams={fetchExams} />
+    ) : (
+      <div>No exam available</div>
+    );
   };
 
   return (

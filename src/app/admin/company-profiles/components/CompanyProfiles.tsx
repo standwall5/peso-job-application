@@ -49,6 +49,13 @@ interface Job {
   };
 }
 
+interface ExamType {
+  map(arg0: (e: any) => React.JSX.Element): React.ReactNode;
+  id: number;
+  title: string;
+  description: string;
+}
+
 const CompanyProfiles = () => {
   // ================== State ==================
 
@@ -64,6 +71,7 @@ const CompanyProfiles = () => {
   );
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const router = useRouter();
+  const [exams, setExams] = useState<ExamType | null>(null);
 
   // ================== Handlers ==================
 
@@ -77,6 +85,12 @@ const CompanyProfiles = () => {
       setLoading(false);
     }
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/exams")
+      .then((r) => r.json())
+      .then((data) => setExams(data[0] || null)); // Assuming API returns an array
   }, []);
 
   const filteredCompanies = (companies ?? []).filter(
@@ -99,7 +113,7 @@ const CompanyProfiles = () => {
     );
   }
 
-  if (showManageCompany && selectedCompany) {
+  if (showManageCompany && exams && selectedCompany) {
     return (
       <section className={styles.createCompany}>
         <button
@@ -124,7 +138,7 @@ const CompanyProfiles = () => {
           </div>
           <span>BACK</span>
         </button>
-        <ManageCompany company={selectedCompany} />
+        <ManageCompany company={selectedCompany} exam={exams} />
       </section>
     );
   }
@@ -306,33 +320,32 @@ const CompanyProfiles = () => {
           </div>
         </div> */}
 
-
         <div className={styles.searchContainer}>
-                <div className={styles.searchIcon}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="size-6"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-                    />
-                  </svg>
-                </div>
-                <div className={styles.search}>
-                  <input
-                    type="text"
-                    placeholder="Search name, gender, place of assignment, etc."
-                    value={search ?? ""}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                </div>
-              </div>
+          <div className={styles.searchIcon}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="size-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+              />
+            </svg>
+          </div>
+          <div className={styles.search}>
+            <input
+              type="text"
+              placeholder="Search name, gender, place of assignment, etc."
+              value={search ?? ""}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
 
         {/* Add company, sort */}
         <div className={styles.topRight}>

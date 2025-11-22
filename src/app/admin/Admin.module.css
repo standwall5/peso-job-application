@@ -95,9 +95,12 @@
 .header {
   display: flex;
   justify-content: flex-end;
+  position: sticky;
+  top: 0;
   /* border-bottom: 1px solid grey; */
   width: 100%;
   text-decoration: none;
+  z-index: 1000;
 }
 
 .header img {
@@ -113,9 +116,12 @@
   justify-content: flex-end;
   gap: 2rem;
   padding: 1rem;
+  background-color: #fff;
+
   line-height: normal;
   width: 100%;
-  border-bottom: 1px solid grey;
+  /* border-bottom: 1px solid grey; */
+  box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
 }
 
 .header ul li {
@@ -188,4 +194,62 @@
 
 .menuItem.active > .subMenu li {
   color: var(--accent);
+}
+
+/* ...existing code... */
+
+/* ...existing code... */
+
+/* Responsive styles for small laptops/desktops */
+@media (max-width: 1400px) {
+  .sideBar {
+    width: 13rem;
+  }
+  .sideBarPeso img {
+    width: 3rem;
+  }
+  .sideBarPeso span {
+    font-size: 1.2rem;
+  }
+  .sideBarList span {
+    font-size: 1.1rem;
+  }
+}
+
+/* Responsive styles for tablets and below */
+@media (max-width: 1024px) {
+  .sideBar {
+    width: 15rem;
+  }
+  .sideBarPeso img {
+    width: 4rem;
+  }
+  .sideBarPeso span {
+    font-size: 1.5rem;
+  }
+}
+
+/* Responsive styles for mobile devices */
+@media (max-width: 600px) {
+  .sideBar {
+    width: 100vw;
+    position: static;
+    flex-direction: row;
+    height: auto;
+    padding: 1rem 0;
+  }
+  .sideBarList {
+    flex-direction: row;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    width: 100vw;
+    font-size: 1rem;
+  }
+  .header ul {
+    gap: 1rem;
+    padding: 0.5rem;
+  }
+  .header img {
+    width: 40px;
+  }
 }

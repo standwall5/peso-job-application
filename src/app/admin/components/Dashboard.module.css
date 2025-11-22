@@ -48,3 +48,49 @@
   gap: 5rem;
   flex: 1;
 }
+
+/* ...existing code... */
+
+/* ############### MEDIA QUERIES ################ */
+
+
+/* Responsive styles for small laptops/desktops */
+@media (max-width: 1400px) {
+  .dashboardStats {
+    gap: 2rem;
+  }
+  .dashboardContainer {
+    gap: 2rem;
+  }
+}
+
+
+/* Responsive styles for tablets and below */
+@media (max-width: 1024px) {
+  .dashboardStats {
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: stretch;
+  }
+  .dashboardContainer {
+    gap: 1.5rem;
+  }
+}
+
+/* Responsive styles for mobile devices */
+@media (max-width: 600px) {
+  .dashboardStats {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+    margin-top: 1rem;
+  }
+  .dashboardContainer {
+    gap: 1rem;
+    padding: 0 0.5rem;
+  }
+  .dashboardStatsCount ul {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

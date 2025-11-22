@@ -7,6 +7,7 @@ import { useDropzone } from "react-dropzone";
 import Resume from "./Resume";
 import BlocksWave from "@/components/BlocksWave";
 import Toast from "@/components/toast/Toast";
+import Button from "@/components/Button";
 
 interface WorkExperience {
   company: string;
@@ -73,7 +74,7 @@ function getCroppedImg(imageSrc: string, pixelCrop: PixelCrop): Promise<Blob> {
         0,
         0,
         pixelCrop.width,
-        pixelCrop.height
+        pixelCrop.height,
       );
       canvas.toBlob((blob) => {
         if (blob) resolve(blob);
@@ -117,10 +118,10 @@ const Profile = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
 
   const [editPreferredPoa, setEditPreferredPoa] = useState(
-    user?.preferred_poa ?? ""
+    user?.preferred_poa ?? "",
   );
   const [editApplicantType, setEditApplicantType] = useState(
-    user?.applicant_type ?? ""
+    user?.applicant_type ?? "",
   );
   const [showEditSuccess, setShowEditSuccess] = useState(false);
 
@@ -133,7 +134,7 @@ const Profile = () => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<PixelCrop | null>(
-    null
+    null,
   );
   const [workExperiences, setWorkExperiences] = useState<WorkExperience[]>([]);
 
@@ -145,21 +146,21 @@ const Profile = () => {
   const [editBarangay, setEditBarangay] = useState(user?.barangay ?? "");
   const [editDistrict, setEditDistrict] = useState(user?.district ?? "");
   const [editEducationAttainment, setEditEducationAttainment] = useState(
-    resume?.education?.attainment ?? ""
+    resume?.education?.attainment ?? "",
   );
   const [editDegree, setEditDegree] = useState(resume?.education?.degree ?? "");
   const [editIntroduction, setEditIntroduction] = useState(
-    resume?.profile_introduction ?? ""
+    resume?.profile_introduction ?? "",
   );
   const [editSchool, setEditSchool] = useState(resume?.education?.school ?? "");
   const [editEducationLocation, setEditEducationLocation] = useState(
-    resume?.education?.location ?? ""
+    resume?.education?.location ?? "",
   );
   const [editEducationStartDate, setEditEducationStartDate] = useState(
-    resume?.education?.start_date ?? ""
+    resume?.education?.start_date ?? "",
   );
   const [editEducationEndDate, setEditEducationEndDate] = useState(
-    resume?.education?.end_date ?? ""
+    resume?.education?.end_date ?? "",
   );
 
   // Showing edit states
@@ -181,7 +182,7 @@ const Profile = () => {
   }, []);
 
   const [userApplications, setUserApplications] = useState<UserApplication[]>(
-    []
+    [],
   );
   async function fetchUserApplications() {
     try {
@@ -368,7 +369,7 @@ const Profile = () => {
       if (res.ok) {
         const json = await res.json();
         setResume(
-          json && Object.keys(json).length > 0 ? (json as ResumeData) : null
+          json && Object.keys(json).length > 0 ? (json as ResumeData) : null,
         );
       }
     } catch {}
@@ -417,7 +418,7 @@ const Profile = () => {
               ...prev,
               profile_pic_url: result.url + "?t=" + dateNow,
             }
-          : null
+          : null,
       );
     }
     setUploading(false);
@@ -440,7 +441,7 @@ const Profile = () => {
     userApplications.find((app) => app.job_id === id);
 
   const filteredJobs = jobs.filter((job) =>
-    userApplications.some((app) => app.job_id === job.id)
+    userApplications.some((app) => app.job_id === job.id),
   );
 
   const jobCards = filteredJobs.map((job) => {
@@ -467,7 +468,7 @@ const Profile = () => {
             {getApplicationDate(job.id)?.applied_date &&
             !isNaN(new Date(getApplicationDate(job.id)!.applied_date).getTime())
               ? new Date(
-                  getApplicationDate(job.id)!.applied_date
+                  getApplicationDate(job.id)!.applied_date,
                 ).toLocaleString("en-US", {
                   year: "numeric",
                   month: "long",
@@ -619,10 +620,14 @@ const Profile = () => {
                     />
                   </div>
                   <div style={{ display: "flex", gap: 8 }}>
-                    <button onClick={handleCropAndUpload} disabled={uploading}>
+                    <Button
+                      onClick={handleCropAndUpload}
+                      disabled={uploading}
+                      variant="primary"
+                    >
                       {uploading ? "Uploading..." : "Crop & Upload"}
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => {
                         setSelectedFile(null);
                         setCrop({ x: 0, y: 0 });
@@ -630,13 +635,14 @@ const Profile = () => {
                         setCroppedAreaPixels(null);
                       }}
                       disabled={uploading}
+                      variant="warning"
                     >
                       Cancel
-                    </button>
+                    </Button>
                   </div>
                 </>
               )}
-              <button
+              <Button
                 style={{ marginTop: 24 }}
                 onClick={() => {
                   setShowModal(false);
@@ -646,9 +652,10 @@ const Profile = () => {
                   setCroppedAreaPixels(null);
                 }}
                 disabled={uploading}
+                variant="warning"
               >
                 Close
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -725,7 +732,7 @@ const Profile = () => {
               >
                 <span>
                   <strong>PHONE:</strong>
-                  <button className="grey-button">
+                  <Button className="grey-button" variant="warning">
                     <span>
                       Edit on settings
                       <svg
@@ -741,11 +748,11 @@ const Profile = () => {
                         />
                       </svg>
                     </span>
-                  </button>
+                  </Button>
                 </span>
                 <span>
                   <strong>EMAIL:</strong>
-                  <button className="grey-button">
+                  <Button className="grey-button" variant="warning">
                     <span>
                       Edit on settings
                       <svg
@@ -761,7 +768,7 @@ const Profile = () => {
                         />
                       </svg>
                     </span>
-                  </button>
+                  </Button>
                 </span>
                 <span>
                   <strong>PREFERRED PLACE OF ASSIGNMENT: </strong>
@@ -770,9 +777,7 @@ const Profile = () => {
                     placeholder={
                       user?.preferred_poa || "No preferred place of assignment"
                     }
-                    value={
-                      user?.preferred_poa
-                    }
+                    value={user?.preferred_poa}
                     name="preferred_poa"
                   />
                 </span>
@@ -781,13 +786,11 @@ const Profile = () => {
                   <input
                     type="text"
                     placeholder={user?.applicant_type}
-                    value={
-                      user?.applicant_type || "No applicant type"
-                    }
+                    value={user?.applicant_type || "No applicant type"}
                     name="applicant_type"
                   />
                 </span>
-                <button className="green-button">Save</button>
+                <Button variant="success">Save</Button>
               </form>
             ) : (
               <div className={styles.profileDetailsInfo}>
@@ -810,16 +813,17 @@ const Profile = () => {
               </div>
             )}
 
-            <button
+            <Button
               className="grey-button"
               onClick={() => {
                 setShowEdit((prev) => !prev);
                 setShowEditSuccess(false);
               }}
               type="submit"
+              variant="warning"
             >
               {showEdit ? "Exit" : "Edit"}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -1206,22 +1210,23 @@ const Profile = () => {
                               />
                             </div>
                             {workExperiences.length > 1 && (
-                              <button
+                              <Button
                                 type="button"
                                 onClick={() =>
                                   setWorkExperiences(
-                                    workExperiences.filter((_, i) => i !== idx)
+                                    workExperiences.filter((_, i) => i !== idx),
                                   )
                                 }
                                 style={{ marginTop: "1rem" }}
+                                variant="danger"
                               >
                                 Remove
-                              </button>
+                              </Button>
                             )}
                           </div>
-                        )
+                        ),
                       )}
-                      <button
+                      <Button
                         type="button"
                         onClick={() =>
                           setWorkExperiences([
@@ -1236,9 +1241,10 @@ const Profile = () => {
                           ])
                         }
                         style={{ marginTop: "1rem" }}
+                        variant="success"
                       >
                         Add Work Experience
-                      </button>
+                      </Button>
                     </div>
 
                     <div>
@@ -1247,15 +1253,16 @@ const Profile = () => {
                         {skills.map((skill: string, idx: number) => (
                           <span key={idx} style={{ marginRight: "-1rem" }}>
                             {skill}
-                            <button
+                            <Button
                               type="button"
                               onClick={() =>
                                 setSkills(skills.filter((_, i) => i !== idx))
                               }
                               style={{ marginLeft: 4 }}
+                              variant="danger"
                             >
                               ×
-                            </button>
+                            </Button>
                           </span>
                         ))}
                         <input
@@ -1272,7 +1279,7 @@ const Profile = () => {
                             }
                           }}
                         />
-                        <button
+                        <Button
                           type="button"
                           onClick={() => {
                             if (newSkill.trim()) {
@@ -1280,9 +1287,10 @@ const Profile = () => {
                               setNewSkill("");
                             }
                           }}
+                          variant="success"
                         >
                           +
-                        </button>
+                        </Button>
                       </div>
                     </div>
 
@@ -1304,16 +1312,21 @@ const Profile = () => {
 
                     {/* Actions inside the form for proper submit */}
                     <div style={{ marginTop: "1rem", display: "flex", gap: 8 }}>
-                      <button
+                      <Button
                         type="button"
                         className={styles.resumeButton}
                         onClick={() => setShowEditResume(false)}
+                        variant="warning"
                       >
                         Cancel
-                      </button>
-                      <button type="submit" className={styles.resumeButton}>
+                      </Button>
+                      <Button
+                        type="submit"
+                        className={styles.resumeButton}
+                        variant="primary"
+                      >
                         Save
-                      </button>
+                      </Button>
                     </div>
                   </form>
                 ) : resume ? (
@@ -1344,8 +1357,8 @@ const Profile = () => {
                         Array.isArray(resume?.work_experiences)
                           ? resume.work_experiences
                           : resume?.work_experiences
-                          ? [resume.work_experiences]
-                          : []
+                            ? [resume.work_experiences]
+                            : []
                       }
                       profileIntroduction={resume?.profile_introduction}
                     />
@@ -1363,12 +1376,13 @@ const Profile = () => {
                   >
                     <h3>No resume found.</h3>
                     <p>Click below to create your resume.</p>
-                    <button
+                    <Button
                       className={styles.createResumeButton}
                       onClick={() => setShowEditResume(true)}
+                      variant="primary"
                     >
                       Create Resume
-                    </button>
+                    </Button>
                   </div>
                 )}
               </>
@@ -1378,18 +1392,20 @@ const Profile = () => {
             !showEditResume &&
             profileOptionsNav !== "appliedJobs" ? (
               <div style={{ marginTop: "1rem", display: "flex", gap: 8 }}>
-                <button
+                <Button
                   className={styles.resumeButton}
                   onClick={handleDownload}
+                  variant="danger"
                 >
                   Download Resume
-                </button>
-                <button
+                </Button>
+                <Button
                   className={styles.resumeButton}
                   onClick={() => setShowEditResume(true)}
+                  variant="success"
                 >
                   Edit Resume
-                </button>
+                </Button>
               </div>
             ) : null}
 

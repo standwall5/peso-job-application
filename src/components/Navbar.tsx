@@ -8,6 +8,7 @@ import { User } from "@supabase/supabase-js";
 import PesoLogo from "../../public/assets/pesoLogo.png";
 import { createClient } from "@/utils/supabase/client";
 import { signout } from "@/lib/auth-actions";
+import Dropdown, { DropdownItem } from "@/components/Dropdown";
 
 const SimpleNavBar = (props: { pathname: string }) => {
   return (
@@ -16,7 +17,7 @@ const SimpleNavBar = (props: { pathname: string }) => {
         <ul>
           <li>
             <Link href="/job-opportunities">
-              <Image src={PesoLogo} alt="PESO Logo" />
+              <Image src={PesoLogo} alt="PESO Logo" className="peso-logo" />
             </Link>
           </li>
           <li>
@@ -160,7 +161,7 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
   const searchResults = jobs.filter(
     (job) =>
       job.title.toLowerCase().includes(search.toLowerCase()) ||
-      job.description.toLowerCase().includes(search.toLowerCase())
+      job.description.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -169,7 +170,7 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
         <ul>
           <li>
             <Link href="/">
-              <Image src={PesoLogo} alt="PESO Logo" />
+              <Image src={PesoLogo} alt="PESO Logo" className="peso-logo" />
             </Link>
           </li>
           <li>
@@ -189,13 +190,13 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
                             .includes(value.toLowerCase()) ||
                           job.description
                             .toLowerCase()
-                            .includes(value.toLowerCase())
-                      )
+                            .includes(value.toLowerCase()),
+                      ),
                   );
                 }}
                 onFocus={(e) => {
                   setShowDropdown(
-                    e.target.value !== "" && searchResults.length > 0
+                    e.target.value !== "" && searchResults.length > 0,
                   );
                 }}
                 placeholder="location, company, job-title, category of job"
@@ -207,7 +208,7 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="white"
-                  className="size-6"
+                  className="size-4"
                 >
                   <path
                     strokeLinecap="round"
@@ -217,17 +218,14 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
                 </svg>
               </Link>
 
-              {showDropdown && (
-                <div
-                  className={`${styles.searchResultContainer} ${styles.searchDropdown} ${styles.dropdownContent}`}
-                >
+              <div className={styles.searchDropdown}>
+                <Dropdown isOpen={showDropdown} position="left">
                   {searchResults.map((job) => (
-                    <div key={job.id} className={styles.searchResultContent}>
-                      <Link
-                        href={`/search/${job.title.toLowerCase()}`}
-                        style={{ display: "flex", alignItems: "center" }}
-                      >
-                        {job.companies?.logo && (
+                    <DropdownItem
+                      key={job.id}
+                      href={`/search/${job.title.toLowerCase()}`}
+                      icon={
+                        job.companies?.logo ? (
                           <img
                             src={job.companies.logo}
                             alt={job.companies.name + " logo"}
@@ -235,21 +233,21 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
                               width: 24,
                               height: 24,
                               objectFit: "contain",
-                              marginRight: 8,
                             }}
                           />
-                        )}
-                        <strong>{job.title}</strong>
-                        {job.companies?.name && (
-                          <span style={{ marginLeft: 8, color: "#888" }}>
-                            &mdash; {job.companies.name}
-                          </span>
-                        )}
-                      </Link>
-                    </div>
+                        ) : undefined
+                      }
+                    >
+                      <strong>{job.title}</strong>
+                      {job.companies?.name && (
+                        <span style={{ marginLeft: 8, color: "#888" }}>
+                          &mdash; {job.companies.name}
+                        </span>
+                      )}
+                    </DropdownItem>
                   ))}
-                </div>
-              )}
+                </Dropdown>
+              </div>
             </div>
           </li>
 
@@ -296,13 +294,11 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
                   d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
                 />
               </svg>
-              {showNotificationsDropdown && (
-                <div
-                  className={`${styles.notificationDropdown} ${styles.dropdownContent}`}
-                >
+              <Dropdown isOpen={showNotificationsDropdown} position="center">
+                <DropdownItem>
                   <p>Place notifications here</p>
-                </div>
-              )}
+                </DropdownItem>
+              </Dropdown>
             </div>
           </li>
           <li className={styles.profileIconContainer}>
@@ -359,13 +355,9 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
                 />
               </svg>
 
-              {showSettingsDropdown && (
-                <div
-                  className={`${styles.dropdownContent} ${styles.settingsDropdown}`}
-                >
-                  <button onClick={signout}>Logout</button>
-                </div>
-              )}
+              <Dropdown isOpen={showSettingsDropdown} position="right">
+                <DropdownItem onClick={signout}>Logout</DropdownItem>
+              </Dropdown>
             </div>
           </li>
         </ul>
@@ -434,7 +426,7 @@ const PesoNavbar = (props: { pathname: string }) => {
   const searchResults = jobs.filter(
     (job) =>
       job.title.toLowerCase().includes(search.toLowerCase()) ||
-      job.description.toLowerCase().includes(search.toLowerCase())
+      job.description.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -443,7 +435,7 @@ const PesoNavbar = (props: { pathname: string }) => {
         <ul>
           <li>
             <Link href="/">
-              <Image src={PesoLogo} alt="PESO Logo" />
+              <Image src={PesoLogo} alt="PESO Logo" className="peso-logo" />
             </Link>
           </li>
           <li>
@@ -463,13 +455,13 @@ const PesoNavbar = (props: { pathname: string }) => {
                             .includes(value.toLowerCase()) ||
                           job.description
                             .toLowerCase()
-                            .includes(value.toLowerCase())
-                      )
+                            .includes(value.toLowerCase()),
+                      ),
                   );
                 }}
                 onFocus={(e) => {
                   setShowDropdown(
-                    e.target.value !== "" && searchResults.length > 0
+                    e.target.value !== "" && searchResults.length > 0,
                   );
                 }}
                 placeholder="location, company, job-title, category of job"

@@ -4,7 +4,11 @@ import React, { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import styles from "@/app/admin/Admin.module.css";
 
-const Sidebar = () => {
+interface SidebarProps {
+  onOpenChat?: () => void;
+}
+
+const Sidebar = ({ onOpenChat }: SidebarProps) => {
   const [openMenus, setOpenMenus] = useState<string[]>([]);
   const pathname = usePathname();
   const router = useRouter();
@@ -13,7 +17,7 @@ const Sidebar = () => {
     setOpenMenus((openMenus) =>
       openMenus.includes(key)
         ? openMenus.filter((k) => k !== key)
-        : [...openMenus, key]
+        : [...openMenus, key],
     );
   };
   console.log("PATHNAME:", pathname);
@@ -71,10 +75,13 @@ const Sidebar = () => {
               ? styles.active
               : ""
           }`}
-          onClick={() => handleToggle("manageCompany")}
+          onClick={() => {
+            handleToggle("manageCompany");
+            router.push("/admin/company-profiles");
+          }}
         >
           <span>Manage Company</span>
-          <ul
+          {/* <ul
             className={`${styles.subMenu} ${
               openMenus.includes("manageCompany") ? styles.open : ""
             }`}
@@ -96,10 +103,13 @@ const Sidebar = () => {
             >
               Create Company Profile
             </li>
-          </ul>
+          </ul> */}
         </li>
         <li className={styles.menuItem}>
           <span>Reports & Analytics</span>
+        </li>
+        <li className={styles.menuItem} onClick={() => onOpenChat?.()}>
+          <span>💬 Chat Management</span>
         </li>
 
         {/* If super /admin */}

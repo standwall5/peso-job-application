@@ -15,9 +15,17 @@ const Toast: React.FC<ToastProps> = ({
   onClose,
   title = "Success",
   message = "Your changes have been saved",
-  duration = 5000,
+  duration = 3050,
   icon,
 }) => {
+  useEffect(() => {
+    if (!show) return;
+    const timer = setTimeout(() => {
+      onClose();
+    }, duration);
+    return () => clearTimeout(timer);
+  }, [show, duration, onClose]);
+
   return (
     <div className={`${styles.toast} ${show ? styles.active : ""}`}>
       <div className={styles.toastContent}>
