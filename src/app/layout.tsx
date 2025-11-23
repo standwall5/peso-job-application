@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { createClient } from "@/utils/supabase/server";
 import { User } from "@supabase/supabase-js";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const poppins = Poppins({
   subsets: ["latin"],
