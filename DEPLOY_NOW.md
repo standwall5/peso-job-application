@@ -50,7 +50,7 @@ export const FORCE_ADMIN_MODE = false;  // Change from true to false
 ### 4. Deploy
 ```bash
 git add .
-git commit -m "feat: Real-time chat system"
+git commit -m "feat: Real-time chat system with user close functionality"
 git push origin main
 ```
 
@@ -61,6 +61,8 @@ git push origin main
 ✓ Chat panel is better sized (950px max)
 ✓ No more race conditions or duplicate API calls
 ✓ Real-time updates work smoothly
+✓ Users can close chats (moves to Closed tab for admin)
+✓ "End Chat" button for users to explicitly end conversation
 
 ## 🧪 Test After Deploy
 
@@ -68,6 +70,8 @@ git push origin main
 1. Open chat widget
 2. Start chat → should appear in admin panel
 3. Send message → admin should see it
+4. Click "End Chat" button OR close widget
+5. Chat should close and move to admin's Closed tab
 
 **As Admin:**
 1. Open admin panel (floating button bottom-right)
@@ -76,6 +80,7 @@ git push origin main
 4. Send message → should appear instantly
 5. User should see admin message
 6. Close chat → moves to closed tab
+7. If user closed their end, chat appears in Closed tab
 
 ## 🐛 If Something Breaks
 
@@ -93,6 +98,7 @@ git push origin main
 
 - `DEBUG_CHAT_STATUS.md` - Troubleshooting chat issues
 - `DEBUG_ADMIN_MESSAGES.md` - Message display problems
+- `USER_CHAT_CLOSE_FIX.md` - User chat close functionality
 - `PRODUCTION_CHECKLIST.md` - Complete checklist
 - `CHAT_DEPLOYMENT_SUMMARY.md` - Detailed overview
 
@@ -104,6 +110,15 @@ After deployment:
 1. Create test chat
 2. Accept as admin
 3. Send messages both ways
-4. Verify everything works
+4. Test "End Chat" button (user side)
+5. Test closing widget with X button
+6. Verify chat moves to Closed tab in admin panel
+7. Verify everything works
 
 **Status:** ✅ READY TO PUSH
+
+**What's New in This Version:**
+- Users can properly close chats
+- "End Chat" button in chat widget
+- Auto-close when user exits widget
+- Chats appear in admin's Closed tab when user leaves

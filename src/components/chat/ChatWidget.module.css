@@ -511,6 +511,44 @@
     box-shadow: 0 4px 12px rgba(128, 231, 177, 0.4);
 }
 
+.endChatContainer {
+    padding: 0.5rem 1.5rem;
+    border-top: 1px solid #e0e0e0;
+    background: #f9f9f9;
+}
+
+.endChatButton {
+    width: 100%;
+    background: #ff556e;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.endChatButton:hover {
+    background: #ff3855;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(255, 85, 110, 0.3);
+}
+
+.closedChatInfo {
+    padding: 1.5rem;
+    text-align: center;
+    background: #f0f9ff;
+    border-top: 1px solid #e0e0e0;
+}
+
+.closedChatInfo p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .chatWidget {

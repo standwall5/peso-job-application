@@ -41,6 +41,70 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     typeof supabase.channel
   > | null>(null);
 
+  // Handle closing the chat widget
+  const handleCloseChat = async () => {
+    // If user is in an active chat session, close it
+    if (sessionId && mode === "live" && chatStatus !== "closed") {
+      try {
+        console.log(
+          "[ChatWidget] User closing chat, ending session:",
+          sessionId,
+        );
+        await fetch("/api/chat/close", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId }),
+        });
+      } catch (error) {
+        console.error("[ChatWidget] Error closing chat session:", error);
+        // Don't block closing the widget if API fails
+      }
+    }
+
+    // Reset widget state
+    setMode("menu");
+    setMessages([]);
+    setSessionId(null);
+    setChatStatus("waiting");
+    setConcernValue("");
+    setInputValue("");
+    setSelectedCategory(null);
+
+    // Close the widget
+    onClose();
+  };
+
+  // Handle ending chat (explicit button click)
+  const handleEndChat = async () => {
+    if (!sessionId) return;
+
+    try {
+      console.log("[ChatWidget] User ending chat:", sessionId);
+      const response = await fetch("/api/chat/close", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId }),
+      });
+
+      if (response.ok) {
+        setChatStatus("closed");
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: "system-closed",
+            text: "Chat has been ended. Thank you for contacting PESO!",
+            sender: "bot",
+            timestamp: new Date(),
+          },
+        ]);
+      } else {
+        console.error("[ChatWidget] Failed to end chat");
+      }
+    } catch (error) {
+      console.error("[ChatWidget] Error ending chat:", error);
+    }
+  };
+
   // Fetch FAQs
   useEffect(() => {
     if (mode === "faq") {
@@ -396,7 +460,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
             )}
           </h3>
         </div>
-        <button className={styles.closeButton} onClick={onClose}>
+        <button className={styles.closeButton} onClick={handleCloseChat}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -609,33 +673,47 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
 
       {/* Input (for live chat only when connected) */}
       {mode === "live" && chatStatus === "connected" && (
-        <div className={styles.inputContainer}>
-          <input
-            type="text"
-            className={styles.input}
-            placeholder="Type your message..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSendMessage();
-              }
-            }}
-          />
-          <button
-            className={styles.sendButton}
-            onClick={handleSendMessage}
-            disabled={!inputValue.trim()}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className={styles.sendIcon}
+        <>
+          <div className={styles.inputContainer}>
+            <input
+              type="text"
+              className={styles.input}
+              placeholder="Type your message..."
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSendMessage();
+                }
+              }}
+            />
+            <button
+              className={styles.sendButton}
+              onClick={handleSendMessage}
+              disabled={!inputValue.trim()}
             >
-              <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
-            </svg>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className={styles.sendIcon}
+              >
+                <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
+              </svg>
+            </button>
+          </div>
+          <div className={styles.endChatContainer}>
+            <button className={styles.endChatButton} onClick={handleEndChat}>
+              End Chat
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* Show message when chat is closed */}
+      {mode === "live" && chatStatus === "closed" && (
+        <div className={styles.closedChatInfo}>
+          <p>This chat has ended. Close this window or start a new chat.</p>
         </div>
       )}
 
