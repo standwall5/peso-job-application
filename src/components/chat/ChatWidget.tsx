@@ -9,6 +9,7 @@ interface Message {
   text: string;
   sender: "user" | "admin" | "bot";
   timestamp: Date;
+  buttons?: Array<{ label: string; value: string }>;
 }
 
 interface FAQ {
@@ -47,10 +48,25 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     }
   }, [mode]);
 
+  // Parse buttons from message text
+  const parseMessage = (text: string) => {
+    const buttonMarker = "\n\n[BUTTONS]";
+    if (text.includes(buttonMarker)) {
+      const [messageText, buttonsJson] = text.split(buttonMarker);
+      try {
+        const buttons = JSON.parse(buttonsJson);
+        return { text: messageText, buttons };
+      } catch {
+        return { text, buttons: undefined };
+      }
+    }
+    return { text, buttons: undefined };
+  };
+
   // Set up real-time subscription for messages
   useEffect(() => {
     if (sessionId && mode === "live") {
-      subscribeToMessages();
+      subscribeToMessages(sessionId);
     }
 
     return () => {
@@ -62,8 +78,8 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   }, [sessionId, mode]);
 
   // Subscribe to real-time messages
-  const subscribeToMessages = async () => {
-    if (!sessionId) return;
+  const subscribeToMessages = async (chatId: string) => {
+    if (!chatId) return;
 
     // Remove existing subscription if any
     if (messageSubscriptionRef.current) {
@@ -72,14 +88,14 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
 
     // Create new subscription
     const channel = supabase
-      .channel(`chat_messages:${sessionId}`)
+      .channel(`messages:${chatId}`)
       .on(
         "postgres_changes",
         {
           event: "INSERT",
           schema: "public",
           table: "chat_messages",
-          filter: `chat_session_id=eq.${sessionId}`,
+          filter: `chat_session_id=eq.${chatId}`,
         },
         (payload) => {
           const newMsg = payload.new as {
@@ -88,11 +104,13 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
             sender: string;
             created_at: string;
           };
+          const parsed = parseMessage(newMsg.message);
           const message: Message = {
             id: newMsg.id,
-            text: newMsg.message,
-            sender: newMsg.sender as "user" | "admin" | "bot",
+            text: parsed.text,
+            sender: newMsg.sender as "user" | "admin",
             timestamp: new Date(newMsg.created_at),
+            buttons: parsed.buttons,
           };
           setMessages((prev) => {
             // Avoid duplicates
@@ -109,7 +127,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
           event: "UPDATE",
           schema: "public",
           table: "chat_sessions",
-          filter: `id=eq.${sessionId}`,
+          filter: `id=eq.${chatId}`,
         },
         (payload) => {
           const updatedSession = payload.new as {
@@ -183,6 +201,26 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Handle button click - send button value as user message
+  const handleButtonClick = async (value: string) => {
+    if (!sessionId) return;
+
+    // Send message directly via API
+    try {
+      await fetch("/api/chat/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId,
+          message: value,
+        }),
+      });
+      // Message will appear via real-time subscription
+    } catch (error) {
+      console.error("Error sending button click:", error);
+    }
+  };
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || !sessionId) return;
@@ -506,7 +544,22 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                     key={msg.id}
                     className={`${styles.message} ${styles[msg.sender]}`}
                   >
-                    <div className={styles.messageContent}>{msg.text}</div>
+                    <div className={styles.messageContent}>
+                      {msg.text}
+                      {msg.buttons && msg.buttons.length > 0 && (
+                        <div className={styles.buttonContainer}>
+                          {msg.buttons.map((button, idx) => (
+                            <button
+                              key={idx}
+                              className={styles.botButton}
+                              onClick={() => handleButtonClick(button.value)}
+                            >
+                              {button.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ))}
                 <div ref={messagesEndRef} />
@@ -524,7 +577,22 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                   key={msg.id}
                   className={`${styles.message} ${styles[msg.sender]}`}
                 >
-                  <div className={styles.messageContent}>{msg.text}</div>
+                  <div className={styles.messageContent}>
+                    {msg.text}
+                    {msg.buttons && msg.buttons.length > 0 && (
+                      <div className={styles.buttonContainer}>
+                        {msg.buttons.map((button, idx) => (
+                          <button
+                            key={idx}
+                            className={styles.botButton}
+                            onClick={() => handleButtonClick(button.value)}
+                          >
+                            {button.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   <div className={styles.messageTime}>
                     {msg.timestamp.toLocaleTimeString([], {
                       hour: "2-digit",

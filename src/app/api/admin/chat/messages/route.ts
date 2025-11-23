@@ -23,14 +23,26 @@ export async function POST(request: Request) {
 
   if (adminError || !adminData) {
     console.error("Admin lookup error:", adminError);
-    return NextResponse.json({ error: "Unauthorized - Admin access required" }, { status: 403 });
+    return NextResponse.json(
+      { error: "Unauthorized - Admin access required" },
+      { status: 403 },
+    );
   }
 
   const body = await request.json();
   const { chatId, message } = body;
 
+  console.log("[Admin Messages API] Sending message:", {
+    chatId,
+    messageLength: message?.length,
+    adminId: adminData.id,
+  });
+
   if (!chatId || !message || !message.trim()) {
-    return NextResponse.json({ error: "Chat ID and message are required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Chat ID and message are required" },
+      { status: 400 },
+    );
   }
 
   // Verify chat session exists and admin is assigned
@@ -42,15 +54,24 @@ export async function POST(request: Request) {
 
   if (sessionError || !chatSession) {
     console.error("Chat session lookup error:", sessionError);
-    return NextResponse.json({ error: "Chat session not found" }, { status: 404 });
+    return NextResponse.json(
+      { error: "Chat session not found" },
+      { status: 404 },
+    );
   }
 
   if (chatSession.status === "closed") {
-    return NextResponse.json({ error: "Chat session is closed" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Chat session is closed" },
+      { status: 400 },
+    );
   }
 
   if (chatSession.admin_id !== adminData.id) {
-    return NextResponse.json({ error: "Not authorized for this chat session" }, { status: 403 });
+    return NextResponse.json(
+      { error: "Not authorized for this chat session" },
+      { status: 403 },
+    );
   }
 
   // Insert message
@@ -68,6 +89,12 @@ export async function POST(request: Request) {
     console.error("Insert message error:", messageError);
     return NextResponse.json({ error: messageError.message }, { status: 500 });
   }
+
+  console.log("[Admin Messages API] Message sent successfully:", {
+    messageId: newMessage.id,
+    chatId: newMessage.chat_session_id,
+    sender: newMessage.sender,
+  });
 
   return NextResponse.json(newMessage);
 }

@@ -199,6 +199,7 @@ footer ul {
     align-items: center;
     justify-content: flex-start;
     gap: 1rem;
+    /*margin-bottom: -5rem;*/
 }
 
 .footer ul li {

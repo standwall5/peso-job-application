@@ -32,34 +32,29 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const status = searchParams.get("status") || "pending";
 
-  // Map status values
-  let statusValue = status;
-  if (status === "new") {
-    statusValue = "pending";
-  }
+  console.log("[Admin Requests API] Fetching chat requests:", {
+    requestedStatus: status,
+    adminId: adminData.id,
+  });
 
-  // Get chat sessions with applicant details
-  const { data: chatSessions, error: sessionsError } = await supabase
-    .from("chat_sessions")
-    .select(
-      `
-      id,
-      user_id,
-      status,
-      concern,
-      created_at,
-      closed_at,
-      admin_id,
-      applicants (
-        id,
-        first_name,
-        last_name,
-        auth_id
-      )
-    `,
-    )
-    .eq("status", statusValue)
-    .order("created_at", { ascending: false });
+  // Get chat sessions with applicant details using database function
+  const { data: chatSessions, error: sessionsError } = await supabase.rpc(
+    "get_chat_sessions_for_admin",
+    { session_status: status },
+  );
+
+  console.log("[Admin Requests API] Database response:", {
+    requestedStatus: status,
+    sessionsCount: chatSessions?.length || 0,
+    error: sessionsError?.message || null,
+    sessions: chatSessions?.map(
+      (s: { id: string; status: string; concern: string | null }) => ({
+        id: s.id,
+        status: s.status,
+        concern: s.concern?.substring(0, 30),
+      }),
+    ),
+  });
 
   if (sessionsError) {
     console.error("Fetch chat sessions error:", sessionsError);
@@ -67,32 +62,27 @@ export async function GET(request: Request) {
   }
 
   // Format response with user details
-  const formattedSessions = await Promise.all(
-    (chatSessions || []).map(async (session: Record<string, unknown>) => {
-      const applicants = session.applicants as Record<string, unknown> | null;
-      const authId = (applicants?.auth_id as string) || "";
-
-      // Get user email from auth
-      const { data: authUser } = await supabase.auth.admin.getUserById(authId);
-
-      const firstName = applicants?.first_name as string | null;
-      const lastName = applicants?.last_name as string | null;
-
-      return {
-        id: session.id as string,
-        userId: session.user_id as number,
-        userName: applicants
-          ? `${firstName || ""} ${lastName || ""}`.trim() || "Unknown User"
-          : "Unknown User",
-        userEmail: authUser?.user?.email || "No email",
-        concern: (session.concern as string) || "",
-        timestamp: new Date(session.created_at as string),
-        status: session.status as string,
-        adminId: session.admin_id as number | null,
-        closedAt: session.closed_at
-          ? new Date(session.closed_at as string)
-          : null,
-      };
+  const formattedSessions = (chatSessions || []).map(
+    (session: {
+      id: string;
+      user_id: number;
+      admin_id: number | null;
+      status: string;
+      concern: string | null;
+      created_at: string;
+      closed_at: string | null;
+      applicant_name: string | null;
+      applicant_email: string | null;
+    }) => ({
+      id: session.id,
+      userId: session.user_id,
+      userName: session.applicant_name || "Unknown User",
+      userEmail: session.applicant_email || "No email",
+      concern: session.concern || "",
+      timestamp: new Date(session.created_at),
+      status: session.status,
+      adminId: session.admin_id,
+      closedAt: session.closed_at ? new Date(session.closed_at) : null,
     }),
   );
 

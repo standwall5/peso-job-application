@@ -325,6 +325,58 @@
     text-align: right;
 }
 
+/* Bot Button Styles */
+.buttonContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.botButton {
+    background: white;
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: left;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.botButton:hover {
+    background: var(--accent);
+    color: white;
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(128, 231, 177, 0.3);
+}
+
+.botButton:active {
+    transform: translateX(2px);
+}
+
+.message.admin .buttonContainer {
+    border-top-color: rgba(255, 255, 255, 0.3);
+}
+
+.message.admin .botButton {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: white;
+    color: white;
+}
+
+.message.admin .botButton:hover {
+    background: white;
+    color: var(--accent);
+}
+
 /* Input Container */
 .inputContainer {
     padding: 1rem;

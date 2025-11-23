@@ -4,11 +4,7 @@ import React, { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import styles from "@/app/admin/Admin.module.css";
 
-interface SidebarProps {
-  onOpenChat?: () => void;
-}
-
-const Sidebar = ({ onOpenChat }: SidebarProps) => {
+const Sidebar = () => {
   const [openMenus, setOpenMenus] = useState<string[]>([]);
   const pathname = usePathname();
   const router = useRouter();
@@ -107,9 +103,6 @@ const Sidebar = ({ onOpenChat }: SidebarProps) => {
         </li>
         <li className={styles.menuItem}>
           <span>Reports & Analytics</span>
-        </li>
-        <li className={styles.menuItem} onClick={() => onOpenChat?.()}>
-          <span>💬 Chat Management</span>
         </li>
 
         {/* If super /admin */}
