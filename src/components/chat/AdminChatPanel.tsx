@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { createClient } from "@/utils/supabase/client";
 import styles from "./AdminChatPanel.module.css";
 import Button from "../Button";
 
@@ -9,6 +10,7 @@ interface ChatRequest {
   userId: string;
   userName: string;
   userEmail: string;
+  concern: string;
   timestamp: Date;
   status: "pending" | "active" | "closed";
 }
@@ -37,13 +39,165 @@ export default function AdminChatPanel({
   const [activeChat, setActiveChat] = useState<ChatRequest | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
+  const supabase = createClient();
+  const messageSubscriptionRef = useRef<ReturnType<
+    typeof supabase.channel
+  > | null>(null);
+  const requestSubscriptionRef = useRef<ReturnType<
+    typeof supabase.channel
+  > | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   // Fetch chat requests
   useEffect(() => {
     if (isOpen) {
       fetchChatRequests();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, activeTab]);
+
+  // Set up real-time subscription for new chat requests
+  useEffect(() => {
+    if (isOpen) {
+      subscribeToRequests();
+    }
+
+    return () => {
+      if (requestSubscriptionRef.current) {
+        supabase.removeChannel(requestSubscriptionRef.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, activeTab]);
+
+  // Set up real-time subscription for messages
+  useEffect(() => {
+    if (activeChat) {
+      fetchMessages(activeChat.id);
+      subscribeToMessages(activeChat.id);
+    }
+
+    return () => {
+      if (messageSubscriptionRef.current) {
+        supabase.removeChannel(messageSubscriptionRef.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeChat]);
+
+  const subscribeToRequests = async () => {
+    // Remove existing subscription if any
+    if (requestSubscriptionRef.current) {
+      await supabase.removeChannel(requestSubscriptionRef.current);
+    }
+
+    // Create new subscription for chat sessions
+    const channel = supabase
+      .channel("chat_sessions_admin")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "chat_sessions",
+        },
+        (payload) => {
+          const newSession = payload.new as {
+            id: string;
+            status: string;
+          };
+          if (newSession.status === "pending") {
+            // Fetch the full request data including user info
+            fetchChatRequests();
+          }
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "chat_sessions",
+        },
+        (payload) => {
+          const updatedSession = payload.new as {
+            id: string;
+            status: string;
+          };
+          // Refresh requests when status changes
+          fetchChatRequests();
+
+          // Update active chat if it's the one being modified
+          if (activeChat && activeChat.id === updatedSession.id) {
+            setActiveChat((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    status: updatedSession.status as
+                      | "pending"
+                      | "active"
+                      | "closed",
+                  }
+                : null,
+            );
+          }
+        },
+      )
+      .subscribe();
+
+    requestSubscriptionRef.current = channel;
+  };
+
+  const subscribeToMessages = async (chatId: string) => {
+    // Remove existing subscription if any
+    if (messageSubscriptionRef.current) {
+      await supabase.removeChannel(messageSubscriptionRef.current);
+    }
+
+    // Create new subscription
+    const channel = supabase
+      .channel(`chat_messages_admin:${chatId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "chat_messages",
+          filter: `chat_session_id=eq.${chatId}`,
+        },
+        (payload) => {
+          const newMsg = payload.new as {
+            id: string;
+            chat_session_id: string;
+            message: string;
+            sender: string;
+            created_at: string;
+          };
+          const message: Message = {
+            id: newMsg.id,
+            chatId: newMsg.chat_session_id,
+            text: newMsg.message,
+            sender: newMsg.sender as "user" | "admin",
+            timestamp: new Date(newMsg.created_at),
+          };
+          setMessages((prev) => {
+            // Avoid duplicates
+            if (prev.some((m) => m.id === message.id)) {
+              return prev;
+            }
+            return [...prev, message];
+          });
+        },
+      )
+      .subscribe();
+
+    messageSubscriptionRef.current = channel;
+  };
 
   const fetchChatRequests = async () => {
     try {
@@ -59,26 +213,9 @@ export default function AdminChatPanel({
       setChatRequests(data || []);
     } catch (error) {
       console.error("Error fetching chat requests:", error);
-      // Mock data for development
-      setChatRequests([
-        {
-          id: "1",
-          userId: "user-1",
-          userName: "John Doe",
-          userEmail: "john@example.com",
-          timestamp: new Date(),
-          status: "pending",
-        },
-      ]);
+      setChatRequests([]);
     }
   };
-
-  // Fetch messages for active chat
-  useEffect(() => {
-    if (activeChat) {
-      fetchMessages(activeChat.id);
-    }
-  }, [activeChat]);
 
   const fetchMessages = async (chatId: string) => {
     try {
@@ -132,15 +269,7 @@ export default function AdminChatPanel({
   const handleSendMessage = async () => {
     if (!inputValue.trim() || !activeChat) return;
 
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      chatId: activeChat.id,
-      text: inputValue,
-      sender: "admin",
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, newMessage]);
+    const messageText = inputValue;
     setInputValue("");
 
     try {
@@ -149,16 +278,27 @@ export default function AdminChatPanel({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           chatId: activeChat.id,
-          message: inputValue,
+          message: messageText,
         }),
       });
 
-      if (response.ok) {
-        // Refresh messages to show the new one
-        await fetchMessages(activeChat.id);
+      if (!response.ok) {
+        throw new Error("Failed to send message");
       }
+      // Message will appear via real-time subscription
     } catch (error) {
       console.error("Error sending message:", error);
+      // Show error message
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: "error-" + Date.now(),
+          chatId: activeChat.id,
+          text: "Failed to send message. Please try again.",
+          sender: "admin",
+          timestamp: new Date(),
+        },
+      ]);
     }
   };
 
@@ -314,6 +454,13 @@ export default function AdminChatPanel({
                   <div className={styles.chatItemEmail}>
                     {request.userEmail}
                   </div>
+                  {request.concern && (
+                    <div className={styles.chatItemConcern}>
+                      {request.concern.length > 60
+                        ? request.concern.substring(0, 60) + "..."
+                        : request.concern}
+                    </div>
+                  )}
                   {activeTab === "new" && (
                     <Button
                       variant="success"
@@ -340,6 +487,11 @@ export default function AdminChatPanel({
                 <div>
                   <h3>{activeChat.userName}</h3>
                   <p className={styles.chatEmail}>{activeChat.userEmail}</p>
+                  {activeChat.concern && (
+                    <div className={styles.concernBox}>
+                      <strong>Concern:</strong> {activeChat.concern}
+                    </div>
+                  )}
                 </div>
                 {activeTab === "active" && (
                   <Button variant="danger" onClick={handleEndChat}>
@@ -363,6 +515,7 @@ export default function AdminChatPanel({
                     </div>
                   </div>
                 ))}
+                <div ref={messagesEndRef} />
               </div>
 
               {activeTab === "active" && (

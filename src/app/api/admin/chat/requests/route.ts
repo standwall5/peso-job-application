@@ -46,6 +46,7 @@ export async function GET(request: Request) {
       id,
       user_id,
       status,
+      concern,
       created_at,
       closed_at,
       admin_id,
@@ -84,6 +85,7 @@ export async function GET(request: Request) {
           ? `${firstName || ""} ${lastName || ""}`.trim() || "Unknown User"
           : "Unknown User",
         userEmail: authUser?.user?.email || "No email",
+        concern: (session.concern as string) || "",
         timestamp: new Date(session.created_at as string),
         status: session.status as string,
         adminId: session.admin_id as number | null,

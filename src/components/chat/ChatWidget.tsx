@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { createClient } from "@/utils/supabase/client";
 import styles from "./ChatWidget.module.css";
 
 interface Message {
@@ -23,9 +24,10 @@ interface ChatWidgetProps {
 }
 
 export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
-  const [mode, setMode] = useState<"menu" | "faq" | "live">("menu");
+  const [mode, setMode] = useState<"menu" | "faq" | "concern" | "live">("menu");
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
+  const [concernValue, setConcernValue] = useState("");
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [chatStatus, setChatStatus] = useState<
@@ -33,6 +35,10 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   >("waiting");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const supabase = createClient();
+  const messageSubscriptionRef = useRef<ReturnType<
+    typeof supabase.channel
+  > | null>(null);
 
   // Fetch FAQs
   useEffect(() => {
@@ -40,6 +46,105 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       fetchFAQs();
     }
   }, [mode]);
+
+  // Set up real-time subscription for messages
+  useEffect(() => {
+    if (sessionId && mode === "live") {
+      subscribeToMessages();
+    }
+
+    return () => {
+      if (messageSubscriptionRef.current) {
+        supabase.removeChannel(messageSubscriptionRef.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId, mode]);
+
+  // Subscribe to real-time messages
+  const subscribeToMessages = async () => {
+    if (!sessionId) return;
+
+    // Remove existing subscription if any
+    if (messageSubscriptionRef.current) {
+      await supabase.removeChannel(messageSubscriptionRef.current);
+    }
+
+    // Create new subscription
+    const channel = supabase
+      .channel(`chat_messages:${sessionId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "chat_messages",
+          filter: `chat_session_id=eq.${sessionId}`,
+        },
+        (payload) => {
+          const newMsg = payload.new as {
+            id: string;
+            message: string;
+            sender: string;
+            created_at: string;
+          };
+          const message: Message = {
+            id: newMsg.id,
+            text: newMsg.message,
+            sender: newMsg.sender as "user" | "admin" | "bot",
+            timestamp: new Date(newMsg.created_at),
+          };
+          setMessages((prev) => {
+            // Avoid duplicates
+            if (prev.some((m) => m.id === message.id)) {
+              return prev;
+            }
+            return [...prev, message];
+          });
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "chat_sessions",
+          filter: `id=eq.${sessionId}`,
+        },
+        (payload) => {
+          const updatedSession = payload.new as {
+            id: string;
+            status: string;
+          };
+          if (updatedSession.status === "active") {
+            setChatStatus("connected");
+            setMessages((prev) => [
+              ...prev.filter((m) => m.sender !== "bot"),
+              {
+                id: "system-connected",
+                text: "Admin has joined the chat. You can now send messages.",
+                sender: "bot",
+                timestamp: new Date(),
+              },
+            ]);
+          } else if (updatedSession.status === "closed") {
+            setChatStatus("closed");
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: "system-closed",
+                text: "This chat has been closed by the admin.",
+                sender: "bot",
+                timestamp: new Date(),
+              },
+            ]);
+          }
+        },
+      )
+      .subscribe();
+
+    messageSubscriptionRef.current = channel;
+  };
 
   const fetchFAQs = async () => {
     try {
@@ -83,14 +188,6 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     if (!inputValue.trim() || !sessionId) return;
 
     const messageText = inputValue;
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      text: messageText,
-      sender: "user",
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, newMessage]);
     setInputValue("");
 
     if (mode === "live") {
@@ -104,22 +201,39 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
             message: messageText,
           }),
         });
+        // Message will appear via real-time subscription
       } catch (error) {
         console.error("Error sending message:", error);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: "error-" + Date.now(),
+            text: "Failed to send message. Please try again.",
+            sender: "bot",
+            timestamp: new Date(),
+          },
+        ]);
       }
     }
   };
 
-  const handleStartLiveChat = async () => {
+  const handleSubmitConcern = async () => {
+    if (!concernValue.trim()) {
+      alert("Please describe your concern before starting a chat.");
+      return;
+    }
+
     setMode("live");
     setChatStatus("waiting");
 
-    // Send chat request to admin
+    // Send chat request with initial concern to admin
     try {
       const response = await fetch("/api/chat/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
+        body: JSON.stringify({
+          concern: concernValue.trim(),
+        }),
       });
 
       const data = await response.json();
@@ -128,15 +242,19 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
         setSessionId(data.id);
         setMessages([
           {
+            id: "user-concern",
+            text: concernValue.trim(),
+            sender: "user",
+            timestamp: new Date(),
+          },
+          {
             id: "system-1",
-            text: "Your chat request has been sent. Please wait for an admin to accept...",
+            text: "Your message has been sent to our support team. Please wait while an admin reviews your request...",
             sender: "bot",
             timestamp: new Date(),
           },
         ]);
-
-        // Poll for session status updates
-        pollSessionStatus();
+        setConcernValue("");
       } else {
         setMessages([
           {
@@ -146,6 +264,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
             timestamp: new Date(),
           },
         ]);
+        setMode("concern");
       }
     } catch (error) {
       console.error("Error starting chat:", error);
@@ -157,45 +276,8 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
           timestamp: new Date(),
         },
       ]);
+      setMode("concern");
     }
-  };
-
-  const pollSessionStatus = async () => {
-    // Poll every 3 seconds to check if admin accepted
-    const interval = setInterval(async () => {
-      try {
-        const response = await fetch("/api/chat/messages");
-        const data = await response.json();
-
-        if (data.sessionId && data.messages) {
-          // Check if session is active by looking at messages or session data
-          // For now, we'll assume if we get messages back, it's connected
-          if (data.messages.length > messages.length) {
-            setChatStatus("connected");
-            setMessages(
-              data.messages.map(
-                (msg: {
-                  id: string;
-                  message: string;
-                  sender: string;
-                  created_at: string;
-                }) => ({
-                  id: msg.id,
-                  text: msg.message,
-                  sender: msg.sender as "user" | "admin" | "bot",
-                  timestamp: new Date(msg.created_at),
-                }),
-              ),
-            );
-          }
-        }
-      } catch (error) {
-        console.error("Error polling messages:", error);
-      }
-    }, 3000);
-
-    // Clean up interval after 5 minutes
-    setTimeout(() => clearInterval(interval), 300000);
   };
 
   const handleFAQClick = (faq: FAQ) => {
@@ -224,13 +306,18 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       {/* Header */}
       <div className={styles.header}>
         <div className={styles.headerContent}>
-          {mode !== "menu" && (
+          {mode !== "menu" && mode !== "concern" && (
             <button
               className={styles.backButton}
               onClick={() => {
                 setMode("menu");
                 setMessages([]);
                 setSelectedCategory(null);
+                setConcernValue("");
+                if (messageSubscriptionRef.current) {
+                  supabase.removeChannel(messageSubscriptionRef.current);
+                }
+                setSessionId(null);
               }}
             >
               <svg
@@ -250,6 +337,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
           <h3 className={styles.title}>
             {mode === "menu" && "How can we help?"}
             {mode === "faq" && "FAQ"}
+            {mode === "concern" && "Describe Your Concern"}
             {mode === "live" && (
               <>
                 Live Chat
@@ -259,6 +347,11 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                 {chatStatus === "connected" && (
                   <span className={`${styles.statusBadge} ${styles.connected}`}>
                     Connected
+                  </span>
+                )}
+                {chatStatus === "closed" && (
+                  <span className={`${styles.statusBadge} ${styles.closed}`}>
+                    Closed
                   </span>
                 )}
               </>
@@ -309,7 +402,10 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
               </div>
             </button>
 
-            <button className={styles.menuOption} onClick={handleStartLiveChat}>
+            <button
+              className={styles.menuOption}
+              onClick={() => setMode("concern")}
+            >
               <div className={styles.menuIcon}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -327,6 +423,31 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                 <strong>Chat with Admin</strong>
                 <span>Talk to a real person</span>
               </div>
+            </button>
+          </div>
+        )}
+
+        {/* Concern Input View */}
+        {mode === "concern" && (
+          <div className={styles.concernForm}>
+            <p className={styles.concernPrompt}>
+              Please describe your concern or question below, and our support
+              team will assist you shortly.
+            </p>
+            <textarea
+              className={styles.concernTextarea}
+              placeholder="Example: I need help with my job application status..."
+              value={concernValue}
+              onChange={(e) => setConcernValue(e.target.value)}
+              rows={6}
+              autoFocus
+            />
+            <button
+              className={styles.submitConcernButton}
+              onClick={handleSubmitConcern}
+              disabled={!concernValue.trim()}
+            >
+              Send Request to Admin
             </button>
           </div>
         )}
@@ -418,8 +539,8 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
         )}
       </div>
 
-      {/* Input (for live chat and FAQ with messages) */}
-      {(mode === "live" || (mode === "faq" && messages.length > 0)) && (
+      {/* Input (for live chat only when connected) */}
+      {mode === "live" && chatStatus === "connected" && (
         <div className={styles.inputContainer}>
           <input
             type="text"
@@ -446,6 +567,18 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
             >
               <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
             </svg>
+          </button>
+        </div>
+      )}
+
+      {/* FAQ Input (for FAQ with messages) */}
+      {mode === "faq" && messages.length > 0 && (
+        <div className={styles.inputContainer}>
+          <button
+            className={styles.backToFAQButton}
+            onClick={() => setMessages([])}
+          >
+            ← Back to FAQ List
           </button>
         </div>
       )}
