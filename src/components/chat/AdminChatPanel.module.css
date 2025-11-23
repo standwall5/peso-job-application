@@ -419,6 +419,71 @@
     }
 }
 
+.typingIndicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    margin-top: 0.5rem;
+}
+
+.typingDots {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.typingDot {
+    width: 8px;
+    height: 8px;
+    background: #888;
+    border-radius: 50%;
+    animation: typingBounce 1.4s infinite ease-in-out both;
+}
+
+.typingDot:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.typingDot:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+@keyframes typingBounce {
+    0%,
+    80%,
+    100% {
+        transform: scale(0);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.typingText {
+    font-size: 0.85rem;
+    color: #888;
+    font-style: italic;
+}
+
+@media (max-width: 1024px) {
+    .adminPanel {
+        width: 90vw;
+        max-width: 850px;
+        height: 90vh;
+    }
+
+    .sidebar {
+        width: 280px;
+    }
+
+    .chatWindow {
+        max-width: 570px;
+    }
+}
+
 @media (max-width: 768px) {
     .adminPanel {
         width: 100vw;

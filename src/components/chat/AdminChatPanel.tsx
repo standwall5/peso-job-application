@@ -46,11 +46,16 @@ export default function AdminChatPanel({
   const [activeChat, setActiveChat] = useState<ChatRequest | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
+  const [userTyping, setUserTyping] = useState(false);
   const supabase = createClient();
   const messageSubscriptionRef = useRef<ReturnType<
     typeof supabase.channel
   > | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(
+    null,
+  );
 
   // Get chat requests for current tab from props
   const chatRequests =
@@ -65,16 +70,20 @@ export default function AdminChatPanel({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Set up real-time subscription for messages
+  // Set up real-time subscription for messages and typing
   useEffect(() => {
     if (activeChat) {
       fetchMessages(activeChat.id);
       subscribeToMessages(activeChat.id);
+      subscribeToTyping(activeChat.id);
     }
 
     return () => {
       if (messageSubscriptionRef.current) {
         supabase.removeChannel(messageSubscriptionRef.current);
+      }
+      if (typingChannelRef.current) {
+        supabase.removeChannel(typingChannelRef.current);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -135,9 +144,97 @@ export default function AdminChatPanel({
           });
         },
       )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "chat_sessions",
+          filter: `id=eq.${chatId}`,
+        },
+        (payload) => {
+          const updatedSession = payload.new as {
+            id: string;
+            status: string;
+            closed_at: string | null;
+          };
+          console.log("[AdminChatPanel] Chat session updated:", {
+            sessionId: updatedSession.id,
+            newStatus: updatedSession.status,
+          });
+
+          // If user closed the chat, show notification message
+          if (updatedSession.status === "closed" && activeChat) {
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: "system-closed-" + Date.now(),
+                chatId: chatId,
+                text: "🔴 User has closed the chat",
+                sender: "user",
+                timestamp: new Date(),
+              },
+            ]);
+
+            // Update active chat status
+            setActiveChat((prev) =>
+              prev ? { ...prev, status: "closed" } : null,
+            );
+
+            // Refresh data
+            onRefresh();
+          }
+        },
+      )
       .subscribe();
 
     messageSubscriptionRef.current = channel;
+  };
+
+  // Subscribe to typing indicators
+  const subscribeToTyping = async (chatId: string) => {
+    if (!chatId) return;
+
+    if (typingChannelRef.current) {
+      await supabase.removeChannel(typingChannelRef.current);
+    }
+
+    const channel = supabase
+      .channel(`typing:${chatId}`)
+      .on("broadcast", { event: "typing" }, (payload) => {
+        if (payload.payload.sender === "user") {
+          setUserTyping(true);
+          // Clear typing indicator after 3 seconds
+          setTimeout(() => setUserTyping(false), 3000);
+        }
+      })
+      .subscribe();
+
+    typingChannelRef.current = channel;
+  };
+
+  // Send typing indicator
+  const sendTypingIndicator = () => {
+    if (!activeChat || !typingChannelRef.current) return;
+
+    typingChannelRef.current.send({
+      type: "broadcast",
+      event: "typing",
+      payload: { sender: "admin", sessionId: activeChat.id },
+    });
+  };
+
+  // Handle input change with typing indicator
+  const handleInputChange = (value: string) => {
+    setInputValue(value);
+
+    // Send typing indicator
+    sendTypingIndicator();
+
+    // Debounce typing indicator
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
   };
 
   const fetchMessages = async (chatId: string) => {
@@ -491,6 +588,16 @@ export default function AdminChatPanel({
                   </div>
                 ))}
                 <div ref={messagesEndRef} />
+                {userTyping && (
+                  <div className={styles.typingIndicator}>
+                    <div className={styles.typingDots}>
+                      <span className={styles.typingDot}></span>
+                      <span className={styles.typingDot}></span>
+                      <span className={styles.typingDot}></span>
+                    </div>
+                    <span className={styles.typingText}>User is typing...</span>
+                  </div>
+                )}
               </div>
 
               {activeTab === "active" && (
@@ -500,7 +607,7 @@ export default function AdminChatPanel({
                     className={styles.input}
                     placeholder="Type your message..."
                     value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
+                    onChange={(e) => handleInputChange(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         handleSendMessage();

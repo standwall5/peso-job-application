@@ -35,11 +35,16 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     "waiting" | "connected" | "closed"
   >("waiting");
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [adminTyping, setAdminTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
   const messageSubscriptionRef = useRef<ReturnType<
     typeof supabase.channel
   > | null>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(
+    null,
+  );
 
   // Handle closing the chat widget
   const handleCloseChat = async () => {
@@ -50,11 +55,23 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
           "[ChatWidget] User closing chat, ending session:",
           sessionId,
         );
-        await fetch("/api/chat/close", {
+        const response = await fetch("/api/chat/close", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ sessionId }),
         });
+
+        if (response.ok) {
+          console.log("[ChatWidget] Chat session closed successfully");
+        } else {
+          console.error(
+            "[ChatWidget] Failed to close chat session:",
+            await response.json(),
+          );
+        }
+
+        // Wait a bit for realtime to propagate
+        await new Promise((resolve) => setTimeout(resolve, 300));
       } catch (error) {
         console.error("[ChatWidget] Error closing chat session:", error);
         // Don't block closing the widget if API fails
@@ -127,15 +144,19 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     return { text, buttons: undefined };
   };
 
-  // Set up real-time subscription for messages
+  // Set up real-time subscription for messages and typing
   useEffect(() => {
     if (sessionId && mode === "live") {
       subscribeToMessages(sessionId);
+      subscribeToTyping(sessionId);
     }
 
     return () => {
       if (messageSubscriptionRef.current) {
         supabase.removeChannel(messageSubscriptionRef.current);
+      }
+      if (typingChannelRef.current) {
+        supabase.removeChannel(typingChannelRef.current);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -226,6 +247,52 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       .subscribe();
 
     messageSubscriptionRef.current = channel;
+  };
+
+  // Subscribe to typing indicators
+  const subscribeToTyping = async (chatId: string) => {
+    if (!chatId) return;
+
+    if (typingChannelRef.current) {
+      await supabase.removeChannel(typingChannelRef.current);
+    }
+
+    const channel = supabase
+      .channel(`typing:${chatId}`)
+      .on("broadcast", { event: "typing" }, (payload) => {
+        if (payload.payload.sender === "admin") {
+          setAdminTyping(true);
+          // Clear typing indicator after 3 seconds
+          setTimeout(() => setAdminTyping(false), 3000);
+        }
+      })
+      .subscribe();
+
+    typingChannelRef.current = channel;
+  };
+
+  // Send typing indicator
+  const sendTypingIndicator = () => {
+    if (!sessionId || !typingChannelRef.current) return;
+
+    typingChannelRef.current.send({
+      type: "broadcast",
+      event: "typing",
+      payload: { sender: "user", sessionId },
+    });
+  };
+
+  // Handle input change with typing indicator
+  const handleInputChange = (value: string) => {
+    setInputValue(value);
+
+    // Send typing indicator
+    sendTypingIndicator();
+
+    // Debounce typing indicator
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
   };
 
   const fetchFAQs = async () => {
@@ -667,6 +734,14 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
               ))}
               <div ref={messagesEndRef} />
             </div>
+            {adminTyping && (
+              <div className={styles.typingIndicator}>
+                <span className={styles.typingDot}></span>
+                <span className={styles.typingDot}></span>
+                <span className={styles.typingDot}></span>
+                <span className={styles.typingText}>Admin is typing...</span>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -680,7 +755,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
               className={styles.input}
               placeholder="Type your message..."
               value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
+              onChange={(e) => handleInputChange(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   handleSendMessage();
