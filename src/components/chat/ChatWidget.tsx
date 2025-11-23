@@ -48,6 +48,13 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
 
   // Handle closing the chat widget
   const handleCloseChat = async () => {
+    console.log("[ChatWidget] handleCloseChat called", {
+      sessionId,
+      mode,
+      chatStatus,
+      hasSession: !!sessionId,
+    });
+
     // If user is in an active chat session, close it
     if (sessionId && mode === "live" && chatStatus !== "closed") {
       try {
@@ -61,21 +68,29 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
           body: JSON.stringify({ sessionId }),
         });
 
+        console.log("[ChatWidget] Close API response status:", response.status);
+
         if (response.ok) {
-          console.log("[ChatWidget] Chat session closed successfully");
+          const data = await response.json();
+          console.log("[ChatWidget] Chat session closed successfully:", data);
         } else {
+          const errorData = await response.json();
           console.error(
             "[ChatWidget] Failed to close chat session:",
-            await response.json(),
+            errorData,
           );
         }
 
         // Wait a bit for realtime to propagate
+        console.log("[ChatWidget] Waiting 300ms for realtime propagation...");
         await new Promise((resolve) => setTimeout(resolve, 300));
+        console.log("[ChatWidget] Realtime propagation wait complete");
       } catch (error) {
         console.error("[ChatWidget] Error closing chat session:", error);
         // Don't block closing the widget if API fails
       }
+    } else {
+      console.log("[ChatWidget] Skipping close API call - conditions not met");
     }
 
     // Reset widget state
@@ -251,30 +266,51 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
 
   // Subscribe to typing indicators
   const subscribeToTyping = async (chatId: string) => {
+    console.log("[ChatWidget] Setting up typing subscription for:", chatId);
     if (!chatId) return;
 
     if (typingChannelRef.current) {
+      console.log("[ChatWidget] Removing old typing channel");
       await supabase.removeChannel(typingChannelRef.current);
     }
 
     const channel = supabase
       .channel(`typing:${chatId}`)
       .on("broadcast", { event: "typing" }, (payload) => {
+        console.log("[ChatWidget] Typing broadcast received:", payload);
         if (payload.payload.sender === "admin") {
+          console.log("[ChatWidget] Admin is typing!");
           setAdminTyping(true);
           // Clear typing indicator after 3 seconds
-          setTimeout(() => setAdminTyping(false), 3000);
+          setTimeout(() => {
+            console.log("[ChatWidget] Clearing admin typing indicator");
+            setAdminTyping(false);
+          }, 3000);
         }
       })
-      .subscribe();
+      .subscribe((status) => {
+        console.log("[ChatWidget] Typing channel subscription status:", status);
+      });
 
     typingChannelRef.current = channel;
+    console.log("[ChatWidget] Typing subscription created");
   };
 
   // Send typing indicator
   const sendTypingIndicator = () => {
-    if (!sessionId || !typingChannelRef.current) return;
+    console.log("[ChatWidget] sendTypingIndicator called", {
+      hasSessionId: !!sessionId,
+      hasChannel: !!typingChannelRef.current,
+    });
 
+    if (!sessionId || !typingChannelRef.current) {
+      console.log(
+        "[ChatWidget] Cannot send typing - missing sessionId or channel",
+      );
+      return;
+    }
+
+    console.log("[ChatWidget] Broadcasting typing event");
     typingChannelRef.current.send({
       type: "broadcast",
       event: "typing",
@@ -284,6 +320,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
 
   // Handle input change with typing indicator
   const handleInputChange = (value: string) => {
+    console.log("[ChatWidget] Input changed, length:", value.length);
     setInputValue(value);
 
     // Send typing indicator

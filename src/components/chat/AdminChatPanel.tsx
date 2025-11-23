@@ -158,13 +158,24 @@ export default function AdminChatPanel({
             status: string;
             closed_at: string | null;
           };
+          const oldSession = payload.old as {
+            id: string;
+            status: string;
+          };
           console.log("[AdminChatPanel] Chat session updated:", {
             sessionId: updatedSession.id,
+            oldStatus: oldSession.status,
             newStatus: updatedSession.status,
+            closedAt: updatedSession.closed_at,
+            hasActiveChat: !!activeChat,
+            activeChatId: activeChat?.id,
           });
 
           // If user closed the chat, show notification message
           if (updatedSession.status === "closed" && activeChat) {
+            console.log(
+              "[AdminChatPanel] User closed chat - showing notification",
+            );
             setMessages((prev) => [
               ...prev,
               {
@@ -182,7 +193,16 @@ export default function AdminChatPanel({
             );
 
             // Refresh data
+            console.log("[AdminChatPanel] Calling onRefresh after user close");
             onRefresh();
+          } else {
+            console.log(
+              "[AdminChatPanel] Session update but not showing notification:",
+              {
+                isClosed: updatedSession.status === "closed",
+                hasActiveChat: !!activeChat,
+              },
+            );
           }
         },
       )
@@ -193,30 +213,54 @@ export default function AdminChatPanel({
 
   // Subscribe to typing indicators
   const subscribeToTyping = async (chatId: string) => {
+    console.log("[AdminChatPanel] Setting up typing subscription for:", chatId);
     if (!chatId) return;
 
     if (typingChannelRef.current) {
+      console.log("[AdminChatPanel] Removing old typing channel");
       await supabase.removeChannel(typingChannelRef.current);
     }
 
     const channel = supabase
       .channel(`typing:${chatId}`)
       .on("broadcast", { event: "typing" }, (payload) => {
+        console.log("[AdminChatPanel] Typing broadcast received:", payload);
         if (payload.payload.sender === "user") {
+          console.log("[AdminChatPanel] User is typing!");
           setUserTyping(true);
           // Clear typing indicator after 3 seconds
-          setTimeout(() => setUserTyping(false), 3000);
+          setTimeout(() => {
+            console.log("[AdminChatPanel] Clearing user typing indicator");
+            setUserTyping(false);
+          }, 3000);
         }
       })
-      .subscribe();
+      .subscribe((status) => {
+        console.log(
+          "[AdminChatPanel] Typing channel subscription status:",
+          status,
+        );
+      });
 
     typingChannelRef.current = channel;
+    console.log("[AdminChatPanel] Typing subscription created");
   };
 
   // Send typing indicator
   const sendTypingIndicator = () => {
-    if (!activeChat || !typingChannelRef.current) return;
+    console.log("[AdminChatPanel] sendTypingIndicator called", {
+      hasActiveChat: !!activeChat,
+      hasChannel: !!typingChannelRef.current,
+    });
 
+    if (!activeChat || !typingChannelRef.current) {
+      console.log(
+        "[AdminChatPanel] Cannot send typing - missing activeChat or channel",
+      );
+      return;
+    }
+
+    console.log("[AdminChatPanel] Broadcasting typing event");
     typingChannelRef.current.send({
       type: "broadcast",
       event: "typing",
@@ -226,6 +270,7 @@ export default function AdminChatPanel({
 
   // Handle input change with typing indicator
   const handleInputChange = (value: string) => {
+    console.log("[AdminChatPanel] Input changed, length:", value.length);
     setInputValue(value);
 
     // Send typing indicator
