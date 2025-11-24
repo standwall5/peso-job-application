@@ -8,6 +8,7 @@ import BlocksWave from "@/components/BlocksWave";
 import { createClient } from "@/utils/supabase/client";
 import UserProfile from "@/app/(user)/profile/components/UserProfile";
 import Link from "next/link";
+import Button from "@/components/Button";
 
 interface Job {
   id: number;
@@ -118,7 +119,7 @@ const PrivateJobList = ({
   const filteredJobs = jobs.filter(
     (job) =>
       job.title.toLowerCase().includes(search.toLowerCase()) ||
-      job.description.toLowerCase().includes(search.toLowerCase())
+      job.description.toLowerCase().includes(search.toLowerCase()),
   );
 
   if (loading) {
@@ -162,9 +163,9 @@ const PrivateJobList = ({
             })}
           </p>
 
-          <button className="green-button">
+          <Button variant="success" disabled={hasApplied}>
             {hasApplied ? "Applied" : "Apply"}
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -226,7 +227,7 @@ const PrivateJobList = ({
                         year: "numeric",
                         month: "long",
                         day: "numeric",
-                      }
+                      },
                     )}
                   </p>
                 </div>
@@ -264,25 +265,21 @@ const PrivateJobList = ({
                     <div className={jobStyle.applicantDetailButtons}>
                       {!userApplications.includes(selectedJob.id) ? (
                         <>
-                          <button
-                            className="green-button"
+                          <Button
+                            variant="success"
                             onClick={() => submitResume(selectedJob.id)}
                           >
                             Submit
-                          </button>
+                          </Button>
                         </>
                       ) : (
                         <>
-                          <Link
-                            className="blue-button"
-                            href="/profile"
-                            style={{ color: "white" }}
-                          >
-                            Edit
+                          <Link href="/profile">
+                            <Button variant="primary">Edit</Button>
                           </Link>
-                          <button disabled className="green-button">
+                          <Button disabled variant="success">
                             Submitted
-                          </button>
+                          </Button>
                         </>
                       )}
                     </div>
@@ -322,7 +319,7 @@ const PrivateJobList = ({
                         <div className="warningContainer">
                           <h2>Please submit resume to continue with exam</h2>
                           <div className="warningContent">
-                            <button className="custom-button">Login</button>
+                            <Button variant="primary">Login</Button>
                           </div>
                         </div>
                       </div>

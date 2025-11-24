@@ -40,8 +40,15 @@
 
 body {
     color: var(--text);
-    font-family: var(--font-poppins-sans), Arial, sans-serif;
+    /*font-family: var(--font-poppins-sans), Arial, sans-serif;*/
     font-size: 1rem; /* Add this line */
+    font-family: var(--font-geist), sans-serif;
+}
+
+h1,
+h2,
+h3 {
+    font-family: var(--font-poppins-sans), sans-serif;
 }
 
 .logged-in-bg {
@@ -153,8 +160,8 @@ nav {
     text-decoration: none;
     color: black;
     transition: 0.2s ease;
-    font-weight: bold;
-    font-size: 1rem;
+    /*font-weight: bold;*/
+    font-size: 12px;
 }
 
 .nav-container-simple img {
@@ -232,8 +239,11 @@ footer img {
     background-color: #edfcff;
     transition: 0.2s;
     border-radius: 0.2rem;
-    font-weight: bold;
-    border: 1px solid rgb(95, 95, 95);
+    /*font-weight: bold;*/
+    /*border: 1px solid rgb(95, 95, 95);*/
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
 
 .nav-button-active:hover {
@@ -247,7 +257,9 @@ footer img {
     background-color: #7adaef;
     transition: 0.2s;
     border-radius: 0.5rem;
-    border: 1px solid black;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     align-self: center; /* or center, or flex-end as needed */
     flex: none;
 }
@@ -276,7 +288,9 @@ footer img {
 .box {
     background-color: #edfcff;
     border-radius: 1rem;
-    border: 1px solid black;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
 
 .green-button {
@@ -359,7 +373,9 @@ footer img {
     background-color: var(--warning-bg);
     height: auto;
     width: auto;
-    border: 1px solid black;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     border-radius: 0.5rem;
     padding: 2rem 4rem;
 }

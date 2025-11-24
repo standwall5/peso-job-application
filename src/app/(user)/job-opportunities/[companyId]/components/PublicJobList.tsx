@@ -5,6 +5,7 @@ import styles from "@/app/(user)/job-opportunities/JobHome.module.css";
 import jobStyle from "../JobsOfCompany.module.css";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
+import Button from "@/components/Button";
 
 // TODO: implement login redirect when clicking apply; remove modal
 
@@ -80,7 +81,7 @@ const PublicJobList = () => {
   const filteredJobs = jobs.filter(
     (job) =>
       job.title.toLowerCase().includes(search.toLowerCase()) ||
-      job.description.toLowerCase().includes(search.toLowerCase())
+      job.description.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -124,7 +125,7 @@ const PublicJobList = () => {
                   })}
                 </p>
 
-                <button className="green-button">Apply</button>
+                <Button variant="success">Apply</Button>
               </div>
             </div>
           ))
@@ -154,8 +155,8 @@ const PublicJobList = () => {
                   To submit your application, <br /> please sign in first to
                   proceed.
                 </p>
-                <Link className="custom-button" href="/login">
-                  Login
+                <Link href="/login">
+                  <Button variant="primary">Login</Button>
                 </Link>
               </div>
             </div>

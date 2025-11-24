@@ -1,98 +1,100 @@
 .resumeRoot {
-  width: 750px;
-  max-width: 100%;
-  font-family: Poppins, Arial, sans-serif;
-  background: #fff;
-  padding: 32px 40px;
-  border: 1px solid black;
+    width: 750px;
+    max-width: 100%;
+    font-family: Poppins, Arial, sans-serif;
+    background: #fff;
+    padding: 32px 40px;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
 
 .resumeHeader {
-  display: flex;
-  align-items: center;
-  gap: 32px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
 }
 
 .profilePic {
-  width: 160px;
-  height: 160px;
-  object-fit: cover;
-  /* border-radius: 8px; */
-  border: 2px solid #222;
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    /* border-radius: 8px; */
+    border: 2px solid #222;
 }
 
 .headerInfo {
-  flex: 1;
-  margin-top: 3rem;
+    flex: 1;
+    margin-top: 3rem;
 }
 
 .resumeName {
-  font-weight: 700;
-  font-size: 24px;
-  margin-bottom: 8px;
-  text-align: center;
+    font-weight: 700;
+    font-size: 24px;
+    margin-bottom: 8px;
+    text-align: center;
 }
 
 .resumeHr {
-  margin: 0 0 24px 0;
-  border: none;
-  border-top: 2px solid #222;
+    margin: 0 0 24px 0;
+    border: none;
+    border-top: 2px solid #222;
 }
 
 .section {
-  margin-top: 4px;
-  display: flex;
-  flex-direction: column;
+    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
 }
 
 .sectionTitle {
-  font-weight: 600;
-  text-align: center;
-  margin-bottom: 12px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 12px;
 }
 
 .personalInfo {
-  text-align: left;
-  margin-bottom: 24px;
+    text-align: left;
+    margin-bottom: 24px;
 }
 
 .educationRow,
 .workExpRow,
 .personalInfo,
 .profileText {
-  width: 100%;
+    width: 100%;
 }
 
 .educationRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 24px;
 }
 
 .educationRight {
-  text-align: right;
+    text-align: right;
 }
 
 .skillsList {
-  width: 100%;
-  text-align: left;
-  list-style: none;
-  padding: 0;
+    width: 100%;
+    text-align: left;
+    list-style: none;
+    padding: 0;
 }
 
 .workExpRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 24px;
 }
 
 .workExpRight {
-  text-align: right;
+    text-align: right;
 }
 
 .profileText {
-  text-align: left;
-  margin-bottom: 24px;
+    text-align: left;
+    margin-bottom: 24px;
 }

@@ -11,7 +11,9 @@
 
 .profileDetailsContainer,
 .profileOptionsContainer {
-    border: 1px solid black;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
 
 .profileDetailsContainer {
@@ -116,7 +118,9 @@
 }
 
 .profileDetailsInfo input {
-    border: 1px solid black;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     outline: none;
     padding: 0 0.5rem;
     border-radius: 0.2rem;
@@ -250,7 +254,9 @@
 .editResume select,
 .editResume textarea {
     outline: none;
-    border: 1px solid black;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     width: max-content;
     padding: 0.5rem 1rem;
     background-color: white;
@@ -292,7 +298,9 @@
 
 .workExperiencesRow button {
     background-color: #fff;
-    border: 1px solid black;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
 }
@@ -304,7 +312,9 @@
     justify-content: center;
     border-radius: 2rem;
     padding: 1rem;
-    border: 1px solid black;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     transition: 0.25s;
 }
 
@@ -322,7 +332,9 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border: 1px solid black;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     padding: 2rem;
     border-radius: 0.5rem;
 }

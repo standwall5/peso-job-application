@@ -9,6 +9,7 @@ import jobStyle from "@/app/(user)/job-opportunities/[companyId]/JobsOfCompany.m
 
 import OneEightyRing from "@/components/OneEightyRing";
 import Link from "next/link";
+import Button from "@/components/Button";
 
 // ...existing code...
 interface Application {
@@ -97,7 +98,9 @@ interface SelectedResume {
 const Jobseekers = () => {
   const [showModal, setShowModal] = useState(false);
   const [applicationSelect, setApplicationSelect] = useState("previewResume");
- const [selectedResume, setSelectedResume] = useState<SelectedResume | null>(null);
+  const [selectedResume, setSelectedResume] = useState<SelectedResume | null>(
+    null,
+  );
   const [search, setSearch] = useState("");
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(false);
@@ -144,7 +147,7 @@ const Jobseekers = () => {
         .includes(search.toLowerCase()) ||
       app.applicant.barangay.toLowerCase().includes(search.toLowerCase()) ||
       app.applicant.district.toLowerCase().includes(search.toLowerCase()) ||
-      app.status.toLowerCase().includes(search.toLowerCase())
+      app.status.toLowerCase().includes(search.toLowerCase()),
   );
 
   if (loading) {
@@ -290,7 +293,10 @@ const Jobseekers = () => {
                 <div className={jobStyle.applicantInformation}>
                   <div className={jobStyle.applicantPicture}>
                     <img
-                      src={selectedResume.profile_pic_url || "/assets/images/default_profile.png"}
+                      src={
+                        selectedResume.profile_pic_url ||
+                        "/assets/images/default_profile.png"
+                      }
                       alt={selectedResume.applicant.name}
                     />
                   </div>
@@ -314,7 +320,9 @@ const Jobseekers = () => {
                 <div
                   key={selectedResume.company.id}
                   className={`${jobHomeStyle.jobCardAdmin} ${jobStyle.applicationJobCompanyAdmin}`}
-                  onClick={() => setShowModal(selectedResume.company ? true : false)}
+                  onClick={() =>
+                    setShowModal(selectedResume.company ? true : false)
+                  }
                 >
                   <div
                     className={`${jobHomeStyle.jobCompany} ${jobStyle.companyInformation}`}
@@ -341,7 +349,7 @@ const Jobseekers = () => {
                     <p>{selectedResume.job.eligibility}</p>
                     <p>
                       {new Date(
-                        selectedResume.job.posted_date
+                        selectedResume.job.posted_date,
                       ).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
@@ -397,10 +405,10 @@ const Jobseekers = () => {
                           Array.isArray(selectedResume.skills)
                             ? selectedResume.skills
                             : typeof selectedResume.skills === "string"
-                            ? selectedResume.skills
-                                .split(",")
-                                .map((s) => s.trim())
-                            : undefined
+                              ? selectedResume.skills
+                                  .split(",")
+                                  .map((s) => s.trim())
+                              : undefined
                         }
                         workExperiences={selectedResume.work_experiences}
                         profileIntroduction={
@@ -409,47 +417,46 @@ const Jobseekers = () => {
                       />
                     </div>
                     <div className={jobStyle.applicantDetailButtons}>
-                      <button className="green-button">Submit</button>
+                      <Button variant="success">Submit</Button>
                     </div>
                   </div>
                 )}
-                { applicationSelect === "exam" && (
+                {applicationSelect === "exam" && (
                   <div className={`${jobStyle.applicantDetail}`}>
-                <p>Exam section (TEMPLATE)</p>
-                </div>
-                    // <div
-                    //   className={jobStyle.modalOverlay}
-                    //   onClick={() => {
-                    //     setShowModal(false);
-                    //     setApplicationSelect("previewResume");
-                    //   }}
-                    // >
-                    //   <div
-                    //     className={`warningModal`}
-                    //     onClick={(e) => e.stopPropagation()}
-                    //   >
-                    //     <button
-                    //       onClick={() => {
-                    //         setShowModal(false);
-                    //       }}
-                    //       style={{
-                    //         fontWeight: "bold",
-                    //         right: 40,
-                    //         position: "absolute",
-                    //       }}
-                    //     >
-                    //       X
-                    //     </button>
-                    //     <div className="warningContainer">
-                    //       <h2>Please submit resume to continue with exam</h2>
-                    //       <div className="warningContent">
-                    //         <button className="custom-button">Login</button>
-                    //       </div>
-                    //     </div>
-                    //   </div>
-                    // </div>
-                  )
-                }
+                    <p>Exam section (TEMPLATE)</p>
+                  </div>
+                  // <div
+                  //   className={jobStyle.modalOverlay}
+                  //   onClick={() => {
+                  //     setShowModal(false);
+                  //     setApplicationSelect("previewResume");
+                  //   }}
+                  // >
+                  //   <div
+                  //     className={`warningModal`}
+                  //     onClick={(e) => e.stopPropagation()}
+                  //   >
+                  //     <button
+                  //       onClick={() => {
+                  //         setShowModal(false);
+                  //       }}
+                  //       style={{
+                  //         fontWeight: "bold",
+                  //         right: 40,
+                  //         position: "absolute",
+                  //       }}
+                  //     >
+                  //       X
+                  //     </button>
+                  //     <div className="warningContainer">
+                  //       <h2>Please submit resume to continue with exam</h2>
+                  //       <div className="warningContent">
+                  //         <button className="custom-button">Login</button>
+                  //       </div>
+                  //     </div>
+                  //   </div>
+                  // </div>
+                )}
               </div>
             </div>
           </div>

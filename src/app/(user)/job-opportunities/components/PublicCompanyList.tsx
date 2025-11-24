@@ -64,13 +64,16 @@ const PublicCompanyList = ({
       company.name.toLowerCase().includes(search.toLowerCase()) ||
       company.industry.toLowerCase().includes(search.toLowerCase()) ||
       company.location.toLowerCase().includes(search.toLowerCase()) ||
-      company.description.toLowerCase().includes(search.toLowerCase())
+      company.description.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
     <section className={styles.section}>
       <header className={styles.welcomeSearch}>
-        <h2>Welcome to PESO Paranaque</h2>
+        <span>
+          <img src="/assets/pesoLogo.png" alt="PESO Paranaque" />
+          <h2>Welcome to PESO Parañaque</h2>
+        </span>
         <div className={styles.search}>
           <input
             type="text"

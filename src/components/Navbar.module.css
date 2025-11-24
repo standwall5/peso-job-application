@@ -39,7 +39,7 @@
 }
 
 .searchContainer input:focus {
-    width: 28rem;
+    width: 26.5rem;
     box-shadow:
         rgba(128, 231, 177, 0.3) 0px 6px 24px 0px,
         rgba(128, 231, 177, 0.5) 0px 0px 0px 2px,

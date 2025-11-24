@@ -5,6 +5,7 @@ import "@/app/home.css";
 import { login } from "@/lib/auth-actions";
 import { useState } from "react";
 import OneEightyRing from "@/components/OneEightyRing";
+import Button from "@/components/Button";
 
 const LoginForm = () => {
   const [error, setError] = useState<string | null>(null);
@@ -54,12 +55,12 @@ const LoginForm = () => {
               name="password"
             />
             <Link href="/resetPassword">Forgot password?</Link>
-            <button
-              className="custom-button"
+            <Button
+              variant="primary"
               style={{ display: "flex", alignItems: "center", gap: ".5rem" }}
             >
               {loading && <OneEightyRing color="white" />} Login
-            </button>
+            </Button>
           </form>
           <p>
             No account yet? <Link href="/signup">Register now</Link>
