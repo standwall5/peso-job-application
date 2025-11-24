@@ -24,7 +24,7 @@ const SignUpForm: React.FC = () => {
     number: false,
     special: false,
   });
-  const [applicantType, setApplicantType] = useState("");
+  const [applicantType, setApplicantType] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showFormNotice, setShowFormNotice] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -122,7 +122,7 @@ const SignUpForm: React.FC = () => {
       uppercase: /[A-Z]/.test(passwordValue),
       lowercase: /[a-z]/.test(passwordValue),
       number: /\d/.test(passwordValue),
-      special: /[!@#$%&]/.test(passwordValue),
+      special: /[~!@#$%^&*()_+-={}|:;"'<>,.?/]/.test(passwordValue)
     };
     setPasswordRequirements(requirements);
     return Object.values(requirements).every(Boolean);
@@ -329,7 +329,7 @@ const SignUpForm: React.FC = () => {
 
     // Gender validations
     if (!gender) {
-      newErrors.sex = "Please select gender";
+      newErrors.gender = "Gender is required";
     } else if (gender === "Others") {
       if (!genderOther || genderOther.trim() === "") {
         newErrors.genderOther = "Please specify gender";
@@ -394,7 +394,7 @@ const SignUpForm: React.FC = () => {
     }
 
     // require disability type when applicant is PWD
-    if (applicantType === "Person with Disability (PWD)") {
+    if (applicantType.includes("Person with Disability (PWD)")) {
       const disability = (
         formEl.elements.namedItem("disabilityType") as HTMLSelectElement | null
       )?.value;
@@ -402,6 +402,11 @@ const SignUpForm: React.FC = () => {
         newErrors.disabilityType = "Please select disability type";
       }
     }
+
+    if (!applicantType || applicantType.length === 0) {
+  newErrors.applicantType = "Please select at least one applicant type";
+}
+
 
     // Applicant-specific ID fields OPTIONAL
     if (Object.keys(newErrors).length > 0) {
@@ -643,156 +648,145 @@ const SignUpForm: React.FC = () => {
             </div>
           </div>
 
-          {/* applicantType row */}
-          <div className={styles.fullRow}>
-            <div style={{ flex: 1 }}>
-              <label htmlFor="applicantType" className={styles.fieldLabel}>
-                Applicant Type <span className={styles.redAsterisk}>*</span>
-              </label>
-              <select
-                id="applicantType"
-                name="applicantType"
-                value={applicantType}
-                onChange={(e) => {
-                  setApplicantType(e.target.value);
-                  const newErrors = { ...errors };
-                  if (e.target.value) delete newErrors.applicantType;
-                  setErrors(newErrors);
-                }}
-                className={errors["applicantType"] ? styles.errorInput : ""}
-              >
-                <option value="" disabled>
-                  CHOOSE YOUR APPLICANT TYPE
-                </option>
-                <option value="Student">Student</option>
-                <option value="Indigenous Person (IP)">
-                  Indigenous Person (IP)
-                </option>
-                <option value="Out of School Youth">Out of School Youth</option>
-                <option value="Person with Disability (PWD)">
-                  Person with Disability (PWD)
-                </option>
-                <option value="Rehabilitation Program Graduate">
-                  Rehabilitation Program Graduate
-                </option>
-                <option value="Reintegrated Individual (Former Detainee)">
-                  Reintegrated Individual (Former Detainee)
-                </option>
-                <option value="Returning Oversees Filipino Worker (OFW)">
-                  Returning Oversees Filipino Worker (OFW)
-                </option>
-                <option value="Senior Citizen">Senior Citizen</option>
-                <option value="Solo Parent/Single Parent">
-                  Solo Parent/Single Parent
-                </option>
-                <option value="Others">Others</option>
-              </select>
-              {errors["applicantType"] && (
-                <div className={styles.fieldError}>
-                  {errors["applicantType"]}
-                </div>
-              )}
-            </div>
+          {/* Applicant Type (Checkbox Version) */}
+<div className={styles.fullRow}>
+  <div className={styles.applicantTypeContainer}>
+    <label className={styles.fieldLabel}>
+      Applicant Type <span className={styles.redAsterisk}>*</span>
+    </label>
 
-            {applicantType === "Person with Disability (PWD)" && (
-              <>
-                <div style={{ flex: 1 }}>
-                  <label htmlFor="disabilityType" className={styles.fieldLabel}>
-                    Disability Type{" "}
-                    <span className={styles.redAsterisk}>*</span>
-                  </label>
-                  <select
-                    id="disabilityType"
-                    name="disabilityType"
-                    defaultValue=""
-                    className={
-                      errors["disabilityType"] ? styles.errorInput : ""
-                    }
-                    onChange={handleInputChange}
-                  >
-                    <option value="" disabled>
-                      Disability Type
-                    </option>
-                    <option value="Hearing">Hearing</option>
-                    <option value="Visual">Visual</option>
-                    <option value="Mobility">Mobility</option>
-                    <option value="Intellectual">Intellectual</option>
-                    <option value="Psychosocial">Psychosocial</option>
-                    <option value="Others">Others</option>
-                  </select>
-                  {errors["disabilityType"] && (
-                    <div className={styles.fieldError}>
-                      {errors["disabilityType"]}
-                    </div>
-                  )}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label htmlFor="pwdNumber" className={styles.fieldLabel}>
-                    PWD ID Number (Optional)
-                  </label>
-                  <input
-                    id="pwdNumber"
-                    name="pwdNumber"
-                    type="text"
-                    onChange={handleInputChange}
-                    className={errors["pwdNumber"] ? styles.errorInput : ""}
-                  />
-                  {errors["pwdNumber"] && (
-                    <div className={styles.fieldError}>
-                      {errors["pwdNumber"]}
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
+    {/* CHECKBOX LIST */}
+    <div className={styles.checkboxList}>
+      {[
+        "Student",
+        "Indigenous Person (IP)",
+        "Out of School Youth",
+        "Person with Disability (PWD)",
+        "Rehabilitation Program Graduate",
+        "Reintegrated Individual (Former Detainee)",
+        "Returning Overseas Filipino Worker (OFW)",
+        "Senior Citizen",
+        "Solo Parent/Single Parent",
+        "Others",
+      ].map((type) => (
+        <label key={type} className={styles.checkboxItem}>
+          <input
+            type="checkbox"
+            checked={applicantType.includes(type)}
+            onChange={(e) => {
+              let updated = [...applicantType];
 
-            {applicantType === "Senior Citizen" && (
-              <div style={{ flex: 1 }}>
-                <label
-                  htmlFor="seniorCitizenNumber"
-                  className={styles.fieldLabel}
-                >
-                  Senior Citizen ID (Optional)
-                </label>
-                <input
-                  id="seniorCitizenNumber"
-                  name="seniorCitizenNumber"
-                  type="text"
-                  onChange={handleInputChange}
-                  className={
-                    errors["seniorCitizenNumber"] ? styles.errorInput : ""
-                  }
-                />
-                {errors["seniorCitizenNumber"] && (
-                  <div className={styles.fieldError}>
-                    {errors["seniorCitizenNumber"]}
-                  </div>
-                )}
-              </div>
-            )}
+              if (e.target.checked) {
+                updated.push(type);
+              } else {
+                updated = updated.filter((t) => t !== type);
+              }
 
-            {applicantType === "Solo Parent/Single Parent" && (
-              <div style={{ flex: 1 }}>
-                <label htmlFor="soloParentNumber" className={styles.fieldLabel}>
-                  Solo Parent ID (Optional)
-                </label>
-                <input
-                  id="soloParentNumber"
-                  name="soloParentNumber"
-                  type="text"
-                  onChange={handleInputChange}
-                  className={
-                    errors["soloParentNumber"] ? styles.errorInput : ""
-                  }
-                />
-                {errors["soloParentNumber"] && (
-                  <div className={styles.fieldError}>
-                    {errors["soloParentNumber"]}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+              setApplicantType(updated);
+              const newErrors = { ...errors };
+              if (updated.length > 0) delete newErrors.applicantType;
+              setErrors(newErrors);
+            }}
+          />
+          <span>{type}</span>
+        </label>
+      ))}
+    </div>
+
+    {errors["applicantType"] && (
+      <div className={styles.fieldError}>{errors["applicantType"]}</div>
+    )}
+  </div>
+
+  {/* CONDITIONAL TEXT FIELDS */}
+  <div className={styles.fullWidthBox}>
+
+    {applicantType.includes("Student") && (
+      <div className={styles.conditionalField}>
+        <label className={styles.fieldLabel}>Student ID (Optional)</label>
+        <input
+          type="text"
+          name="studentId"
+          onChange={handleInputChange}
+        />
+      </div>
+    )}
+
+{applicantType.includes("Person with Disability (PWD)") && (
+  <>
+    <div style={{ flex: 1 }}>
+      <label htmlFor="disabilityType" className={styles.fieldLabel}>
+        Disability Type <span className={styles.redAsterisk}>*</span>
+      </label>
+      <select
+        id="disabilityType"
+        name="disabilityType"
+        defaultValue=""
+        className={errors["disabilityType"] ? styles.errorInput : ""}
+        onChange={handleInputChange}
+      >
+        <option value="" disabled>
+          Disability Type
+        </option>
+        <option value="Hearing">Hearing</option>
+        <option value="Visual">Visual</option>
+        <option value="Mobility">Mobility</option>
+        <option value="Intellectual">Intellectual</option>
+        <option value="Psychosocial">Psychosocial</option>
+        <option value="Others">Others</option>
+      </select>
+      {errors["disabilityType"] && (
+        <div className={styles.fieldError}>{errors["disabilityType"]}</div>
+      )}
+    </div>
+
+    <div style={{ flex: 1 }}>
+      <label htmlFor="pwdNumber" className={styles.fieldLabel}>
+        PWD ID Number (Optional)
+      </label>
+      <input
+        id="pwdNumber"
+        name="pwdNumber"
+        type="text"
+        onChange={handleInputChange}
+        className={errors["pwdNumber"] ? styles.errorInput : ""}
+      />
+      {errors["pwdNumber"] && (
+        <div className={styles.fieldError}>{errors["pwdNumber"]}</div>
+      )}
+    </div>
+  </>
+)}
+    {applicantType.includes("Returning Overseas Filipino Worker (OFW)") && (
+      <div className={styles.conditionalField}>
+        <label className={styles.fieldLabel}>OFW ID Number (Optional)</label>
+        <input id="ofwNumber" name="ofwNumber" type="text" />
+      </div>
+    )}
+
+    {applicantType.includes("Senior Citizen") && (
+      <div className={styles.conditionalField}>
+        <label className={styles.fieldLabel}>Senior Citizen ID (Optional)</label>
+        <input id="seniorCitizenNumber" name="seniorCitizenNumber" type="text" />
+      </div>
+    )}
+
+    {applicantType.includes("Solo Parent/Single Parent") && (
+      <div className={styles.conditionalField}>
+        <label className={styles.fieldLabel}>Solo Parent ID (Optional)</label>
+        <input id="soloParentNumber" name="soloParentNumber" type="text" />
+      </div>
+    )}
+
+    {applicantType.includes("Others") && (
+      <div className={styles.conditionalField}>
+        <label className={styles.fieldLabel}>Please Specify</label>
+        <input id="othersSpecify" name="othersSpecify" type="text" />
+      </div>
+    )}
+  </div>
+</div>
+
 
           {/* Address */}
           <div className={styles.addressSection}>
@@ -1468,7 +1462,7 @@ const SignUpForm: React.FC = () => {
                   special: false,
                 });
                 setCalculatedAge(null);
-                setApplicantType("");
+                setApplicantType([]);
                 setErrors({});
                 setGender("");
                 setGenderOther("");

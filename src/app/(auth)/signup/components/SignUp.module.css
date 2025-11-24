@@ -416,3 +416,54 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Applicant Type Layout */
+.applicantTypeContainer {
+  width: 100%;
+}
+
+.checkboxList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background: #ffffff;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.checkboxItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+}
+
+.checkboxItem input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.fullWidthBox {
+  width: 100%;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.conditionalField input,
+.conditionalField select {
+  width: 100%;
+  height: 2.5rem;
+  border: 1px solid black;
+  padding: 0 10px;
+  border-radius: 4px;
+}
+
+/* Prevent shifting */
+.checkboxList::-webkit-scrollbar {
+  width: 6px;
+}
