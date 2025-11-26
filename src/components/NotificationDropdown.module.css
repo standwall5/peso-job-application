@@ -166,3 +166,146 @@
     background: var(--accent);
     border-radius: 50%;
 }
+
+/* Mobile Media Queries */
+@media (max-width: 768px) {
+    .notificationDropdown {
+        width: 90vw;
+        max-width: 340px;
+        max-height: 450px;
+        right: -1rem;
+    }
+
+    .header {
+        padding: 0.875rem;
+    }
+
+    .header h3 {
+        font-size: 0.925rem;
+    }
+
+    .markAllBtn {
+        font-size: 0.813rem;
+    }
+
+    .notificationList {
+        max-height: 370px;
+    }
+
+    .notificationItem {
+        padding: 0.875rem;
+        gap: 0.625rem;
+    }
+
+    .iconWrapper {
+        width: 36px;
+        height: 36px;
+    }
+
+    .icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .content h4 {
+        font-size: 0.813rem;
+    }
+
+    .content p {
+        font-size: 0.75rem;
+    }
+
+    .time {
+        font-size: 0.688rem;
+    }
+
+    .loading,
+    .empty {
+        padding: 2.5rem 1rem;
+    }
+
+    .empty svg {
+        width: 42px;
+        height: 42px;
+    }
+
+    .empty p {
+        font-size: 0.813rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .notificationDropdown {
+        width: 95vw;
+        max-width: 100vw;
+        max-height: 400px;
+        right: -1.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .header {
+        padding: 0.75rem;
+    }
+
+    .header h3 {
+        font-size: 0.875rem;
+    }
+
+    .markAllBtn {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.4rem;
+    }
+
+    .notificationList {
+        max-height: 320px;
+    }
+
+    .notificationItem {
+        padding: 0.75rem;
+        gap: 0.5rem;
+    }
+
+    .iconWrapper {
+        width: 32px;
+        height: 32px;
+    }
+
+    .icon {
+        width: 16px;
+        height: 16px;
+    }
+
+    .content h4 {
+        font-size: 0.75rem;
+    }
+
+    .content p {
+        font-size: 0.7rem;
+    }
+
+    .time {
+        font-size: 0.65rem;
+    }
+
+    .unreadDot {
+        width: 6px;
+        height: 6px;
+        top: 0.75rem;
+        right: 0.75rem;
+    }
+
+    .loading,
+    .empty {
+        padding: 2rem 0.75rem;
+    }
+
+    .empty svg {
+        width: 36px;
+        height: 36px;
+    }
+
+    .empty p {
+        font-size: 0.75rem;
+    }
+}

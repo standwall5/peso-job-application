@@ -343,3 +343,198 @@
 .back span {
     margin-top: 0.1rem;
 }
+
+/* Mobile Media Queries */
+@media (max-width: 768px) {
+    .jobseekers {
+        gap: 4rem;
+    }
+
+    .top {
+        flex-direction: column;
+        gap: 1.5rem;
+        width: 95%;
+        margin: 1rem;
+    }
+
+    .totalStatistics {
+        width: 100%;
+    }
+
+    .topRight {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.75rem;
+    }
+
+    .sortBy {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .sortBy select {
+        flex: 1;
+        max-width: 60%;
+    }
+
+    .search input {
+        width: 100%;
+        max-width: 25rem;
+        height: 3rem;
+        font-size: 0.9rem;
+    }
+
+    .search input:focus {
+        width: 100%;
+        max-width: 28rem;
+        height: 3.5rem;
+    }
+
+    .jobseekersTable {
+        max-width: 95%;
+        margin-top: 5rem;
+        font-size: 0.85rem;
+    }
+
+    .jobseekersDetailsHeader,
+    .jobseekersDetails {
+        grid-template-columns: 0.6fr 1.5fr 1.5fr 1.5fr 1.5fr;
+        gap: 1rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .avatar {
+        width: 2.5rem;
+    }
+
+    .status {
+        font-size: 0.8rem;
+        padding: 0.15rem 0.5rem;
+    }
+
+    .detailsBtn {
+        padding: 0.25rem 0.75rem;
+        font-size: 0.85rem;
+    }
+
+    .modalContent {
+        padding: 1.5rem;
+        max-width: 90vw;
+    }
+
+    .closeBtn {
+        font-size: 1.5rem;
+    }
+
+    .applicationNav {
+        gap: 1rem;
+        font-size: 0.9rem;
+        flex-wrap: wrap;
+    }
+
+    .manageJobseeker {
+        margin-bottom: 8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .jobseekers {
+        gap: 2rem;
+    }
+
+    .top {
+        gap: 1rem;
+        margin: 0.5rem;
+    }
+
+    .sortBy {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .sortBy select {
+        max-width: 100%;
+    }
+
+    .search input {
+        max-width: 100%;
+        height: 2.5rem;
+        font-size: 0.85rem;
+        text-indent: 1.5rem;
+    }
+
+    .search input:focus {
+        max-width: 100%;
+        height: 3rem;
+    }
+
+    .searchIcon {
+        left: 0.75rem;
+    }
+
+    .jobseekersTable {
+        margin-top: 3rem;
+        font-size: 0.8rem;
+    }
+
+    .tableHeader,
+    .tableRow {
+        grid-template-columns: 3fr 1fr;
+    }
+
+    .jobseekersDetailsHeader,
+    .jobseekersDetails {
+        grid-template-columns: 1fr 2fr 2fr;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+    }
+
+    .jobseekersDetailsHeader {
+        display: none;
+    }
+
+    .avatar {
+        width: 2rem;
+    }
+
+    .status {
+        font-size: 0.7rem;
+        padding: 0.1rem 0.4rem;
+    }
+
+    .detailsBtn {
+        padding: 0.2rem 0.6rem;
+        font-size: 0.75rem;
+    }
+
+    .modalContent {
+        padding: 1rem;
+        max-width: 95vw;
+        max-height: 95vh;
+    }
+
+    .closeBtn {
+        font-size: 1.25rem;
+        top: 0.5rem;
+        right: 0.5rem;
+    }
+
+    .applicationNav {
+        gap: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .applicationNav li {
+        padding: 0.4rem 0.75rem;
+    }
+
+    .manageJobseeker {
+        margin-bottom: 5rem;
+    }
+
+    .notFound svg {
+        width: 10rem;
+    }
+}

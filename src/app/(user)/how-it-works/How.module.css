@@ -53,3 +53,56 @@
     padding: 1rem;
     text-transform: uppercase;
 }
+
+/* Mobile Media Queries */
+@media (max-width: 768px) {
+    .howContainer {
+        flex-direction: column;
+        width: 95vw;
+        height: auto;
+        margin: 1rem 0;
+        gap: 1.5rem;
+    }
+
+    .coachingContainer,
+    .tutorialContainer {
+        width: 100%;
+        height: auto;
+        min-height: 20rem;
+        padding: 1.5rem;
+    }
+
+    .tutorialContent {
+        width: 90%;
+        height: 15rem;
+        margin-top: 1rem;
+    }
+
+    .coachingContent {
+        min-height: 15rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .howContainer {
+        width: 100vw;
+        margin: 0.5rem 0;
+        gap: 1rem;
+    }
+
+    .coachingContainer,
+    .tutorialContainer {
+        padding: 1rem;
+        border-radius: 0.25rem;
+        font-size: 0.9rem;
+    }
+
+    .tutorialContent {
+        width: 95%;
+        height: 12rem;
+    }
+
+    .coachingContent {
+        min-height: 12rem;
+    }
+}

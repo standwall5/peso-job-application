@@ -98,3 +98,18 @@
 .yellow:active {
     box-shadow: 0 1px 4px rgba(255, 224, 102, 0.3);
 }
+
+/* Mobile Media Queries */
+@media (max-width: 768px) {
+    .button {
+        padding: 0.5rem 1.25rem;
+        font-size: 0.925rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .button {
+        padding: 0.45rem 1rem;
+        font-size: 0.875rem;
+    }
+}

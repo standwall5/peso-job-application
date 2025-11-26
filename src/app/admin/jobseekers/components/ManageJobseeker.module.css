@@ -255,3 +255,180 @@
     color: #33b499;
     margin: 0;
 }
+
+/* Mobile Media Queries */
+@media (max-width: 768px) {
+    .nav {
+        margin-left: 1.5rem;
+    }
+
+    .nav ul {
+        gap: 1.5rem;
+        font-size: 0.9rem;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .content {
+        width: 95%;
+        height: auto;
+        min-height: 60vh;
+        padding: 1.5rem;
+    }
+
+    .applicationCard {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1.25rem;
+    }
+
+    .applicationCardContent {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .jobInfo h3 {
+        font-size: 1.1rem;
+    }
+
+    .jobInfo p {
+        font-size: 0.9rem;
+    }
+
+    .applicationActions {
+        flex-direction: row;
+        width: 100%;
+    }
+
+    .applicationActions button {
+        min-width: auto;
+        flex: 1;
+    }
+
+    .status {
+        font-size: 0.8rem;
+        padding: 0.15rem 0.6rem;
+    }
+
+    .modal {
+        max-width: 90vw;
+        padding: 1.5rem;
+    }
+
+    .modal h2 {
+        font-size: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .scoreDisplay {
+        padding: 1.25rem;
+        margin-top: 1.25rem;
+    }
+
+    .score {
+        font-size: 2.5rem;
+    }
+
+    .modalActions {
+        flex-direction: column;
+    }
+
+    .modalActions button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav {
+        margin-left: 1rem;
+    }
+
+    .nav ul {
+        gap: 1rem;
+        font-size: 0.85rem;
+    }
+
+    .content {
+        width: 100%;
+        padding: 1rem;
+        border-radius: 0.25rem;
+    }
+
+    .appliedJobs h2 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .applicationsGrid {
+        gap: 1rem;
+    }
+
+    .applicationCard {
+        padding: 1rem;
+        gap: 0.75rem;
+    }
+
+    .jobInfo h3 {
+        font-size: 1rem;
+    }
+
+    .jobInfo p {
+        font-size: 0.85rem;
+    }
+
+    .applicationActions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .status {
+        font-size: 0.75rem;
+        padding: 0.15rem 0.5rem;
+    }
+
+    .modal {
+        max-width: 95vw;
+        padding: 1.25rem;
+        border-radius: 0.5rem;
+    }
+
+    .modal h2 {
+        font-size: 1.15rem;
+        margin-bottom: 1rem;
+    }
+
+    .closeBtn {
+        font-size: 1.25rem;
+        top: 0.75rem;
+        right: 0.75rem;
+    }
+
+    .referralContent,
+    .examResultContent {
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .warning {
+        padding: 0.75rem;
+        font-size: 0.85rem;
+    }
+
+    .scoreDisplay {
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+
+    .scoreDisplay h3 {
+        font-size: 0.9rem;
+    }
+
+    .score {
+        font-size: 2rem;
+    }
+
+    .noData,
+    .loading {
+        font-size: 1rem;
+    }
+}

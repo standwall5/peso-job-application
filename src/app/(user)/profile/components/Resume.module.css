@@ -99,3 +99,99 @@
     text-align: left;
     margin-bottom: 24px;
 }
+
+/* Mobile Media Queries */
+@media (max-width: 768px) {
+    .resumeRoot {
+        width: 100%;
+        padding: 24px 20px;
+        font-size: 11px;
+    }
+
+    .resumeHeader {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+
+    .profilePic {
+        width: 120px;
+        height: 120px;
+    }
+
+    .headerInfo {
+        margin-top: 0;
+    }
+
+    .resumeName {
+        font-size: 20px;
+        margin-bottom: 6px;
+    }
+
+    .resumeHr {
+        margin: 0 0 16px 0;
+    }
+
+    .sectionTitle {
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .educationRow,
+    .workExpRow {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .educationRight,
+    .workExpRight {
+        text-align: left;
+    }
+
+    .personalInfo,
+    .profileText {
+        margin-bottom: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .resumeRoot {
+        padding: 16px 12px;
+        font-size: 10px;
+    }
+
+    .resumeHeader {
+        gap: 16px;
+    }
+
+    .profilePic {
+        width: 100px;
+        height: 100px;
+    }
+
+    .resumeName {
+        font-size: 18px;
+    }
+
+    .resumeHr {
+        margin: 0 0 12px 0;
+    }
+
+    .sectionTitle {
+        font-size: 13px;
+        margin-bottom: 8px;
+    }
+
+    .educationRow,
+    .workExpRow {
+        margin-bottom: 12px;
+        gap: 6px;
+    }
+
+    .personalInfo,
+    .profileText {
+        margin-bottom: 12px;
+    }
+}

@@ -390,3 +390,181 @@
     background-color: #b1ffbe;
     color: rgb(0, 255, 76);
 }
+
+/* Mobile Media Queries */
+@media (max-width: 768px) {
+    .profileContainer {
+        width: 95vw;
+        height: auto;
+        min-height: 80vh;
+        margin: 1rem;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .profileDetailsContainer {
+        width: 100%;
+        height: auto;
+        min-height: 20rem;
+        padding: 1.5rem 0;
+    }
+
+    .profileDetailsContent {
+        gap: 1.5rem;
+        font-size: 11px;
+    }
+
+    .profilePicWrapper {
+        width: 8rem;
+    }
+
+    .profileDetailsInfo {
+        width: 85%;
+        height: auto;
+        gap: 0.75rem;
+    }
+
+    .profileDetailsInfo input {
+        width: 100%;
+    }
+
+    .profileOptionsContainer {
+        width: 100%;
+        height: auto;
+        min-height: 50vh;
+    }
+
+    .profileOptionsNav {
+        font-size: 11px;
+        gap: 1rem;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .profileOptionsNav li {
+        padding: 0.75rem 1.5rem 0.5rem;
+    }
+
+    .appliedJobs {
+        padding: 0 1rem;
+        gap: 1rem;
+    }
+
+    .resumeButton {
+        right: 8rem;
+        bottom: 1rem;
+        padding: 0.4rem 1.25rem;
+        font-size: 0.9rem;
+    }
+
+    .editResume {
+        padding: 1.5rem;
+        gap: 1rem;
+    }
+
+    .editResume h2 {
+        font-size: 1.25rem;
+    }
+
+    .row {
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .rowInput {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .rowInput input {
+        width: 100%;
+    }
+
+    .educationRow .rowInput div:not(.row) input {
+        width: 100%;
+    }
+
+    .skillsRow input {
+        width: 100%;
+    }
+
+    .jobCard {
+        width: 100%;
+        height: auto;
+        min-height: 12rem;
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .profileContainer {
+        width: 100vw;
+        margin: 0.5rem 0;
+        gap: 1rem;
+    }
+
+    .profileDetailsContainer {
+        border-radius: 0.25rem;
+        min-height: 18rem;
+        padding: 1rem 0;
+    }
+
+    .profileDetailsContent {
+        gap: 1rem;
+        font-size: 10px;
+    }
+
+    .profilePicWrapper {
+        width: 7rem;
+    }
+
+    .profileDetailsInfo {
+        width: 90%;
+    }
+
+    .profileOptionsContainer {
+        border-radius: 0.25rem;
+    }
+
+    .profileOptionsNav {
+        font-size: 10px;
+        gap: 0.5rem;
+    }
+
+    .profileOptionsNav li {
+        padding: 0.75rem 1rem 0.5rem;
+    }
+
+    .appliedJobs {
+        padding: 0 0.75rem;
+    }
+
+    .resumeButton {
+        right: 5rem;
+        padding: 0.35rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    .editResume {
+        padding: 1rem;
+    }
+
+    .editResume h2 {
+        font-size: 1.1rem;
+    }
+
+    .editResume input,
+    .editResume select,
+    .editResume textarea {
+        font-size: 0.9rem;
+    }
+
+    .jobCard {
+        padding: 1rem;
+        min-height: 10rem;
+    }
+
+    .jobCompany img {
+        width: 3rem;
+    }
+}
