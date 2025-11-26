@@ -197,8 +197,10 @@ footer {
     margin-top: auto;
     padding: 1rem;
     text-align: center;
-
+    height: 4rem;
     width: 100%;
+    background-color: white;
+    font-size: 12px;
 }
 
 footer ul {
@@ -206,7 +208,6 @@ footer ul {
     align-items: center;
     justify-content: flex-start;
     gap: 1rem;
-    /*margin-bottom: -5rem;*/
 }
 
 .footer ul li {

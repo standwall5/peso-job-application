@@ -16,7 +16,7 @@
     padding: 2rem 4rem;
     border-radius: 8px;
 
-    max-width: 40vw;
+    /*max-width: 60vw;*/
     max-height: 80vh;
 
     overflow-y: auto;
@@ -25,10 +25,10 @@
 
 .applicationModal {
     background: #fff;
-    width: 60vw;
+    width: auto;
     height: 80vh;
     min-width: 60vw;
-    max-width: 60vw;
+    /*max-width: 60vw;*/
     max-height: 80vh;
 }
 
@@ -177,14 +177,14 @@
     display: flex;
     position: relatve;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     height: 100%;
-    max-width: 90%;
+    width: 100%;
     flex-direction: column;
     gap: 2rem;
-    padding: 2rem 0;
-    overflow-x: hidden;
+    overflow-x: auto;
     align-self: center;
+    padding: 2rem 0;
 }
 
 /* .applicantDetailResume {
@@ -198,8 +198,6 @@
 } */
 
 .applicantDetailResume {
-    margin-top: -10rem;
-    transform: scale(0.7);
     height: 100%;
     margin-bottom: 2rem;
 }

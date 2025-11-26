@@ -1,0 +1,257 @@
+.manageJobseekerWrapper {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.nav {
+    position: relative;
+    max-width: max-content;
+    margin-left: 3rem;
+}
+
+.nav ul {
+    display: flex;
+    padding: 0 0 0.5rem;
+    gap: 2rem;
+    border-bottom: 2px solid grey;
+}
+
+.nav ul li {
+    text-align: start;
+    cursor: pointer;
+}
+
+.tabIndicator {
+    position: absolute;
+    bottom: 0.95rem;
+    left: 0;
+    height: 4px;
+    background: #0571d3;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+}
+
+.content {
+    align-self: center;
+    background-color: white;
+    width: 90%;
+    height: 80%;
+    border-radius: 0.5rem;
+    box-shadow: rgba(0, 0, 0, 0.5) 0px 2px 8px;
+    overflow-y: auto;
+    padding: 2rem;
+}
+
+.resumeContainer {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.appliedJobs {
+    width: 100%;
+}
+
+.appliedJobs h2 {
+    margin-bottom: 1.5rem;
+    color: #1e293b;
+}
+
+.applicationsGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.applicationCard {
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow:
+        rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+        rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1.5rem;
+    align-items: center;
+    transition: 0.25s;
+}
+
+.applicationCard:hover {
+    background: #e9ecef;
+}
+
+.applicationCardContent {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.jobInfo {
+    flex: 1;
+}
+
+.jobInfo h3 {
+    margin: 0 0 0.5rem 0;
+    color: #1e293b;
+    font-size: 1.2rem;
+}
+
+.jobInfo p {
+    margin: 0.25rem 0;
+    color: #64748b;
+    font-size: 0.95rem;
+}
+
+.applicationActions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.applicationActions button {
+    min-width: 130px;
+}
+
+.status {
+    padding: 0.2rem 0.7rem;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status.pending {
+    background: #ffa726;
+    color: #fff;
+}
+
+.status.reviewed {
+    background: #b2e5c8;
+    color: #081761;
+}
+
+.status.referred {
+    background: #33b499;
+    color: #fff;
+}
+
+.status.rejected {
+    background: #f44336;
+    color: #fff;
+}
+
+.noData {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: #64748b;
+    font-size: 1.1rem;
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: #64748b;
+    font-size: 1.1rem;
+}
+
+/* Modal Styles */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.modal {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 1rem;
+    max-width: 600px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.closeBtn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    font-weight: bold;
+    color: #64748b;
+}
+
+.closeBtn:hover {
+    color: #1e293b;
+}
+
+.modal h2 {
+    margin: 0 0 1.5rem 0;
+    color: #1e293b;
+}
+
+.referralContent,
+.examResultContent {
+    margin-bottom: 1.5rem;
+}
+
+.referralContent p,
+.examResultContent p {
+    margin: 0.5rem 0;
+    color: #64748b;
+}
+
+.warning {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    color: #856404;
+    margin-top: 1rem !important;
+}
+
+.modalActions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.scoreDisplay {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+}
+
+.scoreDisplay h3 {
+    margin: 0 0 0.5rem 0;
+    color: #64748b;
+    font-size: 1rem;
+}
+
+.score {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #33b499;
+    margin: 0;
+}

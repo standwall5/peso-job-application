@@ -32,7 +32,7 @@
     gap: 1rem;
     cursor: pointer;
     font-size: 13px;
-    overflow: visible;
+    overflow: hidden;
     position: relative;
     will-change: transform;
 }

@@ -8,48 +8,6 @@
     width: 100%;
 }
 
-.top {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    gap: 20rem;
-    width: 90%;
-    margin: 0 2rem;
-    margin-top: 2rem;
-}
-
-.totalStatistics {
-    display: flex;
-    flex-direction: column;
-    width: 22%;
-}
-
-.topRight {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-}
-
-.sortBy {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-}
-
-.sortBy label {
-    font-weight: bold;
-}
-
-.sortBy select {
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    border: 1px solid #ccc;
-    background: white;
-    cursor: pointer;
-}
-
-/* ... rest of existing styles ... */
-
 .searchContainer {
     display: flex;
     align-items: center;
@@ -295,51 +253,4 @@
 .notFound svg {
     width: 15rem;
     color: var(--accent);
-}
-
-.manageJobseeker {
-    padding: 0;
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 2rem;
-    margin-bottom: 15rem;
-}
-
-.manageJobseeker .back {
-    margin-left: 2rem;
-}
-
-.back {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
-    align-self: flex-start;
-    font-weight: bold;
-    transition: 0.25s;
-    cursor: pointer;
-}
-
-.backIcon {
-    background-color: #0571d3;
-    border-radius: 100%;
-    color: white;
-    padding: 0.5rem;
-    transition: 0.25s;
-}
-
-.back:hover .backIcon {
-    background-color: #219ae0;
-}
-
-.back:hover {
-    color: #219ae0;
-}
-
-.back span {
-    margin-top: 0.1rem;
 }

@@ -14,6 +14,7 @@
     box-shadow:
         rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
         rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+    border-radius: 0.5rem;
 }
 
 .profileDetailsContainer {
@@ -32,12 +33,13 @@
     align-items: center;
     justify-content: center;
     gap: 2rem;
+    font-size: 12px;
 }
 
 .profilePicWrapper {
     position: relative;
     display: inline-block;
-    width: 18rem;
+    width: 10rem;
     aspect-ratio: 1/1;
     border-radius: 50%;
     overflow: hidden;
@@ -155,7 +157,7 @@
     gap: 2rem;
     padding: 0;
     width: max-content;
-    font-size: 1.2rem;
+    font-size: 12px;
 }
 
 .profileOptionsNav li {
@@ -169,13 +171,14 @@
     color: var(--nav);
 }
 
-.resume,
-.appliedJobs {
+.appliedJobs,
+.resume {
     height: 100%;
     width: 100%;
 }
 
 .resume {
+    display: flex;
     align-items: center;
     justify-content: center;
 }
@@ -265,6 +268,13 @@
     font-weight: bold;
 }
 
+.workInput,
+.educationInput {
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+}
+
 .row {
     display: flex;
     gap: 2rem;
@@ -296,14 +306,14 @@
     width: max-content;
 }
 
-.workExperiencesRow button {
+/*.workExperiencesRow button {
     background-color: #fff;
     box-shadow:
         rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
         rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
-}
+}*/
 
 .skillsRow span {
     background-color: var(--accent);
@@ -337,6 +347,8 @@
         rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     padding: 2rem;
     border-radius: 0.5rem;
+    width: 20rem;
+    height: 15rem;
 }
 
 .jobCompany {

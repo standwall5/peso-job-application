@@ -65,11 +65,6 @@
         0 0 0 4px rgba(128, 231, 177, 0.1);
 }
 
-.dropdown {
-    position: relative;
-    cursor: pointer;
-}
-
 .dropdownContent {
     display: flex;
     flex-direction: column;
@@ -121,31 +116,44 @@
     top: 100%;
     left: 0;
     right: 0;
+    z-index: 1000;
+    pointer-events: none;
 }
 
+.searchDropdown > * {
+    pointer-events: auto;
+}
+
+/* Notification Icon Container */
 .notificationIcon {
     position: relative;
     cursor: pointer;
-}
-
-.notificationIcon > div {
-    position: relative;
     display: inline-block;
+    line-height: 0;
+    vertical-align: middle;
 }
 
+/* Settings/Logout Dropdown Container */
 .dropdown {
     position: relative;
+    cursor: pointer;
     display: inline-block;
+    line-height: 0;
+    vertical-align: middle;
 }
 
+/* Profile Icon Container - Fixed alignment */
 .profileIconContainer {
     width: max-content;
+    display: inline-block;
+    margin-bottom: -0.5rem;
 }
 
 .profileIcon {
     padding: 0;
     width: max-content;
     margin: 0;
+    display: inline-block;
 }
 
 .profileIcon img {
@@ -154,6 +162,7 @@
     width: 2.2rem;
     transition: 0.25s;
     border: 2px solid var(--accent);
+    display: block;
 }
 
 .profileIcon img:hover {

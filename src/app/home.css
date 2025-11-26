@@ -58,7 +58,8 @@ section {
     width: 23rem;
     height: 2rem;
     max-width: 25rem;
-    padding: 1rem;
+    padding: 1.5rem 1rem;
+    border-radius: 0.5rem;
 }
 
 .login-section form a {
@@ -69,9 +70,105 @@ section {
     font-size: 0.8rem;
     bottom: 0;
     right: 0;
-    top: 5.5rem;
+    top: 7.5rem;
 }
 
 .login-section button {
     font-size: 1.1rem;
+}
+
+/* Input wrapper for icons */
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 23rem;
+    max-width: 25rem;
+}
+
+.input-wrapper .input-icon {
+    position: absolute;
+    left: 1rem;
+    color: var(--text-muted);
+    pointer-events: none;
+    transition: color 0.25s ease;
+}
+
+.input-wrapper input {
+    padding-left: 3rem !important;
+    padding-right: 3rem !important;
+    width: 100%;
+}
+
+.input-wrapper input:focus ~ .input-icon,
+.input-wrapper:focus-within .input-icon {
+    color: var(--accent);
+}
+
+.input-wrapper input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #f5f5f5;
+}
+
+/* Password toggle button */
+.password-toggle {
+    position: absolute;
+    bottom: 6px;
+    right: 1rem;
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+        color 0.25s ease,
+        background 0.25s ease;
+    border-radius: 0.25rem;
+}
+
+.password-toggle:hover:not(:disabled) {
+    color: var(--accent);
+    background-color: rgba(52, 152, 219, 0.1);
+}
+
+.password-toggle:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.password-toggle:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* Error banner */
+.error-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    background-color: #fee;
+    border: 1px solid #fcc;
+    border-radius: 0.5rem;
+    color: #c33;
+    font-size: 0.875rem;
+    font-weight: 500;
+    animation: slideDown 0.3s ease;
+    width: 100%;
+    position: relative;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
