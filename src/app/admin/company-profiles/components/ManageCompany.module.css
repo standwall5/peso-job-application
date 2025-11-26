@@ -178,3 +178,129 @@
 .jobRow:hover span {
     color: white;
 }
+
+/* Mobile Media Queries */
+@media (max-width: 768px) {
+    .nav {
+        margin-left: 1.5rem;
+    }
+
+    .nav ul {
+        gap: 1.5rem;
+        font-size: 0.9rem;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .content {
+        width: 95%;
+        height: auto;
+        min-height: 60vh;
+    }
+
+    .createCompany {
+        flex-direction: column;
+        padding: 2rem 1rem;
+        gap: 2rem;
+    }
+
+    .createCompany img {
+        width: 12rem;
+    }
+
+    .companyDetails {
+        gap: 1.5rem;
+        width: 100%;
+    }
+
+    .companyDetails > input,
+    .companyDetails > textarea,
+    .companyDetails > select {
+        width: 100%;
+        max-width: 100%;
+        font-size: 0.9rem;
+    }
+
+    .logoUpload {
+        padding: 1.5rem;
+    }
+
+    .uploadText {
+        font-size: 0.875rem;
+    }
+
+    .postJobs {
+        margin: 0.75rem;
+    }
+
+    .jobRow,
+    .jobHeader {
+        width: 95%;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1rem;
+        padding: 0.75rem;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav {
+        margin-left: 1rem;
+    }
+
+    .nav ul {
+        gap: 1rem;
+        font-size: 0.85rem;
+    }
+
+    .content {
+        width: 100%;
+        border-radius: 0.25rem;
+    }
+
+    .createCompany {
+        padding: 1.5rem 0.75rem;
+        gap: 1.5rem;
+    }
+
+    .createCompany img {
+        width: 10rem;
+    }
+
+    .companyDetails {
+        gap: 1rem;
+    }
+
+    .companyDetails > input,
+    .companyDetails > textarea,
+    .companyDetails > select {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.75rem;
+    }
+
+    .logoUpload {
+        padding: 1.25rem;
+        border-radius: 0.75rem;
+    }
+
+    .logoPreview {
+        width: 80px;
+    }
+
+    .uploadText {
+        font-size: 0.8rem;
+    }
+
+    .postJobs {
+        margin: 0.5rem;
+    }
+
+    .jobRow,
+    .jobHeader {
+        width: 98%;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        font-size: 0.75rem;
+    }
+}
