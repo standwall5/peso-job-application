@@ -420,6 +420,8 @@
     .modalContent {
         padding: 1.5rem;
         max-width: 90vw;
+        max-height: 85vh;
+        overflow-y: auto;
     }
 
     .closeBtn {
@@ -513,6 +515,7 @@
         padding: 1rem;
         max-width: 95vw;
         max-height: 95vh;
+        overflow-y: auto;
     }
 
     .closeBtn {
@@ -536,5 +539,11 @@
 
     .notFound svg {
         width: 10rem;
+    }
+
+    /* Ensure resume displays properly in modal */
+    .modalContent > * {
+        max-width: 100%;
+        overflow-x: hidden;
     }
 }

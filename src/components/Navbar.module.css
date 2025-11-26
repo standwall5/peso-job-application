@@ -184,7 +184,7 @@
     }
 
     .searchContainer input:focus {
-        width: 15rem;
+        width: 13rem;
     }
 
     .searchIcon {
@@ -222,7 +222,7 @@
     }
 
     .searchContainer input:focus {
-        width: 10rem;
+        width: 8.5rem;
     }
 
     .searchIcon {

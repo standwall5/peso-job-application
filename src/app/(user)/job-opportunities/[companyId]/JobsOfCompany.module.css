@@ -247,15 +247,16 @@
 /* Mobile Media Queries */
 @media (max-width: 768px) {
     .modal {
-        padding: 1.5rem 2rem;
+        padding: 1rem 1.5rem;
         max-height: 90vh;
     }
 
     .applicationModal {
         width: 95vw;
         min-width: auto;
-        height: 85vh;
-        max-height: 85vh;
+        height: 90vh;
+        max-height: 90vh;
+        overflow-y: auto;
     }
 
     .jobSpecificCard {
@@ -290,6 +291,7 @@
         flex-direction: column;
         height: auto;
         gap: 1.5rem;
+        overflow-y: auto;
     }
 
     .applicationJobCompany,
@@ -298,6 +300,7 @@
         height: auto;
         aspect-ratio: 1/1.1;
         align-self: stretch;
+        flex-shrink: 0;
     }
 
     .applicationDetails {
@@ -318,6 +321,15 @@
     .applicantDetail {
         gap: 1.5rem;
         padding: 1.5rem 0;
+        overflow-y: auto;
+        height: auto;
+    }
+
+    .applicantDetailResume {
+        height: auto;
+        width: 100%;
+        transform: scale(1);
+        margin-bottom: 1rem;
     }
 
     .applicantDetailButtons {
@@ -344,7 +356,7 @@
 
 @media (max-width: 480px) {
     .modal {
-        padding: 1rem;
+        padding: 0.75rem 1rem;
         max-height: 95vh;
     }
 
@@ -353,6 +365,7 @@
         height: 95vh;
         max-height: 95vh;
         border-radius: 0;
+        overflow-y: auto;
     }
 
     .jobSpecificCard {
@@ -389,6 +402,7 @@
 
     .applicationContainer {
         gap: 1rem;
+        overflow-y: auto;
     }
 
     .applicationNav {
@@ -403,6 +417,16 @@
     .applicantDetail {
         gap: 1rem;
         padding: 1rem 0;
+        overflow-y: auto;
+        height: auto;
+    }
+
+    .applicantDetailResume {
+        height: auto;
+        width: 100%;
+        transform: scale(1);
+        margin-bottom: 0.75rem;
+        overflow: visible;
     }
 
     .applicantDetailButtons {
