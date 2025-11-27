@@ -233,7 +233,7 @@
   font-weight: bold;
   margin: 0 0 8px 0;
   font-size: 16px;
-  color: #333;
+  color: #000000;
 }
 
 .geographicalRow {
@@ -248,6 +248,100 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+/* ---- Radio wrapper and label ---- */
+.residencyOptions {
+  user-select: text !important; /* inadd*/
+  display: flex;
+  align-items: center;
+  gap: 24px;          /* spacing between options */
+  margin-bottom: 8px;
+}
+
+.residencyOptions label {
+  user-select: text !important; /* inadd */
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* ---- Visual radio: hide native look and draw our own circular control ---- */
+.residencyOptions input[type="radio"] {
+  /* visually replace native radio with our custom circle while keeping input accessible */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  border-radius: 50%;
+  border: 2px solid #9aa6b2; /* normal border color */
+  background: #fff;
+  box-sizing: border-box;
+  position: relative;
+  cursor: pointer;
+  display: inline-block;
+  vertical-align: middle;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+
+/* inner white dot when checked (simulate native checked) */
+.residencyOptions input[type="radio"]::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: transparent;
+  transition: background 0.12s ease;
+  pointer-events: none;
+}
+
+/* checked => blue with white inner dot */
+.residencyOptions input[type="radio"]:checked {
+  border-color: #007bff;
+  background: #007bff;
+}
+.residencyOptions input[type="radio"]:checked::after {
+  background: #ffffff;
+}
+
+/* focus ring for keyboard accessibility */
+.residencyOptions input[type="radio"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.12);
+  border-color: #007bff;
+}
+
+/* ---- Error state: circular red ring around the radio (not a square) ----
+   RadioError class is expected on the wrapper (you already add styles.radioError).
+*/
+.radioError input[type="radio"] {
+  border-color: #d9534f; /* red border */
+  box-shadow: 0 0 0 4px rgba(217, 83, 79, 0.12); /* circular ring around the circle */
+}
+
+/* If the radio is both in error wrapper and checked, checked style should win (blue) */
+.radioError input[type="radio"]:checked {
+  border-color: #007bff !important;
+  background: #007bff !important;
+  box-shadow: 0 0 0 0 rgba(217,83,79,0) !important; /* remove red ring once checked */
+}
+
+/* small spacing for the label text */
+.residencyLabelText {
+  display: inline-block;
+  vertical-align: middle;
 }
 
 /* File Upload Section */
@@ -427,10 +521,29 @@
   flex-direction: column;
   gap: 6px;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid #000000;
   background: #ffffff;
   max-height: 250px;
   overflow-y: auto;
+}
+
+/* Scrollbar (Slider) Styling */
+.checkboxList::-webkit-scrollbar {
+  width: 10px; 
+}
+
+.checkboxList::-webkit-scrollbar-track {
+  background: #e6e6e6; 
+  border-radius: 10px;
+}
+
+.checkboxList::-webkit-scrollbar-thumb {
+  background: #777;           
+  border-radius: 10px;
+}
+
+.checkboxList::-webkit-scrollbar-thumb:hover {
+  background: #555;           
 }
 
 .checkboxItem {
