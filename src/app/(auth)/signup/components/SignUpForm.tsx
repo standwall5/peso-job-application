@@ -31,7 +31,7 @@ const SignUpForm: React.FC = () => {
     district: "",
     preferredPlaceOfAssignment: "",
     barangay: "",
-  });  
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showFormNotice, setShowFormNotice] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -130,7 +130,7 @@ const SignUpForm: React.FC = () => {
       uppercase: /[A-Z]/.test(passwordValue),
       lowercase: /[a-z]/.test(passwordValue),
       number: /\d/.test(passwordValue),
-      special: /[~!@#$%^&*()_+-={}|:;"'<>,.?/]/.test(passwordValue)
+      special: /[~!@#$%^&*()_+-={}|:;"'<>,.?/]/.test(passwordValue),
     };
     setPasswordRequirements(requirements);
     return Object.values(requirements).every(Boolean);
@@ -250,33 +250,27 @@ const SignUpForm: React.FC = () => {
   };
 
   // Residence handler
-  const handleResidencyChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => {
+  const handleResidencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const v = e.target.value;
     setResidency(v);
     const newErrors = { ...errors };
-    if (!v)
-      newErrors.recidency = "Please select Residence";
+    if (!v) newErrors.recidency = "Please select Residence";
     else delete newErrors.residency;
     setErrors(newErrors);
   };
-    // Barangay handler
-    const handlebarangayChange = (
-      e: React.ChangeEvent<HTMLSelectElement>
-    ) => {
-      const v = e.target.value;
-      setbarangay(v);
-      const newErrors = { ...errors };
-      if (!v)
-        newErrors.barangay = "Please select Barangay";
-      else delete newErrors.barangay;
-      setErrors(newErrors);
-    };
+  // Barangay handler
+  const handlebarangayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const v = e.target.value;
+    setbarangay(v);
+    const newErrors = { ...errors };
+    if (!v) newErrors.barangay = "Please select Barangay";
+    else delete newErrors.barangay;
+    setErrors(newErrors);
+  };
 
   // Preferred place handler
   const handlePreferredPlaceChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
+    e: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     const v = e.target.value;
     setPreferredPlace(v);
@@ -299,7 +293,7 @@ const SignUpForm: React.FC = () => {
 
   // GENERIC input change handler to clear errors for simple required fields
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const name = e.target.name;
     const value = (e.target as HTMLInputElement).value;
@@ -390,14 +384,12 @@ const SignUpForm: React.FC = () => {
 
     // Residence validation (required)
     if (!residency || residency.trim() === "") {
-      newErrors.residence =
-        "Residence is required";
+      newErrors.residence = "Residence is required";
     }
 
     // Barangay validation (required)
     if (!barangay || barangay.trim() === "") {
-      newErrors.barangay =
-        "Barangay is required";
+      newErrors.barangay = "Barangay is required";
     }
 
     // Preferred place validation (required)
@@ -449,9 +441,8 @@ const SignUpForm: React.FC = () => {
     }
 
     if (!applicantType || applicantType.length === 0) {
-  newErrors.applicantType = "Please select at least one applicant type";
-}
-
+      newErrors.applicantType = "Please select at least one applicant type";
+    }
 
     // Applicant-specific ID fields OPTIONAL
     if (Object.keys(newErrors).length > 0) {
@@ -465,13 +456,13 @@ const SignUpForm: React.FC = () => {
     const formData = new FormData(formEl);
     formData.set(
       "gender",
-      gender === "Others" ? genderOther || "Others" : gender
+      gender === "Others" ? genderOther || "Others" : gender,
     );
     formData.set("phoneNumber", phoneNumber);
     formData.set("birthDate", birthDate);
     formData.set("email", emailValue);
     formData.set("residency", residency);
-    formData.set("Barangay",barangay);
+    formData.set("Barangay", barangay);
     formData.set("district", district);
     formData.set("preferredPlaceOfAssignment", preferredPlace);
     formData.set("extName", extNameValue);
@@ -695,7 +686,7 @@ const SignUpForm: React.FC = () => {
             </div>
           </div>
 
-                    {/* Applicant Type (Checkbox Version) */}
+          {/* Applicant Type (Checkbox Version) */}
           <div className={styles.fullRow}>
             <div className={styles.applicantTypeContainer}>
               <label className={styles.fieldLabel}>
@@ -741,16 +732,19 @@ const SignUpForm: React.FC = () => {
               </div>
 
               {errors["applicantType"] && (
-                <div className={styles.fieldError}>{errors["applicantType"]}</div>
+                <div className={styles.fieldError}>
+                  {errors["applicantType"]}
+                </div>
               )}
             </div>
 
             {/* CONDITIONAL TEXT FIELDS */}
             <div className={styles.fullWidthBox}>
-
               {applicantType.includes("Student") && (
                 <div className={styles.conditionalField}>
-                  <label className={styles.fieldLabel}>Student ID (Optional)</label>
+                  <label className={styles.fieldLabel}>
+                    Student ID (Optional)
+                  </label>
                   <input
                     type="text"
                     name="studentId"
@@ -759,69 +753,95 @@ const SignUpForm: React.FC = () => {
                 </div>
               )}
 
-          {applicantType.includes("Person with Disability (PWD)") && (
-            <>
-              <div style={{ flex: 1 }}>
-                <label htmlFor="disabilityType" className={styles.fieldLabel}>
-                  Disability Type <span className={styles.redAsterisk}>*</span>
-                </label>
-                <select
-                  id="disabilityType"
-                  name="disabilityType"
-                  defaultValue=""
-                  className={errors["disabilityType"] ? styles.errorInput : ""}
-                  onChange={handleInputChange}
-                >
-                  <option value="" disabled>
-                    Disability Type
-                  </option>
-                  <option value="Hearing">Hearing</option>
-                  <option value="Visual">Visual</option>
-                  <option value="Mobility">Mobility</option>
-                  <option value="Intellectual">Intellectual</option>
-                  <option value="Psychosocial">Psychosocial</option>
-                  <option value="Others">Others</option>
-                </select>
-                {errors["disabilityType"] && (
-                  <div className={styles.fieldError}>{errors["disabilityType"]}</div>
-                )}
-              </div>
+              {applicantType.includes("Person with Disability (PWD)") && (
+                <>
+                  <div style={{ flex: 1 }}>
+                    <label
+                      htmlFor="disabilityType"
+                      className={styles.fieldLabel}
+                    >
+                      Disability Type{" "}
+                      <span className={styles.redAsterisk}>*</span>
+                    </label>
+                    <select
+                      id="disabilityType"
+                      name="disabilityType"
+                      defaultValue=""
+                      className={
+                        errors["disabilityType"] ? styles.errorInput : ""
+                      }
+                      onChange={handleInputChange}
+                    >
+                      <option value="" disabled>
+                        Disability Type
+                      </option>
+                      <option value="Hearing">Hearing</option>
+                      <option value="Visual">Visual</option>
+                      <option value="Mobility">Mobility</option>
+                      <option value="Intellectual">Intellectual</option>
+                      <option value="Psychosocial">Psychosocial</option>
+                      <option value="Others">Others</option>
+                    </select>
+                    {errors["disabilityType"] && (
+                      <div className={styles.fieldError}>
+                        {errors["disabilityType"]}
+                      </div>
+                    )}
+                  </div>
 
-              <div style={{ flex: 1 }}>
-                <label htmlFor="pwdNumber" className={styles.fieldLabel}>
-                  PWD ID Number (Optional)
-                </label>
-                <input
-                  id="pwdNumber"
-                  name="pwdNumber"
-                  type="text"
-                  onChange={handleInputChange}
-                  className={errors["pwdNumber"] ? styles.errorInput : ""}
-                />
-                {errors["pwdNumber"] && (
-                  <div className={styles.fieldError}>{errors["pwdNumber"]}</div>
-                )}
-              </div>
-            </>
-          )}
-              {applicantType.includes("Returning Overseas Filipino Worker (OFW)") && (
+                  <div style={{ flex: 1 }}>
+                    <label htmlFor="pwdNumber" className={styles.fieldLabel}>
+                      PWD ID Number (Optional)
+                    </label>
+                    <input
+                      id="pwdNumber"
+                      name="pwdNumber"
+                      type="text"
+                      onChange={handleInputChange}
+                      className={errors["pwdNumber"] ? styles.errorInput : ""}
+                    />
+                    {errors["pwdNumber"] && (
+                      <div className={styles.fieldError}>
+                        {errors["pwdNumber"]}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+              {applicantType.includes(
+                "Returning Overseas Filipino Worker (OFW)",
+              ) && (
                 <div className={styles.conditionalField}>
-                  <label className={styles.fieldLabel}>OFW ID Number (Optional)</label>
+                  <label className={styles.fieldLabel}>
+                    OFW ID Number (Optional)
+                  </label>
                   <input id="ofwNumber" name="ofwNumber" type="text" />
                 </div>
               )}
 
               {applicantType.includes("Senior Citizen") && (
                 <div className={styles.conditionalField}>
-                  <label className={styles.fieldLabel}>Senior Citizen ID (Optional)</label>
-                  <input id="seniorCitizenNumber" name="seniorCitizenNumber" type="text" />
+                  <label className={styles.fieldLabel}>
+                    Senior Citizen ID (Optional)
+                  </label>
+                  <input
+                    id="seniorCitizenNumber"
+                    name="seniorCitizenNumber"
+                    type="text"
+                  />
                 </div>
               )}
 
               {applicantType.includes("Solo Parent/Single Parent") && (
                 <div className={styles.conditionalField}>
-                  <label className={styles.fieldLabel}>Solo Parent ID (Optional)</label>
-                  <input id="soloParentNumber" name="soloParentNumber" type="text" />
+                  <label className={styles.fieldLabel}>
+                    Solo Parent ID (Optional)
+                  </label>
+                  <input
+                    id="soloParentNumber"
+                    name="soloParentNumber"
+                    type="text"
+                  />
                 </div>
               )}
 
@@ -834,53 +854,60 @@ const SignUpForm: React.FC = () => {
             </div>
           </div>
 
-
-                    {/* ------------------ ADDRESS SECTION ------------------ */}
+          {/* ------------------ ADDRESS SECTION ------------------ */}
           <div className={styles.addressSection}>
-          <h3 className={styles.fieldLabelTitle}>Address Information 
-            <span className={styles.redAsterisk}>*</span></h3>
+            <h3 className={styles.fieldLabelTitle}>
+              Address Information
+              <span className={styles.redAsterisk}>*</span>
+            </h3>
 
             {/* Residency Radio Buttons */}
-          <div
-            className={
-              errors["residency"]
-                ? `${styles.residencyOptions} ${styles.radioError}`
-                : styles.residencyOptions
-            }
-          >
-            <label>
-              <input
-                type="radio"
-                name="residency"
-                value="resident"
-                checked={formData.residency === "resident"}
-                onChange={() => {
-                  setFormData({ ...formData, residency: "resident" });
-                  setErrors((prev: any) => ({ ...prev, residency: "" })); // CLEAR ERROR
-                }}
-              />
-              Resident of Parañaque
-            </label>
+            <div
+              className={
+                errors["residency"]
+                  ? `${styles.residencyOptions} ${styles.radioError}`
+                  : styles.residencyOptions
+              }
+            >
+              <label>
+                <input
+                  type="radio"
+                  name="residency"
+                  value="resident"
+                  checked={formData.residency === "resident"}
+                  onChange={() => {
+                    setFormData({ ...formData, residency: "resident" });
+                    setErrors((prev: Record<string, string>) => ({
+                      ...prev,
+                      residency: "",
+                    }));
+                  }}
+                />
+                Resident of Parañaque
+              </label>
 
-            <label>
-              <input
-                type="radio"
-                name="residency"
-                value="nonresident"
-                checked={formData.residency === "nonresident"}
-                onChange={() => {
-                  setFormData({ ...formData, residency: "nonresident" });
-                  setErrors((prev: any) => ({ ...prev, residency: "" })); // CLEAR ERROR
-                }}
-              />
-              Non-Resident of Parañaque
-            </label>
-          </div>
+              <label>
+                <input
+                  type="radio"
+                  name="residency"
+                  value="nonresident"
+                  checked={formData.residency === "nonresident"}
+                  onChange={() => {
+                    setFormData({ ...formData, residency: "nonresident" });
+                    setErrors((prev: Record<string, string>) => ({
+                      ...prev,
+                      residency: "",
+                    }));
+                  }}
+                />
+                Non-Resident of Parañaque
+              </label>
+            </div>
 
-          {/* Residency error message */}
-          {errors["residency"] && ( 
-            <div className={styles.fieldError}>{errors["residency"]}</div>
-        )}
+            {/* Residency error message */}
+            {errors["residency"] && (
+              <div className={styles.fieldError}>{errors["residency"]}</div>
+            )}
 
             {/* Only Address */}
             <div className={styles.fullRow}>
@@ -905,31 +932,28 @@ const SignUpForm: React.FC = () => {
             {formData.residency === "resident" && (
               <div className={styles.geographicalRow}>
                 <div className={styles.leftColumn}>
-
                   {/* District */}
                   <div>
-                    <label htmlFor="district" 
-                    className={styles.fieldLabel}
-                    >
-                      District {" "} 
-                      <span className={styles.redAsterisk}>*</span>
+                    <label htmlFor="district" className={styles.fieldLabel}>
+                      District <span className={styles.redAsterisk}>*</span>
                     </label>
                     <select
                       id="district"
                       name="district"
                       defaultValue=""
                       onChange={handleDistrictChange}
-                      className={errors["district"] 
-                        ? styles.errorInput 
-                        : ""}
+                      className={errors["district"] ? styles.errorInput : ""}
                     >
-                      <option value="" disabled>Select District</option>
+                      <option value="" disabled>
+                        Select District
+                      </option>
                       <option value="District 1">District 1</option>
                       <option value="District 2">District 2</option>
                     </select>
                     {errors["district"] && (
                       <div className={styles.fieldError}>
-                        {errors["district"]}</div>
+                        {errors["district"]}
+                      </div>
                     )}
                   </div>
 
@@ -953,7 +977,9 @@ const SignUpForm: React.FC = () => {
                           : ""
                       }
                     >
-                      <option value="" disabled>Select Preferred Place of Assignment</option>
+                      <option value="" disabled>
+                        Select Preferred Place of Assignment
+                      </option>
                       <option value="Paranaque">Paranaque</option>
                       <option value="Bacoor">Bacoor</option>
                       <option value="Las Piñas">Las Piñas</option>
@@ -972,7 +998,7 @@ const SignUpForm: React.FC = () => {
                   {/* Barangay */}
                   <div>
                     <label htmlFor="barangay" className={styles.fieldLabel}>
-                      Barangay {" "} <span className={styles.redAsterisk}>*</span>
+                      Barangay <span className={styles.redAsterisk}>*</span>
                     </label>
                     <select
                       id="barangay"
@@ -981,7 +1007,9 @@ const SignUpForm: React.FC = () => {
                       onChange={handleInputChange}
                       className={errors["barangay"] ? styles.errorInput : ""}
                     >
-                      <option value="" disabled>Select Barangay</option>
+                      <option value="" disabled>
+                        Select Barangay
+                      </option>
 
                       {district === "District 1" && (
                         <>
@@ -1021,7 +1049,6 @@ const SignUpForm: React.FC = () => {
               </div>
             )}
           </div>
-
 
           {/* contact */}
           <div className={styles.fullRow}>
@@ -1221,15 +1248,15 @@ const SignUpForm: React.FC = () => {
                 password.length === 0
                   ? styles["neutral"]
                   : passwordRequirements.length
-                  ? styles["valid"]
-                  : styles["invalid"]
+                    ? styles["valid"]
+                    : styles["invalid"]
               }`}
             >
               {password.length === 0
                 ? "○"
                 : passwordRequirements.length
-                ? "✓"
-                : "✗"}{" "}
+                  ? "✓"
+                  : "✗"}{" "}
               At least 8 characters
             </div>
             <div
@@ -1237,15 +1264,15 @@ const SignUpForm: React.FC = () => {
                 password.length === 0
                   ? styles["neutral"]
                   : passwordRequirements.uppercase
-                  ? styles["valid"]
-                  : styles["invalid"]
+                    ? styles["valid"]
+                    : styles["invalid"]
               }`}
             >
               {password.length === 0
                 ? "○"
                 : passwordRequirements.uppercase
-                ? "✓"
-                : "✗"}{" "}
+                  ? "✓"
+                  : "✗"}{" "}
               At least 1 uppercase letter
             </div>
             <div
@@ -1253,15 +1280,15 @@ const SignUpForm: React.FC = () => {
                 password.length === 0
                   ? styles["neutral"]
                   : passwordRequirements.lowercase
-                  ? styles["valid"]
-                  : styles["invalid"]
+                    ? styles["valid"]
+                    : styles["invalid"]
               }`}
             >
               {password.length === 0
                 ? "○"
                 : passwordRequirements.lowercase
-                ? "✓"
-                : "✗"}{" "}
+                  ? "✓"
+                  : "✗"}{" "}
               At least 1 lowercase letter
             </div>
             <div
@@ -1269,15 +1296,15 @@ const SignUpForm: React.FC = () => {
                 password.length === 0
                   ? styles["neutral"]
                   : passwordRequirements.number
-                  ? styles["valid"]
-                  : styles["invalid"]
+                    ? styles["valid"]
+                    : styles["invalid"]
               }`}
             >
               {password.length === 0
                 ? "○"
                 : passwordRequirements.number
-                ? "✓"
-                : "✗"}{" "}
+                  ? "✓"
+                  : "✗"}{" "}
               At least 1 number
             </div>
             <div
@@ -1285,15 +1312,15 @@ const SignUpForm: React.FC = () => {
                 password.length === 0
                   ? styles["neutral"]
                   : passwordRequirements.special
-                  ? styles["valid"]
-                  : styles["invalid"]
+                    ? styles["valid"]
+                    : styles["invalid"]
               }`}
             >
               {password.length === 0
                 ? "○"
                 : passwordRequirements.special
-                ? "✓"
-                : "✗"}{" "}
+                  ? "✓"
+                  : "✗"}{" "}
               At least 1 special character (!@#$%&)
             </div>
           </div>
@@ -1395,7 +1422,7 @@ const SignUpForm: React.FC = () => {
                 setExtNameValue("None");
                 setShowFormNotice(false);
                 const form = document.querySelector(
-                  "form"
+                  "form",
                 ) as HTMLFormElement | null;
                 if (form) form.reset();
               }}
