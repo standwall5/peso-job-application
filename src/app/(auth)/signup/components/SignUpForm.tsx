@@ -24,7 +24,14 @@ const SignUpForm: React.FC = () => {
     number: false,
     special: false,
   });
-  const [applicantType, setApplicantType] = useState("");
+  const [applicantType, setApplicantType] = useState<string[]>([]);
+  const [formData, setFormData] = useState({
+    residency: "",
+    address: "",
+    district: "",
+    preferredPlaceOfAssignment: "",
+    barangay: "",
+  });  
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showFormNotice, setShowFormNotice] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -35,7 +42,9 @@ const SignUpForm: React.FC = () => {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [birthDate, setBirthDate] = useState<string>("");
   const [emailValue, setEmailValue] = useState<string>("");
+  const [residency, setResidency] = useState<string>("");
   const [preferredPlace, setPreferredPlace] = useState<string>("");
+  const [barangay, setbarangay] = useState<string>("");
   const [extNameValue, setExtNameValue] = useState<string>("None");
 
   // keep list of required fields (for submit validation)
@@ -43,9 +52,7 @@ const SignUpForm: React.FC = () => {
     "firstName",
     "lastName",
     "address",
-    "province",
     "district",
-    "cityMunicipality",
     "barangay",
     "applicantType",
     "password",
@@ -55,6 +62,7 @@ const SignUpForm: React.FC = () => {
     "acceptTerms",
     "email",
     "phoneNumber",
+    "residency",
     "preferredPlaceOfAssignment",
   ];
 
@@ -122,7 +130,7 @@ const SignUpForm: React.FC = () => {
       uppercase: /[A-Z]/.test(passwordValue),
       lowercase: /[a-z]/.test(passwordValue),
       number: /\d/.test(passwordValue),
-      special: /[!@#$%&]/.test(passwordValue),
+      special: /[~!@#$%^&*()_+-={}|:;"'<>,.?/]/.test(passwordValue)
     };
     setPasswordRequirements(requirements);
     return Object.values(requirements).every(Boolean);
@@ -241,6 +249,31 @@ const SignUpForm: React.FC = () => {
     setErrors(newErrors);
   };
 
+  // Residence handler
+  const handleResidencyChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const v = e.target.value;
+    setResidency(v);
+    const newErrors = { ...errors };
+    if (!v)
+      newErrors.recidency = "Please select Residence";
+    else delete newErrors.residency;
+    setErrors(newErrors);
+  };
+    // Barangay handler
+    const handlebarangayChange = (
+      e: React.ChangeEvent<HTMLSelectElement>
+    ) => {
+      const v = e.target.value;
+      setbarangay(v);
+      const newErrors = { ...errors };
+      if (!v)
+        newErrors.barangay = "Please select Barangay";
+      else delete newErrors.barangay;
+      setErrors(newErrors);
+    };
+
   // Preferred place handler
   const handlePreferredPlaceChange = (
     e: React.ChangeEvent<HTMLSelectElement>
@@ -259,7 +292,7 @@ const SignUpForm: React.FC = () => {
     const v = e.target.value;
     setDistrict(v);
     const newErrors = { ...errors };
-    if (!v) newErrors.district = "District is required";
+    if (!v) newErrors.district = "Please select District";
     else delete newErrors.district;
     setErrors(newErrors);
   };
@@ -329,7 +362,7 @@ const SignUpForm: React.FC = () => {
 
     // Gender validations
     if (!gender) {
-      newErrors.sex = "Please select gender";
+      newErrors.gender = "Gender is required";
     } else if (gender === "Others") {
       if (!genderOther || genderOther.trim() === "") {
         newErrors.genderOther = "Please specify gender";
@@ -353,6 +386,18 @@ const SignUpForm: React.FC = () => {
       if (!emailRegex.test(emailValue)) {
         newErrors.email = "Please enter a valid email address";
       }
+    }
+
+    // Residence validation (required)
+    if (!residency || residency.trim() === "") {
+      newErrors.residence =
+        "Residence is required";
+    }
+
+    // Barangay validation (required)
+    if (!barangay || barangay.trim() === "") {
+      newErrors.barangay =
+        "Barangay is required";
     }
 
     // Preferred place validation (required)
@@ -394,7 +439,7 @@ const SignUpForm: React.FC = () => {
     }
 
     // require disability type when applicant is PWD
-    if (applicantType === "Person with Disability (PWD)") {
+    if (applicantType.includes("Person with Disability (PWD)")) {
       const disability = (
         formEl.elements.namedItem("disabilityType") as HTMLSelectElement | null
       )?.value;
@@ -402,6 +447,11 @@ const SignUpForm: React.FC = () => {
         newErrors.disabilityType = "Please select disability type";
       }
     }
+
+    if (!applicantType || applicantType.length === 0) {
+  newErrors.applicantType = "Please select at least one applicant type";
+}
+
 
     // Applicant-specific ID fields OPTIONAL
     if (Object.keys(newErrors).length > 0) {
@@ -420,6 +470,8 @@ const SignUpForm: React.FC = () => {
     formData.set("phoneNumber", phoneNumber);
     formData.set("birthDate", birthDate);
     formData.set("email", emailValue);
+    formData.set("residency", residency);
+    formData.set("Barangay",barangay);
     formData.set("district", district);
     formData.set("preferredPlaceOfAssignment", preferredPlace);
     formData.set("extName", extNameValue);
@@ -643,164 +695,198 @@ const SignUpForm: React.FC = () => {
             </div>
           </div>
 
-          {/* applicantType row */}
+                    {/* Applicant Type (Checkbox Version) */}
           <div className={styles.fullRow}>
-            <div style={{ flex: 1 }}>
-              <label htmlFor="applicantType" className={styles.fieldLabel}>
+            <div className={styles.applicantTypeContainer}>
+              <label className={styles.fieldLabel}>
                 Applicant Type <span className={styles.redAsterisk}>*</span>
               </label>
-              <select
-                id="applicantType"
-                name="applicantType"
-                value={applicantType}
-                onChange={(e) => {
-                  setApplicantType(e.target.value);
-                  const newErrors = { ...errors };
-                  if (e.target.value) delete newErrors.applicantType;
-                  setErrors(newErrors);
-                }}
-                className={errors["applicantType"] ? styles.errorInput : ""}
-              >
-                <option value="" disabled>
-                  CHOOSE YOUR APPLICANT TYPE
-                </option>
-                <option value="Student">Student</option>
-                <option value="Indigenous Person (IP)">
-                  Indigenous Person (IP)
-                </option>
-                <option value="Out of School Youth">Out of School Youth</option>
-                <option value="Person with Disability (PWD)">
-                  Person with Disability (PWD)
-                </option>
-                <option value="Rehabilitation Program Graduate">
-                  Rehabilitation Program Graduate
-                </option>
-                <option value="Reintegrated Individual (Former Detainee)">
-                  Reintegrated Individual (Former Detainee)
-                </option>
-                <option value="Returning Oversees Filipino Worker (OFW)">
-                  Returning Oversees Filipino Worker (OFW)
-                </option>
-                <option value="Senior Citizen">Senior Citizen</option>
-                <option value="Solo Parent/Single Parent">
-                  Solo Parent/Single Parent
-                </option>
-                <option value="Others">Others</option>
-              </select>
+
+              {/* CHECKBOX LIST */}
+              <div className={styles.checkboxList}>
+                {[
+                  "Student",
+                  "Indigenous Person (IP)",
+                  "Out of School Youth",
+                  "Person with Disability (PWD)",
+                  "Rehabilitation Program Graduate",
+                  "Reintegrated Individual (Former Detainee)",
+                  "Returning Overseas Filipino Worker (OFW)",
+                  "Senior Citizen",
+                  "Solo Parent/Single Parent",
+                  "Others",
+                ].map((type) => (
+                  <label key={type} className={styles.checkboxItem}>
+                    <input
+                      type="checkbox"
+                      checked={applicantType.includes(type)}
+                      onChange={(e) => {
+                        let updated = [...applicantType];
+
+                        if (e.target.checked) {
+                          updated.push(type);
+                        } else {
+                          updated = updated.filter((t) => t !== type);
+                        }
+
+                        setApplicantType(updated);
+                        const newErrors = { ...errors };
+                        if (updated.length > 0) delete newErrors.applicantType;
+                        setErrors(newErrors);
+                      }}
+                    />
+                    <span>{type}</span>
+                  </label>
+                ))}
+              </div>
+
               {errors["applicantType"] && (
-                <div className={styles.fieldError}>
-                  {errors["applicantType"]}
-                </div>
+                <div className={styles.fieldError}>{errors["applicantType"]}</div>
               )}
             </div>
 
-            {applicantType === "Person with Disability (PWD)" && (
-              <>
-                <div style={{ flex: 1 }}>
-                  <label htmlFor="disabilityType" className={styles.fieldLabel}>
-                    Disability Type{" "}
-                    <span className={styles.redAsterisk}>*</span>
-                  </label>
-                  <select
-                    id="disabilityType"
-                    name="disabilityType"
-                    defaultValue=""
-                    className={
-                      errors["disabilityType"] ? styles.errorInput : ""
-                    }
-                    onChange={handleInputChange}
-                  >
-                    <option value="" disabled>
-                      Disability Type
-                    </option>
-                    <option value="Hearing">Hearing</option>
-                    <option value="Visual">Visual</option>
-                    <option value="Mobility">Mobility</option>
-                    <option value="Intellectual">Intellectual</option>
-                    <option value="Psychosocial">Psychosocial</option>
-                    <option value="Others">Others</option>
-                  </select>
-                  {errors["disabilityType"] && (
-                    <div className={styles.fieldError}>
-                      {errors["disabilityType"]}
-                    </div>
-                  )}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label htmlFor="pwdNumber" className={styles.fieldLabel}>
-                    PWD ID Number (Optional)
-                  </label>
+            {/* CONDITIONAL TEXT FIELDS */}
+            <div className={styles.fullWidthBox}>
+
+              {applicantType.includes("Student") && (
+                <div className={styles.conditionalField}>
+                  <label className={styles.fieldLabel}>Student ID (Optional)</label>
                   <input
-                    id="pwdNumber"
-                    name="pwdNumber"
                     type="text"
+                    name="studentId"
                     onChange={handleInputChange}
-                    className={errors["pwdNumber"] ? styles.errorInput : ""}
                   />
-                  {errors["pwdNumber"] && (
-                    <div className={styles.fieldError}>
-                      {errors["pwdNumber"]}
-                    </div>
-                  )}
                 </div>
-              </>
-            )}
+              )}
 
-            {applicantType === "Senior Citizen" && (
+          {applicantType.includes("Person with Disability (PWD)") && (
+            <>
               <div style={{ flex: 1 }}>
-                <label
-                  htmlFor="seniorCitizenNumber"
-                  className={styles.fieldLabel}
+                <label htmlFor="disabilityType" className={styles.fieldLabel}>
+                  Disability Type <span className={styles.redAsterisk}>*</span>
+                </label>
+                <select
+                  id="disabilityType"
+                  name="disabilityType"
+                  defaultValue=""
+                  className={errors["disabilityType"] ? styles.errorInput : ""}
+                  onChange={handleInputChange}
                 >
-                  Senior Citizen ID (Optional)
-                </label>
-                <input
-                  id="seniorCitizenNumber"
-                  name="seniorCitizenNumber"
-                  type="text"
-                  onChange={handleInputChange}
-                  className={
-                    errors["seniorCitizenNumber"] ? styles.errorInput : ""
-                  }
-                />
-                {errors["seniorCitizenNumber"] && (
-                  <div className={styles.fieldError}>
-                    {errors["seniorCitizenNumber"]}
-                  </div>
+                  <option value="" disabled>
+                    Disability Type
+                  </option>
+                  <option value="Hearing">Hearing</option>
+                  <option value="Visual">Visual</option>
+                  <option value="Mobility">Mobility</option>
+                  <option value="Intellectual">Intellectual</option>
+                  <option value="Psychosocial">Psychosocial</option>
+                  <option value="Others">Others</option>
+                </select>
+                {errors["disabilityType"] && (
+                  <div className={styles.fieldError}>{errors["disabilityType"]}</div>
                 )}
               </div>
-            )}
 
-            {applicantType === "Solo Parent/Single Parent" && (
               <div style={{ flex: 1 }}>
-                <label htmlFor="soloParentNumber" className={styles.fieldLabel}>
-                  Solo Parent ID (Optional)
+                <label htmlFor="pwdNumber" className={styles.fieldLabel}>
+                  PWD ID Number (Optional)
                 </label>
                 <input
-                  id="soloParentNumber"
-                  name="soloParentNumber"
+                  id="pwdNumber"
+                  name="pwdNumber"
                   type="text"
                   onChange={handleInputChange}
-                  className={
-                    errors["soloParentNumber"] ? styles.errorInput : ""
-                  }
+                  className={errors["pwdNumber"] ? styles.errorInput : ""}
                 />
-                {errors["soloParentNumber"] && (
-                  <div className={styles.fieldError}>
-                    {errors["soloParentNumber"]}
-                  </div>
+                {errors["pwdNumber"] && (
+                  <div className={styles.fieldError}>{errors["pwdNumber"]}</div>
                 )}
               </div>
-            )}
+            </>
+          )}
+              {applicantType.includes("Returning Overseas Filipino Worker (OFW)") && (
+                <div className={styles.conditionalField}>
+                  <label className={styles.fieldLabel}>OFW ID Number (Optional)</label>
+                  <input id="ofwNumber" name="ofwNumber" type="text" />
+                </div>
+              )}
+
+              {applicantType.includes("Senior Citizen") && (
+                <div className={styles.conditionalField}>
+                  <label className={styles.fieldLabel}>Senior Citizen ID (Optional)</label>
+                  <input id="seniorCitizenNumber" name="seniorCitizenNumber" type="text" />
+                </div>
+              )}
+
+              {applicantType.includes("Solo Parent/Single Parent") && (
+                <div className={styles.conditionalField}>
+                  <label className={styles.fieldLabel}>Solo Parent ID (Optional)</label>
+                  <input id="soloParentNumber" name="soloParentNumber" type="text" />
+                </div>
+              )}
+
+              {applicantType.includes("Others") && (
+                <div className={styles.conditionalField}>
+                  <label className={styles.fieldLabel}>Please Specify</label>
+                  <input id="othersSpecify" name="othersSpecify" type="text" />
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Address */}
+
+                    {/* ------------------ ADDRESS SECTION ------------------ */}
           <div className={styles.addressSection}>
-            <h3>Address Information</h3>
+          <h3 className={styles.fieldLabelTitle}>Address Information 
+            <span className={styles.redAsterisk}>*</span></h3>
+
+            {/* Residency Radio Buttons */}
+          <div
+            className={
+              errors["residency"]
+                ? `${styles.residencyOptions} ${styles.radioError}`
+                : styles.residencyOptions
+            }
+          >
+            <label>
+              <input
+                type="radio"
+                name="residency"
+                value="resident"
+                checked={formData.residency === "resident"}
+                onChange={() => {
+                  setFormData({ ...formData, residency: "resident" });
+                  setErrors((prev: any) => ({ ...prev, residency: "" })); // CLEAR ERROR
+                }}
+              />
+              Resident of Parañaque
+            </label>
+
+            <label>
+              <input
+                type="radio"
+                name="residency"
+                value="nonresident"
+                checked={formData.residency === "nonresident"}
+                onChange={() => {
+                  setFormData({ ...formData, residency: "nonresident" });
+                  setErrors((prev: any) => ({ ...prev, residency: "" })); // CLEAR ERROR
+                }}
+              />
+              Non-Resident of Parañaque
+            </label>
+          </div>
+
+          {/* Residency error message */}
+          {errors["residency"] && ( 
+            <div className={styles.fieldError}>{errors["residency"]}</div>
+        )}
+
+            {/* Only Address */}
             <div className={styles.fullRow}>
               <div style={{ flex: 1 }}>
                 <label htmlFor="address" className={styles.fieldLabel}>
-                  (House No./Street/Subdivision){" "}
+                  (House No./Street/Subdivision/City/Province){" "}
                   <span className={styles.redAsterisk}>*</span>
                 </label>
                 <input
@@ -816,177 +902,126 @@ const SignUpForm: React.FC = () => {
               </div>
             </div>
 
-            <div className={styles.geographicalRow}>
-              <div className={styles.leftColumn}>
-                <div>
-                  <label htmlFor="province" className={styles.fieldLabel}>
-                    Province <span className={styles.redAsterisk}>*</span>
-                  </label>
-                  <select
-                    id="province"
-                    name="province"
-                    defaultValue=""
-                    onChange={handleInputChange}
-                    className={errors["province"] ? styles.errorInput : ""}
-                  >
-                    <option value="" disabled>
-                      Select Province
-                    </option>
-                    <option value="Metro Manila">Metro Manila</option>
-                    <option value="Cavite">Cavite</option>
-                    <option value="Laguna">Laguna</option>
-                    <option value="Rizal">Rizal</option>
-                    <option value="Bulacan">Bulacan</option>
-                  </select>
-                  {errors["province"] && (
-                    <div className={styles.fieldError}>
-                      {errors["province"]}
-                    </div>
-                  )}
-                </div>
+            {formData.residency === "resident" && (
+              <div className={styles.geographicalRow}>
+                <div className={styles.leftColumn}>
 
-                <div>
-                  <label htmlFor="district" className={styles.fieldLabel}>
-                    District <span className={styles.redAsterisk}>*</span>
-                  </label>
-                  <select
-                    id="district"
-                    name="district"
-                    defaultValue=""
-                    onChange={handleDistrictChange}
-                    className={errors["district"] ? styles.errorInput : ""}
-                  >
-                    <option value="" disabled>
-                      Select District
-                    </option>
-                    <option value="District 1">District 1</option>
-                    <option value="District 2">District 2</option>
-                  </select>
-                  {errors["district"] && (
-                    <div className={styles.fieldError}>
-                      {errors["district"]}
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="preferredPlaceOfAssignment"
+                  {/* District */}
+                  <div>
+                    <label htmlFor="district" 
                     className={styles.fieldLabel}
-                  >
-                    Preferred Place of Assignment{" "}
-                    <span className={styles.redAsterisk}>*</span>
-                  </label>
-                  <select
-                    id="preferredPlaceOfAssignment"
-                    name="preferredPlaceOfAssignment"
-                    value={preferredPlace}
-                    onChange={handlePreferredPlaceChange}
-                    className={
-                      errors["preferredPlaceOfAssignment"]
-                        ? styles.errorInput
-                        : ""
-                    }
-                  >
-                    <option value="" disabled>
-                      Select Preferred Place of Assignment
-                    </option>
-                    <option value="Paranaque">Paranaque</option>
-                    <option value="Bacoor">Bacoor</option>
-                    <option value="Las Piñas">Las Piñas</option>
-                    <option value="Muntinlupa">Muntinlupa</option>
-                  </select>
-                  {errors["preferredPlaceOfAssignment"] && (
-                    <div className={styles.fieldError}>
-                      {errors["preferredPlaceOfAssignment"]}
-                    </div>
-                  )}
+                    >
+                      District {" "} 
+                      <span className={styles.redAsterisk}>*</span>
+                    </label>
+                    <select
+                      id="district"
+                      name="district"
+                      defaultValue=""
+                      onChange={handleDistrictChange}
+                      className={errors["district"] 
+                        ? styles.errorInput 
+                        : ""}
+                    >
+                      <option value="" disabled>Select District</option>
+                      <option value="District 1">District 1</option>
+                      <option value="District 2">District 2</option>
+                    </select>
+                    {errors["district"] && (
+                      <div className={styles.fieldError}>
+                        {errors["district"]}</div>
+                    )}
+                  </div>
+
+                  {/* Preferred Place of Assignment */}
+                  <div>
+                    <label
+                      htmlFor="preferredPlaceOfAssignment"
+                      className={styles.fieldLabel}
+                    >
+                      Preferred Place of Assignment{" "}
+                      <span className={styles.redAsterisk}>*</span>
+                    </label>
+                    <select
+                      id="preferredPlaceOfAssignment"
+                      name="preferredPlaceOfAssignment"
+                      value={preferredPlace}
+                      onChange={handlePreferredPlaceChange}
+                      className={
+                        errors["preferredPlaceOfAssignment"]
+                          ? styles.errorInput
+                          : ""
+                      }
+                    >
+                      <option value="" disabled>Select Preferred Place of Assignment</option>
+                      <option value="Paranaque">Paranaque</option>
+                      <option value="Bacoor">Bacoor</option>
+                      <option value="Las Piñas">Las Piñas</option>
+                      <option value="Muntinlupa">Muntinlupa</option>
+                    </select>
+                    {errors["preferredPlaceOfAssignment"] && (
+                      <div className={styles.fieldError}>
+                        {errors["preferredPlaceOfAssignment"]}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* RIGHT COLUMN */}
+                <div className={styles.rightColumn}>
+                  {/* Barangay */}
+                  <div>
+                    <label htmlFor="barangay" className={styles.fieldLabel}>
+                      Barangay {" "} <span className={styles.redAsterisk}>*</span>
+                    </label>
+                    <select
+                      id="barangay"
+                      name="barangay"
+                      defaultValue=""
+                      onChange={handleInputChange}
+                      className={errors["barangay"] ? styles.errorInput : ""}
+                    >
+                      <option value="" disabled>Select Barangay</option>
+
+                      {district === "District 1" && (
+                        <>
+                          <option value="Baclaran">Baclaran</option>
+                          <option value="Don Galo">Don Galo</option>
+                          <option value="La Huerta">La Huerta</option>
+                          <option value="San Dionisio">San Dionisio</option>
+                          <option value="Santo Niño">Santo Niño</option>
+                          <option value="Tambo">Tambo</option>
+                          <option value="Vitalez">Vitalez</option>
+                        </>
+                      )}
+
+                      {district === "District 2" && (
+                        <>
+                          <option value="BF Homes">BF Homes</option>
+                          <option value="Don Bosco">Don Bosco</option>
+                          <option value="Marcelo Green">Marcelo Green</option>
+                          <option value="Merville">Merville</option>
+                          <option value="Moonwalk">Moonwalk</option>
+                          <option value="San Antonio">San Antonio</option>
+                          <option value="San Isidro">San Isidro</option>
+                          <option value="San Martin de Porres">
+                            San Martin de Porres
+                          </option>
+                          <option value="Sun Valley">Sun Valley</option>
+                        </>
+                      )}
+                    </select>
+                    {errors["barangay"] && (
+                      <div className={styles.fieldError}>
+                        {errors["barangay"]}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-
-              <div className={styles.rightColumn}>
-                <div>
-                  <label
-                    htmlFor="cityMunicipality"
-                    className={styles.fieldLabel}
-                  >
-                    City / Municipality{" "}
-                    <span className={styles.redAsterisk}>*</span>
-                  </label>
-                  <select
-                    id="cityMunicipality"
-                    name="cityMunicipality"
-                    defaultValue=""
-                    onChange={handleInputChange}
-                    className={
-                      errors["cityMunicipality"] ? styles.errorInput : ""
-                    }
-                  >
-                    <option value="" disabled>
-                      Select City/Municipality
-                    </option>
-                    <option value="Parañaque">Parañaque</option>
-                    <option value="Las Piñas">Las Piñas</option>
-                    <option value="Muntinlupa">Muntinlupa</option>
-                    <option value="Taguig">Taguig</option>
-                  </select>
-                  {errors["cityMunicipality"] && (
-                    <div className={styles.fieldError}>
-                      {errors["cityMunicipality"]}
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label htmlFor="barangay" className={styles.fieldLabel}>
-                    Barangay <span className={styles.redAsterisk}>*</span>
-                  </label>
-                  <select
-                    id="barangay"
-                    name="barangay"
-                    defaultValue=""
-                    onChange={handleInputChange}
-                    className={errors["barangay"] ? styles.errorInput : ""}
-                  >
-                    <option value="" disabled>
-                      Select Barangay
-                    </option>
-                    {district === "District 1" && (
-                      <>
-                        <option value="Baclaran">Baclaran</option>
-                        <option value="Don Galo">Don Galo</option>
-                        <option value="La Huerta">La Huerta</option>
-                        <option value="San Dionisio">San Dionisio</option>
-                        <option value="Santo Niño">Santo Niño</option>
-                        <option value="Tambo">Tambo</option>
-                        <option value="Vitalez">Vitalez</option>
-                      </>
-                    )}
-                    {district === "District 2" && (
-                      <>
-                        <option value="BF Homes">BF Homes</option>
-                        <option value="Don Bosco">Don Bosco</option>
-                        <option value="Marcelo Green">Marcelo Green</option>
-                        <option value="Merville">Merville</option>
-                        <option value="Moonwalk">Moonwalk</option>
-                        <option value="San Antonio">San Antonio</option>
-                        <option value="San Isidro">San Isidro</option>
-                        <option value="San Martin de Porres">
-                          San Martin de Porres
-                        </option>
-                        <option value="Sun Valley">Sun Valley</option>
-                      </>
-                    )}
-                  </select>
-                  {errors["barangay"] && (
-                    <div className={styles.fieldError}>
-                      {errors["barangay"]}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+            )}
           </div>
+
 
           {/* contact */}
           <div className={styles.fullRow}>
@@ -1263,128 +1298,6 @@ const SignUpForm: React.FC = () => {
             </div>
           </div>
 
-          {/* File uploads (unchanged behavior) */}
-          <div className={styles.fileUploadSection}>
-            <div className={styles.uploadRow}>
-              <div className={styles.uploadField}>
-                <label>
-                  Upload Valid ID <span className={styles.redAsterisk}>*</span>
-                </label>
-                <div className={styles.fileInputContainer}>
-                  <label
-                    htmlFor="validIdInput"
-                    className={styles.chooseFileLabel}
-                  >
-                    Choose File
-                  </label>
-                  <input
-                    id="validIdInput"
-                    type="file"
-                    name="validId"
-                    accept=".jpg,.jpeg,.png"
-                    required
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      const fileNameSpan = (
-                        e.currentTarget as HTMLInputElement
-                      ).parentElement?.querySelector(
-                        `.${styles.fileName}`
-                      ) as HTMLElement | null;
-                      const newErrors = { ...errors };
-                      if (file) {
-                        const maxSize = 5 * 1024 * 1024;
-                        if (file.size > maxSize) {
-                          alert("File size must be less than 5MB");
-                          (e.target as HTMLInputElement).value = "";
-                          if (fileNameSpan)
-                            fileNameSpan.textContent = "No file chosen";
-                          newErrors.validId = "File too large";
-                        } else {
-                          if (fileNameSpan)
-                            fileNameSpan.textContent = file.name;
-                          delete newErrors.validId;
-                        }
-                      } else {
-                        if (fileNameSpan)
-                          fileNameSpan.textContent = "No file chosen";
-                        newErrors.validId = "This file is required";
-                      }
-                      setErrors(newErrors);
-                    }}
-                    className={errors["validId"] ? styles.errorInput : ""}
-                  />
-                  <span className={styles.fileName}>No file chosen</span>
-                </div>
-                {errors["validId"] && (
-                  <div className={styles.fieldError}>{errors["validId"]}</div>
-                )}
-                <p className={styles.fileInfo}>
-                  Accepted formats: JPG, PNG (Max: 5MB)
-                </p>
-              </div>
-
-              <div className={styles.uploadField}>
-                <label>
-                  Upload Selfie with ID{" "}
-                  <span className={styles.redAsterisk}>*</span>
-                </label>
-                <div className={styles.fileInputContainer}>
-                  <label
-                    htmlFor="selfieWithIdInput"
-                    className={styles.chooseFileLabel}
-                  >
-                    Choose File
-                  </label>
-                  <input
-                    id="selfieWithIdInput"
-                    type="file"
-                    name="selfieWithId"
-                    accept=".jpg,.jpeg,.png"
-                    required
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      const fileNameSpan = (
-                        e.currentTarget as HTMLInputElement
-                      ).parentElement?.querySelector(
-                        `.${styles.fileName}`
-                      ) as HTMLElement | null;
-                      const newErrors = { ...errors };
-                      if (file) {
-                        const maxSize = 5 * 1024 * 1024;
-                        if (file.size > maxSize) {
-                          alert("File size must be less than 5MB");
-                          (e.target as HTMLInputElement).value = "";
-                          if (fileNameSpan)
-                            fileNameSpan.textContent = "No file chosen";
-                          newErrors.selfieWithId = "File too large";
-                        } else {
-                          if (fileNameSpan)
-                            fileNameSpan.textContent = file.name;
-                          delete newErrors.selfieWithId;
-                        }
-                      } else {
-                        if (fileNameSpan)
-                          fileNameSpan.textContent = "No file chosen";
-                        newErrors.selfieWithId = "This file is required";
-                      }
-                      setErrors(newErrors);
-                    }}
-                    className={errors["selfieWithId"] ? styles.errorInput : ""}
-                  />
-                  <span className={styles.fileName}>No file chosen</span>
-                </div>
-                {errors["selfieWithId"] && (
-                  <div className={styles.fieldError}>
-                    {errors["selfieWithId"]}
-                  </div>
-                )}
-                <p className={styles.fileInfo}>
-                  Ensure your face and ID are clearly visible
-                </p>
-              </div>
-            </div>
-          </div>
-
           {/* Terms */}
           <div className={styles.termsSection}>
             <h3>Terms and Conditions</h3>
@@ -1468,13 +1381,15 @@ const SignUpForm: React.FC = () => {
                   special: false,
                 });
                 setCalculatedAge(null);
-                setApplicantType("");
+                setApplicantType([]);
                 setErrors({});
                 setGender("");
                 setGenderOther("");
                 setPhoneNumber("");
                 setBirthDate("");
                 setEmailValue("");
+                setResidency("");
+                setbarangay("");
                 setPreferredPlace("");
                 setDistrict("");
                 setExtNameValue("None");

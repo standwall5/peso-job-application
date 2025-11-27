@@ -5,12 +5,52 @@ import { redirect } from "next/navigation";
 export async function createClient() {
   const cookieStore = await cookies();
 
-  // Check if user exists, throw error
-  if (
-    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  ) {
-    redirect("/error?reason=missing-env-vars");
+  // Development fallback: if Supabase env vars are missing, return a minimal stub
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    const makeQueryResult = () => {
+      const result: any = {
+        select: () => result,
+        eq: () => result,
+        single: async () => ({ data: null, error: null }),
+        insert: () => result,
+        then: (onFulfilled: any, onRejected: any) =>
+          Promise.resolve({ data: [], error: null }).then(onFulfilled, onRejected),
+        catch: (onRejected: any) => Promise.resolve({ data: [], error: null }).catch(onRejected),
+      };
+      return result;
+    };
+
+    return {
+      auth: {
+        async getUser() {
+          return { data: { user: null }, error: null };
+        },
+        async signInWithPassword() {
+          return {
+            data: { user: null, session: null },
+            error: { message: "Supabase credentials not configured. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local" }
+          };
+        },
+        async signUp() {
+          return {
+            data: { user: null, session: null },
+            error: { message: "Supabase credentials not configured. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local" }
+          };
+        },
+        async signOut() {
+          return { error: null };
+        },
+        async signInWithOAuth() {
+          return {
+            data: { url: null },
+            error: { message: "Supabase credentials not configured. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local" }
+          };
+        },
+      },
+      from() {
+        return makeQueryResult();
+      },
+    } as any;
   }
 
   return createServerClient(

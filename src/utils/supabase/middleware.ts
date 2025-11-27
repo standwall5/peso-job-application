@@ -52,6 +52,7 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
   const publicPaths = [
+    "/", // allow public home
     "/login",
     "/auth",
     "/error",
