@@ -6,6 +6,10 @@ import Resume from "@/app/(user)/profile/components/Resume";
 import jobHomeStyle from "@/app/(user)/job-opportunities/JobHome.module.css";
 import jobStyle from "@/app/(user)/job-opportunities/[companyId]/JobsOfCompany.module.css";
 import Button from "@/components/Button";
+import ExamResultView from "@/app/(user)/job-opportunities/[companyId]/components/ExamResultView";
+import BlocksWave from "@/components/BlocksWave";
+import ReferralLetter, { ReferralLetterRef } from "./ReferralLetter";
+import Toast from "@/components/toast/Toast";
 
 interface WorkExperience {
   company: string;
@@ -30,7 +34,6 @@ interface JobApplication {
   job_id: number;
   status: string;
   applied_date: string;
-  exam_score?: number;
   company: {
     id: number;
     name: string;
@@ -45,6 +48,7 @@ interface JobApplication {
     education: string;
     eligibility: string;
     posted_date: string;
+    exam_id: number;
   };
 }
 
@@ -74,10 +78,38 @@ interface Jobseeker {
   } | null;
 }
 
+interface ExamAttemptData {
+  attempt: {
+    attempt_id: number;
+    exam_id: number;
+    applicant_id: number;
+    date_submitted: string;
+    score: number;
+  };
+  answers: Array<{
+    question_id: number;
+    choice_id?: number;
+    text_answer?: string;
+    questions?: {
+      question_text: string;
+      choices?: Array<{ id: number; choice_text: string }>;
+    };
+    choices?: {
+      choice_text: string;
+    };
+  }>;
+  correctAnswers: Array<{
+    question_id: number;
+    choice_id?: number;
+    correct_text?: string;
+  }>;
+}
+
 const ManageJobseeker = ({ jobseeker }: { jobseeker: Jobseeker }) => {
   const [nav, setNav] = useState("previewResume");
   const [activeIndex, setActiveIndex] = useState(0);
   const tabRefs = useRef<(HTMLLIElement | null)[]>([]);
+  const referralLetterRef = useRef<ReferralLetterRef>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [loading, setLoading] = useState(false);
@@ -85,6 +117,20 @@ const ManageJobseeker = ({ jobseeker }: { jobseeker: Jobseeker }) => {
   const [selectedApplication, setSelectedApplication] =
     useState<JobApplication | null>(null);
   const [showExamResult, setShowExamResult] = useState(false);
+
+  const [examAttempt, setExamAttempt] = useState<ExamAttemptData | null>(null);
+  const [loadingAttempt, setLoadingAttempt] = useState(false);
+
+  // Toast state
+  const [toast, setToast] = useState({
+    show: false,
+    title: "",
+    message: "",
+  });
+
+  const showToast = (title: string, message: string) => {
+    setToast({ show: true, title, message });
+  };
 
   useEffect(() => {
     const currentTab = tabRefs.current[activeIndex];
@@ -102,6 +148,32 @@ const ManageJobseeker = ({ jobseeker }: { jobseeker: Jobseeker }) => {
     }
   }, [nav]);
 
+  const fetchExamAttempt = async (
+    jobId: number,
+    examId: number,
+    applicantId: number,
+  ) => {
+    setLoadingAttempt(true);
+    try {
+      const res = await fetch(
+        `/api/admin/exams/attempt?jobId=${jobId}&examId=${examId}&applicantId=${applicantId}`,
+      );
+      const data = await res.json();
+      console.log("Exam attempt data:", data);
+
+      if (data.attempt) {
+        setExamAttempt(data);
+      } else {
+        setExamAttempt(null);
+      }
+    } catch (err) {
+      console.error("Failed to fetch exam attempt:", err);
+      setExamAttempt(null);
+    } finally {
+      setLoadingAttempt(false);
+    }
+  };
+
   const fetchApplications = async () => {
     setLoading(true);
     try {
@@ -117,29 +189,59 @@ const ManageJobseeker = ({ jobseeker }: { jobseeker: Jobseeker }) => {
     setLoading(false);
   };
 
-  const handleDownloadReferral = async () => {
+  const handleDownloadReferral = async (applicationId: number) => {
     if (!selectedApplication) return;
 
+    console.log("[handleDownloadReferral] Starting with:", {
+      applicationId,
+      currentStatus: selectedApplication.status,
+    });
+
     try {
+      // Trigger PDF download from ReferralLetter component
+      await referralLetterRef.current?.downloadPDF();
+      console.log("[handleDownloadReferral] PDF download complete");
+
       // Mark applicant as referred
-      await fetch(`/api/updateApplicationStatus`, {
+      console.log("[handleDownloadReferral] Sending status update request...");
+      const response = await fetch(`/api/updateApplicationStatus`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          application_id: selectedApplication.id,
-          status: "referred",
+          application_id: applicationId,
+          status: "Referred",
         }),
       });
 
-      // Generate and download referral letter
-      // TODO: Implement actual PDF generation
-      alert(`Referral letter downloaded for ${jobseeker.applicant.name}`);
+      console.log("[handleDownloadReferral] Response status:", response.status);
 
+      const result = await response.json();
+      console.log("[handleDownloadReferral] Response data:", result);
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to update application status");
+      }
+
+      // Close modal first
       setShowReferralModal(false);
-      fetchApplications(); // Refresh the list
+
+      // Refresh the list
+      console.log("[handleDownloadReferral] Refreshing applications...");
+      await fetchApplications();
+
+      // Show success toast
+      showToast(
+        "Referral Success! 🎉",
+        "Application marked as referred and letter downloaded.",
+      );
     } catch (error) {
-      console.error("Error downloading referral:", error);
-      alert("Failed to download referral letter");
+      console.error("[handleDownloadReferral] Error:", error);
+      showToast(
+        "Referral Failed",
+        error instanceof Error
+          ? error.message
+          : "Failed to download referral letter or update status.",
+      );
     }
   };
 
@@ -251,6 +353,11 @@ const ManageJobseeker = ({ jobseeker }: { jobseeker: Jobseeker }) => {
                   onClick={() => {
                     setSelectedApplication(app);
                     setShowExamResult(true);
+                    fetchExamAttempt(
+                      app.job_id,
+                      app.job.exam_id,
+                      app.applicant_id,
+                    );
                   }}
                 >
                   Exam Result
@@ -321,22 +428,21 @@ const ManageJobseeker = ({ jobseeker }: { jobseeker: Jobseeker }) => {
             </button>
             <h2>Referral Letter</h2>
             <div className={styles.referralContent}>
-              <p>
-                <strong>Applicant:</strong> {jobseeker.applicant.name}
-              </p>
-              <p>
-                <strong>Company:</strong> {selectedApplication.company.name}
-              </p>
-              <p>
-                <strong>Position:</strong> {selectedApplication.job.title}
-              </p>
-              <p className={styles.warning}>
-                ⚠️ Downloading this referral letter will mark the applicant as
-                REFERRED in the system.
-              </p>
+              <ReferralLetter
+                ref={referralLetterRef}
+                jobseeker={jobseeker}
+                application={selectedApplication}
+                recipientName="MS. RUFFA MAE G. REYES"
+                recipientTitle="HR Assistant"
+              />
             </div>
             <div className={styles.modalActions}>
-              <Button variant="success" onClick={handleDownloadReferral}>
+              <Button
+                variant="success"
+                onClick={() => {
+                  handleDownloadReferral(selectedApplication.id);
+                }}
+              >
                 Download & Mark as Referred
               </Button>
               <Button
@@ -375,13 +481,17 @@ const ManageJobseeker = ({ jobseeker }: { jobseeker: Jobseeker }) => {
                 <strong>Position:</strong> {selectedApplication.job.title}
               </p>
               <div className={styles.scoreDisplay}>
-                <h3>Score</h3>
-                <p className={styles.score}>
-                  {selectedApplication.exam_score !== undefined &&
-                  selectedApplication.exam_score !== null
-                    ? `${selectedApplication.exam_score}%`
-                    : "No exam taken yet"}
-                </p>
+                {loadingAttempt ? (
+                  <BlocksWave />
+                ) : examAttempt ? (
+                  <ExamResultView
+                    attempt={examAttempt.attempt}
+                    answers={examAttempt.answers}
+                    correctAnswers={examAttempt.correctAnswers}
+                  />
+                ) : (
+                  "No exam submitted or no exam assigned to job"
+                )}
               </div>
             </div>
             <div className={styles.modalActions}>
@@ -395,6 +505,14 @@ const ManageJobseeker = ({ jobseeker }: { jobseeker: Jobseeker }) => {
           </div>
         </div>
       )}
+
+      {/* Toast Notification */}
+      <Toast
+        show={toast.show}
+        onClose={() => setToast({ ...toast, show: false })}
+        title={toast.title}
+        message={toast.message}
+      />
     </section>
   );
 };

@@ -82,7 +82,6 @@ interface Application {
     applicant_type: string;
     disability_type?: string;
   };
-  applicant_id: number;
 }
 
 const Jobseekers = () => {
@@ -119,32 +118,7 @@ const Jobseekers = () => {
     return `${day} ${formatted}`;
   };
 
-  // Get unique applicants (deduplicate by applicant_id)
-  const uniqueApplicants = React.useMemo(() => {
-    const applicantMap = new Map<number, Application>();
-
-    applications.forEach((app) => {
-      const applicantId = app.applicant_id || app.applicant.id;
-
-      // If this applicant isn't in the map yet, add them
-      if (!applicantMap.has(applicantId)) {
-        applicantMap.set(applicantId, app);
-      } else {
-        // If they exist, keep the one with the most recent applied_date
-        const existing = applicantMap.get(applicantId)!;
-        const existingDate = new Date(existing.applied_date || 0).getTime();
-        const currentDate = new Date(app.applied_date || 0).getTime();
-
-        if (currentDate > existingDate) {
-          applicantMap.set(applicantId, app);
-        }
-      }
-    });
-
-    return Array.from(applicantMap.values());
-  }, [applications]);
-
-  const filteredApplications = (uniqueApplicants ?? []).filter(
+  const filteredApplications = (applications ?? []).filter(
     (app) =>
       app.applicant.name.toLowerCase().includes(search.toLowerCase()) ||
       app.applicant.sex.toLowerCase().includes(search.toLowerCase()) ||
@@ -184,16 +158,6 @@ const Jobseekers = () => {
         return 0;
     }
   });
-
-  // Count unique active applications
-  const activeApplicationsCount = React.useMemo(() => {
-    const activeApplicantIds = new Set(
-      applications
-        .filter((a) => a.status === "pending")
-        .map((a) => a.applicant_id || a.applicant.id),
-    );
-    return activeApplicantIds.size;
-  }, [applications]);
 
   if (loading) {
     return (
@@ -243,8 +207,11 @@ const Jobseekers = () => {
     <section className={styles.jobseekers}>
       <div className={styles.top}>
         <div className={styles.totalStatistics}>
-          <strong>TOTAL JOBSEEKERS: {uniqueApplicants.length}</strong>
-          <strong>ACTIVE APPLICATIONS: {activeApplicationsCount}</strong>
+          <strong>TOTAL JOBSEEKERS: {applications.length}</strong>
+          <strong>
+            ACTIVE APPLICATIONS:{" "}
+            {applications.filter((a) => a.status === "pending").length}
+          </strong>
         </div>
 
         <div className={styles.searchContainer}>
@@ -302,7 +269,7 @@ const Jobseekers = () => {
               <div>SELECT</div>
             </div>
             {sortedApplications.map((app) => (
-              <div className={styles.tableRow} key={app.applicant.id}>
+              <div className={styles.tableRow} key={app.id}>
                 <div className={styles.jobseekersDetails}>
                   <div className={styles.avatarCell}>
                     <img

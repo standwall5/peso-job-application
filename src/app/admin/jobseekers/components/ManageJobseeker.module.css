@@ -182,10 +182,12 @@
     background: #fff;
     padding: 2rem;
     border-radius: 1rem;
-    max-width: 600px;
+    max-width: 50vw;
+    max-height: 70vh;
     width: 90%;
     position: relative;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    overflow: auto;
 }
 
 .closeBtn {
@@ -209,9 +211,16 @@
     color: #1e293b;
 }
 
+.examResultContent {
+    display: flex;
+    flex-direction: column;
+}
+
 .referralContent,
 .examResultContent {
     margin-bottom: 1.5rem;
+    overflow: auto;
+    height: 100%;
 }
 
 .referralContent p,
@@ -236,24 +245,11 @@
 }
 
 .scoreDisplay {
-    text-align: center;
     margin-top: 1.5rem;
     padding: 1.5rem;
     background: #f8f9fa;
     border-radius: 0.5rem;
-}
-
-.scoreDisplay h3 {
-    margin: 0 0 0.5rem 0;
-    color: #64748b;
-    font-size: 1rem;
-}
-
-.score {
-    font-size: 3rem;
-    font-weight: bold;
-    color: #33b499;
-    margin: 0;
+    align-self: center;
 }
 
 /* Mobile Media Queries */
@@ -320,6 +316,7 @@
     .modal {
         max-width: 90vw;
         padding: 1.5rem;
+        max-height: 70vh;
     }
 
     .modal h2 {

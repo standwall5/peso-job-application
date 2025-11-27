@@ -3,16 +3,17 @@
     align-items: center;
     flex-direction: column;
     justify-content: flex-start;
-    gap: 8rem;
+    gap: 4rem;
     height: 100%;
     width: 100%;
 }
 
 .top {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     align-items: center;
-    gap: 20rem;
+    /*gap: 20rem;*/
+    gap: 5rem;
     width: 90%;
     margin: 0 2rem;
     margin-top: 2rem;
@@ -28,12 +29,14 @@
     display: flex;
     gap: 1rem;
     align-items: center;
+    justify-self: flex-start;
 }
 
 .sortBy {
     display: flex;
     gap: 0.5rem;
     align-items: center;
+    justify-self: flex-end;
 }
 
 .sortBy label {
@@ -54,7 +57,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    position: fixed;
+    /*position: fixed;*/
+    position: relative;
+    margin-right: 5rem;
 }
 
 .search input {
@@ -73,10 +78,13 @@
 }
 
 .search input:focus {
-    border-radius: 4rem;
-    width: 35rem;
-    height: 5rem;
-    border: 1px solid var(--accent);
+    /*border-radius: 4rem;*/
+    /*width: 35rem;*/
+    /*height: 5rem;*/
+    /*border-color: var(--accent);*/
+    box-shadow:
+        0 0 0 3px rgba(52, 152, 219, 0.1),
+        0 4px 16px rgba(52, 152, 219, 0.2);
 }
 
 .searchIcon {
@@ -104,7 +112,6 @@
     flex-direction: column;
     gap: 0.5rem;
     max-width: 90%;
-    margin-top: 10rem;
 }
 
 .tableRow {
@@ -151,8 +158,8 @@
     /* box-shadow: 2px 2px 10px 2px #88888852; */
     border-radius: 0.5rem;
     box-shadow:
-        rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
-        rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     transition: 0.25s;
     height: auto;
     padding: 1rem 2rem;
@@ -305,6 +312,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    justify-content: flex-start;
     gap: 2rem;
     margin-bottom: 15rem;
 }

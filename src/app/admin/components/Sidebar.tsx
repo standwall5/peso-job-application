@@ -31,7 +31,10 @@ const Sidebar = () => {
               ? styles.active
               : ""
           }`}
-          onClick={() => handleToggle("dashboard")}
+          onClick={() => {
+            handleToggle("dashboard");
+            router.push("/admin/jobseekers");
+          }}
         >
           <span
           // If the opened menuItem right now is "dashboard" then, (then is the "?") we set openMenu to null so that it closes
@@ -40,7 +43,7 @@ const Sidebar = () => {
           </span>
 
           {/* If openMenu is null, this wont show; it only shows when openMenu is equal to "dashboard" */}
-          <ul
+          {/*<ul
             className={`${styles.subMenu} ${
               openMenus.includes("dashboard") ? styles.open : ""
             }`}
@@ -62,7 +65,7 @@ const Sidebar = () => {
             >
               Referrals
             </li>
-          </ul>
+          </ul>*/}
         </li>
         <li
           className={`${styles.menuItem} ${

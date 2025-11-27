@@ -109,16 +109,14 @@ const PublicCompanyList = ({
                     <p>MANPOWER NEEDS</p>
                   </div>
                   <div className={styles.companyLogoContainer}>
-                    {company.logo && (
-                      <img
-                        src={company.logo}
-                        alt={company.name + " logo"}
-                        className={styles.companyLogo}
-                        style={{
-                          objectFit: "contain",
-                        }}
-                      />
-                    )}
+                    <img
+                      src={company.logo || "/assets/images/default_profile.png"}
+                      alt={company.name + " logo"}
+                      className={styles.companyLogo}
+                      style={{
+                        objectFit: "cover",
+                      }}
+                    />
                   </div>
                   <div className={`${styles.jobCount} ${styles.jobStats}`}>
                     <h3>{getJobCount(company.id)}</h3>
