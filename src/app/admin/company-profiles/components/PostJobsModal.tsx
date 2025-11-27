@@ -3,6 +3,7 @@ import styles from "./PostJobsModal.module.css";
 import Modal from "./Modal";
 import { Exam as ExamType } from "./Exam";
 import ExamList from "./ExamList";
+import Button from "@/components/Button";
 
 interface Companies {
   id: number;
@@ -66,6 +67,55 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
     // You can also update the job object or make an API call here if needed
   };
 
+  // ######################### Handle submit for job submit
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+
+    const jobData = {
+      company_id: company.id,
+      title: formData.get("title") as string,
+      description: job.description, // Or add a field if you want to edit this
+      place_of_assignment: formData.get("poa") as string,
+      sex: formData.get("gender") as string,
+      education: formData.get("education") as string,
+      eligibility: formData.get("eligibility") as string,
+      exam_id: selectedExamId,
+    };
+
+    try {
+      let response;
+      if (job && job.id) {
+        // Edit existing job
+        response = await fetch(`/api/jobs?id=${job.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(jobData),
+        });
+      } else {
+        // Create new job
+        response = await fetch("/api/jobs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(jobData),
+        });
+      }
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to save job");
+      }
+
+      // Optionally, you can refresh jobs/exams here
+      if (onClose) onClose();
+    } catch (err) {
+      // Handle error (show toast, etc.)
+      console.error(err);
+    }
+  };
+
   return (
     <Modal onClose={onClose}>
       <div className={styles.header}>
@@ -77,7 +127,7 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
       </div>
       <div className={styles.modalContent}>
         <div className={styles.jobContainer}>
-          <form>
+          <form onSubmit={handleSubmit}>
             <label htmlFor="poa">Place of Assignment</label>
             <input
               id="poa"
@@ -112,10 +162,12 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
               <option value="Experienced">Experienced</option>
             </select>
 
-            <button type="submit">Post Job</button>
+            <Button variant="success">Post Job</Button>
           </form>
         </div>
         <div className={styles.exam}>
+          {/*Selected Exam Id is tied to a certain job*/}
+          {/*Need a post request that puts the job and the changes*/}
           <h3>Exams</h3>
           <ExamList
             exams={exams}

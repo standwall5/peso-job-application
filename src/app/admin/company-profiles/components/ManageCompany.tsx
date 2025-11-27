@@ -5,6 +5,8 @@ import { useDropzone } from "react-dropzone";
 import styles from "./ManageCompany.module.css";
 import PostJobsModal from "./PostJobsModal";
 import Exam from "./Exam";
+import Button from "@/components/Button";
+import Toast from "@/components/toast/Toast";
 
 interface Companies {
   id: number;
@@ -44,6 +46,7 @@ interface Job {
     logo: string | null;
   };
 }
+
 interface Choice {
   id: number;
   question_id: number;
@@ -82,12 +85,29 @@ const ManageCompany = ({
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [jobs, setJobs] = useState(company.jobs);
   const [exams, setExams] = useState<ExamType[]>([]);
+  const [saving, setSaving] = useState(false);
 
-  const [selectedExam, setSelectedExam] = useState(exam);
-  const Logo = () => {
-    setLogoPreview(company.logo);
+  // Form state
+  const [formData, setFormData] = useState({
+    name: company.name,
+    contact_email: company.contact_email,
+    location: company.location,
+    industry: company.industry,
+    description: company.description,
+  });
+
+  // Toast state
+  const [toast, setToast] = useState({
+    show: false,
+    title: "",
+    message: "",
+  });
+
+  const showToast = (title: string, message: string) => {
+    setToast({ show: true, title, message });
   };
 
+  const [selectedExam, setSelectedExam] = useState(exam);
   const [showModal, setShowModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
@@ -121,6 +141,63 @@ const ManageCompany = ({
     }
   }, [activeIndex]);
 
+  const handleSaveCompany = async () => {
+    setSaving(true);
+
+    try {
+      // Upload logo if changed
+      if (logoFile) {
+        const logoFormData = new FormData();
+        logoFormData.append("logo", logoFile);
+        logoFormData.append("company_id", company.id.toString());
+
+        const logoResponse = await fetch("/api/uploadCompanyLogo", {
+          method: "POST",
+          body: logoFormData,
+        });
+
+        if (!logoResponse.ok) {
+          throw new Error("Failed to upload logo");
+        }
+
+        const logoResult = await logoResponse.json();
+        console.log("Logo uploaded:", logoResult);
+      }
+
+      // Update company details
+      const response = await fetch("/api/updateCompany", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company_id: company.id,
+          ...formData,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update company");
+      }
+
+      const result = await response.json();
+      console.log("Company updated:", result);
+
+      showToast("Success! 🎉", "Company profile updated successfully.");
+
+      // Refresh the page after a short delay
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    } catch (error) {
+      console.error("Error saving company:", error);
+      showToast(
+        "Update Failed",
+        error instanceof Error ? error.message : "Failed to update company.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const createCompanyTab = () => {
     return (
       <div className={styles.createCompany}>
@@ -152,27 +229,34 @@ const ManageCompany = ({
             type="text"
             placeholder="NAME"
             required
-            defaultValue={company.name}
-          />
-          <input
-            type="tel"
-            placeholder="CONTACT NUMBER"
-            required
-            defaultValue={company.contact_email}
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           />
           <input
             type="email"
             placeholder="EMAIL"
             required
-            defaultValue={company.contact_email}
+            value={formData.contact_email}
+            onChange={(e) =>
+              setFormData({ ...formData, contact_email: e.target.value })
+            }
           />
           <input
             type="text"
             placeholder="ADDRESS"
             required
-            defaultValue={company.location}
+            value={formData.location}
+            onChange={(e) =>
+              setFormData({ ...formData, location: e.target.value })
+            }
           />
-          <select defaultValue={company.industry} required>
+          <select
+            value={formData.industry}
+            onChange={(e) =>
+              setFormData({ ...formData, industry: e.target.value })
+            }
+            required
+          >
             <option value="" disabled>
               INDUSTRY
             </option>
@@ -204,8 +288,20 @@ const ManageCompany = ({
             required
             placeholder="COMPANY TAGLINE"
             rows={5}
-            defaultValue={company.description}
+            value={formData.description}
+            onChange={(e) =>
+              setFormData({ ...formData, description: e.target.value })
+            }
           />
+          <div style={{ marginTop: "1rem" }}>
+            <Button
+              variant="success"
+              onClick={handleSaveCompany}
+              disabled={saving}
+            >
+              {saving ? "SAVING..." : "SAVE CHANGES"}
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -230,7 +326,7 @@ const ManageCompany = ({
               setSelectedJob({
                 id: job.id,
                 title: job.title,
-                description: "", // Provide a default or fetch actual description if available
+                description: "",
                 place_of_assignment: job.place_of_assignment,
                 sex: job.sex,
                 education: job.education,
@@ -333,6 +429,14 @@ const ManageCompany = ({
         {nav === "postJobs" && postJobsTab()}
         {nav === "createExam" && createExamTab()}
       </div>
+
+      {/* Toast Notification */}
+      <Toast
+        show={toast.show}
+        onClose={() => setToast({ ...toast, show: false })}
+        title={toast.title}
+        message={toast.message}
+      />
     </section>
   );
 };

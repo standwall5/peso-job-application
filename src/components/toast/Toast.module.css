@@ -1,100 +1,175 @@
 .toast {
-  position: fixed;
-  top: 25px;
-  right: 30px;
-  border-radius: 12px;
-  background: #fff;
-  padding: 20px 35px 20px 25px;
-  box-shadow: 0 6px 20px -5px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  transform: translateX(120%); /* keep it off-screen without affecting layout */
-  transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35),
-    opacity 0.2s ease;
-  opacity: 0;
-  pointer-events: none;
-  z-index: 3000;
-  max-width: min(90vw, 420px);
-  will-change: transform;
+    position: fixed;
+    top: 25px;
+    right: 30px;
+    border-radius: 12px;
+    background: #fff;
+    padding: 20px 35px 20px 25px;
+    box-shadow: 0 6px 20px -5px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transform: translateX(
+        120%
+    ); /* keep it off-screen without affecting layout */
+    transition:
+        transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35),
+        opacity 0.2s ease;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 3000;
+    max-width: min(90vw, 420px);
+    will-change: transform;
 }
 
 .active {
-  transform: translateX(0%);
-  opacity: 1;
-  pointer-events: auto;
+    transform: translateX(0%);
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .toastContent {
-  display: flex;
-  align-items: center;
+    display: flex;
+    align-items: center;
 }
 
 .check {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 35px;
-  height: 35px;
-  background-color: #4070f4;
-  color: #fff;
-  font-size: 20px;
-  border-radius: 50%;
-  overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 35px;
+    background-color: #4070f4;
+    color: #fff;
+    font-size: 20px;
+    border-radius: 50%;
+    overflow: hidden;
 }
 
 .message {
-  display: flex;
-  flex-direction: column;
-  margin: 0 20px;
+    display: flex;
+    flex-direction: column;
+    margin: 0 20px;
 }
 
 .text {
-  font-size: 16px;
-  font-weight: 400;
-  color: #666666;
+    font-size: 16px;
+    font-weight: 400;
+    color: #666666;
 }
 
 .text1 {
-  font-weight: 600;
-  color: #333;
+    font-weight: 600;
+    color: #333;
 }
 
 .close {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  padding: 5px;
-  cursor: pointer;
-  opacity: 0.7;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    padding: 5px;
+    cursor: pointer;
+    opacity: 0.7;
 }
 
 .close:hover {
-  opacity: 1;
+    opacity: 1;
 }
 
 .progress {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 3px;
-  width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
 }
 
 .progressBar {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  height: 100%;
-  width: 100%;
-  background-color: var(--accent);
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    background-color: var(--accent);
 }
 
 .progressActive .progressBar {
-  animation: progress 5s linear forwards;
+    animation: progress 5s linear forwards;
 }
 
 @keyframes progress {
-  100% {
-    right: 100%;
-  }
+    100% {
+        right: 100%;
+    }
+}
+
+/* Mobile Media Queries */
+@media (max-width: 768px) {
+    .toast {
+        top: 20px;
+        right: 15px;
+        left: 15px;
+        max-width: calc(100vw - 30px);
+        padding: 16px 30px 16px 20px;
+    }
+
+    .check {
+        width: 30px;
+        height: 30px;
+        font-size: 18px;
+    }
+
+    .message {
+        margin: 0 16px;
+    }
+
+    .text {
+        font-size: 15px;
+    }
+
+    .text1 {
+        font-size: 15px;
+    }
+
+    .close {
+        top: 8px;
+        right: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .toast {
+        top: 15px;
+        right: 10px;
+        left: 10px;
+        max-width: calc(100vw - 20px);
+        padding: 14px 28px 14px 18px;
+    }
+
+    .check {
+        width: 28px;
+        height: 28px;
+        font-size: 16px;
+    }
+
+    .message {
+        margin: 0 12px;
+    }
+
+    .text {
+        font-size: 14px;
+    }
+
+    .text1 {
+        font-size: 14px;
+    }
+
+    .close {
+        top: 6px;
+        right: 10px;
+        padding: 4px;
+    }
+
+    .progress {
+        height: 2px;
+    }
 }

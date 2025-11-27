@@ -983,10 +983,9 @@ const Profile = () => {
                     <div className={styles.educationRow}>
                       <label>Education</label>
                       <div
-                        className={styles.rowInput}
+                        className={`${styles.rowInput} ${styles.educationInput}`}
                         style={{
                           marginBottom: "1rem",
-                          border: "1px solid black",
                           backgroundColor: "white",
                           padding: "1rem",
                           borderRadius: "6px",
@@ -1040,7 +1039,7 @@ const Profile = () => {
                           />
                         </div>
 
-                        <div className={styles.row}>
+                        <div className={`${styles.row} `}>
                           <div>
                             <label htmlFor="educationAttainment">
                               Highest Educational Attainment
@@ -1114,11 +1113,10 @@ const Profile = () => {
                       {workExperiences.map(
                         (exp: WorkExperience, idx: number) => (
                           <div
-                            className={styles.rowInput}
+                            className={`${styles.rowInput} ${styles.workInput}`}
                             key={idx}
                             style={{
                               marginBottom: "1rem",
-                              border: "1px solid black",
                               backgroundColor: "white",
                               padding: "1rem",
                               borderRadius: "6px",
@@ -1253,16 +1251,15 @@ const Profile = () => {
                         {skills.map((skill: string, idx: number) => (
                           <span key={idx} style={{ marginRight: "-1rem" }}>
                             {skill}
-                            <Button
+                            <button
                               type="button"
                               onClick={() =>
                                 setSkills(skills.filter((_, i) => i !== idx))
                               }
                               style={{ marginLeft: 4 }}
-                              variant="danger"
                             >
                               ×
-                            </Button>
+                            </button>
                           </span>
                         ))}
                         <input

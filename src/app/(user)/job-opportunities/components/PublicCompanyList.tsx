@@ -64,13 +64,16 @@ const PublicCompanyList = ({
       company.name.toLowerCase().includes(search.toLowerCase()) ||
       company.industry.toLowerCase().includes(search.toLowerCase()) ||
       company.location.toLowerCase().includes(search.toLowerCase()) ||
-      company.description.toLowerCase().includes(search.toLowerCase())
+      company.description.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
     <section className={styles.section}>
       <header className={styles.welcomeSearch}>
-        <h2>Welcome to PESO Paranaque</h2>
+        <span>
+          <img src="/assets/pesoLogo.png" alt="PESO Paranaque" />
+          <h2>Welcome to PESO Parañaque</h2>
+        </span>
         <div className={styles.search}>
           <input
             type="text"
@@ -106,16 +109,14 @@ const PublicCompanyList = ({
                     <p>MANPOWER NEEDS</p>
                   </div>
                   <div className={styles.companyLogoContainer}>
-                    {company.logo && (
-                      <img
-                        src={company.logo}
-                        alt={company.name + " logo"}
-                        className={styles.companyLogo}
-                        style={{
-                          objectFit: "contain",
-                        }}
-                      />
-                    )}
+                    <img
+                      src={company.logo || "/assets/images/default_profile.png"}
+                      alt={company.name + " logo"}
+                      className={styles.companyLogo}
+                      style={{
+                        objectFit: "cover",
+                      }}
+                    />
                   </div>
                   <div className={`${styles.jobCount} ${styles.jobStats}`}>
                     <h3>{getJobCount(company.id)}</h3>

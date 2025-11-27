@@ -1,0 +1,203 @@
+/* Header Styling */
+.examHeader {
+    margin-bottom: 2rem;
+}
+
+.examTitle {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.examDescription {
+    color: #6b7280;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* Question Progress */
+.questionProgress {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    border-left: 4px solid #f97316;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #9a3412;
+    font-weight: 600;
+}
+
+/* Choice Container */
+.choicesContainer {
+    margin-top: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Choice Item */
+.choiceLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.choiceLabel::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    transition: width 0.3s ease;
+}
+
+.choiceLabel:hover {
+    border-color: #fb923c;
+    transform: translateX(4px);
+    box-shadow:
+        0 4px 6px -1px rgba(249, 115, 22, 0.1),
+        0 2px 4px -1px rgba(249, 115, 22, 0.06);
+}
+
+.choiceLabel:hover::before {
+    width: 4px;
+}
+
+/* Selected State */
+.choiceSelected {
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    border-color: #f97316;
+    box-shadow:
+        0 4px 6px -1px rgba(249, 115, 22, 0.1),
+        0 2px 4px -1px rgba(249, 115, 22, 0.06);
+}
+
+.choiceSelected::before {
+    width: 4px;
+}
+
+/* Radio/Checkbox Custom Styling */
+.choiceInput {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #f97316;
+    flex-shrink: 0;
+}
+
+.choiceText {
+    flex: 1;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #374151;
+    position: relative;
+    z-index: 1;
+}
+
+.choiceSelectedText {
+    font-weight: 600;
+    color: #9a3412;
+}
+
+/* Paragraph Input */
+.paragraphContainer {
+    margin-top: 1.25rem;
+}
+
+.paragraphInput {
+    width: 100%;
+    min-height: 120px;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    padding: 1rem;
+    resize: vertical;
+    font-size: 1rem;
+    font-family: inherit;
+    line-height: 1.6;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.paragraphInput:focus {
+    outline: none;
+    border-color: #f97316;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+.paragraphInput::placeholder {
+    color: #9ca3af;
+}
+
+/* No Questions */
+.noQuestions {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #6b7280;
+    font-size: 1rem;
+}
+
+.noQuestionsIcon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* Button Container */
+.buttonContainer {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    justify-content: flex-end;
+    padding-top: 1.5rem;
+    border-top: 2px solid #f3f4f6;
+}
+
+/* Answer Count Badge */
+.answerCount {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(249, 115, 22, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .examTitle {
+        font-size: 1.5rem;
+    }
+
+    .choiceLabel {
+        padding: 0.875rem 1rem;
+    }
+
+    .buttonContainer {
+        flex-direction: column-reverse;
+    }
+
+    .buttonContainer button {
+        width: 100%;
+    }
+}

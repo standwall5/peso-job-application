@@ -1,179 +1,184 @@
 :root {
-  --accent: #33b499;
+    --accent: #33b499;
 }
 
 /* Layout Components */
 
 .sideBar {
-  background-color: var(--accent);
-  position: sticky;
-  top: 0;
-  width: 20rem;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+    background-color: var(--accent);
+    position: sticky;
+    top: 0;
+    width: 20rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
 .sideBarList {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 1rem;
-  font-weight: bold;
-  font-family: Poppins, sans-serif;
-  height: 100%;
-  width: 90%;
-  padding: 0;
-  padding-top: 5rem;
-  margin: 0 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1rem;
+    font-weight: bold;
+    font-family: Poppins, sans-serif;
+    height: 100%;
+    width: 90%;
+    padding: 0;
+    padding-top: 5rem;
+    margin: 0 1rem;
 }
 
 .sideBarList span {
-  text-decoration: none;
-  color: white;
-  transition: 0.25s;
-  font-size: 1.3rem;
-  width: 100%;
-  cursor: pointer;
+    text-decoration: none;
+    color: white;
+    transition: 0.25s;
+    font-size: 1.3rem;
+    width: 100%;
+    cursor: pointer;
 }
 
 .sideBarList a {
-  text-decoration: none;
+    text-decoration: none;
 }
-/* 
+/*
 .sideBar a:hover {
   color: #bdffdd;
 } */
 .sideBarList .menuItem {
-  text-align: left;
-  transform: 0.25s;
-  width: 100%;
-  border-radius: 0.5rem;
-  padding: 0.5rem 2rem;
-  cursor: pointer;
-  transition: 0.25s;
+    text-align: left;
+    transform: 0.25s;
+    width: 100%;
+    border-radius: 0.5rem;
+    padding: 0.5rem 2rem;
+    cursor: pointer;
+    transition: 0.25s;
 }
 
 .sideBarList .menuItem:hover,
 .menuItem.active {
-  background-color: #ffffff;
+    background-color: #ffffff;
 }
 
 .menuItem:hover span,
 .menuItem.active > span {
-  color: var(--accent);
+    color: var(--accent);
 }
 
 .menuItem:hover .subMenu li,
 .menuItem:hover .subMenu a {
-  color: var(--accent);
+    color: var(--accent);
 }
 
 .sideBarPeso {
-  display: flex;
-  align-items: center;
-  color: white;
-  flex-flow: row wrap;
-  padding: 1.5rem;
-  align-self: flex-start;
-  justify-self: flex-start;
+    display: flex;
+    align-items: center;
+    color: white;
+    flex-flow: row wrap;
+    padding: 1.5rem;
+    align-self: flex-start;
+    justify-self: flex-start;
 }
 
 .sideBarPeso img {
-  width: 5rem;
+    width: 5rem;
 }
 
 .sideBarPeso span {
-  font-size: 2rem;
-  font-weight: bold;
-  padding-top: 5px;
+    font-size: 2rem;
+    font-weight: bold;
+    padding-top: 5px;
 }
 
 .header {
-  display: flex;
-  justify-content: flex-end;
-  position: sticky;
-  top: 0;
-  /* border-bottom: 1px solid grey; */
-  width: 100%;
-  text-decoration: none;
-  z-index: 1000;
+    display: flex;
+    justify-content: flex-end;
+    position: sticky;
+    top: 0;
+    /* border-bottom: 1px solid grey; */
+    width: 100%;
+    text-decoration: none;
+    z-index: 1000;
 }
 
 .header img {
-  width: 64px;
-  filter: drop-shadow(1px 1px 0 var(--accent))
-    drop-shadow(-1px 1px 0 var(--accent)) drop-shadow(1px -1px 0 var(--accent))
-    drop-shadow(-1px -1px 0 var(--accent));
+    width: 64px;
+    filter: drop-shadow(1px 1px 0 var(--accent))
+        drop-shadow(-1px 1px 0 var(--accent))
+        drop-shadow(1px -1px 0 var(--accent))
+        drop-shadow(-1px -1px 0 var(--accent));
 }
 
 .header ul {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 2rem;
-  padding: 1rem;
-  background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 2rem;
+    padding: 1rem;
+    background-color: #fff;
 
-  line-height: normal;
-  width: 100%;
-  /* border-bottom: 1px solid grey; */
-  box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+    line-height: normal;
+    width: 100%;
+    /* border-bottom: 1px solid grey; */
+    box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
 }
 
 .header ul li {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .header ul li svg {
-  color: var(--accent);
-  transform: scale(1.2);
-  cursor: pointer;
+    color: var(--accent);
+    transform: scale(1.2);
+    cursor: pointer;
 }
 
 .subMenu {
-  max-height: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  text-align: left;
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s,
-    transform 0.25s, margin 0.25s;
-  color: white;
-  margin-top: 0;
+    max-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    text-align: left;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition:
+        max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.25s,
+        transform 0.25s,
+        margin 0.25s;
+    color: white;
+    margin-top: 0;
 }
 
 .subMenu:hover {
-  background-color: none;
+    background-color: none;
 }
 
 .subMenu.open {
-  max-height: 200px; /* or enough for your content */
-  opacity: 1;
-  transform: translateY(0);
-  margin-top: 0.5rem;
+    max-height: 200px; /* or enough for your content */
+    opacity: 1;
+    transform: translateY(0);
+    margin-top: 0.5rem;
 }
 
 .active {
-  color: #081761 !important;
-  transition: 0.25s;
+    color: #081761 !important;
+    transition: 0.25s;
 }
 
 .subMenu > li {
-  color: white;
-  transition: 0.25s;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  height: max-content;
-  margin: 0.2rem 0;
-  margin-left: -2rem;
+    color: white;
+    transition: 0.25s;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    height: max-content;
+    margin: 0.2rem 0;
+    margin-left: -2rem;
 }
 
 /* .subMenu a {
@@ -184,16 +189,16 @@
 .subMenu > li:hover,
 .subMenu.active:hover,
 .subMenu li.active {
-  background-color: #1d8df5 !important;
-  color: white !important;
+    background-color: #1d8df5 !important;
+    color: white !important;
 }
 
 .subMenu > li:hover a {
-  color: white !important;
+    color: white !important;
 }
 
 .menuItem.active > .subMenu li {
-  color: var(--accent);
+    color: var(--accent);
 }
 
 /* ...existing code... */
@@ -202,54 +207,96 @@
 
 /* Responsive styles for small laptops/desktops */
 @media (max-width: 1400px) {
-  .sideBar {
-    width: 13rem;
-  }
-  .sideBarPeso img {
-    width: 3rem;
-  }
-  .sideBarPeso span {
-    font-size: 1.2rem;
-  }
-  .sideBarList span {
-    font-size: 1.1rem;
-  }
+    .sideBar {
+        width: 13rem;
+    }
+    .sideBarPeso img {
+        width: 3rem;
+    }
+    .sideBarPeso span {
+        font-size: 1.2rem;
+    }
+    .sideBarList span {
+        font-size: 1.1rem;
+    }
 }
 
 /* Responsive styles for tablets and below */
 @media (max-width: 1024px) {
-  .sideBar {
-    width: 15rem;
-  }
-  .sideBarPeso img {
-    width: 4rem;
-  }
-  .sideBarPeso span {
-    font-size: 1.5rem;
-  }
+    .sideBar {
+        width: 15rem;
+    }
+    .sideBarPeso img {
+        width: 4rem;
+    }
+    .sideBarPeso span {
+        font-size: 1.5rem;
+    }
 }
 
 /* Responsive styles for mobile devices */
 @media (max-width: 600px) {
-  .sideBar {
-    width: 100vw;
-    position: static;
-    flex-direction: row;
-    height: auto;
-    padding: 1rem 0;
-  }
-  .sideBarList {
-    flex-direction: row;
-    gap: 0.5rem;
-    padding-top: 1rem;
-    width: 100vw;
-    font-size: 1rem;
-  }
-  .header ul {
-    gap: 1rem;
-    padding: 0.5rem;
-  }
-  .header img {
-    width: 40px;
-  }
+    .sideBar {
+        width: 100vw;
+        position: static;
+        flex-direction: row;
+        height: auto;
+        padding: 1rem 0;
+        overflow-x: auto;
+    }
+    .sideBarPeso {
+        flex-direction: row;
+        gap: 0.5rem;
+    }
+    .sideBarPeso img {
+        width: 2.5rem;
+    }
+    .sideBarPeso span {
+        font-size: 1rem;
+    }
+    .sideBarList {
+        flex-direction: row;
+        gap: 0.5rem;
+        padding-top: 1rem;
+        width: 100vw;
+        font-size: 0.9rem;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    .sideBarList span {
+        font-size: 0.85rem;
+    }
+    .header ul {
+        gap: 0.75rem;
+        padding: 0.5rem;
+    }
+    .header img {
+        width: 35px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sideBar {
+        padding: 0.75rem 0;
+    }
+    .sideBarPeso img {
+        width: 2rem;
+    }
+    .sideBarPeso span {
+        font-size: 0.9rem;
+    }
+    .sideBarList {
+        font-size: 0.8rem;
+        gap: 0.35rem;
+    }
+    .sideBarList span {
+        font-size: 0.75rem;
+    }
+    .header ul {
+        gap: 0.5rem;
+        padding: 0.4rem;
+    }
+    .header img {
+        width: 30px;
+    }
 }

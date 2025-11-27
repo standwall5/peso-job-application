@@ -28,3 +28,32 @@
     position: absolute;
     right: 2rem;
 }
+
+/* Mobile Media Queries */
+@media (max-width: 768px) {
+    .modal {
+        padding: 1.5rem;
+        min-width: 90vw;
+        max-width: 90vw;
+        max-height: 85vh;
+        border-radius: 0.75rem;
+    }
+
+    .closeBtn {
+        right: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal {
+        padding: 1rem;
+        min-width: 95vw;
+        max-width: 95vw;
+        max-height: 90vh;
+        border-radius: 0.5rem;
+    }
+
+    .closeBtn {
+        right: 1rem;
+    }
+}

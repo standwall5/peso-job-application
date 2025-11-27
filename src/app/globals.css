@@ -40,8 +40,15 @@
 
 body {
     color: var(--text);
-    font-family: var(--font-poppins-sans), Arial, sans-serif;
+    /*font-family: var(--font-poppins-sans), Arial, sans-serif;*/
     font-size: 1rem; /* Add this line */
+    font-family: var(--font-geist), sans-serif;
+}
+
+h1,
+h2,
+h3 {
+    font-family: var(--font-poppins-sans), sans-serif;
 }
 
 .logged-in-bg {
@@ -153,8 +160,8 @@ nav {
     text-decoration: none;
     color: black;
     transition: 0.2s ease;
-    font-weight: bold;
-    font-size: 1rem;
+    /*font-weight: bold;*/
+    font-size: 12px;
 }
 
 .nav-container-simple img {
@@ -190,8 +197,10 @@ footer {
     margin-top: auto;
     padding: 1rem;
     text-align: center;
-
+    height: 4rem;
     width: 100%;
+    background-color: white;
+    font-size: 12px;
 }
 
 footer ul {
@@ -199,7 +208,6 @@ footer ul {
     align-items: center;
     justify-content: flex-start;
     gap: 1rem;
-    /*margin-bottom: -5rem;*/
 }
 
 .footer ul li {
@@ -232,8 +240,11 @@ footer img {
     background-color: #edfcff;
     transition: 0.2s;
     border-radius: 0.2rem;
-    font-weight: bold;
-    border: 1px solid rgb(95, 95, 95);
+    /*font-weight: bold;*/
+    /*border: 1px solid rgb(95, 95, 95);*/
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
 
 .nav-button-active:hover {
@@ -247,7 +258,9 @@ footer img {
     background-color: #7adaef;
     transition: 0.2s;
     border-radius: 0.5rem;
-    border: 1px solid black;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     align-self: center; /* or center, or flex-end as needed */
     flex: none;
 }
@@ -276,7 +289,9 @@ footer img {
 .box {
     background-color: #edfcff;
     border-radius: 1rem;
-    border: 1px solid black;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
 
 .green-button {
@@ -359,7 +374,9 @@ footer img {
     background-color: var(--warning-bg);
     height: auto;
     width: auto;
-    border: 1px solid black;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     border-radius: 0.5rem;
     padding: 2rem 4rem;
 }
@@ -397,4 +414,187 @@ footer img {
 .content {
     flex: 1;
     /* background: #f9f9f9; */
+}
+
+/* Mobile Media Queries */
+@media (max-width: 768px) {
+    /* Navigation */
+    .nav-container {
+        padding: 1rem 1.5rem 0;
+    }
+
+    .nav-container ul {
+        gap: 1rem;
+    }
+
+    .nav-img-container {
+        width: 70px;
+    }
+
+    .nav-container-simple ul {
+        padding: 0rem 1rem;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .nav-container-simple ul li {
+        padding: 0 0.5rem;
+    }
+
+    .nav-container-simple ul li a {
+        font-size: 11px;
+    }
+
+    .nav-container-simple img {
+        width: 56px;
+    }
+
+    /* Content */
+    .content {
+        margin: 1rem;
+    }
+
+    /* Footer */
+    footer {
+        padding: 0.75rem;
+        font-size: 11px;
+    }
+
+    footer ul {
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    footer img {
+        width: 28px;
+    }
+
+    /* Buttons */
+    .nav-button-default,
+    .nav-button-active {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .custom-button,
+    .blue-button,
+    .green-button,
+    .red-button,
+    .grey-button {
+        padding: 0.4rem 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    /* Modals */
+    .modal {
+        max-width: 90vw;
+        padding: 1.5rem;
+    }
+
+    .warningModal {
+        padding: 1.5rem 2rem;
+        width: 90vw;
+    }
+
+    .warningContainer {
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Navigation */
+    .nav-container {
+        padding: 0.75rem 1rem 0;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .nav-container ul {
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .nav-img-container {
+        width: 60px;
+    }
+
+    .nav-container-simple ul {
+        padding: 0rem 0.5rem;
+        gap: 0.35rem;
+    }
+
+    .nav-container-simple ul li {
+        padding: 0 0.35rem;
+    }
+
+    .nav-container-simple ul li a {
+        font-size: 10px;
+    }
+
+    .nav-container-simple img {
+        width: 48px;
+    }
+
+    /* Content */
+    .content {
+        margin: 0.5rem;
+    }
+
+    /* Footer */
+    footer {
+        padding: 0.5rem;
+        font-size: 10px;
+        height: auto;
+        min-height: 3rem;
+    }
+
+    footer ul {
+        gap: 0.5rem;
+    }
+
+    footer img {
+        width: 24px;
+    }
+
+    /* Buttons */
+    .nav-button-default,
+    .nav-button-active {
+        padding: 0.35rem 0.6rem;
+        font-size: 0.85rem;
+    }
+
+    .custom-button,
+    .blue-button,
+    .green-button,
+    .red-button,
+    .grey-button {
+        padding: 0.35rem 1.25rem;
+        font-size: 0.85rem;
+    }
+
+    /* Modals */
+    .modal {
+        max-width: 95vw;
+        padding: 1rem;
+    }
+
+    .warningModal {
+        padding: 1rem 1.5rem;
+        width: 95vw;
+    }
+
+    .warningContainer {
+        gap: 1rem;
+    }
+
+    .warningContent {
+        gap: 0.75rem;
+    }
+
+    /* Layout */
+    .admin-layout {
+        flex-direction: column;
+    }
 }

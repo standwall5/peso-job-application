@@ -123,7 +123,7 @@ export default function AdminChatWidget() {
     fetchAllChats();
 
     // Poll every 30 seconds (reduced from 10)
-    const interval = setInterval(fetchAllChats, 30000);
+    // const interval = setInterval(fetchAllChats, 30000);
 
     // Subscribe to new chat sessions for real-time updates
     const channel = supabase
@@ -169,7 +169,7 @@ export default function AdminChatWidget() {
       .subscribe();
 
     return () => {
-      clearInterval(interval);
+      // clearInterval(interval);
       channel.unsubscribe();
       if (fetchDebounceTimerRef.current) {
         clearTimeout(fetchDebounceTimerRef.current);

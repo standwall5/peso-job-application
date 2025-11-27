@@ -85,7 +85,9 @@
 .jobContainer form select {
     background-color: #fff;
     padding: 0.5rem 1rem;
-    border: 1px solid black;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     border-radius: 0.5rem;
 }
 
@@ -107,4 +109,100 @@
     position: absolute;
     bottom: 0;
     right: 0;
+}
+
+/* Mobile Media Queries */
+@media (max-width: 768px) {
+    .modal {
+        padding: 1.5rem;
+        min-width: 90vw;
+        max-width: 90vw;
+        border-radius: 0.75rem;
+    }
+
+    .closeBtn {
+        right: 1.5rem;
+    }
+
+    .modalContent {
+        flex-direction: column;
+    }
+
+    .header h2 {
+        font-size: 1.25rem;
+    }
+
+    .header img {
+        width: 56px;
+    }
+
+    .jobContainer {
+        height: auto;
+        min-height: 20rem;
+        padding: 1.5rem;
+        width: 100%;
+    }
+
+    .jobContainer > form {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .jobContainer form input,
+    .jobContainer form select {
+        margin-left: 0;
+        font-size: 0.9rem;
+    }
+
+    .exam {
+        width: 100%;
+        height: 20rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal {
+        padding: 1rem;
+        min-width: 95vw;
+        max-width: 95vw;
+        border-radius: 0.5rem;
+    }
+
+    .closeBtn {
+        right: 1rem;
+    }
+
+    .header {
+        margin-bottom: 0.75rem;
+    }
+
+    .header h2 {
+        font-size: 1.1rem;
+    }
+
+    .header img {
+        width: 48px;
+    }
+
+    .jobContainer {
+        padding: 1rem;
+        min-height: 18rem;
+        border-radius: 0.75rem;
+    }
+
+    .jobContainer > form {
+        gap: 0.5rem;
+    }
+
+    .jobContainer form input,
+    .jobContainer form select {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.75rem;
+    }
+
+    .exam {
+        height: 18rem;
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+    }
 }
