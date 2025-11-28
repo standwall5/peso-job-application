@@ -529,7 +529,6 @@
   flex-direction: column;
   gap: 6px;
   padding: 10px;
-  border: 1px solid #000000;
   background: #ffffff;
   max-height: 250px;
   overflow-y: auto;
