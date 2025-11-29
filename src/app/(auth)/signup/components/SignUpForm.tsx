@@ -4,7 +4,7 @@ import React, { useState, useCallback, useRef, useEffect } from "react";
 import styles from "./SignUp.module.css";
 import { signup } from "@/lib/auth-actions";
 import Link from "next/link";
-import { Fascinate_Inline } from "next/font/google";
+import Image from "next/image";
 
 const SignUpForm: React.FC = () => {
   const [district, setDistrict] = useState<string>("");
@@ -67,6 +67,12 @@ const SignUpForm: React.FC = () => {
   ];
 
   // Automatically toggle form notice based on current errors
+  const getFieldRequiredMessage = (field: string) => {
+    if (field === "firstName") return "First Name is required";
+    if (field === "lastName") return "Last Name is required";
+    return "This field is required";
+  };
+
   useEffect(() => {
     setShowFormNotice(Object.keys(errors).length > 0);
   }, [errors]);
@@ -166,7 +172,7 @@ const SignUpForm: React.FC = () => {
     const target = e.currentTarget;
     const selectionLength = target.selectionEnd! - target.selectionStart!;
     if (!allowed && /^\d$/.test(e.key)) {
-      if (phoneNumber.length - selectionLength >= 11) {
+      if (phoneNumber.length - selectionLength >= 10) {
         e.preventDefault();
       }
     }
@@ -185,29 +191,33 @@ const SignUpForm: React.FC = () => {
     const end = el.selectionEnd || 0;
     const newVal =
       phoneNumber.slice(0, start) +
-      digits.slice(0, 11 - phoneNumber.length) +
+      digits.slice(0, 10 - phoneNumber.length) +
       phoneNumber.slice(end);
-    const final = newVal.slice(0, 11);
+    const final = newVal.slice(0, 10);
     setPhoneNumber(final);
 
     const newErrors = { ...errors };
-    if (final.length !== 11)
-      newErrors.phoneNumber = "Phone number must be exactly 11 digits";
-    else delete newErrors.phoneNumber;
+    if (final.length === 0) {
+      newErrors.phoneNumber = "Contact number is required";
+    } else if (!final.startsWith("9")) {
+      newErrors.phoneNumber = "Mobile number must start with 9";
+    } else if (final.length !== 10) {
+      newErrors.phoneNumber = "Mobile number must have 10 digits after +63";
+    } else delete newErrors.phoneNumber;
     setErrors(newErrors);
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const digits = e.target.value.replace(/\D/g, "").slice(0, 11);
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
     setPhoneNumber(digits);
 
     const newErrors = { ...errors };
     if (!digits || digits.length === 0) {
-      newErrors.phoneNumber = "This field is required";
-    } else if (!/^\d+$/.test(digits)) {
-      newErrors.phoneNumber = "Phone number must contain digits only";
-    } else if (digits.length !== 11) {
-      newErrors.phoneNumber = "Phone number must be exactly 11 digits";
+      newErrors.phoneNumber = "Contact number is required";
+    } else if (!digits.startsWith("9")) {
+      newErrors.phoneNumber = "Mobile number must start with 9";
+    } else if (digits.length !== 10) {
+      newErrors.phoneNumber = "Mobile number must have 10 digits after +63";
     } else {
       delete newErrors.phoneNumber;
     }
@@ -249,18 +259,6 @@ const SignUpForm: React.FC = () => {
     setErrors(newErrors);
   };
 
-  // Residence handler
-  const handleResidencyChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const v = e.target.value;
-    setResidency(v);
-    const newErrors = { ...errors };
-    if (!v)
-      newErrors.recidency = "Please select Residence";
-    else delete newErrors.residency;
-    setErrors(newErrors);
-  };
     // Barangay handler
     const handlebarangayChange = (
       e: React.ChangeEvent<HTMLSelectElement>
@@ -307,7 +305,7 @@ const SignUpForm: React.FC = () => {
 
     if (newErrors[name]) {
       if (value && value.toString().trim() !== "") delete newErrors[name];
-      else newErrors[name] = "This field is required";
+      else newErrors[name] = getFieldRequiredMessage(name);
     }
     setErrors(newErrors);
   };
@@ -356,7 +354,7 @@ const SignUpForm: React.FC = () => {
 
       const value = (element as HTMLInputElement | HTMLSelectElement).value;
       if (!value || value.trim() === "") {
-        newErrors[name] = "This field is required";
+        newErrors[name] = getFieldRequiredMessage(name);
       }
     }
 
@@ -374,8 +372,10 @@ const SignUpForm: React.FC = () => {
       newErrors.phoneNumber = "Contact number is required";
     } else if (!/^\d+$/.test(phoneNumber)) {
       newErrors.phoneNumber = "Phone number must contain digits only";
-    } else if (phoneNumber.length !== 11) {
-      newErrors.phoneNumber = "Phone number must be exactly 11 digits";
+    } else if (!phoneNumber.startsWith("9")) {
+      newErrors.phoneNumber = "Mobile number must start with 9";
+    } else if (phoneNumber.length !== 10) {
+      newErrors.phoneNumber = "Mobile number must have 10 digits after +63";
     }
 
     // Email validation (required)
@@ -452,6 +452,15 @@ const SignUpForm: React.FC = () => {
   newErrors.applicantType = "Please select at least one applicant type";
 }
 
+    if (applicantType.includes("Others")) {
+      const othersValue = (
+        formEl.elements.namedItem("othersSpecify") as HTMLInputElement | null
+      )?.value;
+      if (!othersValue || othersValue.trim() === "") {
+        newErrors.othersSpecify = "Please specify applicant type";
+      }
+    }
+
 
     // Applicant-specific ID fields OPTIONAL
     if (Object.keys(newErrors).length > 0) {
@@ -467,7 +476,7 @@ const SignUpForm: React.FC = () => {
       "gender",
       gender === "Others" ? genderOther || "Others" : gender
     );
-    formData.set("phoneNumber", phoneNumber);
+    formData.set("phoneNumber", `+63${phoneNumber}`);
     formData.set("birthDate", birthDate);
     formData.set("email", emailValue);
     formData.set("residency", residency);
@@ -827,8 +836,21 @@ const SignUpForm: React.FC = () => {
 
               {applicantType.includes("Others") && (
                 <div className={styles.conditionalField}>
-                  <label className={styles.fieldLabel}>Please Specify</label>
-                  <input id="othersSpecify" name="othersSpecify" type="text" />
+                  <label className={styles.fieldLabel}>
+                    Please Specify <span className={styles.redAsterisk}>*</span>
+                  </label>
+                  <input
+                    id="othersSpecify"
+                    name="othersSpecify"
+                    type="text"
+                    onChange={handleInputChange}
+                    className={errors["othersSpecify"] ? styles.errorInput : ""}
+                  />
+                  {errors["othersSpecify"] && (
+                    <div className={styles.fieldError}>
+                      {errors["othersSpecify"]}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -856,7 +878,11 @@ const SignUpForm: React.FC = () => {
                 checked={formData.residency === "resident"}
                 onChange={() => {
                   setFormData({ ...formData, residency: "resident" });
-                  setErrors((prev: any) => ({ ...prev, residency: "" })); // CLEAR ERROR
+                  setErrors((prev: any) => {
+                    const next = { ...prev };
+                    delete next.residency;
+                    return next;
+                  });
                 }}
               />
               Resident of Parañaque
@@ -870,7 +896,11 @@ const SignUpForm: React.FC = () => {
                 checked={formData.residency === "nonresident"}
                 onChange={() => {
                   setFormData({ ...formData, residency: "nonresident" });
-                  setErrors((prev: any) => ({ ...prev, residency: "" })); // CLEAR ERROR
+                  setErrors((prev: any) => {
+                    const next = { ...prev };
+                    delete next.residency;
+                    return next;
+                  });
                 }}
               />
               Non-Resident of Parañaque
@@ -978,7 +1008,7 @@ const SignUpForm: React.FC = () => {
                       id="barangay"
                       name="barangay"
                       defaultValue=""
-                      onChange={handleInputChange}
+                      onChange={handlebarangayChange}
                       className={errors["barangay"] ? styles.errorInput : ""}
                     >
                       <option value="" disabled>Select Barangay</option>
@@ -1046,20 +1076,40 @@ const SignUpForm: React.FC = () => {
               <label htmlFor="phoneNumber" className={styles.fieldLabel}>
                 Contact Number <span className={styles.redAsterisk}>*</span>
               </label>
-              <input
-                id="phoneNumber"
-                name="phoneNumber"
-                placeholder="09916594861"
-                type="tel"
-                inputMode="numeric"
-                pattern="\d*"
-                value={phoneNumber}
-                onKeyDown={handlePhoneKeyDown}
-                onPaste={handlePhonePaste}
-                onChange={handlePhoneChange}
-                maxLength={11}
-                className={errors["phoneNumber"] ? styles.errorInput : ""}
-              />
+              <div
+                className={
+                  errors["phoneNumber"]
+                    ? `${styles.phoneInputGroup} ${styles.phoneInputError}`
+                    : styles.phoneInputGroup
+                }
+              >
+                <div className={styles.countryPrefix}>
+                  <span className={styles.flagIcon}>
+                    <Image
+                      src="/assets/images/ph-flag.svg"
+                      alt="Philippine flag"
+                      width={20}
+                      height={14}
+                      priority={false}
+                    />
+                  </span>
+                  <span className={styles.countryCode}>+63</span>
+                </div>
+                <input
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  placeholder="9XXXXXXXXX"
+                  type="tel"
+                  inputMode="numeric"
+                  pattern="\d*"
+                  value={phoneNumber}
+                  onKeyDown={handlePhoneKeyDown}
+                  onPaste={handlePhonePaste}
+                  onChange={handlePhoneChange}
+                  maxLength={10}
+                  className={styles.phoneNumberInput}
+                />
+              </div>
               {errors["phoneNumber"] && (
                 <div className={styles.fieldError}>{errors["phoneNumber"]}</div>
               )}

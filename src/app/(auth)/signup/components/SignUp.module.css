@@ -83,6 +83,16 @@
         box-shadow 0.15s ease;
 }
 
+.signUpForm input:-webkit-autofill,
+.signUpForm input:-webkit-autofill:hover,
+.signUpForm input:-webkit-autofill:focus,
+.signUpForm select:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0px 1000px #fff inset !important;
+    box-shadow: 0 0 0px 1000px #fff inset !important;
+    -webkit-text-fill-color: #000;
+    transition: background-color 9999s ease-out 0s;
+}
+
 /* Full row wrappers that span all 4 columns */
 .fullRow {
     grid-column: span 4;
@@ -101,6 +111,66 @@
 .errorInput {
     border-color: #d9534f !important;
     box-shadow: 0 0 0 4px rgba(217, 83, 79, 0.06);
+}
+
+.phoneInputGroup {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  box-shadow:
+    rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+    rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+  border-radius: 3px;
+  height: 2.6rem;
+  overflow: hidden;
+  border: 1px solid transparent;
+  transition: box-shadow 0.15s ease;
+}
+
+.phoneInputGroup:focus-within {
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+.phoneInputError {
+  border-color: #d9534f;
+  box-shadow: 0 0 0 4px rgba(217, 83, 79, 0.08);
+}
+
+.countryPrefix {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0 0.8rem;
+  border-right: 1px solid #ececec;
+  height: 100%;
+  background-color: #f8f9fb;
+}
+
+.flagIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 14px;
+}
+
+.countryCode {
+  font-weight: 600;
+  color: #333;
+}
+
+.phoneNumberInput {
+  border: none;
+  outline: none;
+  flex: 1;
+  height: 100%;
+  padding: 0 0.8rem;
+  background: transparent;
+  font-size: 1rem;
+}
+
+.phoneNumberInput::placeholder {
+  color: #b0b0b0;
 }
 
 /* Inline field error message */
@@ -577,10 +647,14 @@
 .conditionalField input,
 .conditionalField select {
   width: 100%;
-  height: 2.5rem;
-  border: 1px solid black;
-  padding: 0 10px;
-  border-radius: 4px;
+  height: 2.6rem;
+  padding: 0 0.8rem;
+  border: none;
+  border-radius: 3px;
+  background-color: #fff;
+  box-shadow:
+    rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+    rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
 
 /* Prevent shifting */
