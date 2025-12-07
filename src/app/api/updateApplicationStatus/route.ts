@@ -63,18 +63,73 @@ export async function POST(request: Request) {
     new_status: status,
   });
 
-  // Create notification for the applicant
-  if (status === "Referred") {
-    const jobTitle = application.jobs?.title || "a position";
-    const companyName = application.jobs?.companies?.name || "a company";
+  // Create notification for the applicant based on status change
+  const jobTitle = application.jobs?.title || "a position";
+  const companyName = application.jobs?.companies?.name || "a company";
 
+  let notificationData: {
+    title: string;
+    message: string;
+    type: "application_update" | "new_job" | "exam_result" | "admin_message";
+  } | null = null;
+
+  switch (status) {
+    case "Referred":
+      notificationData = {
+        type: "application_update",
+        title: "Application Referred! 🎉",
+        message: `Your application for ${jobTitle} at ${companyName} has been referred to the employer.`,
+      };
+      break;
+    case "Accepted":
+      notificationData = {
+        type: "application_update",
+        title: "Application Accepted! 🎊",
+        message: `Congratulations! Your application for ${jobTitle} at ${companyName} has been accepted.`,
+      };
+      break;
+    case "Rejected":
+      notificationData = {
+        type: "application_update",
+        title: "Application Update",
+        message: `Your application for ${jobTitle} at ${companyName} has been updated. Please check your profile for details.`,
+      };
+      break;
+    case "For Interview":
+      notificationData = {
+        type: "application_update",
+        title: "Interview Scheduled! 📅",
+        message: `You've been shortlisted for an interview for ${jobTitle} at ${companyName}. Please check your email for details.`,
+      };
+      break;
+    case "Hired":
+      notificationData = {
+        type: "application_update",
+        title: "Congratulations - You're Hired! 🎉",
+        message: `You have been hired for ${jobTitle} at ${companyName}! The company will contact you soon with next steps.`,
+      };
+      break;
+    case "Pending":
+      // Don't send notification for pending status
+      break;
+    default:
+      // For any other status changes
+      notificationData = {
+        type: "application_update",
+        title: "Application Status Updated",
+        message: `Your application for ${jobTitle} at ${companyName} status has been updated to: ${status}`,
+      };
+  }
+
+  // Insert notification if data is set
+  if (notificationData) {
     const notificationResult = await supabase
       .from("notifications")
       .insert({
         applicant_id: application.applicant_id,
-        type: "application_update",
-        title: "Application Referred! 🎉",
-        message: `Your application for ${jobTitle} at ${companyName} has been referred to the employer.`,
+        type: notificationData.type,
+        title: notificationData.title,
+        message: notificationData.message,
         link: `/profile`,
         is_read: false,
         created_at: new Date().toISOString(),
