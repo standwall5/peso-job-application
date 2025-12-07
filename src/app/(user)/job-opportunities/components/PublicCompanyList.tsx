@@ -41,10 +41,12 @@ const PublicCompanyList = ({
         const companiesData = await companiesRes.json();
         const jobsData = await jobsRes.json();
 
-        setCompanies(companiesData || []);
-        setJobs(jobsData || []);
+        setCompanies(Array.isArray(companiesData) ? companiesData : []);
+        setJobs(Array.isArray(jobsData) ? jobsData : []);
       } catch (err) {
         console.error("Fetch failed:", err);
+        setCompanies([]);
+        setJobs([]);
       } finally {
         setLoading(false);
       }

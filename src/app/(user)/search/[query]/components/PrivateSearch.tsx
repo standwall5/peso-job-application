@@ -1,5 +1,5 @@
 import React from "react";
-import PrivateJobList from "@/app/(user)/job-opportunities/[companyId]/components/PrivateJobList";
+import SearchJobList from "./SearchJobList";
 import PrivateCompanyList from "@/app/(user)/job-opportunities/components/PrivateCompanyList";
 import styles from "./Search.module.css";
 
@@ -9,12 +9,14 @@ interface PrivateSearchProp {
 }
 
 const PrivateSearch = ({ search, onSearchChange }: PrivateSearchProp) => {
+  console.log("PrivateSearch received search prop:", search);
+
   return (
     <div className={styles.searchContainer}>
       <div className={styles.searchContent}>
         <div className={styles.jobList}>
           <h2>Job Listings</h2>
-          <PrivateJobList
+          <SearchJobList
             searchParent={search}
             onSearchChange={onSearchChange}
           />

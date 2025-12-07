@@ -448,18 +448,17 @@ const Profile = () => {
     return (
       <div key={job.id} className={`${styles.jobCard}`}>
         <div className={`${styles.jobCompany}`}>
-          {job.companies?.logo && (
-            <img
-              src={job.companies.logo}
-              alt={job.companies.name + " logo"}
-              className={styles.companyLogo}
-              style={{
-                width: "64px",
-                height: "64px",
-                objectFit: "contain",
-              }}
-            />
-          )}
+          <img
+            src={job.companies?.logo || "/assets/images/default_profile.png"}
+            alt={job.companies.name + " logo"}
+            className={styles.companyLogo}
+            style={{
+              width: "64px",
+              height: "64px",
+              objectFit: "contain",
+              border: "1px solid black",
+            }}
+          />
           <span>{job.companies?.name}</span>
           <span>{job.title}</span>
         </div>
@@ -777,7 +776,7 @@ const Profile = () => {
                     placeholder={
                       user?.preferred_poa || "No preferred place of assignment"
                     }
-                    value={user?.preferred_poa}
+                    defaultValue={user?.preferred_poa}
                     name="preferred_poa"
                   />
                 </span>
@@ -786,7 +785,7 @@ const Profile = () => {
                   <input
                     type="text"
                     placeholder={user?.applicant_type}
-                    value={user?.applicant_type || "No applicant type"}
+                    defaultValue={user?.applicant_type || "No applicant type"}
                     name="applicant_type"
                   />
                 </span>
@@ -1308,7 +1307,10 @@ const Profile = () => {
                     </div>
 
                     {/* Actions inside the form for proper submit */}
-                    <div style={{ marginTop: "1rem", display: "flex", gap: 8 }}>
+                    <div
+                      className={styles.resumeActions}
+                      style={{ display: "flex", gap: 8 }}
+                    >
                       <Button
                         type="button"
                         className={styles.resumeButton}

@@ -10,11 +10,14 @@
 .examList {
     display: flex;
     flex-direction: column;
+    flex-wrap: wrap;
 }
 
 .examsCardContainer {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
     gap: 1.5rem;
+    width: 100%; /* Limits to ~3 columns */
 }
 
 .examCard {
@@ -180,6 +183,18 @@
     border-radius: 0.5rem;
     transition: 0.1s;
     margin-bottom: 4px;
+}
+
+.selectedExam {
+    background-color: #eda632 !important;
+    color: white !important;
+    /*border: 3px solid #d45d15 !important;*/
+    transform: scale(1.02);
+}
+
+.selectedExam .examGraphic > div {
+    background-color: #eda632 !important;
+    border: 2px solid white !important;
 }
 
 .yellowBtn:hover {

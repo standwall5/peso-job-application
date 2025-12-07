@@ -34,12 +34,15 @@
 
 .jobSpecificCard {
     height: auto;
+    width: max-content;
     min-height: 28rem;
     aspect-ratio: 1/1.2;
     gap: 0.75rem;
     justify-content: space-between;
-    overflow: visible;
+    /*overflow: visible;*/
     padding-bottom: 1.5rem;
+    overflow-x: hidden;
+    /*margin-right: 10rem;*/
 }
 
 .jobDetails {

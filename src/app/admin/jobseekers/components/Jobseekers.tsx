@@ -307,7 +307,7 @@ const Jobseekers = () => {
                   <div className={styles.avatarCell}>
                     <img
                       src={
-                        app.applicant.profile_pic_url ?? "/default-avatar.png"
+                        app.applicant.profile_pic_url ?? "/assets/images/default_profile.png"
                       }
                       alt={app.applicant.name}
                       className={styles.avatar}

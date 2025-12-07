@@ -3,7 +3,8 @@
     height: 80vh;
     padding: 2rem;
     margin: 2rem 0;
-    background-color: var(--highlight);
+    /*background-color: var(--highlight);*/
+    background-color: #fff;
     display: flex;
     flex-direction: column;
     gap: 2rem;
@@ -13,15 +14,105 @@
         rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
 
-.aboutContainer h2 {
-    text-transform: uppercase;
-}
-
 .aboutContent {
     height: 80%;
     width: 80%;
     display: flex;
     align-items: start;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: center;
+    background-color: white;
+}
+
+.header h2 {
+    color: white !important;
+    font-weight: bold;
+    text-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.18),
+        0 6px 24px rgba(0, 0, 0, 0.15);
+}
+
+.header {
+    position: relative;
+    overflow: hidden;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 3rem;
+    border-radius: 0.5rem;
+    gap: 1rem;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+}
+
+/* Blurred image at the bottom, fading out at the top */
+.header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: url("/assets/images/paranaqueCity.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    /*filter: blur(10px);*/
+    pointer-events: none;
+    /* Mask: transparent at top, black at bottom */
+    mask-image: linear-gradient(to bottom, transparent 0%, black 60%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 60%);
+    opacity: 1;
+}
+
+.peso::before {
+    background: url("/assets/paranaqueCityHall2.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Sharp gradient overlay, covers the whole section */
+.header::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--accent) 85%, transparent),
+        color-mix(in srgb, var(--button) 70%, transparent)
+    );
+    opacity: 1;
+    pointer-events: none;
+    border-radius: 0.5rem;
+}
+
+/* Content stays above everything */
+.header > * {
+    position: relative;
+    z-index: 2;
+}
+
+.aboutContent {
+    width: 100%;
+}
+
+.aboutContent p {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin: 0 2rem;
+    text-align: justify;
+    font-size: 1.2rem;
 }
 
 /* Mobile Media Queries */

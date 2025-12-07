@@ -4,7 +4,9 @@ import React, { useState, useCallback, useRef, useEffect } from "react";
 import styles from "./SignUp.module.css";
 import { signup } from "@/lib/auth-actions";
 import Link from "next/link";
-import { Fascinate_Inline } from "next/font/google";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+// import { Fascinate_Inline } from "next/font/google";
 
 const SignUpForm: React.FC = () => {
   const [district, setDistrict] = useState<string>("");
@@ -52,18 +54,12 @@ const SignUpForm: React.FC = () => {
     "firstName",
     "lastName",
     "address",
-    "district",
-    "barangay",
     "applicantType",
     "password",
     "confirmPassword",
     "validId",
     "selfieWithId",
     "acceptTerms",
-    "email",
-    "phoneNumber",
-    "residency",
-    "preferredPlaceOfAssignment",
   ];
 
   // Automatically toggle form notice based on current errors
@@ -148,70 +144,17 @@ const SignUpForm: React.FC = () => {
   };
 
   // Phone number handlers
-  const handlePhoneKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    const allowed =
-      e.key === "Backspace" ||
-      e.key === "Delete" ||
-      e.key === "ArrowLeft" ||
-      e.key === "ArrowRight" ||
-      e.key === "Home" ||
-      e.key === "End" ||
-      e.key === "Tab" ||
-      e.ctrlKey ||
-      e.metaKey;
-    if (allowed) return;
-    if (!/^\d$/.test(e.key)) {
-      e.preventDefault();
-    }
-    const target = e.currentTarget;
-    const selectionLength = target.selectionEnd! - target.selectionStart!;
-    if (!allowed && /^\d$/.test(e.key)) {
-      if (phoneNumber.length - selectionLength >= 11) {
-        e.preventDefault();
-      }
-    }
-  };
+  const handlePhoneChange = (value: string, country: { dialCode: string }) => {
+    // Value comes without the '+'
+    const fullNumber = value.startsWith("63") ? "+" + value : value;
+    setPhoneNumber(fullNumber);
 
-  const handlePhonePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    const pasted = e.clipboardData.getData("Text");
-    const digits = pasted.replace(/\D/g, "");
-    if (!digits) {
-      e.preventDefault();
-      return;
-    }
-    e.preventDefault();
-    const el = e.currentTarget;
-    const start = el.selectionStart || 0;
-    const end = el.selectionEnd || 0;
-    const newVal =
-      phoneNumber.slice(0, start) +
-      digits.slice(0, 11 - phoneNumber.length) +
-      phoneNumber.slice(end);
-    const final = newVal.slice(0, 11);
-    setPhoneNumber(final);
-
-    const newErrors = { ...errors };
-    if (final.length !== 11)
-      newErrors.phoneNumber = "Phone number must be exactly 11 digits";
-    else delete newErrors.phoneNumber;
-    setErrors(newErrors);
-  };
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const digits = e.target.value.replace(/\D/g, "").slice(0, 11);
-    setPhoneNumber(digits);
-
-    const newErrors = { ...errors };
-    if (!digits || digits.length === 0) {
-      newErrors.phoneNumber = "This field is required";
-    } else if (!/^\d+$/.test(digits)) {
-      newErrors.phoneNumber = "Phone number must contain digits only";
-    } else if (digits.length !== 11) {
-      newErrors.phoneNumber = "Phone number must be exactly 11 digits";
-    } else {
+    // Clear error if it exists (only validate on submit)
+    if (errors.phoneNumber) {
+      const newErrors = { ...errors };
       delete newErrors.phoneNumber;
+      setErrors(newErrors);
     }
-    setErrors(newErrors);
   };
 
   // Gender handlers
@@ -366,10 +309,14 @@ const SignUpForm: React.FC = () => {
     // Phone validations (phone is required)
     if (!phoneNumber || phoneNumber.trim() === "") {
       newErrors.phoneNumber = "Contact number is required";
-    } else if (!/^\d+$/.test(phoneNumber)) {
-      newErrors.phoneNumber = "Phone number must contain digits only";
-    } else if (phoneNumber.length !== 11) {
-      newErrors.phoneNumber = "Phone number must be exactly 11 digits";
+    } else if (
+      !phoneNumber.startsWith("+63") &&
+      !phoneNumber.startsWith("63")
+    ) {
+      newErrors.phoneNumber = "Only Philippines phone numbers are allowed";
+    } else if (phoneNumber.replace(/\D/g, "").length !== 12) {
+      newErrors.phoneNumber =
+        "Please enter a valid Philippines phone number (10 digits)";
     }
 
     // Email validation (required)
@@ -384,7 +331,7 @@ const SignUpForm: React.FC = () => {
 
     // Residence validation (required)
     if (!residency || residency.trim() === "") {
-      newErrors.residence = "Residence is required";
+      newErrors.residency = "Residence is required";
     }
 
     // Barangay validation (required)
@@ -444,6 +391,14 @@ const SignUpForm: React.FC = () => {
       newErrors.applicantType = "Please select at least one applicant type";
     }
 
+    // Retrieve disability type and PWD number from form
+    const disabilityType =
+      (formEl.elements.namedItem("disabilityType") as HTMLSelectElement | null)
+        ?.value || "";
+    const pwdNumber =
+      (formEl.elements.namedItem("pwdNumber") as HTMLInputElement | null)
+        ?.value || "";
+
     // Applicant-specific ID fields OPTIONAL
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -466,6 +421,11 @@ const SignUpForm: React.FC = () => {
     formData.set("district", district);
     formData.set("preferredPlaceOfAssignment", preferredPlace);
     formData.set("extName", extNameValue);
+    formData.set("applicantType", applicantType.join(", "));
+    formData.set("disabilityType", disabilityType);
+    if (pwdNumber) {
+      formData.set("pwdNumber", pwdNumber);
+    }
 
     const result = await signup(formData);
 
@@ -595,7 +555,7 @@ const SignUpForm: React.FC = () => {
               }}
               className={errors["extName"] ? styles.errorInput : ""}
             >
-              <option value="None">None</option>
+              <option value="">None</option>
               <option value="Jr.">Jr.</option>
               <option value="Sr.">Sr.</option>
               <option value="II">II</option>
@@ -877,6 +837,7 @@ const SignUpForm: React.FC = () => {
                   checked={formData.residency === "resident"}
                   onChange={() => {
                     setFormData({ ...formData, residency: "resident" });
+                    setResidency("resident");
                     setErrors((prev: Record<string, string>) => ({
                       ...prev,
                       residency: "",
@@ -894,6 +855,7 @@ const SignUpForm: React.FC = () => {
                   checked={formData.residency === "nonresident"}
                   onChange={() => {
                     setFormData({ ...formData, residency: "nonresident" });
+                    setResidency("nonresident");
                     setErrors((prev: Record<string, string>) => ({
                       ...prev,
                       residency: "",
@@ -940,7 +902,7 @@ const SignUpForm: React.FC = () => {
                     <select
                       id="district"
                       name="district"
-                      defaultValue=""
+                      value={district}
                       onChange={handleDistrictChange}
                       className={errors["district"] ? styles.errorInput : ""}
                     >
@@ -1003,8 +965,8 @@ const SignUpForm: React.FC = () => {
                     <select
                       id="barangay"
                       name="barangay"
-                      defaultValue=""
-                      onChange={handleInputChange}
+                      value={barangay}
+                      onChange={handlebarangayChange}
                       className={errors["barangay"] ? styles.errorInput : ""}
                     >
                       <option value="" disabled>
@@ -1073,19 +1035,19 @@ const SignUpForm: React.FC = () => {
               <label htmlFor="phoneNumber" className={styles.fieldLabel}>
                 Contact Number <span className={styles.redAsterisk}>*</span>
               </label>
-              <input
-                id="phoneNumber"
-                name="phoneNumber"
-                placeholder="09916594861"
-                type="tel"
-                inputMode="numeric"
-                pattern="\d*"
+              <PhoneInput
+                country={"ph"}
+                onlyCountries={["ph"]}
                 value={phoneNumber}
-                onKeyDown={handlePhoneKeyDown}
-                onPaste={handlePhonePaste}
                 onChange={handlePhoneChange}
-                maxLength={11}
-                className={errors["phoneNumber"] ? styles.errorInput : ""}
+                placeholder="917 123 4567"
+                inputProps={{
+                  id: "phoneNumber",
+                  name: "phoneNumber",
+                  required: true,
+                }}
+                containerClass={errors["phoneNumber"] ? styles.errorInput : ""}
+                inputStyle={{ width: "100%", height: "2.6rem" }}
               />
               {errors["phoneNumber"] && (
                 <div className={styles.fieldError}>{errors["phoneNumber"]}</div>

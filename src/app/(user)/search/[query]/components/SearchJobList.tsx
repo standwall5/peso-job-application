@@ -2,16 +2,16 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import styles from "@/app/(user)/job-opportunities/JobHome.module.css";
-import jobStyle from "../JobsOfCompany.module.css";
+import jobStyle from "@/app/(user)/job-opportunities/[companyId]/JobsOfCompany.module.css";
 import BlocksWave from "@/components/BlocksWave";
 
 import { createClient } from "@/utils/supabase/client";
 import UserProfile from "@/app/(user)/profile/components/UserProfile";
 import Link from "next/link";
 import Button from "@/components/Button";
-import TakeExam from "./TakeExam";
-import ExamResultView from "./ExamResultView";
-import VerifiedIdUpload from "./VerifiedIdUpload";
+import TakeExam from "@/app/(user)/job-opportunities/[companyId]/components/TakeExam";
+import ExamResultView from "@/app/(user)/job-opportunities/[companyId]/components/ExamResultView";
+import VerifiedIdUpload from "@/app/(user)/job-opportunities/[companyId]/components/VerifiedIdUpload";
 import Toast from "@/components/toast/Toast";
 
 interface Job {
@@ -101,15 +101,19 @@ interface ExamAttemptData {
   }>;
 }
 
-const PrivateJobList = ({
+const SearchJobList = ({
   searchParent,
   onSearchChange,
 }: PrivateJobListProps) => {
+  // Get query directly from URL params and decode it
   const params = useParams();
-  const companyId = params.companyId || params.id;
+  const rawQuery = Array.isArray(params.query)
+    ? params.query[0]
+    : params.query || "";
+  const urlQuery = decodeURIComponent(rawQuery);
 
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [search, setSearch] = useState(searchParent || "");
+  const [search, setSearch] = useState(urlQuery || searchParent || "");
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [applicationSelect, setApplicationSelect] = useState("previewResume");
   const [loading, setLoading] = useState(true);
@@ -288,24 +292,24 @@ const PrivateJobList = ({
   useEffect(() => {
     async function fetchData() {
       const supabase = createClient();
-      // Fetch jobs for this company, including company details
+      // Fetch ALL jobs for search functionality
       const { data, error } = await supabase
         .from("jobs")
-        .select("*, companies(*)")
-        .eq("company_id", companyId);
+        .select("*, companies(*)");
 
       if (error) {
         console.log(error);
         return;
       }
-      setJobs(data || []);
+      setJobs(Array.isArray(data) ? data : []);
     }
-    if (companyId) fetchData();
-  }, [companyId]);
+    fetchData();
+  }, []);
 
+  // Update search when URL query changes
   useEffect(() => {
-    setSearch(searchParent || "");
-  }, [searchParent]);
+    setSearch(urlQuery || searchParent || "");
+  }, [urlQuery, searchParent]);
 
   // useEffect(() => {
   //   async function fetchData() {
@@ -393,11 +397,23 @@ const PrivateJobList = ({
     }
   };
 
-  const filteredJobs = jobs.filter(
-    (job) =>
-      job.title.toLowerCase().includes(search.toLowerCase()) ||
-      job.description.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filteredJobs = jobs.filter((job) => {
+    const searchLower = search.toLowerCase();
+    return (
+      job.title?.toLowerCase().includes(searchLower) ||
+      job.description?.toLowerCase().includes(searchLower) ||
+      job.companies?.name?.toLowerCase().includes(searchLower)
+    );
+  });
+
+  console.log("SearchJobList Debug:", {
+    urlQuery,
+    searchParent,
+    search,
+    totalJobs: jobs.length,
+    filteredJobs: filteredJobs.length,
+    sampleJob: jobs[0],
+  });
 
   if (loading || loadingProgress) {
     return <BlocksWave />;
@@ -425,7 +441,7 @@ const PrivateJobList = ({
       >
         <div className={`${styles.jobCompany} ${jobStyle.companyInformation}`}>
           <img
-            src={job.companies?.logo || "/assets/images/default_profile.png"}
+            src={job.companies.logo || "/assets/images/default_profile.png"}
             alt={job.companies.name + " logo"}
             className={styles.companyLogo}
             style={{
@@ -493,18 +509,19 @@ const PrivateJobList = ({
                 <div
                   className={`${styles.jobCompany} ${jobStyle.companyInformation}`}
                 >
-                  {selectedJob.companies?.logo && (
-                    <img
-                      src={selectedJob.companies.logo}
-                      alt={selectedJob.companies.name + " logo"}
-                      className={styles.companyLogo}
-                      style={{
-                        width: "64px",
-                        height: "64px",
-                        objectFit: "contain",
-                      }}
-                    />
-                  )}
+                  <img
+                    src={
+                      selectedJob.companies?.logo ||
+                      "/assets/images/default_profile.png"
+                    }
+                    alt={(selectedJob.companies?.name || "Company") + " logo"}
+                    className={styles.companyLogo}
+                    style={{
+                      width: "64px",
+                      height: "64px",
+                      objectFit: "contain",
+                    }}
+                  />
                   <span>{selectedJob.companies?.name}</span>
                 </div>
                 <div className={jobStyle.jobDetails}>
@@ -787,4 +804,4 @@ const PrivateJobList = ({
   );
 };
 
-export default PrivateJobList;
+export default SearchJobList;

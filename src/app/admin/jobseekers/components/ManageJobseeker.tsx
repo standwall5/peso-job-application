@@ -10,6 +10,7 @@ import ExamResultView from "@/app/(user)/job-opportunities/[companyId]/component
 import BlocksWave from "@/components/BlocksWave";
 import ReferralLetter, { ReferralLetterRef } from "./ReferralLetter";
 import Toast from "@/components/toast/Toast";
+import Image from "next/image";
 
 interface WorkExperience {
   company: string;
@@ -245,6 +246,34 @@ const ManageJobseeker = ({ jobseeker }: { jobseeker: Jobseeker }) => {
     }
   };
 
+  const jobseekerComponent = () => {
+    return (
+      <div className={styles.jobseekerContainer}>
+        <Image
+          src={
+            jobseeker?.resume?.profile_pic_url ||
+            "/assets/images/default_profile.png"
+          }
+          alt="Jobseeker Profile Picture"
+          width={84}
+          height={84}
+        />
+        <div className={styles.jobseekerDetails}>
+          <h2>Applicant</h2>
+          <span className={styles.jobseekerName}>
+            {jobseeker.applicant.name}
+          </span>
+          <span className={styles.jobseekerPreferredPOA}>
+            Preferred Place of Assignment: {jobseeker.applicant.preferred_poa}
+          </span>
+          <span className={styles.jobseekerType}>
+            Applicant Type: {jobseeker.applicant.applicant_type}
+          </span>
+        </div>
+      </div>
+    );
+  };
+
   const previewResumeTab = () => {
     if (!jobseeker.resume) {
       return (
@@ -381,6 +410,7 @@ const ManageJobseeker = ({ jobseeker }: { jobseeker: Jobseeker }) => {
 
   return (
     <section className={styles.manageJobseekerWrapper}>
+      {jobseekerComponent()}
       <div className={styles.nav}>
         <ul className={styles.tabList}>
           {["previewResume", "appliedJobs"].map((tab, idx) => (

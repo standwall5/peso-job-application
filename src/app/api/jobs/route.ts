@@ -29,6 +29,23 @@ export async function PUT(req: NextRequest) {
   }
 
   const body = await req.json();
+
+  // First check if the job exists and user has access
+  const { data: existingJob, error: fetchError } = await supabase
+    .from("jobs")
+    .select("id")
+    .eq("id", id)
+    .single();
+
+  if (fetchError || !existingJob) {
+    console.error("Job not found or no access:", fetchError);
+    return NextResponse.json(
+      { error: "Job not found or access denied" },
+      { status: 404 },
+    );
+  }
+
+  // Now perform the update
   const { data, error } = await supabase
     .from("jobs")
     .update(body)
@@ -40,8 +57,6 @@ export async function PUT(req: NextRequest) {
     console.error("Update job error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-  if (!data) {
-    return NextResponse.json({ error: "Job not found" }, { status: 404 });
-  }
+
   return NextResponse.json(data);
 }
