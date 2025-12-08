@@ -27,6 +27,7 @@ interface Companies {
     education: string;
     eligibility: string;
     posted_date: string;
+    exam_id?: number | null; // ADD THIS LINE
   }[];
   totalJobsPosted: number;
   totalJobsAllCompanies: number;
@@ -41,6 +42,7 @@ interface Job {
   education: string;
   eligibility: string;
   posted_date: string;
+  exam_id?: number | null; // ADD THIS LINE
   companies: {
     name: string;
     logo: string | null;
@@ -73,10 +75,13 @@ interface ExamType {
 const ManageCompany = ({
   company,
   exam,
+  onJobsUpdated,
 }: {
   company: Companies;
   exam: ExamType;
+  onJobsUpdated?: () => void;
 }) => {
+
   const [nav, setNav] = useState("createCompany");
   const [activeIndex, setActiveIndex] = useState(0);
   const tabRefs = useRef<(HTMLLIElement | null)[]>([]);
@@ -124,6 +129,17 @@ const ManageCompany = ({
     fetch("/api/exams")
       .then((response) => response.json())
       .then((data) => setExams(data));
+  };
+
+  const refetchJobs = async () => {
+    const response = await fetch(`/api/getCompaniesAdmin`);
+    const data = await response.json();
+    const updatedCompany = data.companies.find(
+      (c: Companies) => c.id === company.id,
+    );
+    if (updatedCompany) {
+      setJobs(updatedCompany.jobs);
+    }
   };
 
   useEffect(() => {
@@ -331,6 +347,7 @@ const ManageCompany = ({
                 education: job.education,
                 eligibility: job.eligibility,
                 posted_date: job.posted_date,
+                exam_id: job.exam_id,
                 companies: {
                   name: company.name,
                   logo: company.logo || null,
@@ -372,12 +389,39 @@ const ManageCompany = ({
             </p>
           </div>
         ))}
+
+        <Button
+          variant="primary"
+          style={{ marginTop: "1rem" }}
+          onClick={() => {
+            setSelectedJob({
+              id: 0,
+              title: "",
+              description: "",
+              place_of_assignment: "",
+              sex: "Any",
+              education: "Any",
+              eligibility: "With or without experience",
+              posted_date: new Date().toISOString().split("T")[0],
+              exam_id: null,
+              companies: {
+                name: company.name,
+                logo: company.logo || null,
+              },
+            });
+            setShowModal(true);
+          }}
+        >
+          + Add New Job
+        </Button>
+
         {showModal && selectedJob && (
           <PostJobsModal
             company={company}
             job={selectedJob}
             exams={exams}
             fetchExams={fetchExams}
+            refetchJobs={refetchJobs}
             onClose={() => setShowModal(false)}
           />
         )}

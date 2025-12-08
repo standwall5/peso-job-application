@@ -29,6 +29,7 @@ interface Companies {
     education: string;
     eligibility: string;
     posted_date: string;
+    exam_id?: number | null;
   }[];
   totalJobsPosted: number;
   totalJobsAllCompanies: number;
@@ -43,6 +44,7 @@ interface Job {
   education: string;
   eligibility: string;
   posted_date: string;
+  exam_id?: number | null;
   companies: {
     name: string;
     logo: string | null;
@@ -91,15 +93,18 @@ const CompanyProfiles = () => {
 
   // ================== Handlers ==================
 
+  const fetchData = async () => {
+    setLoading(true);
+    const response = await fetch("/api/getCompaniesAdmin");
+    const data = await response.json();
+    console.log("API Response - First company:", data.companies[0]);
+    console.log("API Response - First job:", data.companies[0]?.jobs[0]);
+    setCompanies(Array.isArray(data.companies) ? data.companies : []);
+    setTotalJobsAllCompanies(data.totalJobsAllCompanies ?? 0);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
-      const response = await fetch("/api/getCompaniesAdmin");
-      const data = await response.json();
-      setCompanies(Array.isArray(data.companies) ? data.companies : []);
-      setTotalJobsAllCompanies(data.totalJobsAllCompanies ?? 0);
-      setLoading(false);
-    }
     fetchData();
   }, []);
 
@@ -154,7 +159,11 @@ const CompanyProfiles = () => {
           </div>
           <span>BACK</span>
         </button>
-        <ManageCompany company={selectedCompany} exam={exams} />
+        <ManageCompany
+          company={selectedCompany}
+          exam={exams}
+          onJobsUpdated={fetchData}
+        />
       </section>
     );
   }
@@ -250,6 +259,7 @@ const CompanyProfiles = () => {
                     education: job.education,
                     eligibility: job.eligibility,
                     posted_date: job.posted_date,
+                    exam_id: job.exam_id,
                     companies: {
                       name: selectedCompany.name,
                       logo: selectedCompany.logo ?? null,

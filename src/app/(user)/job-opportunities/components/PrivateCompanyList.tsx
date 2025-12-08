@@ -42,10 +42,12 @@ const PrivateCompanyList = ({
         const companiesData = await companiesRes.json();
         const jobsData = await jobsRes.json();
 
-        setCompanies(companiesData || []);
-        setJobs(jobsData || []);
+        setCompanies(Array.isArray(companiesData) ? companiesData : []);
+        setJobs(Array.isArray(jobsData) ? jobsData : []);
       } catch (err) {
         console.error("Fetch failed:", err);
+        setCompanies([]);
+        setJobs([]);
       } finally {
         setLoading(false);
       }
@@ -65,7 +67,7 @@ const PrivateCompanyList = ({
       company.name.toLowerCase().includes(search.toLowerCase()) ||
       company.industry.toLowerCase().includes(search.toLowerCase()) ||
       company.location.toLowerCase().includes(search.toLowerCase()) ||
-      company.description.toLowerCase().includes(search.toLowerCase())
+      company.description.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -96,16 +98,14 @@ const PrivateCompanyList = ({
                     <p>MANPOWER NEEDS</p>
                   </div>
                   <div className={styles.companyLogoContainer}>
-                    {company.logo && (
-                      <img
-                        src={company.logo}
-                        alt={company.name + " logo"}
-                        className={styles.companyLogo}
-                        style={{
-                          objectFit: "contain",
-                        }}
-                      />
-                    )}
+                    <img
+                      src={company.logo || "/assets/images/default_profile.png"}
+                      alt={company.name + " logo"}
+                      className={styles.companyLogo}
+                      style={{
+                        objectFit: "cover",
+                      }}
+                    />
                   </div>
                   <div className={`${styles.jobCount} ${styles.jobStats}`}>
                     <h3>{getJobCount(company.id)}</h3>

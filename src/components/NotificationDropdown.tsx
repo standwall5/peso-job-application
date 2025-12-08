@@ -18,30 +18,81 @@ interface Notification {
 interface NotificationDropdownProps {
   isOpen: boolean;
   onClose: () => void;
+  onUnreadCountChange?: (count: number) => void;
 }
 
 const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   isOpen,
   onClose,
+  onUnreadCountChange,
 }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [applicantId, setApplicantId] = useState<number | null>(null);
 
   const fetchNotifications = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch("/api/notifications");
       const data = await response.json();
+
+      if (data.error) {
+        console.error("Error fetching notifications:", data.error);
+        setNotifications([]);
+        return;
+      }
+
       setNotifications(Array.isArray(data) ? data : []);
-      setUnreadCount(data.filter((n: Notification) => !n.is_read).length);
+      const unread = data.filter((n: Notification) => !n.is_read).length;
+      setUnreadCount(unread);
+
+      // Notify parent component about unread count
+      if (onUnreadCountChange) {
+        onUnreadCountChange(unread);
+      }
     } catch (error) {
       console.error("Error fetching notifications:", error);
+      setNotifications([]);
     } finally {
       setLoading(false);
     }
+  }, [onUnreadCountChange]);
+
+  // Get current user's applicant ID
+  useEffect(() => {
+    const getApplicantId = async () => {
+      try {
+        const supabase = createClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (user) {
+          const { data: applicant } = await supabase
+            .from("applicants")
+            .select("id")
+            .eq("auth_id", user.id)
+            .single();
+
+          if (applicant) {
+            setApplicantId(applicant.id);
+          }
+        }
+      } catch (error) {
+        console.error("Error getting applicant ID:", error);
+      }
+    };
+
+    getApplicantId();
   }, []);
 
+  // Fetch notifications on mount (realtime will handle updates)
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  // Refresh when dropdown opens
   useEffect(() => {
     if (isOpen) {
       fetchNotifications();
@@ -50,6 +101,8 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
 
   // Real-time subscription to notifications
   useEffect(() => {
+    if (!applicantId) return;
+
     const supabase = createClient();
 
     const channel = supabase
@@ -60,18 +113,21 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
           event: "*",
           schema: "public",
           table: "notifications",
+          filter: `applicant_id=eq.${applicantId}`,
         },
         (payload) => {
           console.log("Notification change:", payload);
           fetchNotifications();
         },
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log("Realtime subscription status:", status);
+      });
 
     return () => {
       channel.unsubscribe();
     };
-  }, [fetchNotifications]);
+  }, [applicantId, fetchNotifications]);
 
   const markAsRead = async (notificationId: number) => {
     try {

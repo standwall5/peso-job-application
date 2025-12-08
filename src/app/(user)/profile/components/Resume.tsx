@@ -49,7 +49,7 @@ const Resume = forwardRef<HTMLDivElement, ResumeProps>(
       workExperiences,
       profileIntroduction,
     },
-    ref
+    ref,
   ) => {
     return (
       <div ref={ref} className={styles.resumeRoot}>
@@ -68,7 +68,7 @@ const Resume = forwardRef<HTMLDivElement, ResumeProps>(
         <section className={styles.section}>
           <h6 className={styles.sectionTitle}>Personal Information</h6>
           <div className={styles.personalInfo}>
-            <div>BirthDate: {birthDate}</div>
+            <div>Birth Date: {birthDate}</div>
             <div>
               {address}, {barangay}
             </div>
@@ -105,25 +105,27 @@ const Resume = forwardRef<HTMLDivElement, ResumeProps>(
           </ul>
         </section>
 
-        <section className={styles.section}>
-          <h6 className={styles.sectionTitle}>Work Experiences</h6>
-          {(Array.isArray(workExperiences) ? workExperiences : []).map(
-            (work: WorkExperience, idx: number) => (
-              <div className={styles.workExpRow} key={idx}>
-                <div className={styles.workExpLeft}>
-                  <strong>{work.company}</strong>
-                  <div>{work.position}</div>
-                </div>
-                <div className={styles.workExpRight}>
-                  <div>{work.location}</div>
-                  <div>
-                    {work.start_date} - {work.end_date}
+        {workExperiences.WorkExperience && (
+          <section className={styles.section}>
+            <h6 className={styles.sectionTitle}>Work Experiences</h6>
+            {(Array.isArray(workExperiences) ? workExperiences : []).map(
+              (work: WorkExperience, idx: number) => (
+                <div className={styles.workExpRow} key={idx}>
+                  <div className={styles.workExpLeft}>
+                    <strong>{work.company}</strong>
+                    <div>{work.position}</div>
+                  </div>
+                  <div className={styles.workExpRight}>
+                    <div>{work.location}</div>
+                    <div>
+                      {work.start_date} - {work.end_date}
+                    </div>
                   </div>
                 </div>
-              </div>
-            )
-          )}
-        </section>
+              ),
+            )}
+          </section>
+        )}
 
         <section className={styles.section}>
           <h6 className={styles.sectionTitle}>Profile</h6>
@@ -133,7 +135,7 @@ const Resume = forwardRef<HTMLDivElement, ResumeProps>(
         </section>
       </div>
     );
-  }
+  },
 );
 
 Resume.displayName = "Resume";

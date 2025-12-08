@@ -7,6 +7,10 @@
     margin: 2rem 10rem;
 }
 
+.jobList {
+    margin-bottom: 1rem;
+}
+
 /* Mobile Media Queries */
 @media (max-width: 768px) {
     .searchContent {

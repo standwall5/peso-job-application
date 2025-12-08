@@ -215,8 +215,16 @@
 }
 
 .resumeButton {
+<<<<<<< HEAD
     position: static;
     margin: 0;
+=======
+    position: absolute;
+    bottom: 4rem;
+    right: 15rem;
+    margin: 2rem auto;
+    /* display: block; */
+>>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
     padding: 0.5rem 1.5rem;
     font-variant: 600;
     border-radius: 6;

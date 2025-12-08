@@ -179,13 +179,18 @@ nav {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow: auto;
 }
 
 .content {
     flex: 1;
     display: flex;
     flex-direction: column;
-    margin: 2rem;
+    margin: auto 2rem;
+    /*margin-bottom: 1rem;*/
+    /*min-height: 100lvh;*/
+    /*overflow: auto;*/
+    /*overflow: hidden;*/
 }
 
 footer {
@@ -194,6 +199,7 @@ footer {
         rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
         rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 
+    /*margin-top: 10rem;*/
     margin-top: auto;
     padding: 1rem;
     text-align: center;

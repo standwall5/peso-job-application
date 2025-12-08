@@ -4,7 +4,13 @@ import React, { useState, useCallback, useRef, useEffect } from "react";
 import styles from "./SignUp.module.css";
 import { signup } from "@/lib/auth-actions";
 import Link from "next/link";
+<<<<<<< HEAD
 import Image from "next/image";
+=======
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+// import { Fascinate_Inline } from "next/font/google";
+>>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
 
 const SignUpForm: React.FC = () => {
   const [district, setDistrict] = useState<string>("");
@@ -31,7 +37,7 @@ const SignUpForm: React.FC = () => {
     district: "",
     preferredPlaceOfAssignment: "",
     barangay: "",
-  });  
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showFormNotice, setShowFormNotice] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -52,18 +58,12 @@ const SignUpForm: React.FC = () => {
     "firstName",
     "lastName",
     "address",
-    "district",
-    "barangay",
     "applicantType",
     "password",
     "confirmPassword",
     "validId",
     "selfieWithId",
     "acceptTerms",
-    "email",
-    "phoneNumber",
-    "residency",
-    "preferredPlaceOfAssignment",
   ];
 
   // Automatically toggle form notice based on current errors
@@ -136,7 +136,7 @@ const SignUpForm: React.FC = () => {
       uppercase: /[A-Z]/.test(passwordValue),
       lowercase: /[a-z]/.test(passwordValue),
       number: /\d/.test(passwordValue),
-      special: /[~!@#$%^&*()_+-={}|:;"'<>,.?/]/.test(passwordValue)
+      special: /[~!@#$%^&*()_+-={}|:;"'<>,.?/]/.test(passwordValue),
     };
     setPasswordRequirements(requirements);
     return Object.values(requirements).every(Boolean);
@@ -154,6 +154,7 @@ const SignUpForm: React.FC = () => {
   };
 
   // Phone number handlers
+<<<<<<< HEAD
   const handlePhoneKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const allowed =
       e.key === "Backspace" ||
@@ -219,9 +220,19 @@ const SignUpForm: React.FC = () => {
     } else if (digits.length !== 10) {
       newErrors.phoneNumber = "Mobile number must have 10 digits after +63";
     } else {
+=======
+  const handlePhoneChange = (value: string, country: { dialCode: string }) => {
+    // Value comes without the '+'
+    const fullNumber = value.startsWith("63") ? "+" + value : value;
+    setPhoneNumber(fullNumber);
+
+    // Clear error if it exists (only validate on submit)
+    if (errors.phoneNumber) {
+      const newErrors = { ...errors };
+>>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
       delete newErrors.phoneNumber;
+      setErrors(newErrors);
     }
-    setErrors(newErrors);
   };
 
   // Gender handlers
@@ -259,6 +270,7 @@ const SignUpForm: React.FC = () => {
     setErrors(newErrors);
   };
 
+<<<<<<< HEAD
     // Barangay handler
     const handlebarangayChange = (
       e: React.ChangeEvent<HTMLSelectElement>
@@ -271,10 +283,30 @@ const SignUpForm: React.FC = () => {
       else delete newErrors.barangay;
       setErrors(newErrors);
     };
+=======
+  // Residence handler
+  const handleResidencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const v = e.target.value;
+    setResidency(v);
+    const newErrors = { ...errors };
+    if (!v) newErrors.recidency = "Please select Residence";
+    else delete newErrors.residency;
+    setErrors(newErrors);
+  };
+  // Barangay handler
+  const handlebarangayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const v = e.target.value;
+    setbarangay(v);
+    const newErrors = { ...errors };
+    if (!v) newErrors.barangay = "Please select Barangay";
+    else delete newErrors.barangay;
+    setErrors(newErrors);
+  };
+>>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
 
   // Preferred place handler
   const handlePreferredPlaceChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
+    e: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     const v = e.target.value;
     setPreferredPlace(v);
@@ -297,7 +329,7 @@ const SignUpForm: React.FC = () => {
 
   // GENERIC input change handler to clear errors for simple required fields
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const name = e.target.name;
     const value = (e.target as HTMLInputElement).value;
@@ -370,12 +402,23 @@ const SignUpForm: React.FC = () => {
     // Phone validations (phone is required)
     if (!phoneNumber || phoneNumber.trim() === "") {
       newErrors.phoneNumber = "Contact number is required";
+<<<<<<< HEAD
     } else if (!/^\d+$/.test(phoneNumber)) {
       newErrors.phoneNumber = "Phone number must contain digits only";
     } else if (!phoneNumber.startsWith("9")) {
       newErrors.phoneNumber = "Mobile number must start with 9";
     } else if (phoneNumber.length !== 10) {
       newErrors.phoneNumber = "Mobile number must have 10 digits after +63";
+=======
+    } else if (
+      !phoneNumber.startsWith("+63") &&
+      !phoneNumber.startsWith("63")
+    ) {
+      newErrors.phoneNumber = "Only Philippines phone numbers are allowed";
+    } else if (phoneNumber.replace(/\D/g, "").length !== 12) {
+      newErrors.phoneNumber =
+        "Please enter a valid Philippines phone number (10 digits)";
+>>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
     }
 
     // Email validation (required)
@@ -390,14 +433,12 @@ const SignUpForm: React.FC = () => {
 
     // Residence validation (required)
     if (!residency || residency.trim() === "") {
-      newErrors.residence =
-        "Residence is required";
+      newErrors.residency = "Residence is required";
     }
 
     // Barangay validation (required)
     if (!barangay || barangay.trim() === "") {
-      newErrors.barangay =
-        "Barangay is required";
+      newErrors.barangay = "Barangay is required";
     }
 
     // Preferred place validation (required)
@@ -449,9 +490,10 @@ const SignUpForm: React.FC = () => {
     }
 
     if (!applicantType || applicantType.length === 0) {
-  newErrors.applicantType = "Please select at least one applicant type";
-}
+      newErrors.applicantType = "Please select at least one applicant type";
+    }
 
+<<<<<<< HEAD
     if (applicantType.includes("Others")) {
       const othersValue = (
         formEl.elements.namedItem("othersSpecify") as HTMLInputElement | null
@@ -461,6 +503,15 @@ const SignUpForm: React.FC = () => {
       }
     }
 
+=======
+    // Retrieve disability type and PWD number from form
+    const disabilityType =
+      (formEl.elements.namedItem("disabilityType") as HTMLSelectElement | null)
+        ?.value || "";
+    const pwdNumber =
+      (formEl.elements.namedItem("pwdNumber") as HTMLInputElement | null)
+        ?.value || "";
+>>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
 
     // Applicant-specific ID fields OPTIONAL
     if (Object.keys(newErrors).length > 0) {
@@ -474,16 +525,21 @@ const SignUpForm: React.FC = () => {
     const formData = new FormData(formEl);
     formData.set(
       "gender",
-      gender === "Others" ? genderOther || "Others" : gender
+      gender === "Others" ? genderOther || "Others" : gender,
     );
     formData.set("phoneNumber", `+63${phoneNumber}`);
     formData.set("birthDate", birthDate);
     formData.set("email", emailValue);
     formData.set("residency", residency);
-    formData.set("Barangay",barangay);
+    formData.set("Barangay", barangay);
     formData.set("district", district);
     formData.set("preferredPlaceOfAssignment", preferredPlace);
     formData.set("extName", extNameValue);
+    formData.set("applicantType", applicantType.join(", "));
+    formData.set("disabilityType", disabilityType);
+    if (pwdNumber) {
+      formData.set("pwdNumber", pwdNumber);
+    }
 
     const result = await signup(formData);
 
@@ -613,7 +669,7 @@ const SignUpForm: React.FC = () => {
               }}
               className={errors["extName"] ? styles.errorInput : ""}
             >
-              <option value="None">None</option>
+              <option value="">None</option>
               <option value="Jr.">Jr.</option>
               <option value="Sr.">Sr.</option>
               <option value="II">II</option>
@@ -704,7 +760,7 @@ const SignUpForm: React.FC = () => {
             </div>
           </div>
 
-                    {/* Applicant Type (Checkbox Version) */}
+          {/* Applicant Type (Checkbox Version) */}
           <div className={styles.fullRow}>
             <div className={styles.applicantTypeContainer}>
               <label className={styles.fieldLabel}>
@@ -750,16 +806,19 @@ const SignUpForm: React.FC = () => {
               </div>
 
               {errors["applicantType"] && (
-                <div className={styles.fieldError}>{errors["applicantType"]}</div>
+                <div className={styles.fieldError}>
+                  {errors["applicantType"]}
+                </div>
               )}
             </div>
 
             {/* CONDITIONAL TEXT FIELDS */}
             <div className={styles.fullWidthBox}>
-
               {applicantType.includes("Student") && (
                 <div className={styles.conditionalField}>
-                  <label className={styles.fieldLabel}>Student ID (Optional)</label>
+                  <label className={styles.fieldLabel}>
+                    Student ID (Optional)
+                  </label>
                   <input
                     type="text"
                     name="studentId"
@@ -768,69 +827,95 @@ const SignUpForm: React.FC = () => {
                 </div>
               )}
 
-          {applicantType.includes("Person with Disability (PWD)") && (
-            <>
-              <div style={{ flex: 1 }}>
-                <label htmlFor="disabilityType" className={styles.fieldLabel}>
-                  Disability Type <span className={styles.redAsterisk}>*</span>
-                </label>
-                <select
-                  id="disabilityType"
-                  name="disabilityType"
-                  defaultValue=""
-                  className={errors["disabilityType"] ? styles.errorInput : ""}
-                  onChange={handleInputChange}
-                >
-                  <option value="" disabled>
-                    Disability Type
-                  </option>
-                  <option value="Hearing">Hearing</option>
-                  <option value="Visual">Visual</option>
-                  <option value="Mobility">Mobility</option>
-                  <option value="Intellectual">Intellectual</option>
-                  <option value="Psychosocial">Psychosocial</option>
-                  <option value="Others">Others</option>
-                </select>
-                {errors["disabilityType"] && (
-                  <div className={styles.fieldError}>{errors["disabilityType"]}</div>
-                )}
-              </div>
+              {applicantType.includes("Person with Disability (PWD)") && (
+                <>
+                  <div style={{ flex: 1 }}>
+                    <label
+                      htmlFor="disabilityType"
+                      className={styles.fieldLabel}
+                    >
+                      Disability Type{" "}
+                      <span className={styles.redAsterisk}>*</span>
+                    </label>
+                    <select
+                      id="disabilityType"
+                      name="disabilityType"
+                      defaultValue=""
+                      className={
+                        errors["disabilityType"] ? styles.errorInput : ""
+                      }
+                      onChange={handleInputChange}
+                    >
+                      <option value="" disabled>
+                        Disability Type
+                      </option>
+                      <option value="Hearing">Hearing</option>
+                      <option value="Visual">Visual</option>
+                      <option value="Mobility">Mobility</option>
+                      <option value="Intellectual">Intellectual</option>
+                      <option value="Psychosocial">Psychosocial</option>
+                      <option value="Others">Others</option>
+                    </select>
+                    {errors["disabilityType"] && (
+                      <div className={styles.fieldError}>
+                        {errors["disabilityType"]}
+                      </div>
+                    )}
+                  </div>
 
-              <div style={{ flex: 1 }}>
-                <label htmlFor="pwdNumber" className={styles.fieldLabel}>
-                  PWD ID Number (Optional)
-                </label>
-                <input
-                  id="pwdNumber"
-                  name="pwdNumber"
-                  type="text"
-                  onChange={handleInputChange}
-                  className={errors["pwdNumber"] ? styles.errorInput : ""}
-                />
-                {errors["pwdNumber"] && (
-                  <div className={styles.fieldError}>{errors["pwdNumber"]}</div>
-                )}
-              </div>
-            </>
-          )}
-              {applicantType.includes("Returning Overseas Filipino Worker (OFW)") && (
+                  <div style={{ flex: 1 }}>
+                    <label htmlFor="pwdNumber" className={styles.fieldLabel}>
+                      PWD ID Number (Optional)
+                    </label>
+                    <input
+                      id="pwdNumber"
+                      name="pwdNumber"
+                      type="text"
+                      onChange={handleInputChange}
+                      className={errors["pwdNumber"] ? styles.errorInput : ""}
+                    />
+                    {errors["pwdNumber"] && (
+                      <div className={styles.fieldError}>
+                        {errors["pwdNumber"]}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+              {applicantType.includes(
+                "Returning Overseas Filipino Worker (OFW)",
+              ) && (
                 <div className={styles.conditionalField}>
-                  <label className={styles.fieldLabel}>OFW ID Number (Optional)</label>
+                  <label className={styles.fieldLabel}>
+                    OFW ID Number (Optional)
+                  </label>
                   <input id="ofwNumber" name="ofwNumber" type="text" />
                 </div>
               )}
 
               {applicantType.includes("Senior Citizen") && (
                 <div className={styles.conditionalField}>
-                  <label className={styles.fieldLabel}>Senior Citizen ID (Optional)</label>
-                  <input id="seniorCitizenNumber" name="seniorCitizenNumber" type="text" />
+                  <label className={styles.fieldLabel}>
+                    Senior Citizen ID (Optional)
+                  </label>
+                  <input
+                    id="seniorCitizenNumber"
+                    name="seniorCitizenNumber"
+                    type="text"
+                  />
                 </div>
               )}
 
               {applicantType.includes("Solo Parent/Single Parent") && (
                 <div className={styles.conditionalField}>
-                  <label className={styles.fieldLabel}>Solo Parent ID (Optional)</label>
-                  <input id="soloParentNumber" name="soloParentNumber" type="text" />
+                  <label className={styles.fieldLabel}>
+                    Solo Parent ID (Optional)
+                  </label>
+                  <input
+                    id="soloParentNumber"
+                    name="soloParentNumber"
+                    type="text"
+                  />
                 </div>
               )}
 
@@ -856,13 +941,15 @@ const SignUpForm: React.FC = () => {
             </div>
           </div>
 
-
-                    {/* ------------------ ADDRESS SECTION ------------------ */}
+          {/* ------------------ ADDRESS SECTION ------------------ */}
           <div className={styles.addressSection}>
-          <h3 className={styles.fieldLabelTitle}>Address Information 
-            <span className={styles.redAsterisk}>*</span></h3>
+            <h3 className={styles.fieldLabelTitle}>
+              Address Information
+              <span className={styles.redAsterisk}>*</span>
+            </h3>
 
             {/* Residency Radio Buttons */}
+<<<<<<< HEAD
           <div
             className={
               errors["residency"]
@@ -906,11 +993,56 @@ const SignUpForm: React.FC = () => {
               Non-Resident of Parañaque
             </label>
           </div>
+=======
+            <div
+              className={
+                errors["residency"]
+                  ? `${styles.residencyOptions} ${styles.radioError}`
+                  : styles.residencyOptions
+              }
+            >
+              <label>
+                <input
+                  type="radio"
+                  name="residency"
+                  value="resident"
+                  checked={formData.residency === "resident"}
+                  onChange={() => {
+                    setFormData({ ...formData, residency: "resident" });
+                    setResidency("resident");
+                    setErrors((prev: Record<string, string>) => ({
+                      ...prev,
+                      residency: "",
+                    }));
+                  }}
+                />
+                Resident of Parañaque
+              </label>
 
-          {/* Residency error message */}
-          {errors["residency"] && ( 
-            <div className={styles.fieldError}>{errors["residency"]}</div>
-        )}
+              <label>
+                <input
+                  type="radio"
+                  name="residency"
+                  value="nonresident"
+                  checked={formData.residency === "nonresident"}
+                  onChange={() => {
+                    setFormData({ ...formData, residency: "nonresident" });
+                    setResidency("nonresident");
+                    setErrors((prev: Record<string, string>) => ({
+                      ...prev,
+                      residency: "",
+                    }));
+                  }}
+                />
+                Non-Resident of Parañaque
+              </label>
+            </div>
+>>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
+
+            {/* Residency error message */}
+            {errors["residency"] && (
+              <div className={styles.fieldError}>{errors["residency"]}</div>
+            )}
 
             {/* Only Address */}
             <div className={styles.fullRow}>
@@ -935,31 +1067,28 @@ const SignUpForm: React.FC = () => {
             {formData.residency === "resident" && (
               <div className={styles.geographicalRow}>
                 <div className={styles.leftColumn}>
-
                   {/* District */}
                   <div>
-                    <label htmlFor="district" 
-                    className={styles.fieldLabel}
-                    >
-                      District {" "} 
-                      <span className={styles.redAsterisk}>*</span>
+                    <label htmlFor="district" className={styles.fieldLabel}>
+                      District <span className={styles.redAsterisk}>*</span>
                     </label>
                     <select
                       id="district"
                       name="district"
-                      defaultValue=""
+                      value={district}
                       onChange={handleDistrictChange}
-                      className={errors["district"] 
-                        ? styles.errorInput 
-                        : ""}
+                      className={errors["district"] ? styles.errorInput : ""}
                     >
-                      <option value="" disabled>Select District</option>
+                      <option value="" disabled>
+                        Select District
+                      </option>
                       <option value="District 1">District 1</option>
                       <option value="District 2">District 2</option>
                     </select>
                     {errors["district"] && (
                       <div className={styles.fieldError}>
-                        {errors["district"]}</div>
+                        {errors["district"]}
+                      </div>
                     )}
                   </div>
 
@@ -983,7 +1112,9 @@ const SignUpForm: React.FC = () => {
                           : ""
                       }
                     >
-                      <option value="" disabled>Select Preferred Place of Assignment</option>
+                      <option value="" disabled>
+                        Select Preferred Place of Assignment
+                      </option>
                       <option value="Paranaque">Paranaque</option>
                       <option value="Bacoor">Bacoor</option>
                       <option value="Las Piñas">Las Piñas</option>
@@ -1002,16 +1133,22 @@ const SignUpForm: React.FC = () => {
                   {/* Barangay */}
                   <div>
                     <label htmlFor="barangay" className={styles.fieldLabel}>
-                      Barangay {" "} <span className={styles.redAsterisk}>*</span>
+                      Barangay <span className={styles.redAsterisk}>*</span>
                     </label>
                     <select
                       id="barangay"
                       name="barangay"
+<<<<<<< HEAD
                       defaultValue=""
+=======
+                      value={barangay}
+>>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
                       onChange={handlebarangayChange}
                       className={errors["barangay"] ? styles.errorInput : ""}
                     >
-                      <option value="" disabled>Select Barangay</option>
+                      <option value="" disabled>
+                        Select Barangay
+                      </option>
 
                       {district === "District 1" && (
                         <>
@@ -1052,7 +1189,6 @@ const SignUpForm: React.FC = () => {
             )}
           </div>
 
-
           {/* contact */}
           <div className={styles.fullRow}>
             <div>
@@ -1076,6 +1212,7 @@ const SignUpForm: React.FC = () => {
               <label htmlFor="phoneNumber" className={styles.fieldLabel}>
                 Contact Number <span className={styles.redAsterisk}>*</span>
               </label>
+<<<<<<< HEAD
               <div
                 className={
                   errors["phoneNumber"]
@@ -1110,6 +1247,22 @@ const SignUpForm: React.FC = () => {
                   className={styles.phoneNumberInput}
                 />
               </div>
+=======
+              <PhoneInput
+                country={"ph"}
+                onlyCountries={["ph"]}
+                value={phoneNumber}
+                onChange={handlePhoneChange}
+                placeholder="917 123 4567"
+                inputProps={{
+                  id: "phoneNumber",
+                  name: "phoneNumber",
+                  required: true,
+                }}
+                containerClass={errors["phoneNumber"] ? styles.errorInput : ""}
+                inputStyle={{ width: "100%", height: "2.6rem" }}
+              />
+>>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
               {errors["phoneNumber"] && (
                 <div className={styles.fieldError}>{errors["phoneNumber"]}</div>
               )}
@@ -1271,15 +1424,15 @@ const SignUpForm: React.FC = () => {
                 password.length === 0
                   ? styles["neutral"]
                   : passwordRequirements.length
-                  ? styles["valid"]
-                  : styles["invalid"]
+                    ? styles["valid"]
+                    : styles["invalid"]
               }`}
             >
               {password.length === 0
                 ? "○"
                 : passwordRequirements.length
-                ? "✓"
-                : "✗"}{" "}
+                  ? "✓"
+                  : "✗"}{" "}
               At least 8 characters
             </div>
             <div
@@ -1287,15 +1440,15 @@ const SignUpForm: React.FC = () => {
                 password.length === 0
                   ? styles["neutral"]
                   : passwordRequirements.uppercase
-                  ? styles["valid"]
-                  : styles["invalid"]
+                    ? styles["valid"]
+                    : styles["invalid"]
               }`}
             >
               {password.length === 0
                 ? "○"
                 : passwordRequirements.uppercase
-                ? "✓"
-                : "✗"}{" "}
+                  ? "✓"
+                  : "✗"}{" "}
               At least 1 uppercase letter
             </div>
             <div
@@ -1303,15 +1456,15 @@ const SignUpForm: React.FC = () => {
                 password.length === 0
                   ? styles["neutral"]
                   : passwordRequirements.lowercase
-                  ? styles["valid"]
-                  : styles["invalid"]
+                    ? styles["valid"]
+                    : styles["invalid"]
               }`}
             >
               {password.length === 0
                 ? "○"
                 : passwordRequirements.lowercase
-                ? "✓"
-                : "✗"}{" "}
+                  ? "✓"
+                  : "✗"}{" "}
               At least 1 lowercase letter
             </div>
             <div
@@ -1319,15 +1472,15 @@ const SignUpForm: React.FC = () => {
                 password.length === 0
                   ? styles["neutral"]
                   : passwordRequirements.number
-                  ? styles["valid"]
-                  : styles["invalid"]
+                    ? styles["valid"]
+                    : styles["invalid"]
               }`}
             >
               {password.length === 0
                 ? "○"
                 : passwordRequirements.number
-                ? "✓"
-                : "✗"}{" "}
+                  ? "✓"
+                  : "✗"}{" "}
               At least 1 number
             </div>
             <div
@@ -1335,15 +1488,15 @@ const SignUpForm: React.FC = () => {
                 password.length === 0
                   ? styles["neutral"]
                   : passwordRequirements.special
-                  ? styles["valid"]
-                  : styles["invalid"]
+                    ? styles["valid"]
+                    : styles["invalid"]
               }`}
             >
               {password.length === 0
                 ? "○"
                 : passwordRequirements.special
-                ? "✓"
-                : "✗"}{" "}
+                  ? "✓"
+                  : "✗"}{" "}
               At least 1 special character (!@#$%&)
             </div>
           </div>
@@ -1445,7 +1598,7 @@ const SignUpForm: React.FC = () => {
                 setExtNameValue("None");
                 setShowFormNotice(false);
                 const form = document.querySelector(
-                  "form"
+                  "form",
                 ) as HTMLFormElement | null;
                 if (form) form.reset();
               }}

@@ -97,18 +97,18 @@ const PublicJobList = () => {
               <div
                 className={`${styles.jobCompany} ${jobStyle.companyInformation}`}
               >
-                {job.companies?.logo && (
-                  <img
-                    src={job.companies.logo}
-                    alt={job.companies.name + " logo"}
-                    className={styles.companyLogo}
-                    style={{
-                      width: "64px",
-                      height: "64px",
-                      objectFit: "contain",
-                    }}
-                  />
-                )}
+                <img
+                  src={
+                    job.companies?.logo || "/assets/images/default_profile.png"
+                  }
+                  alt={job.companies?.name + " logo"}
+                  className={styles.companyLogo}
+                  style={{
+                    width: "64px",
+                    height: "64px",
+                    objectFit: "contain",
+                  }}
+                />
                 <span>{job.companies?.name}</span>
               </div>
               <div className={jobStyle.jobDetails}>

@@ -24,6 +24,7 @@ interface Companies {
     education: string;
     eligibility: string;
     posted_date: string;
+    exam_id?: number | null;
   }[];
   totalJobsPosted: number;
   totalJobsAllCompanies: number;
@@ -38,6 +39,7 @@ interface Jobs {
   education: string;
   eligibility: string;
   posted_date: string;
+  exam_id?: number | null;
   companies: {
     name: string;
     logo: string | null;
@@ -50,6 +52,7 @@ interface PostJobsModalProps {
   exams: ExamType[];
   fetchExams: () => void;
   onClose?: () => void;
+  refetchJobs?: () => void; // Add this
 }
 
 const PostJobsModal: React.FC<PostJobsModalProps> = ({
@@ -58,9 +61,16 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
   onClose,
   exams,
   fetchExams,
+  refetchJobs,
 }) => {
   // Track which exam is selected for this job
-  const [selectedExamId, setSelectedExamId] = useState<number | null>(null);
+  const [selectedExamId, setSelectedExamId] = useState<number | null>(
+    job?.exam_id ?? null,
+  );
+
+  console.log("PostJobsModal - selectedExamId:", selectedExamId);
+  console.log("PostJobsModal - job.exam_id:", job?.exam_id);
+  console.log("PostJobsModal - full job:", job);
 
   const handleExamSelect = (examId: number) => {
     setSelectedExamId(examId);
@@ -108,6 +118,8 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
         throw new Error(error.error || "Failed to save job");
       }
 
+      if (refetchJobs) refetchJobs();
+
       // Optionally, you can refresh jobs/exams here
       if (onClose) onClose();
     } catch (err) {
@@ -132,21 +144,34 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
             <input
               id="poa"
               type="text"
+              name="poa"
               defaultValue={job.place_of_assignment}
+              required
             />
 
             <label htmlFor="title">Job Title</label>
-            <input id="title" type="text" defaultValue={job.title} />
+            <input
+              id="title"
+              type="text"
+              name="title"
+              defaultValue={job.title}
+              required
+            />
 
             <label htmlFor="gender">Gender</label>
-            <select id="gender" defaultValue={job.sex}>
+            <select id="gender" name="gender" defaultValue={job.sex} required>
               <option value="Female">Female</option>
               <option value="Male">Male</option>
               <option value="Any">Any</option>
             </select>
 
             <label htmlFor="education">Education</label>
-            <select id="education" defaultValue={job.education}>
+            <select
+              id="education"
+              name="education"
+              defaultValue={job.education}
+              required
+            >
               <option value="Senior High School or Graduate">
                 Senior High School or Graduate
               </option>
@@ -155,7 +180,12 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
             </select>
 
             <label htmlFor="eligibility">Eligibility</label>
-            <select id="eligibility" defaultValue={job.eligibility}>
+            <select
+              id="eligibility"
+              name="eligibility"
+              defaultValue={job.eligibility}
+              required
+            >
               <option value="With or without experience">
                 With or without experience
               </option>

@@ -5,14 +5,13 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     justify-content: flex-start;
 }
 
 .nav {
     position: relative;
-    max-width: max-content;
-    margin-left: 3rem;
+    width: auto;
 }
 
 .nav ul {
@@ -46,6 +45,42 @@
     box-shadow: rgba(0, 0, 0, 0.5) 0px 2px 8px;
     overflow-y: auto;
     padding: 2rem;
+}
+
+.jobseekerContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.jobseekerContainer img {
+    border-radius: 100%;
+    border: 1px solid black;
+}
+
+.jobseekerDetails {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.jobseekerContainer h2 {
+    font-weight: bold;
+    text-align: center;
+    font-size: 1rem;
+    align-self: center;
+}
+
+.jobseekerName {
+    font-size: 1rem;
+}
+
+.jobseekerPreferredPOA,
+.jobseekerType {
+    font-size: 0.7rem;
 }
 
 .resumeContainer {
