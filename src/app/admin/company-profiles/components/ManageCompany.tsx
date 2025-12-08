@@ -107,7 +107,6 @@ const ManageCompany = ({
     setToast({ show: true, title, message });
   };
 
-  const [selectedExam, setSelectedExam] = useState(exam);
   const [showModal, setShowModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
