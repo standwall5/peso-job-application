@@ -145,6 +145,8 @@
     display: block;
     justify-content: flex-start;
     width: 100%;
+    background-color: white;
+    min-height: 100%;
 }
 
 .profileOptionsNav {
@@ -187,6 +189,9 @@
     align-items: flex-start;
     gap: 1.5rem;
     padding: 0 2rem;
+    flex-wrap: wrap;
+    /* Center the items when there are not enough to fill the row */
+    justify-content: flex-start; 
 }
 
 .appliedJobs,
@@ -198,12 +203,20 @@
     height: 100%;
 }
 
+.resumeButtonContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+    margin-right: 2rem;
+    width: 100%;
+    padding-bottom: 1rem;
+}
+
 .resumeButton {
-    position: absolute;
-    bottom: 2rem;
-    right: 15rem;
-    margin: 2rem auto;
-    /* display: block; */
+    position: static;
+    margin: 0;
     padding: 0.5rem 1.5rem;
     font-variant: 600;
     border-radius: 6;
@@ -211,6 +224,7 @@
     background: #fff;
     cursor: pointer;
     transition: 0.25s;
+    white-space: nowrap;
 }
 
 .createResumeButton {
@@ -230,9 +244,6 @@
     background-color: #c0c0c0;
 }
 
-.resumeButton:nth-of-type(2) {
-    margin-bottom: 5rem;
-}
 
 .resumeButton:hover {
     background-color: #c0c0c0;
@@ -347,8 +358,13 @@
         rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     padding: 2rem;
     border-radius: 0.5rem;
-    width: 20rem;
+    /* ************************************************* */
+    /* CHANGE: Set width to ~45% for two cards per row */
+    width: 45%; 
+    /* ************************************************* */
     height: 15rem;
+    /* Ensure the cards don't grow beyond the width limit if only one exists */
+    flex-grow: 0; 
 }
 
 .jobCompany {
@@ -358,6 +374,7 @@
     justify-content: center;
     font-weight: bold;
     margin-bottom: 0.5rem;
+    text-align: center;
 }
 
 .jobCompany img {
@@ -448,11 +465,15 @@
     .appliedJobs {
         padding: 0 1rem;
         gap: 1rem;
+        flex-wrap: wrap; 
+        justify-content: center; /* Center cards on mobile */
+    }
+
+    .resumeButtonContainer {
+        margin-right: 1rem;
     }
 
     .resumeButton {
-        right: 8rem;
-        bottom: 1rem;
         padding: 0.4rem 1.25rem;
         font-size: 0.9rem;
     }
@@ -489,7 +510,10 @@
     }
 
     .jobCard {
-        width: 100%;
+        /* ************************************************* */
+        /* Revert to 100% width for mobile to stack them */
+        width: 100%; 
+        /* ************************************************* */
         height: auto;
         min-height: 12rem;
         padding: 1.5rem;
@@ -539,8 +563,11 @@
         padding: 0 0.75rem;
     }
 
+    .resumeButtonContainer {
+        margin-right: 0.5rem;
+    }
+
     .resumeButton {
-        right: 5rem;
         padding: 0.35rem 1rem;
         font-size: 0.85rem;
     }

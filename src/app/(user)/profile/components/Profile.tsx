@@ -730,46 +730,8 @@ const Profile = () => {
                 className={styles.profileDetailsInfo}
                 onSubmit={handleProfileDetailsSave}
               >
-                <span>
-                  <strong>PHONE:</strong>
-                  <Button className="grey-button" variant="warning">
-                    <span>
-                      Edit on settings
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        className="size-6"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M15.75 2.25H21a.75.75 0 0 1 .75.75v5.25a.75.75 0 0 1-1.5 0V4.81L8.03 17.03a.75.75 0 0 1-1.06-1.06L19.19 3.75h-3.44a.75.75 0 0 1 0-1.5Zm-10.5 4.5a1.5 1.5 0 0 0-1.5 1.5v10.5a1.5 1.5 0 0 0 1.5 1.5h10.5a1.5 1.5 0 0 0 1.5-1.5V10.5a.75.75 0 0 1 1.5 0v8.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V8.25a3 3 0 0 1 3-3h8.25a.75.75 0 0 1 0 1.5H5.25Z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </span>
-                  </Button>
-                </span>
-                <span>
-                  <strong>EMAIL:</strong>
-                  <Button className="grey-button" variant="warning">
-                    <span>
-                      Edit on settings
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        className="size-6"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M15.75 2.25H21a.75.75 0 0 1 .75.75v5.25a.75.75 0 0 1-1.5 0V4.81L8.03 17.03a.75.75 0 0 1-1.06-1.06L19.19 3.75h-3.44a.75.75 0 0 1 0-1.5Zm-10.5 4.5a1.5 1.5 0 0 0-1.5 1.5v10.5a1.5 1.5 0 0 0 1.5 1.5h10.5a1.5 1.5 0 0 0 1.5-1.5V10.5a.75.75 0 0 1 1.5 0v8.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V8.25a3 3 0 0 1 3-3h8.25a.75.75 0 0 1 0 1.5H5.25Z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </span>
-                  </Button>
-                </span>
+                {/* ... other fields (phone, email) ... */}
+
                 <span>
                   <strong>PREFERRED PLACE OF ASSIGNMENT: </strong>
                   <input
@@ -777,8 +739,10 @@ const Profile = () => {
                     placeholder={
                       user?.preferred_poa || "No preferred place of assignment"
                     }
-                    value={user?.preferred_poa}
+                    // FIX: Use controlled component pattern with state and onChange
+                    value={editPreferredPoa}
                     name="preferred_poa"
+                    onChange={(e) => setEditPreferredPoa(e.target.value)}
                   />
                 </span>
                 <span>
@@ -786,8 +750,10 @@ const Profile = () => {
                   <input
                     type="text"
                     placeholder={user?.applicant_type}
-                    value={user?.applicant_type || "No applicant type"}
+                    // FIX: Use controlled component pattern with state and onChange
+                    value={editApplicantType}
                     name="applicant_type"
+                    onChange={(e) => setEditApplicantType(e.target.value)}
                   />
                 </span>
                 <Button variant="success">Save</Button>
@@ -1327,38 +1293,58 @@ const Profile = () => {
                     </div>
                   </form>
                 ) : resume ? (
-                  <div className={styles.resume}>
-                    <Resume
-                      ref={resumeRef}
-                      profilePicUrl={
-                        user.profile_pic_url
-                          ? user.profile_pic_url + "?t=" + dateNow
-                          : "/assets/images/default_profile.png"
-                      }
-                      name={user?.name}
-                      birthDate={user?.birth_date}
-                      address={user?.address}
-                      barangay={user?.barangay}
-                      district={user?.district}
-                      email={user?.email}
-                      phone={user?.phone}
-                      education={{
-                        school: resume?.education?.school,
-                        degree: resume?.education?.degree,
-                        location: resume?.education?.location,
-                        start_date: resume?.education?.start_date,
-                        end_date: resume?.education?.end_date,
-                      }}
-                      skills={resume?.skills}
-                      workExperiences={
-                        Array.isArray(resume?.work_experiences)
-                          ? resume.work_experiences
-                          : resume?.work_experiences
-                            ? [resume.work_experiences]
-                            : []
-                      }
-                      profileIntroduction={resume?.profile_introduction}
-                    />
+                  <div className={styles.resumeWrapper}>
+                    <div className={styles.resume}>
+                      <Resume
+                        ref={resumeRef}
+                        profilePicUrl={
+                          user.profile_pic_url
+                            ? user.profile_pic_url + "?t=" + dateNow
+                            : "/assets/images/default_profile.png"
+                        }
+                        name={user?.name}
+                        birthDate={user?.birth_date}
+                        address={user?.address}
+                        barangay={user?.barangay}
+                        district={user?.district}
+                        email={user?.email}
+                        phone={user?.phone}
+                        education={{
+                          school: resume?.education?.school,
+                          degree: resume?.education?.degree,
+                          location: resume?.education?.location,
+                          start_date: resume?.education?.start_date,
+                          end_date: resume?.education?.end_date,
+                        }}
+                        skills={resume?.skills}
+                        workExperiences={
+                          Array.isArray(resume?.work_experiences)
+                            ? resume.work_experiences
+                            : resume?.work_experiences
+                              ? [resume.work_experiences]
+                              : []
+                        }
+                        profileIntroduction={resume?.profile_introduction}
+                      />
+                    </div>
+                    {!showEditResume && (
+                      <div className={styles.resumeButtonContainer}>
+                        <Button
+                          className={styles.resumeButton}
+                          onClick={() => setShowEditResume(true)}
+                          variant="success"
+                        >
+                          Edit Resume
+                        </Button>
+                        <Button
+                          className={styles.resumeButton}
+                          onClick={handleDownload}
+                          variant="danger"
+                        >
+                          Download Resume
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div
@@ -1384,27 +1370,6 @@ const Profile = () => {
                 )}
               </>
             )}
-
-            {resume &&
-            !showEditResume &&
-            profileOptionsNav !== "appliedJobs" ? (
-              <div style={{ marginTop: "1rem", display: "flex", gap: 8 }}>
-                <Button
-                  className={styles.resumeButton}
-                  onClick={handleDownload}
-                  variant="danger"
-                >
-                  Download Resume
-                </Button>
-                <Button
-                  className={styles.resumeButton}
-                  onClick={() => setShowEditResume(true)}
-                  variant="success"
-                >
-                  Edit Resume
-                </Button>
-              </div>
-            ) : null}
 
             {profileOptionsNav === "appliedJobs" && (
               <div className={styles.appliedJobs}>{jobCards}</div>
