@@ -21,6 +21,7 @@ interface Message {
   text: string;
   sender: "user" | "admin";
   timestamp: Date;
+  manilaTime: string;
 }
 
 interface AdminChatPanelProps {
@@ -56,6 +57,14 @@ export default function AdminChatPanel({
   const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(
     null,
   );
+
+  function formatManilaTime(date: string | Date) {
+    return new Date(date).toLocaleTimeString("en-PH", {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "Asia/Manila",
+    });
+  }
 
   // Get chat requests for current tab from props
   const chatRequests =
@@ -561,10 +570,13 @@ export default function AdminChatPanel({
                 >
                   <div className={styles.chatItemHeader}>
                     <strong>{request.userName}</strong>
+
+                    {/* Format timezones to correctly use GMT+8 (PH Time) */}
                     <span className={styles.timestamp}>
-                      {request.timestamp.toLocaleTimeString([], {
+                      {request.timestamp.toLocaleTimeString("en-PH", {
                         hour: "2-digit",
                         minute: "2-digit",
+                        timeZone: "Asia/Manila",
                       })}
                     </span>
                   </div>
@@ -625,9 +637,10 @@ export default function AdminChatPanel({
                   >
                     <div className={styles.messageContent}>{msg.text}</div>
                     <div className={styles.messageTime}>
-                      {msg.timestamp.toLocaleTimeString([], {
+                      {msg.timestamp.toLocaleTimeString("en-PH", {
                         hour: "2-digit",
                         minute: "2-digit",
+                        timeZone: "Asia/Manila",
                       })}
                     </div>
                   </div>

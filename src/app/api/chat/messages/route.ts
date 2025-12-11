@@ -53,10 +53,30 @@ export async function GET() {
     return NextResponse.json({ error: messagesError.message }, { status: 500 });
   }
 
+  function formatManila(date: string | Date) {
+    return new Date(date).toLocaleString("en-PH", {
+      timeZone: "Asia/Manila",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  }
+
+  // When returning messages
+  const messagesWithManilaTime = (messages || []).map((m) => ({
+    ...m,
+    manilaTime: formatManila(m.created_at),
+  }));
+
   return NextResponse.json({
-    messages: messages || [],
+    messages: messagesWithManilaTime,
     sessionId: chatSession.id,
   });
+
+  // return NextResponse.json({
+  //   messages: messages || [],
+  //   sessionId: chatSession.id,
+  // });
 }
 
 // POST a new message from user
