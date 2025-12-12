@@ -128,6 +128,7 @@ nav {
     flex: 1;
     align-items: center;
     justify-content: center;
+    height: auto;
 }
 
 .admin-content {
@@ -187,9 +188,10 @@ nav {
     display: flex;
     flex-direction: column;
     margin: auto 2rem;
+
     /*margin-bottom: 1rem;*/
-    /*min-height: 100lvh;*/
-    /*overflow: auto;*/
+    min-height: 100lvh;
+    overflow: auto;
     /*overflow: hidden;*/
 }
 
