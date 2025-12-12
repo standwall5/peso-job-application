@@ -12,6 +12,7 @@ interface QuestionInput {
   question_type: string;
   position: number;
   choices?: ChoiceInput[];
+  correct_text?: string; // For paragraph questions
 }
 
 export async function GET() {
@@ -54,6 +55,18 @@ export async function GET() {
     );
   }
 
+  // Fetch correct answers
+  const { data: correctAnswers, error: correctAnswersError } = await supabase
+    .from("correct_answers")
+    .select("*");
+
+  if (correctAnswersError) {
+    return NextResponse.json(
+      { error: "Failed to load correct answers" },
+      { status: 500 },
+    );
+  }
+
   // Map DB question_type to frontend values
   function mapQuestionType(dbType: string) {
     if (dbType === "mcq") return "multiple-choice";
@@ -61,12 +74,32 @@ export async function GET() {
     return dbType; // "paragraph" or any other type
   }
 
-  // Nest choices inside questions
-  const questionsWithChoices = questions.map((q) => ({
-    ...q,
-    question_type: mapQuestionType(q.question_type),
-    choices: choices.filter((c) => c.question_id === q.id),
-  }));
+  // Nest choices inside questions and mark correct ones
+  const questionsWithChoices = questions.map((q) => {
+    const questionChoices = choices.filter((c) => c.question_id === q.id);
+    const questionCorrectAnswers =
+      correctAnswers?.filter((ca) => ca.question_id === q.id) || [];
+
+    // Mark which choices are correct
+    const choicesWithCorrectFlag = questionChoices.map((choice) => ({
+      ...choice,
+      is_correct: questionCorrectAnswers.some(
+        (ca) => ca.choice_id === choice.id,
+      ),
+    }));
+
+    // Get correct text for paragraph questions
+    const correctTextAnswer = questionCorrectAnswers.find(
+      (ca) => ca.correct_text,
+    );
+
+    return {
+      ...q,
+      question_type: mapQuestionType(q.question_type),
+      choices: choicesWithCorrectFlag,
+      correct_text: correctTextAnswer?.correct_text || undefined,
+    };
+  });
 
   // Nest questions inside exams
   const examsWithQuestions = exams.map((exam) => ({
@@ -117,6 +150,14 @@ export async function PUT(req: Request) {
 
   const oldQuestionIds = oldQuestions.map((q) => q.id);
 
+  // Delete old correct answers
+  if (oldQuestionIds.length > 0) {
+    await supabase
+      .from("correct_answers")
+      .delete()
+      .in("question_id", oldQuestionIds);
+  }
+
   // Delete old choices
   if (oldQuestionIds.length > 0) {
     await supabase.from("choices").delete().in("question_id", oldQuestionIds);
@@ -162,6 +203,7 @@ export async function PUT(req: Request) {
     choice_text: string;
     position: number;
   }[] = [];
+
   questions.forEach((q: QuestionInput) => {
     if (q.choices && q.choices.length > 0) {
       q.choices.forEach((c: ChoiceInput, index: number) => {
@@ -175,14 +217,73 @@ export async function PUT(req: Request) {
   });
 
   // Insert choices if any
+  let insertedChoices: { id: number; question_id: number; position: number }[] =
+    [];
   if (choicesToInsert.length > 0) {
-    const { error: choicesError } = await supabase
+    const { data, error: choicesError } = await supabase
       .from("choices")
-      .insert(choicesToInsert);
+      .insert(choicesToInsert)
+      .select("id, question_id, position");
 
-    if (choicesError) {
+    if (choicesError || !data) {
       return NextResponse.json(
         { error: "Failed to create choices", details: choicesError?.message },
+        { status: 500 },
+      );
+    }
+    insertedChoices = data;
+  }
+
+  // Prepare correct answers for insert
+  const correctAnswersToInsert: {
+    question_id: number;
+    choice_id?: number;
+    correct_text?: string;
+  }[] = [];
+
+  questions.forEach((q: QuestionInput) => {
+    const questionId = positionToQuestionId[q.position];
+
+    if (q.question_type === "paragraph" && q.correct_text) {
+      // Insert correct text for paragraph questions
+      correctAnswersToInsert.push({
+        question_id: questionId,
+        correct_text: q.correct_text,
+      });
+    } else if (q.choices && q.choices.length > 0) {
+      // Insert correct choice IDs for MCQ/checkbox questions
+      q.choices.forEach((c: ChoiceInput, choicePosition: number) => {
+        if (c.is_correct) {
+          // Find the inserted choice ID
+          const insertedChoice = insertedChoices.find(
+            (ic) =>
+              ic.question_id === questionId &&
+              ic.position === (c.position ?? choicePosition),
+          );
+
+          if (insertedChoice) {
+            correctAnswersToInsert.push({
+              question_id: questionId,
+              choice_id: insertedChoice.id,
+            });
+          }
+        }
+      });
+    }
+  });
+
+  // Insert correct answers
+  if (correctAnswersToInsert.length > 0) {
+    const { error: correctAnswersError } = await supabase
+      .from("correct_answers")
+      .insert(correctAnswersToInsert);
+
+    if (correctAnswersError) {
+      return NextResponse.json(
+        {
+          error: "Failed to save correct answers",
+          details: correctAnswersError?.message,
+        },
         { status: 500 },
       );
     }

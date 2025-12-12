@@ -1,0 +1,144 @@
+/* Score Header Styling */
+.scoreHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.scoreTitle {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.scoreDate {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.scoreBadge {
+    text-align: right;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    border: 2px solid;
+}
+
+.scoreBadgePassed {
+    background: #d4edda;
+    border-color: #28a745;
+}
+
+.scoreBadgeFailed {
+    background: #f8d7da;
+    border-color: #dc3545;
+}
+
+.scoreNumber {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.scoreNumberPassed {
+    color: #28a745;
+}
+
+.scoreNumberFailed {
+    color: #dc3545;
+}
+
+.scoreStatus {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* Question Block Styling */
+
+.questionBlockCorrect {
+    border: 2px solid #28a745;
+    background: #f8fff9;
+    border-radius: 1rem;
+    padding: 1rem;
+}
+
+.questionBlockIncorrect {
+    border: 2px solid #dc3545;
+    background: #fff5f5;
+}
+
+.questionBlock {
+    padding: 1rem;
+}
+
+.resultIcon {
+    margin-left: 0.5rem;
+    font-size: 1.2rem;
+}
+
+/* Choice Styling */
+.choicesContainer {
+    margin-top: 1rem;
+}
+
+.choiceItem {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.choiceCorrect {
+    background: #d4edda;
+    border-color: #28a745;
+    border-width: 2px;
+}
+
+.choiceIncorrect {
+    background: #f8d7da;
+    border-color: #dc3545;
+    border-width: 2px;
+}
+
+.choiceTextBold {
+    font-weight: bold;
+}
+
+.choiceLabel {
+    margin-left: auto;
+}
+
+.choiceLabelCorrect {
+    color: #28a745;
+}
+
+.choiceLabelIncorrect {
+    color: #dc3545;
+}
+
+/* Paragraph Answer Styling */
+.paragraphContainer {
+    margin-top: 1rem;
+}
+
+.userAnswerBox {
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+}
+
+.correctAnswerBox {
+    padding: 0.75rem;
+    background: #d4edda;
+    border-radius: 8px;
+    border: 1px solid #28a745;
+}
+
+.answerText {
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+}

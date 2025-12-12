@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   if (!job_id || !applicant_id) {
     return NextResponse.json(
       { error: "Missing job_id or applicant_id" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -49,14 +49,29 @@ export async function POST(request: Request) {
   if (existing) {
     return NextResponse.json(
       { error: "You have already applied for this job." },
-      { status: 409 }
+      { status: 409 },
     );
   }
 
-  // Insert application
+  // Find the exam attempt for this job (if exists)
+  const { data: examAttempt } = await supabase
+    .from("exam_attempts")
+    .select("attempt_id")
+    .eq("job_id", job_id)
+    .eq("applicant_id", applicant_id)
+    .maybeSingle();
+
+  // Insert application with exam_attempt_id if it exists
   const { data, error } = await supabase
     .from("applications")
-    .insert([{ job_id, applicant_id }]);
+    .insert([
+      {
+        job_id,
+        applicant_id,
+        exam_attempt_id: examAttempt?.attempt_id || null,
+      },
+    ])
+    .select();
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

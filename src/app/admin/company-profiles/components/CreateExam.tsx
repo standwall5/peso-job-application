@@ -20,6 +20,7 @@ export interface Question {
   question_type: string;
   position: number;
   choices: Choice[];
+  correct_text?: string; // For paragraph questions
 }
 
 // Choice Interface
@@ -28,6 +29,7 @@ export interface Choice {
   question_id: number;
   choice_text: string;
   position: number;
+  is_correct?: boolean; // Mark if this choice is correct
 }
 
 interface CreateExamProps {
@@ -79,8 +81,10 @@ const CreateExam: React.FC<CreateExamProps> = ({ exam, onClose }) => {
                           question_id: questionId,
                           choice_text: "",
                           position: 1,
+                          is_correct: false,
                         },
                       ],
+              correct_text: type === "paragraph" ? "" : undefined,
             }
           : q,
       ),
@@ -119,6 +123,49 @@ const CreateExam: React.FC<CreateExamProps> = ({ exam, onClose }) => {
     setHasUnsavedChanges(true);
   };
 
+  // Handler to mark/unmark a choice as correct
+  const handleToggleCorrectChoice = (questionId: number, choiceId: number) => {
+    setQuestions(
+      questions.map((q) => {
+        if (q.id !== questionId) return q;
+
+        // For multiple-choice, only one can be correct
+        if (q.question_type === "multiple-choice") {
+          return {
+            ...q,
+            choices: q.choices.map((c) => ({
+              ...c,
+              is_correct: c.id === choiceId,
+            })),
+          };
+        }
+
+        // For checkboxes, multiple can be correct
+        if (q.question_type === "checkboxes") {
+          return {
+            ...q,
+            choices: q.choices.map((c) =>
+              c.id === choiceId ? { ...c, is_correct: !c.is_correct } : c,
+            ),
+          };
+        }
+
+        return q;
+      }),
+    );
+    setHasUnsavedChanges(true);
+  };
+
+  // Handler for paragraph correct text
+  const handleCorrectTextChange = (questionId: number, text: string) => {
+    setQuestions(
+      questions.map((q) =>
+        q.id === questionId ? { ...q, correct_text: text } : q,
+      ),
+    );
+    setHasUnsavedChanges(true);
+  };
+
   // Handler to add a choice
   const handleAddChoice = (questionId: number) => {
     setQuestions(
@@ -133,6 +180,7 @@ const CreateExam: React.FC<CreateExamProps> = ({ exam, onClose }) => {
                   question_id: questionId,
                   choice_text: "",
                   position: q.choices.length + 1,
+                  is_correct: false,
                 },
               ],
             }
@@ -159,6 +207,39 @@ const CreateExam: React.FC<CreateExamProps> = ({ exam, onClose }) => {
 
   // Handler to upload exam
   const handleUploadExam = async () => {
+    // Validate that each question has at least one correct answer
+    for (const question of questions) {
+      if (!question.question_text.trim()) {
+        alert(`Question ${question.position} is missing text.`);
+        return;
+      }
+
+      if (
+        question.question_type === "multiple-choice" ||
+        question.question_type === "checkboxes"
+      ) {
+        if (question.choices.length === 0) {
+          alert(`Question ${question.position} needs at least one choice.`);
+          return;
+        }
+
+        const hasCorrect = question.choices.some((c) => c.is_correct);
+        if (!hasCorrect) {
+          alert(
+            `Question ${question.position} needs at least one correct answer marked.`,
+          );
+          return;
+        }
+      }
+
+      if (question.question_type === "paragraph") {
+        if (!question.correct_text?.trim()) {
+          alert(`Question ${question.position} needs a correct text answer.`);
+          return;
+        }
+      }
+    }
+
     const examToUpload: Exam = {
       ...exam,
       title,
@@ -177,7 +258,8 @@ const CreateExam: React.FC<CreateExamProps> = ({ exam, onClose }) => {
         setHasUnsavedChanges(false);
         if (onClose) onClose(true); // <-- pass true for success
       } else {
-        alert("Failed to upload exam.");
+        const error = await response.json();
+        alert(`Failed to upload exam: ${error.error || "Unknown error"}`);
       }
     } catch (err) {
       alert("Network error.");
@@ -331,6 +413,17 @@ const CreateExam: React.FC<CreateExamProps> = ({ exam, onClose }) => {
                       question.question_type,
                     ) && (
                       <div>
+                        <p
+                          style={{
+                            fontSize: "0.9rem",
+                            color: "#666",
+                            marginBottom: "0.5rem",
+                          }}
+                        >
+                          {question.question_type === "multiple-choice"
+                            ? "Click the star to mark the correct answer:"
+                            : "Click the stars to mark all correct answers:"}
+                        </p>
                         <ul>
                           {question.choices.map((choice, idx) => (
                             <li
@@ -339,6 +432,7 @@ const CreateExam: React.FC<CreateExamProps> = ({ exam, onClose }) => {
                                 display: "flex",
                                 alignItems: "center",
                                 gap: "0.5rem",
+                                marginBottom: "0.5rem",
                               }}
                             >
                               {question.question_type === "multiple-choice" ? (
@@ -359,6 +453,29 @@ const CreateExam: React.FC<CreateExamProps> = ({ exam, onClose }) => {
                                 placeholder={`Choice ${idx + 1}`}
                                 style={{ flex: 1 }}
                               />
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleToggleCorrectChoice(
+                                    question.id,
+                                    choice.id,
+                                  )
+                                }
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  cursor: "pointer",
+                                  fontSize: "1.5rem",
+                                  padding: "0",
+                                }}
+                                title={
+                                  choice.is_correct
+                                    ? "Correct answer"
+                                    : "Mark as correct"
+                                }
+                              >
+                                {choice.is_correct ? "⭐" : "☆"}
+                              </button>
                               <button
                                 type="button"
                                 onClick={() =>
@@ -393,19 +510,45 @@ const CreateExam: React.FC<CreateExamProps> = ({ exam, onClose }) => {
                       </div>
                     )}
                     {question.question_type === "paragraph" && (
-                      <textarea
-                        disabled
-                        placeholder="Paragraph answer (user will see this as a textarea)"
-                        style={{
-                          width: "100%",
-                          minHeight: "60px",
-                          marginTop: "0.5rem",
-                          borderRadius: "0.5rem",
-                          border: "1px solid #eda632",
-                          padding: "0.5rem",
-                          resize: "vertical",
-                        }}
-                      />
+                      <div>
+                        <label
+                          htmlFor={`correct-text-${question.id}`}
+                          style={{
+                            display: "block",
+                            fontWeight: "bold",
+                            marginTop: "0.5rem",
+                            marginBottom: "0.5rem",
+                          }}
+                        >
+                          Correct Answer:
+                        </label>
+                        <textarea
+                          id={`correct-text-${question.id}`}
+                          value={question.correct_text || ""}
+                          onChange={(e) =>
+                            handleCorrectTextChange(question.id, e.target.value)
+                          }
+                          placeholder="Enter the correct text answer here"
+                          style={{
+                            width: "100%",
+                            minHeight: "80px",
+                            borderRadius: "0.5rem",
+                            border: "1px solid #eda632",
+                            padding: "0.5rem",
+                            resize: "vertical",
+                          }}
+                        />
+                        <p
+                          style={{
+                            fontSize: "0.85rem",
+                            color: "#666",
+                            marginTop: "0.25rem",
+                          }}
+                        >
+                          Note: Answer comparison is case-insensitive and
+                          whitespace is trimmed.
+                        </p>
+                      </div>
                     )}
                   </div>
                 )}

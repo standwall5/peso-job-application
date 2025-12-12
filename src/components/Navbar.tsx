@@ -9,6 +9,7 @@ import PesoLogo from "../../public/assets/pesoLogo.png";
 import { createClient } from "@/utils/supabase/client";
 import { signout } from "@/lib/auth-actions";
 import Dropdown, { DropdownItem } from "@/components/Dropdown";
+import NotificationDropdown from "./NotificationDropdown";
 
 const SimpleNavBar = (props: { pathname: string }) => {
   return (
@@ -110,6 +111,7 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
   const [showNotificationsDropdown, setShowNotificationsDropdown] =
     useState(false);
   const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const searchRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   const settingsRef = useRef<HTMLDivElement>(null);
@@ -294,11 +296,14 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
                   d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
                 />
               </svg>
-              <Dropdown isOpen={showNotificationsDropdown} position="center">
-                <DropdownItem>
-                  <p>Place notifications here</p>
-                </DropdownItem>
-              </Dropdown>
+              {unreadCount > 0 && (
+                <span className={styles.notificationBadge}>{unreadCount}</span>
+              )}
+              <NotificationDropdown
+                isOpen={showNotificationsDropdown}
+                onClose={() => setShowNotificationsDropdown(false)}
+                onUnreadCountChange={setUnreadCount}
+              />
             </div>
           </li>
           <li className={styles.profileIconContainer}>
@@ -375,6 +380,7 @@ const PesoNavbar = (props: { pathname: string }) => {
   const [showNotificationsDropdown, setShowNotificationsDropdown] =
     useState(false);
   const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const searchRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   const settingsRef = useRef<HTMLDivElement>(null);

@@ -9,6 +9,7 @@ interface Message {
   text: string;
   sender: "user" | "admin" | "bot";
   timestamp: Date;
+  buttons?: Array<{ label: string; value: string }>;
 }
 
 interface FAQ {
@@ -34,11 +35,107 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     "waiting" | "connected" | "closed"
   >("waiting");
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [adminTyping, setAdminTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
   const messageSubscriptionRef = useRef<ReturnType<
     typeof supabase.channel
   > | null>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(
+    null,
+  );
+
+  // Handle closing the chat widget
+  const handleCloseChat = async () => {
+    console.log("[ChatWidget] handleCloseChat called", {
+      sessionId,
+      mode,
+      chatStatus,
+      hasSession: !!sessionId,
+    });
+
+    // If user is in an active chat session, close it
+    if (sessionId && mode === "live" && chatStatus !== "closed") {
+      try {
+        console.log(
+          "[ChatWidget] User closing chat, ending session:",
+          sessionId,
+        );
+        const response = await fetch("/api/chat/close", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId }),
+        });
+
+        console.log("[ChatWidget] Close API response status:", response.status);
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log("[ChatWidget] Chat session closed successfully:", data);
+        } else {
+          const errorData = await response.json();
+          console.error(
+            "[ChatWidget] Failed to close chat session:",
+            errorData,
+          );
+        }
+
+        // Wait a bit for realtime to propagate
+        console.log("[ChatWidget] Waiting 300ms for realtime propagation...");
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        console.log("[ChatWidget] Realtime propagation wait complete");
+      } catch (error) {
+        console.error("[ChatWidget] Error closing chat session:", error);
+        // Don't block closing the widget if API fails
+      }
+    } else {
+      console.log("[ChatWidget] Skipping close API call - conditions not met");
+    }
+
+    // Reset widget state
+    setMode("menu");
+    setMessages([]);
+    setSessionId(null);
+    setChatStatus("waiting");
+    setConcernValue("");
+    setInputValue("");
+    setSelectedCategory(null);
+
+    // Close the widget
+    onClose();
+  };
+
+  // Handle ending chat (explicit button click)
+  const handleEndChat = async () => {
+    if (!sessionId) return;
+
+    try {
+      console.log("[ChatWidget] User ending chat:", sessionId);
+      const response = await fetch("/api/chat/close", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId }),
+      });
+
+      if (response.ok) {
+        setChatStatus("closed");
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: "system-closed",
+            text: "Chat has been ended. Thank you for contacting PESO!",
+            sender: "bot",
+            timestamp: new Date(),
+          },
+        ]);
+      } else {
+        console.error("[ChatWidget] Failed to end chat");
+      }
+    } catch (error) {
+      console.error("[ChatWidget] Error ending chat:", error);
+    }
+  };
 
   // Fetch FAQs
   useEffect(() => {
@@ -47,23 +144,42 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     }
   }, [mode]);
 
-  // Set up real-time subscription for messages
+  // Parse buttons from message text
+  const parseMessage = (text: string) => {
+    const buttonMarker = "\n\n[BUTTONS]";
+    if (text.includes(buttonMarker)) {
+      const [messageText, buttonsJson] = text.split(buttonMarker);
+      try {
+        const buttons = JSON.parse(buttonsJson);
+        return { text: messageText, buttons };
+      } catch {
+        return { text, buttons: undefined };
+      }
+    }
+    return { text, buttons: undefined };
+  };
+
+  // Set up real-time subscription for messages and typing
   useEffect(() => {
     if (sessionId && mode === "live") {
-      subscribeToMessages();
+      subscribeToMessages(sessionId);
+      subscribeToTyping(sessionId);
     }
 
     return () => {
       if (messageSubscriptionRef.current) {
         supabase.removeChannel(messageSubscriptionRef.current);
       }
+      if (typingChannelRef.current) {
+        supabase.removeChannel(typingChannelRef.current);
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId, mode]);
 
   // Subscribe to real-time messages
-  const subscribeToMessages = async () => {
-    if (!sessionId) return;
+  const subscribeToMessages = async (chatId: string) => {
+    if (!chatId) return;
 
     // Remove existing subscription if any
     if (messageSubscriptionRef.current) {
@@ -72,14 +188,14 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
 
     // Create new subscription
     const channel = supabase
-      .channel(`chat_messages:${sessionId}`)
+      .channel(`messages:${chatId}`)
       .on(
         "postgres_changes",
         {
           event: "INSERT",
           schema: "public",
           table: "chat_messages",
-          filter: `chat_session_id=eq.${sessionId}`,
+          filter: `chat_session_id=eq.${chatId}`,
         },
         (payload) => {
           const newMsg = payload.new as {
@@ -88,11 +204,13 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
             sender: string;
             created_at: string;
           };
+          const parsed = parseMessage(newMsg.message);
           const message: Message = {
             id: newMsg.id,
-            text: newMsg.message,
-            sender: newMsg.sender as "user" | "admin" | "bot",
+            text: parsed.text,
+            sender: newMsg.sender as "user" | "admin",
             timestamp: new Date(newMsg.created_at),
+            buttons: parsed.buttons,
           };
           setMessages((prev) => {
             // Avoid duplicates
@@ -109,7 +227,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
           event: "UPDATE",
           schema: "public",
           table: "chat_sessions",
-          filter: `id=eq.${sessionId}`,
+          filter: `id=eq.${chatId}`,
         },
         (payload) => {
           const updatedSession = payload.new as {
@@ -144,6 +262,74 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       .subscribe();
 
     messageSubscriptionRef.current = channel;
+  };
+
+  // Subscribe to typing indicators
+  const subscribeToTyping = async (chatId: string) => {
+    console.log("[ChatWidget] Setting up typing subscription for:", chatId);
+    if (!chatId) return;
+
+    if (typingChannelRef.current) {
+      console.log("[ChatWidget] Removing old typing channel");
+      await supabase.removeChannel(typingChannelRef.current);
+    }
+
+    const channel = supabase
+      .channel(`typing:${chatId}`)
+      .on("broadcast", { event: "typing" }, (payload) => {
+        console.log("[ChatWidget] Typing broadcast received:", payload);
+        if (payload.payload.sender === "admin") {
+          console.log("[ChatWidget] Admin is typing!");
+          setAdminTyping(true);
+          // Clear typing indicator after 3 seconds
+          setTimeout(() => {
+            console.log("[ChatWidget] Clearing admin typing indicator");
+            setAdminTyping(false);
+          }, 3000);
+        }
+      })
+      .subscribe((status) => {
+        console.log("[ChatWidget] Typing channel subscription status:", status);
+      });
+
+    typingChannelRef.current = channel;
+    console.log("[ChatWidget] Typing subscription created");
+  };
+
+  // Send typing indicator
+  const sendTypingIndicator = () => {
+    console.log("[ChatWidget] sendTypingIndicator called", {
+      hasSessionId: !!sessionId,
+      hasChannel: !!typingChannelRef.current,
+    });
+
+    if (!sessionId || !typingChannelRef.current) {
+      console.log(
+        "[ChatWidget] Cannot send typing - missing sessionId or channel",
+      );
+      return;
+    }
+
+    console.log("[ChatWidget] Broadcasting typing event");
+    typingChannelRef.current.send({
+      type: "broadcast",
+      event: "typing",
+      payload: { sender: "user", sessionId },
+    });
+  };
+
+  // Handle input change with typing indicator
+  const handleInputChange = (value: string) => {
+    console.log("[ChatWidget] Input changed, length:", value.length);
+    setInputValue(value);
+
+    // Send typing indicator
+    sendTypingIndicator();
+
+    // Debounce typing indicator
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
   };
 
   const fetchFAQs = async () => {
@@ -183,6 +369,26 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Handle button click - send button value as user message
+  const handleButtonClick = async (value: string) => {
+    if (!sessionId) return;
+
+    // Send message directly via API
+    try {
+      await fetch("/api/chat/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId,
+          message: value,
+        }),
+      });
+      // Message will appear via real-time subscription
+    } catch (error) {
+      console.error("Error sending button click:", error);
+    }
+  };
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || !sessionId) return;
@@ -358,7 +564,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
             )}
           </h3>
         </div>
-        <button className={styles.closeButton} onClick={onClose}>
+        <button className={styles.closeButton} onClick={handleCloseChat}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -506,7 +712,22 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                     key={msg.id}
                     className={`${styles.message} ${styles[msg.sender]}`}
                   >
-                    <div className={styles.messageContent}>{msg.text}</div>
+                    <div className={styles.messageContent}>
+                      {msg.text}
+                      {msg.buttons && msg.buttons.length > 0 && (
+                        <div className={styles.buttonContainer}>
+                          {msg.buttons.map((button, idx) => (
+                            <button
+                              key={idx}
+                              className={styles.botButton}
+                              onClick={() => handleButtonClick(button.value)}
+                            >
+                              {button.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ))}
                 <div ref={messagesEndRef} />
@@ -524,7 +745,22 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                   key={msg.id}
                   className={`${styles.message} ${styles[msg.sender]}`}
                 >
-                  <div className={styles.messageContent}>{msg.text}</div>
+                  <div className={styles.messageContent}>
+                    {msg.text}
+                    {msg.buttons && msg.buttons.length > 0 && (
+                      <div className={styles.buttonContainer}>
+                        {msg.buttons.map((button, idx) => (
+                          <button
+                            key={idx}
+                            className={styles.botButton}
+                            onClick={() => handleButtonClick(button.value)}
+                          >
+                            {button.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   <div className={styles.messageTime}>
                     {msg.timestamp.toLocaleTimeString([], {
                       hour: "2-digit",
@@ -535,39 +771,61 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
               ))}
               <div ref={messagesEndRef} />
             </div>
+            {adminTyping && (
+              <div className={styles.typingIndicator}>
+                <span className={styles.typingDot}></span>
+                <span className={styles.typingDot}></span>
+                <span className={styles.typingDot}></span>
+                <span className={styles.typingText}>Admin is typing...</span>
+              </div>
+            )}
           </div>
         )}
       </div>
 
       {/* Input (for live chat only when connected) */}
       {mode === "live" && chatStatus === "connected" && (
-        <div className={styles.inputContainer}>
-          <input
-            type="text"
-            className={styles.input}
-            placeholder="Type your message..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSendMessage();
-              }
-            }}
-          />
-          <button
-            className={styles.sendButton}
-            onClick={handleSendMessage}
-            disabled={!inputValue.trim()}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className={styles.sendIcon}
+        <>
+          <div className={styles.inputContainer}>
+            <input
+              type="text"
+              className={styles.input}
+              placeholder="Type your message..."
+              value={inputValue}
+              onChange={(e) => handleInputChange(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSendMessage();
+                }
+              }}
+            />
+            <button
+              className={styles.sendButton}
+              onClick={handleSendMessage}
+              disabled={!inputValue.trim()}
             >
-              <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
-            </svg>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className={styles.sendIcon}
+              >
+                <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
+              </svg>
+            </button>
+          </div>
+          <div className={styles.endChatContainer}>
+            <button className={styles.endChatButton} onClick={handleEndChat}>
+              End Chat
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* Show message when chat is closed */}
+      {mode === "live" && chatStatus === "closed" && (
+        <div className={styles.closedChatInfo}>
+          <p>This chat has ended. Close this window or start a new chat.</p>
         </div>
       )}
 

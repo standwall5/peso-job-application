@@ -39,7 +39,7 @@
 }
 
 .searchContainer input:focus {
-    width: 28rem;
+    width: 26.5rem;
     box-shadow:
         rgba(128, 231, 177, 0.3) 0px 6px 24px 0px,
         rgba(128, 231, 177, 0.5) 0px 0px 0px 2px,
@@ -63,11 +63,6 @@
         rgba(128, 231, 177, 0.3) 0px 6px 24px 0px,
         rgba(128, 231, 177, 0.5) 0px 0px 0px 2px,
         0 0 0 4px rgba(128, 231, 177, 0.1);
-}
-
-.dropdown {
-    position: relative;
-    cursor: pointer;
 }
 
 .dropdownContent {
@@ -121,31 +116,73 @@
     top: 100%;
     left: 0;
     right: 0;
+    z-index: 1000;
+    pointer-events: none;
 }
 
+.searchDropdown > * {
+    pointer-events: auto;
+}
+
+/* Notification Icon Container */
 .notificationIcon {
     position: relative;
     cursor: pointer;
-}
-
-.notificationIcon > div {
-    position: relative;
     display: inline-block;
+    line-height: 0;
+    vertical-align: middle;
 }
 
+.notificationBadge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background-color: var(--accent);
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    animation: notifPulse 2s ease-in-out infinite;
+}
+
+@keyframes notifPulse {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Settings/Logout Dropdown Container */
 .dropdown {
     position: relative;
+    cursor: pointer;
     display: inline-block;
+    line-height: 0;
+    vertical-align: middle;
 }
 
+/* Profile Icon Container - Fixed alignment */
 .profileIconContainer {
     width: max-content;
+    display: inline-block;
+    margin-bottom: -0.5rem;
 }
 
 .profileIcon {
     padding: 0;
     width: max-content;
     margin: 0;
+    display: inline-block;
 }
 
 .profileIcon img {
@@ -154,10 +191,88 @@
     width: 2.2rem;
     transition: 0.25s;
     border: 2px solid var(--accent);
+    display: block;
 }
 
 .profileIcon img:hover {
     box-shadow:
         0 0 8px 2px var(--accent),
         0 0 16px 4px var(--accent);
+}
+
+/* Mobile Media Queries */
+@media (max-width: 768px) {
+    .searchContainer {
+        height: 1.75rem;
+    }
+
+    .searchContainer input {
+        width: 12rem;
+        font-size: 11px;
+        padding: 0 0.75rem;
+    }
+
+    .searchContainer input:focus {
+        width: 13rem;
+    }
+
+    .searchIcon {
+        padding: 0.85rem 0.75rem;
+    }
+
+    .dropdownContent {
+        max-width: 90vw;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .privateNav svg {
+        width: 1.5rem;
+    }
+
+    .profileIcon img {
+        width: 1.8rem;
+    }
+
+    .notificationIcon svg {
+        width: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .searchContainer {
+        height: 1.5rem;
+    }
+
+    .searchContainer input {
+        width: 8rem;
+        font-size: 10px;
+        padding: 0 0.5rem;
+    }
+
+    .searchContainer input:focus {
+        width: 8.5rem;
+    }
+
+    .searchIcon {
+        padding: 0.7rem 0.6rem;
+    }
+
+    .privateNav svg {
+        width: 1.35rem;
+    }
+
+    .profileIcon img {
+        width: 1.6rem;
+    }
+
+    .dropdownContent {
+        font-size: 0.85rem;
+    }
+
+    .searchResultContent a {
+        padding: 0.5rem 0.75rem;
+        min-height: 2rem;
+        font-size: 0.85rem;
+    }
 }

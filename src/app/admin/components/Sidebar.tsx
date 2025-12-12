@@ -4,11 +4,7 @@ import React, { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import styles from "@/app/admin/Admin.module.css";
 
-interface SidebarProps {
-  onOpenChat?: () => void;
-}
-
-const Sidebar = ({ onOpenChat }: SidebarProps) => {
+const Sidebar = () => {
   const [openMenus, setOpenMenus] = useState<string[]>([]);
   const pathname = usePathname();
   const router = useRouter();
@@ -35,7 +31,10 @@ const Sidebar = ({ onOpenChat }: SidebarProps) => {
               ? styles.active
               : ""
           }`}
-          onClick={() => handleToggle("dashboard")}
+          onClick={() => {
+            handleToggle("dashboard");
+            router.push("/admin/jobseekers");
+          }}
         >
           <span
           // If the opened menuItem right now is "dashboard" then, (then is the "?") we set openMenu to null so that it closes
@@ -44,7 +43,7 @@ const Sidebar = ({ onOpenChat }: SidebarProps) => {
           </span>
 
           {/* If openMenu is null, this wont show; it only shows when openMenu is equal to "dashboard" */}
-          <ul
+          {/*<ul
             className={`${styles.subMenu} ${
               openMenus.includes("dashboard") ? styles.open : ""
             }`}
@@ -66,7 +65,7 @@ const Sidebar = ({ onOpenChat }: SidebarProps) => {
             >
               Referrals
             </li>
-          </ul>
+          </ul>*/}
         </li>
         <li
           className={`${styles.menuItem} ${
@@ -107,9 +106,6 @@ const Sidebar = ({ onOpenChat }: SidebarProps) => {
         </li>
         <li className={styles.menuItem}>
           <span>Reports & Analytics</span>
-        </li>
-        <li className={styles.menuItem} onClick={() => onOpenChat?.()}>
-          <span>💬 Chat Management</span>
         </li>
 
         {/* If super /admin */}

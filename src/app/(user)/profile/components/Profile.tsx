@@ -983,10 +983,9 @@ const Profile = () => {
                     <div className={styles.educationRow}>
                       <label>Education</label>
                       <div
-                        className={styles.rowInput}
+                        className={`${styles.rowInput} ${styles.educationInput}`}
                         style={{
                           marginBottom: "1rem",
-                          border: "1px solid black",
                           backgroundColor: "white",
                           padding: "1rem",
                           borderRadius: "6px",
@@ -1040,7 +1039,7 @@ const Profile = () => {
                           />
                         </div>
 
-                        <div className={styles.row}>
+                        <div className={`${styles.row} `}>
                           <div>
                             <label htmlFor="educationAttainment">
                               Highest Educational Attainment
@@ -1114,11 +1113,10 @@ const Profile = () => {
                       {workExperiences.map(
                         (exp: WorkExperience, idx: number) => (
                           <div
-                            className={styles.rowInput}
+                            className={`${styles.rowInput} ${styles.workInput}`}
                             key={idx}
                             style={{
                               marginBottom: "1rem",
-                              border: "1px solid black",
                               backgroundColor: "white",
                               padding: "1rem",
                               borderRadius: "6px",
@@ -1253,16 +1251,15 @@ const Profile = () => {
                         {skills.map((skill: string, idx: number) => (
                           <span key={idx} style={{ marginRight: "-1rem" }}>
                             {skill}
-                            <Button
+                            <button
                               type="button"
                               onClick={() =>
                                 setSkills(skills.filter((_, i) => i !== idx))
                               }
                               style={{ marginLeft: 4 }}
-                              variant="danger"
                             >
                               ×
-                            </Button>
+                            </button>
                           </span>
                         ))}
                         <input
@@ -1330,38 +1327,58 @@ const Profile = () => {
                     </div>
                   </form>
                 ) : resume ? (
-                  <div className={styles.resume}>
-                    <Resume
-                      ref={resumeRef}
-                      profilePicUrl={
-                        user.profile_pic_url
-                          ? user.profile_pic_url + "?t=" + dateNow
-                          : "/assets/images/default_profile.png"
-                      }
-                      name={user?.name}
-                      birthDate={user?.birth_date}
-                      address={user?.address}
-                      barangay={user?.barangay}
-                      district={user?.district}
-                      email={user?.email}
-                      phone={user?.phone}
-                      education={{
-                        school: resume?.education?.school,
-                        degree: resume?.education?.degree,
-                        location: resume?.education?.location,
-                        start_date: resume?.education?.start_date,
-                        end_date: resume?.education?.end_date,
-                      }}
-                      skills={resume?.skills}
-                      workExperiences={
-                        Array.isArray(resume?.work_experiences)
-                          ? resume.work_experiences
-                          : resume?.work_experiences
-                            ? [resume.work_experiences]
-                            : []
-                      }
-                      profileIntroduction={resume?.profile_introduction}
-                    />
+                  <div className={styles.resumeWrapper}>
+                    <div className={styles.resume}>
+                      <Resume
+                        ref={resumeRef}
+                        profilePicUrl={
+                          user.profile_pic_url
+                            ? user.profile_pic_url + "?t=" + dateNow
+                            : "/assets/images/default_profile.png"
+                        }
+                        name={user?.name}
+                        birthDate={user?.birth_date}
+                        address={user?.address}
+                        barangay={user?.barangay}
+                        district={user?.district}
+                        email={user?.email}
+                        phone={user?.phone}
+                        education={{
+                          school: resume?.education?.school,
+                          degree: resume?.education?.degree,
+                          location: resume?.education?.location,
+                          start_date: resume?.education?.start_date,
+                          end_date: resume?.education?.end_date,
+                        }}
+                        skills={resume?.skills}
+                        workExperiences={
+                          Array.isArray(resume?.work_experiences)
+                            ? resume.work_experiences
+                            : resume?.work_experiences
+                              ? [resume.work_experiences]
+                              : []
+                        }
+                        profileIntroduction={resume?.profile_introduction}
+                      />
+                    </div>
+                    {!showEditResume && (
+                      <div className={styles.resumeButtonContainer}>
+                        <Button
+                          className={styles.resumeButton}
+                          onClick={() => setShowEditResume(true)}
+                          variant="success"
+                        >
+                          Edit Resume
+                        </Button>
+                        <Button
+                          className={styles.resumeButton}
+                          onClick={handleDownload}
+                          variant="danger"
+                        >
+                          Download Resume
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div
@@ -1387,27 +1404,6 @@ const Profile = () => {
                 )}
               </>
             )}
-
-            {resume &&
-            !showEditResume &&
-            profileOptionsNav !== "appliedJobs" ? (
-              <div style={{ marginTop: "1rem", display: "flex", gap: 8 }}>
-                <Button
-                  className={styles.resumeButton}
-                  onClick={handleDownload}
-                  variant="danger"
-                >
-                  Download Resume
-                </Button>
-                <Button
-                  className={styles.resumeButton}
-                  onClick={() => setShowEditResume(true)}
-                  variant="success"
-                >
-                  Edit Resume
-                </Button>
-              </div>
-            ) : null}
 
             {profileOptionsNav === "appliedJobs" && (
               <div className={styles.appliedJobs}>{jobCards}</div>

@@ -11,16 +11,23 @@ import { useParams } from "next/navigation";
 const Query = () => {
   const [user, setUser] = useState<User | null>(null);
   const params = useParams();
-  const query = Array.isArray(params.query)
+  const rawQuery = Array.isArray(params.query)
     ? params.query[0]
     : params.query || "";
+  const query = decodeURIComponent(rawQuery);
   const [search, setSearch] = useState(query);
   const supabase = createClient();
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
     });
   }, []);
+
+  // Update search state when URL query changes
+  useEffect(() => {
+    setSearch(query);
+  }, [query]);
 
   // Placeholder components - replace with your actual components
 

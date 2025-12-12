@@ -1,0 +1,84 @@
+import React from "react";
+
+interface ExamAnswer {
+  question_id: number;
+  choice_id?: number;
+  text_answer?: string;
+  questions?: {
+    question_text: string;
+    choices?: Array<{
+      id: number;
+      choice_text: string;
+    }>;
+  };
+  choices?: {
+    choice_text: string;
+  };
+}
+
+interface CorrectAnswer {
+  question_id: number;
+  choice_id?: number;
+  correct_text?: string;
+}
+
+interface ExamResultViewProps {
+  attempt: {
+    score: number;
+    date_submitted: string;
+  };
+  answers: ExamAnswer[];
+  correctAnswers: CorrectAnswer[];
+}
+
+const ExamResultView: React.FC<ExamResultViewProps> = ({
+  attempt,
+  answers,
+  correctAnswers,
+}) => {
+  return (
+    <div>
+      <h3>Exam Results</h3>
+      <p>
+        <b>Score:</b> {attempt.score}%
+      </p>
+      <p>
+        <b>Date Submitted:</b>{" "}
+        {new Date(attempt.date_submitted).toLocaleString()}
+      </p>
+      <ul>
+        {answers.map((ans, idx) => {
+          const correct = correctAnswers.find(
+            (ca) => ca.question_id === ans.question_id,
+          );
+          let isCorrect = false;
+          if (ans.choice_id && correct?.choice_id)
+            isCorrect = ans.choice_id === correct.choice_id;
+          if (ans.text_answer && correct?.correct_text)
+            isCorrect =
+              ans.text_answer.trim().toLowerCase() ===
+              correct.correct_text.trim().toLowerCase();
+          return (
+            <li key={idx} style={{ marginBottom: "1em" }}>
+              <b>Q:</b> {ans.questions?.question_text || "Question"}
+              <br />
+              <b>Your answer:</b>{" "}
+              {ans.choices?.choice_text || ans.text_answer || "N/A"}
+              <br />
+              <b>Correct answer:</b>{" "}
+              {correct?.choice_id
+                ? ans.questions?.choices?.find(
+                    (c) => c.id === correct.choice_id,
+                  )?.choice_text || "N/A"
+                : correct?.correct_text || "N/A"}
+              <br />
+              <b>Result:</b> {isCorrect ? "✅" : "❌"}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+};
+
+export default ExamResultView;

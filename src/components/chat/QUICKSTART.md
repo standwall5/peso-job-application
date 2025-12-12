@@ -30,7 +30,7 @@ Make sure your test users have entries in the correct tables:
 
 ```sql
 -- For applicants
-SELECT id, auth_id, first_name, last_name FROM applicants WHERE auth_id = 'your-supabase-user-id';
+SELECT id, auth_id, name FROM applicants WHERE auth_id = 'your-supabase-user-id';
 
 -- For admins
 SELECT id, auth_id, name FROM peso WHERE auth_id = 'your-admin-supabase-user-id';
@@ -40,8 +40,8 @@ If missing, add them:
 
 ```sql
 -- Add applicant (use your Supabase user ID)
-INSERT INTO applicants (auth_id, first_name, last_name, email)
-VALUES ('supabase-user-uuid', 'John', 'Doe', 'john@example.com');
+INSERT INTO applicants (auth_id, name)
+VALUES ('supabase-user-uuid', 'John Doe');
 
 -- Add admin (use your admin's Supabase user ID)
 INSERT INTO peso (auth_id, name, email)

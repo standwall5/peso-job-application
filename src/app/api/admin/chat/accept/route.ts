@@ -22,7 +22,10 @@ export async function POST(request: Request) {
 
   if (adminError || !adminData) {
     console.error("Admin lookup error:", adminError);
-    return NextResponse.json({ error: "Unauthorized - Admin access required" }, { status: 403 });
+    return NextResponse.json(
+      { error: "Unauthorized - Admin access required" },
+      { status: 403 },
+    );
   }
 
   const body = await request.json();
@@ -41,12 +44,21 @@ export async function POST(request: Request) {
 
   if (sessionError || !chatSession) {
     console.error("Chat session lookup error:", sessionError);
-    return NextResponse.json({ error: "Chat session not found" }, { status: 404 });
+    return NextResponse.json(
+      { error: "Chat session not found" },
+      { status: 404 },
+    );
   }
 
-  if (chatSession.status !== "pending") {
-    return NextResponse.json({ error: "Chat session is not pending" }, { status: 400 });
+  if (chatSession.status !== "pending" && chatSession.status !== "active") {
+    return NextResponse.json(
+      { error: "Chat session is not available" },
+      { status: 400 },
+    );
   }
+
+  // If already active (bot session), admin is joining; if pending, admin is accepting
+  const isJoiningBotSession = chatSession.status === "active";
 
   // Update chat session to active and assign admin
   const { data: updatedSession, error: updateError } = await supabase
@@ -62,6 +74,15 @@ export async function POST(request: Request) {
   if (updateError) {
     console.error("Update chat session error:", updateError);
     return NextResponse.json({ error: updateError.message }, { status: 500 });
+  }
+
+  // Send a message to notify user that admin has joined
+  if (isJoiningBotSession) {
+    await supabase.from("chat_messages").insert({
+      chat_session_id: chatId,
+      sender: "admin",
+      message: "An admin has joined the chat. How can I help you?",
+    });
   }
 
   return NextResponse.json(updatedSession);

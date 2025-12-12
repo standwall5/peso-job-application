@@ -26,132 +26,76 @@ interface Message {
 interface AdminChatPanelProps {
   isOpen: boolean;
   onClose: () => void;
+  pendingChats: ChatRequest[];
+  activeChats: ChatRequest[];
+  closedChats: ChatRequest[];
+  onRefresh: () => void;
 }
 
 export default function AdminChatPanel({
   isOpen,
   onClose,
+  pendingChats,
+  activeChats,
+  closedChats,
+  onRefresh,
 }: AdminChatPanelProps) {
-  const [activeTab, setActiveTab] = useState<"new" | "active" | "closed">(
-    "new",
+  const [activeTab, setActiveTab] = useState<"pending" | "active" | "closed">(
+    "pending",
   );
-  const [chatRequests, setChatRequests] = useState<ChatRequest[]>([]);
   const [activeChat, setActiveChat] = useState<ChatRequest | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
+  const [userTyping, setUserTyping] = useState(false);
   const supabase = createClient();
   const messageSubscriptionRef = useRef<ReturnType<
     typeof supabase.channel
   > | null>(null);
-  const requestSubscriptionRef = useRef<ReturnType<
-    typeof supabase.channel
-  > | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(
+    null,
+  );
+
+  function formatManilaTime(date: string | Date) {
+    return new Date(date).toLocaleTimeString("en-PH", {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "Asia/Manila",
+    });
+  }
+
+  // Get chat requests for current tab from props
+  const chatRequests =
+    activeTab === "pending"
+      ? pendingChats
+      : activeTab === "active"
+        ? activeChats
+        : closedChats;
 
   // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Fetch chat requests
-  useEffect(() => {
-    if (isOpen) {
-      fetchChatRequests();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, activeTab]);
-
-  // Set up real-time subscription for new chat requests
-  useEffect(() => {
-    if (isOpen) {
-      subscribeToRequests();
-    }
-
-    return () => {
-      if (requestSubscriptionRef.current) {
-        supabase.removeChannel(requestSubscriptionRef.current);
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, activeTab]);
-
-  // Set up real-time subscription for messages
+  // Set up real-time subscription for messages and typing
   useEffect(() => {
     if (activeChat) {
       fetchMessages(activeChat.id);
       subscribeToMessages(activeChat.id);
+      subscribeToTyping(activeChat.id);
     }
 
     return () => {
       if (messageSubscriptionRef.current) {
         supabase.removeChannel(messageSubscriptionRef.current);
       }
+      if (typingChannelRef.current) {
+        supabase.removeChannel(typingChannelRef.current);
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeChat]);
-
-  const subscribeToRequests = async () => {
-    // Remove existing subscription if any
-    if (requestSubscriptionRef.current) {
-      await supabase.removeChannel(requestSubscriptionRef.current);
-    }
-
-    // Create new subscription for chat sessions
-    const channel = supabase
-      .channel("chat_sessions_admin")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "chat_sessions",
-        },
-        (payload) => {
-          const newSession = payload.new as {
-            id: string;
-            status: string;
-          };
-          if (newSession.status === "pending") {
-            // Fetch the full request data including user info
-            fetchChatRequests();
-          }
-        },
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "chat_sessions",
-        },
-        (payload) => {
-          const updatedSession = payload.new as {
-            id: string;
-            status: string;
-          };
-          // Refresh requests when status changes
-          fetchChatRequests();
-
-          // Update active chat if it's the one being modified
-          if (activeChat && activeChat.id === updatedSession.id) {
-            setActiveChat((prev) =>
-              prev
-                ? {
-                    ...prev,
-                    status: updatedSession.status as
-                      | "pending"
-                      | "active"
-                      | "closed",
-                  }
-                : null,
-            );
-          }
-        },
-      )
-      .subscribe();
-
-    requestSubscriptionRef.current = channel;
-  };
 
   const subscribeToMessages = async (chatId: string) => {
     // Remove existing subscription if any
@@ -178,6 +122,12 @@ export default function AdminChatPanel({
             sender: string;
             created_at: string;
           };
+          console.log("[AdminChatPanel] Realtime message received:", {
+            messageId: newMsg.id,
+            chatId: newMsg.chat_session_id,
+            sender: newMsg.sender,
+            textPreview: newMsg.message.substring(0, 50),
+          });
           const message: Message = {
             id: newMsg.id,
             chatId: newMsg.chat_session_id,
@@ -188,10 +138,80 @@ export default function AdminChatPanel({
           setMessages((prev) => {
             // Avoid duplicates
             if (prev.some((m) => m.id === message.id)) {
+              console.log("[AdminChatPanel] Duplicate message, skipping:", {
+                messageId: message.id,
+              });
               return prev;
             }
+            console.log("[AdminChatPanel] Adding message to state:", {
+              messageId: message.id,
+              previousCount: prev.length,
+              newCount: prev.length + 1,
+            });
             return [...prev, message];
           });
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "chat_sessions",
+          filter: `id=eq.${chatId}`,
+        },
+        (payload) => {
+          const updatedSession = payload.new as {
+            id: string;
+            status: string;
+            closed_at: string | null;
+          };
+          const oldSession = payload.old as {
+            id: string;
+            status: string;
+          };
+          console.log("[AdminChatPanel] Chat session updated:", {
+            sessionId: updatedSession.id,
+            oldStatus: oldSession.status,
+            newStatus: updatedSession.status,
+            closedAt: updatedSession.closed_at,
+            hasActiveChat: !!activeChat,
+            activeChatId: activeChat?.id,
+          });
+
+          // If user closed the chat, show notification message
+          if (updatedSession.status === "closed" && activeChat) {
+            console.log(
+              "[AdminChatPanel] User closed chat - showing notification",
+            );
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: "system-closed-" + Date.now(),
+                chatId: chatId,
+                text: "🔴 User has closed the chat",
+                sender: "user",
+                timestamp: new Date(),
+              },
+            ]);
+
+            // Update active chat status
+            setActiveChat((prev) =>
+              prev ? { ...prev, status: "closed" } : null,
+            );
+
+            // Refresh data
+            console.log("[AdminChatPanel] Calling onRefresh after user close");
+            onRefresh();
+          } else {
+            console.log(
+              "[AdminChatPanel] Session update but not showing notification:",
+              {
+                isClosed: updatedSession.status === "closed",
+                hasActiveChat: !!activeChat,
+              },
+            );
+          }
         },
       )
       .subscribe();
@@ -199,21 +219,74 @@ export default function AdminChatPanel({
     messageSubscriptionRef.current = channel;
   };
 
-  const fetchChatRequests = async () => {
-    try {
-      const response = await fetch(
-        `/api/admin/chat/requests?status=${activeTab}`,
+  // Subscribe to typing indicators
+  const subscribeToTyping = async (chatId: string) => {
+    console.log("[AdminChatPanel] Setting up typing subscription for:", chatId);
+    if (!chatId) return;
+
+    if (typingChannelRef.current) {
+      console.log("[AdminChatPanel] Removing old typing channel");
+      await supabase.removeChannel(typingChannelRef.current);
+    }
+
+    const channel = supabase
+      .channel(`typing:${chatId}`)
+      .on("broadcast", { event: "typing" }, (payload) => {
+        console.log("[AdminChatPanel] Typing broadcast received:", payload);
+        if (payload.payload.sender === "user") {
+          console.log("[AdminChatPanel] User is typing!");
+          setUserTyping(true);
+          // Clear typing indicator after 3 seconds
+          setTimeout(() => {
+            console.log("[AdminChatPanel] Clearing user typing indicator");
+            setUserTyping(false);
+          }, 3000);
+        }
+      })
+      .subscribe((status) => {
+        console.log(
+          "[AdminChatPanel] Typing channel subscription status:",
+          status,
+        );
+      });
+
+    typingChannelRef.current = channel;
+    console.log("[AdminChatPanel] Typing subscription created");
+  };
+
+  // Send typing indicator
+  const sendTypingIndicator = () => {
+    console.log("[AdminChatPanel] sendTypingIndicator called", {
+      hasActiveChat: !!activeChat,
+      hasChannel: !!typingChannelRef.current,
+    });
+
+    if (!activeChat || !typingChannelRef.current) {
+      console.log(
+        "[AdminChatPanel] Cannot send typing - missing activeChat or channel",
       );
+      return;
+    }
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch chat requests");
-      }
+    console.log("[AdminChatPanel] Broadcasting typing event");
+    typingChannelRef.current.send({
+      type: "broadcast",
+      event: "typing",
+      payload: { sender: "admin", sessionId: activeChat.id },
+    });
+  };
 
-      const data = await response.json();
-      setChatRequests(data || []);
-    } catch (error) {
-      console.error("Error fetching chat requests:", error);
-      setChatRequests([]);
+  // Handle input change with typing indicator
+  const handleInputChange = (value: string) => {
+    console.log("[AdminChatPanel] Input changed, length:", value.length);
+    setInputValue(value);
+
+    // Send typing indicator
+    sendTypingIndicator();
+
+    // Debounce typing indicator
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
     }
   };
 
@@ -259,10 +332,22 @@ export default function AdminChatPanel({
         const updatedRequest = { ...request, status: "active" as const };
         setActiveChat(updatedRequest);
         setActiveTab("active");
-        fetchChatRequests();
+        // Refresh data to ensure UI is in sync
+        onRefresh();
+      } else {
+        // Log the error details
+        const errorData = await response.json();
+        console.error("Error accepting chat:", {
+          status: response.status,
+          error: errorData,
+          chatId: request.id,
+          currentStatus: request.status,
+        });
+        alert(`Failed to accept chat: ${errorData.error || "Unknown error"}`);
       }
     } catch (error) {
       console.error("Error accepting chat:", error);
+      alert("Failed to accept chat. Please try again.");
     }
   };
 
@@ -271,6 +356,28 @@ export default function AdminChatPanel({
 
     const messageText = inputValue;
     setInputValue("");
+
+    console.log("[AdminChatPanel] Sending message:", {
+      chatId: activeChat.id,
+      messageLength: messageText.length,
+      userName: activeChat.userName,
+    });
+
+    // Optimistic UI update - show message immediately
+    const optimisticMessageId = "temp-" + Date.now();
+    const optimisticMessage: Message = {
+      id: optimisticMessageId,
+      chatId: activeChat.id,
+      text: messageText,
+      sender: "admin",
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, optimisticMessage]);
+    console.log("[AdminChatPanel] Added optimistic message:", {
+      id: optimisticMessageId,
+      text: messageText.substring(0, 50),
+    });
 
     try {
       const response = await fetch("/api/admin/chat/messages", {
@@ -285,20 +392,32 @@ export default function AdminChatPanel({
       if (!response.ok) {
         throw new Error("Failed to send message");
       }
-      // Message will appear via real-time subscription
+
+      // Get the real message from response
+      const data = await response.json();
+      console.log("[AdminChatPanel] Message sent successfully:", {
+        realMessageId: data.id,
+        optimisticId: optimisticMessageId,
+      });
+
+      // Replace optimistic message with real one when realtime event arrives
+      // The realtime subscription will handle adding the confirmed message
+      // and we'll remove the optimistic one if it still exists
+      setMessages((prev) => prev.filter((m) => m.id !== optimisticMessageId));
     } catch (error) {
-      console.error("Error sending message:", error);
-      // Show error message
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: "error-" + Date.now(),
-          chatId: activeChat.id,
-          text: "Failed to send message. Please try again.",
-          sender: "admin",
-          timestamp: new Date(),
-        },
-      ]);
+      console.error("[AdminChatPanel] Error sending message:", error);
+      // Replace optimistic message with error message
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === optimisticMessageId
+            ? {
+                ...m,
+                text: "❌ Failed to send: " + messageText,
+                id: "error-" + Date.now(),
+              }
+            : m,
+        ),
+      );
     }
   };
 
@@ -316,19 +435,17 @@ export default function AdminChatPanel({
         setActiveChat(null);
         setMessages([]);
         setActiveTab("closed");
-        fetchChatRequests();
+        // Refresh data to ensure UI is in sync
+        onRefresh();
       }
     } catch (error) {
       console.error("Error ending chat:", error);
     }
   };
 
-  const newChatsCount = chatRequests.filter(
-    (c) => c.status === "pending",
-  ).length;
-  const activeChatsCount = chatRequests.filter(
-    (c) => c.status === "active",
-  ).length;
+  // Badge counts are now passed from parent via props
+  const newChatsCount = pendingChats.length;
+  const activeChatsCount = activeChats.length;
 
   if (!isOpen) return null;
 
@@ -358,9 +475,9 @@ export default function AdminChatPanel({
         <div className={styles.sidebar}>
           <div className={styles.tabs}>
             <button
-              className={`${styles.tab} ${activeTab === "new" ? styles.active : ""}`}
+              className={`${styles.tab} ${activeTab === "pending" ? styles.active : ""}`}
               onClick={() => {
-                setActiveTab("new");
+                setActiveTab("pending");
                 setActiveChat(null);
               }}
             >
@@ -429,6 +546,14 @@ export default function AdminChatPanel({
 
           {/* Chat List */}
           <div className={styles.chatList}>
+            {(() => {
+              console.log("[AdminChatPanel] Rendering chat list:", {
+                activeTab,
+                chatRequestsLength: chatRequests.length,
+                chatRequestsStatuses: chatRequests.map((r) => r.status),
+              });
+              return null;
+            })()}
             {chatRequests.length === 0 ? (
               <div className={styles.emptyState}>
                 <p>No {activeTab} chats</p>
@@ -444,10 +569,13 @@ export default function AdminChatPanel({
                 >
                   <div className={styles.chatItemHeader}>
                     <strong>{request.userName}</strong>
+
+                    {/* Format timezones to correctly use GMT+8 (PH Time) */}
                     <span className={styles.timestamp}>
-                      {request.timestamp.toLocaleTimeString([], {
+                      {request.timestamp.toLocaleTimeString("en-PH", {
                         hour: "2-digit",
                         minute: "2-digit",
+                        timeZone: "Asia/Manila",
                       })}
                     </span>
                   </div>
@@ -461,7 +589,7 @@ export default function AdminChatPanel({
                         : request.concern}
                     </div>
                   )}
-                  {activeTab === "new" && (
+                  {activeTab === "pending" && (
                     <Button
                       variant="success"
                       onClick={(e) => {
@@ -508,14 +636,25 @@ export default function AdminChatPanel({
                   >
                     <div className={styles.messageContent}>{msg.text}</div>
                     <div className={styles.messageTime}>
-                      {msg.timestamp.toLocaleTimeString([], {
+                      {msg.timestamp.toLocaleTimeString("en-PH", {
                         hour: "2-digit",
                         minute: "2-digit",
+                        timeZone: "Asia/Manila",
                       })}
                     </div>
                   </div>
                 ))}
                 <div ref={messagesEndRef} />
+                {userTyping && (
+                  <div className={styles.typingIndicator}>
+                    <div className={styles.typingDots}>
+                      <span className={styles.typingDot}></span>
+                      <span className={styles.typingDot}></span>
+                      <span className={styles.typingDot}></span>
+                    </div>
+                    <span className={styles.typingText}>User is typing...</span>
+                  </div>
+                )}
               </div>
 
               {activeTab === "active" && (
@@ -525,7 +664,7 @@ export default function AdminChatPanel({
                     className={styles.input}
                     placeholder="Type your message..."
                     value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
+                    onChange={(e) => handleInputChange(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         handleSendMessage();

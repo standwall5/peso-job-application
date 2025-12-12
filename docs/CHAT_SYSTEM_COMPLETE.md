@@ -258,8 +258,8 @@ src/
 1. **Create test applicant account**
    ```sql
    -- Make sure your test user has entry in applicants table
-   INSERT INTO applicants (auth_id, first_name, last_name)
-   VALUES ('your-supabase-user-id', 'Test', 'User');
+   INSERT INTO applicants (auth_id, name)
+   VALUES ('your-supabase-user-id', 'Test User');
    ```
 
 2. **Create test admin account**

@@ -3,8 +3,8 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 90vw;
-    max-width: 1200px;
+    width: 80vw;
+    max-width: 950px;
     height: 85vh;
     background: white;
     border-radius: 16px;
@@ -75,7 +75,7 @@
 }
 
 .sidebar {
-    width: 350px;
+    width: 320px;
     background: #f9f9f9;
     border-right: 1px solid #e0e0e0;
     display: flex;
@@ -222,6 +222,7 @@
     display: flex;
     flex-direction: column;
     background: white;
+    max-width: 630px;
 }
 
 .chatHeader {
@@ -268,12 +269,13 @@
     flex-direction: column;
     gap: 1rem;
     background: #f9f9f9;
+    max-width: 100%;
 }
 
 .message {
     display: flex;
     flex-direction: column;
-    max-width: 70%;
+    max-width: 65%;
     animation: slideIn 0.2s ease;
 }
 
@@ -403,12 +405,82 @@
 /* Mobile Responsive */
 @media (max-width: 1024px) {
     .adminPanel {
-        width: 95vw;
+        width: 90vw;
+        max-width: 850px;
         height: 90vh;
     }
 
     .sidebar {
-        width: 300px;
+        width: 280px;
+    }
+
+    .chatWindow {
+        max-width: 570px;
+    }
+}
+
+.typingIndicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    margin-top: 0.5rem;
+}
+
+.typingDots {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.typingDot {
+    width: 8px;
+    height: 8px;
+    background: #888;
+    border-radius: 50%;
+    animation: typingBounce 1.4s infinite ease-in-out both;
+}
+
+.typingDot:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.typingDot:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+@keyframes typingBounce {
+    0%,
+    80%,
+    100% {
+        transform: scale(0);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.typingText {
+    font-size: 0.85rem;
+    color: #888;
+    font-style: italic;
+}
+
+@media (max-width: 1024px) {
+    .adminPanel {
+        width: 90vw;
+        max-width: 850px;
+        height: 90vh;
+    }
+
+    .sidebar {
+        width: 280px;
+    }
+
+    .chatWindow {
+        max-width: 570px;
     }
 }
 

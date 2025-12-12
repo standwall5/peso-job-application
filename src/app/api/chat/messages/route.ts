@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
+import { generateBotResponse, isAdminAvailable } from "@/utils/chatbot";
 
 // GET messages for user's active chat session
 export async function GET() {
@@ -52,7 +53,30 @@ export async function GET() {
     return NextResponse.json({ error: messagesError.message }, { status: 500 });
   }
 
-  return NextResponse.json({ messages: messages || [], sessionId: chatSession.id });
+  function formatManila(date: string | Date) {
+    return new Date(date).toLocaleString("en-PH", {
+      timeZone: "Asia/Manila",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  }
+
+  // When returning messages
+  const messagesWithManilaTime = (messages || []).map((m) => ({
+    ...m,
+    manilaTime: formatManila(m.created_at),
+  }));
+
+  return NextResponse.json({
+    messages: messagesWithManilaTime,
+    sessionId: chatSession.id,
+  });
+
+  // return NextResponse.json({
+  //   messages: messages || [],
+  //   sessionId: chatSession.id,
+  // });
 }
 
 // POST a new message from user
@@ -90,18 +114,24 @@ export async function POST(request: Request) {
   // Verify session belongs to user
   const { data: chatSession, error: sessionError } = await supabase
     .from("chat_sessions")
-    .select("id, status")
+    .select("id, status, admin_id")
     .eq("id", sessionId)
     .eq("user_id", applicantData.id)
     .single();
 
   if (sessionError || !chatSession) {
     console.error("Chat session verification error:", sessionError);
-    return NextResponse.json({ error: "Chat session not found" }, { status: 404 });
+    return NextResponse.json(
+      { error: "Chat session not found" },
+      { status: 404 },
+    );
   }
 
   if (chatSession.status === "closed") {
-    return NextResponse.json({ error: "Chat session is closed" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Chat session is closed" },
+      { status: 400 },
+    );
   }
 
   // Insert message
@@ -118,6 +148,31 @@ export async function POST(request: Request) {
   if (messageError) {
     console.error("Insert message error:", messageError);
     return NextResponse.json({ error: messageError.message }, { status: 500 });
+  }
+
+  // Check if this is a bot session (status is active but no admin has joined)
+  // Only respond with bot if there's no admin assigned (admin_id is null)
+  const isBotSession = chatSession.status === "active" && !chatSession.admin_id;
+
+  if (isBotSession) {
+    // Generate bot response
+    const botResponse = generateBotResponse(message.trim());
+
+    // Format message with buttons if present
+    const botMessage =
+      botResponse.message +
+      (botResponse.buttons
+        ? "\n\n[BUTTONS]" + JSON.stringify(botResponse.buttons)
+        : "");
+
+    // Insert bot response after a short delay to feel more natural
+    setTimeout(async () => {
+      await supabase.from("chat_messages").insert({
+        chat_session_id: sessionId,
+        sender: "admin",
+        message: botMessage,
+      });
+    }, 1000);
   }
 
   return NextResponse.json(newMessage);

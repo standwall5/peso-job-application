@@ -20,6 +20,7 @@ export interface Question {
   question_type: string;
   position: number;
   choices: Choice[];
+  correct_text?: string; // For paragraph questions
 }
 
 export interface Choice {
@@ -27,6 +28,7 @@ export interface Choice {
   question_id: number;
   choice_text: string;
   position: number;
+  is_correct?: boolean; // Mark if this choice is correct
 }
 
 interface ExamProps {

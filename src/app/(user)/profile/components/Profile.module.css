@@ -11,7 +11,10 @@
 
 .profileDetailsContainer,
 .profileOptionsContainer {
-    border: 1px solid black;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+    border-radius: 0.5rem;
 }
 
 .profileDetailsContainer {
@@ -30,12 +33,13 @@
     align-items: center;
     justify-content: center;
     gap: 2rem;
+    font-size: 12px;
 }
 
 .profilePicWrapper {
     position: relative;
     display: inline-block;
-    width: 18rem;
+    width: 10rem;
     aspect-ratio: 1/1;
     border-radius: 50%;
     overflow: hidden;
@@ -116,7 +120,9 @@
 }
 
 .profileDetailsInfo input {
-    border: 1px solid black;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     outline: none;
     padding: 0 0.5rem;
     border-radius: 0.2rem;
@@ -139,6 +145,8 @@
     display: block;
     justify-content: flex-start;
     width: 100%;
+    background-color: white;
+    min-height: 100%;
 }
 
 .profileOptionsNav {
@@ -151,7 +159,7 @@
     gap: 2rem;
     padding: 0;
     width: max-content;
-    font-size: 1.2rem;
+    font-size: 12px;
 }
 
 .profileOptionsNav li {
@@ -165,13 +173,14 @@
     color: var(--nav);
 }
 
-.resume,
-.appliedJobs {
+.appliedJobs,
+.resume {
     height: 100%;
     width: 100%;
 }
 
 .resume {
+    display: flex;
     align-items: center;
     justify-content: center;
 }
@@ -180,6 +189,9 @@
     align-items: flex-start;
     gap: 1.5rem;
     padding: 0 2rem;
+    flex-wrap: wrap;
+    /* Center the items when there are not enough to fill the row */
+    justify-content: flex-start; 
 }
 
 .appliedJobs,
@@ -191,12 +203,28 @@
     height: 100%;
 }
 
+.resumeButtonContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+    margin-right: 2rem;
+    width: 100%;
+    padding-bottom: 1rem;
+}
+
 .resumeButton {
+<<<<<<< HEAD
+    position: static;
+    margin: 0;
+=======
     position: absolute;
-    bottom: 2rem;
+    bottom: 4rem;
     right: 15rem;
     margin: 2rem auto;
     /* display: block; */
+>>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
     padding: 0.5rem 1.5rem;
     font-variant: 600;
     border-radius: 6;
@@ -204,6 +232,7 @@
     background: #fff;
     cursor: pointer;
     transition: 0.25s;
+    white-space: nowrap;
 }
 
 .createResumeButton {
@@ -223,9 +252,6 @@
     background-color: #c0c0c0;
 }
 
-.resumeButton:nth-of-type(2) {
-    margin-bottom: 5rem;
-}
 
 .resumeButton:hover {
     background-color: #c0c0c0;
@@ -250,13 +276,22 @@
 .editResume select,
 .editResume textarea {
     outline: none;
-    border: 1px solid black;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     width: max-content;
     padding: 0.5rem 1rem;
     background-color: white;
     border-radius: 0.5rem;
     color: black;
     font-weight: bold;
+}
+
+.workInput,
+.educationInput {
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
 
 .row {
@@ -290,12 +325,14 @@
     width: max-content;
 }
 
-.workExperiencesRow button {
+/*.workExperiencesRow button {
     background-color: #fff;
-    border: 1px solid black;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
-}
+}*/
 
 .skillsRow span {
     background-color: var(--accent);
@@ -304,7 +341,9 @@
     justify-content: center;
     border-radius: 2rem;
     padding: 1rem;
-    border: 1px solid black;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     transition: 0.25s;
 }
 
@@ -322,9 +361,18 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border: 1px solid black;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     padding: 2rem;
     border-radius: 0.5rem;
+    /* ************************************************* */
+    /* CHANGE: Set width to ~45% for two cards per row */
+    width: 45%; 
+    /* ************************************************* */
+    height: 15rem;
+    /* Ensure the cards don't grow beyond the width limit if only one exists */
+    flex-grow: 0; 
 }
 
 .jobCompany {
@@ -334,6 +382,7 @@
     justify-content: center;
     font-weight: bold;
     margin-bottom: 0.5rem;
+    text-align: center;
 }
 
 .jobCompany img {
@@ -365,4 +414,192 @@
 .status.referred {
     background-color: #b1ffbe;
     color: rgb(0, 255, 76);
+}
+
+/* Mobile Media Queries */
+@media (max-width: 768px) {
+    .profileContainer {
+        width: 95vw;
+        height: auto;
+        min-height: 80vh;
+        margin: 1rem;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .profileDetailsContainer {
+        width: 100%;
+        height: auto;
+        min-height: 20rem;
+        padding: 1.5rem 0;
+    }
+
+    .profileDetailsContent {
+        gap: 1.5rem;
+        font-size: 11px;
+    }
+
+    .profilePicWrapper {
+        width: 8rem;
+    }
+
+    .profileDetailsInfo {
+        width: 85%;
+        height: auto;
+        gap: 0.75rem;
+    }
+
+    .profileDetailsInfo input {
+        width: 100%;
+    }
+
+    .profileOptionsContainer {
+        width: 100%;
+        height: auto;
+        min-height: 50vh;
+    }
+
+    .profileOptionsNav {
+        font-size: 11px;
+        gap: 1rem;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .profileOptionsNav li {
+        padding: 0.75rem 1.5rem 0.5rem;
+    }
+
+    .appliedJobs {
+        padding: 0 1rem;
+        gap: 1rem;
+        flex-wrap: wrap; 
+        justify-content: center; /* Center cards on mobile */
+    }
+
+    .resumeButtonContainer {
+        margin-right: 1rem;
+    }
+
+    .resumeButton {
+        padding: 0.4rem 1.25rem;
+        font-size: 0.9rem;
+    }
+
+    .editResume {
+        padding: 1.5rem;
+        gap: 1rem;
+    }
+
+    .editResume h2 {
+        font-size: 1.25rem;
+    }
+
+    .row {
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .rowInput {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .rowInput input {
+        width: 100%;
+    }
+
+    .educationRow .rowInput div:not(.row) input {
+        width: 100%;
+    }
+
+    .skillsRow input {
+        width: 100%;
+    }
+
+    .jobCard {
+        /* ************************************************* */
+        /* Revert to 100% width for mobile to stack them */
+        width: 100%; 
+        /* ************************************************* */
+        height: auto;
+        min-height: 12rem;
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .profileContainer {
+        width: 100vw;
+        margin: 0.5rem 0;
+        gap: 1rem;
+    }
+
+    .profileDetailsContainer {
+        border-radius: 0.25rem;
+        min-height: 18rem;
+        padding: 1rem 0;
+    }
+
+    .profileDetailsContent {
+        gap: 1rem;
+        font-size: 10px;
+    }
+
+    .profilePicWrapper {
+        width: 7rem;
+    }
+
+    .profileDetailsInfo {
+        width: 90%;
+    }
+
+    .profileOptionsContainer {
+        border-radius: 0.25rem;
+    }
+
+    .profileOptionsNav {
+        font-size: 10px;
+        gap: 0.5rem;
+    }
+
+    .profileOptionsNav li {
+        padding: 0.75rem 1rem 0.5rem;
+    }
+
+    .appliedJobs {
+        padding: 0 0.75rem;
+    }
+
+    .resumeButtonContainer {
+        margin-right: 0.5rem;
+    }
+
+    .resumeButton {
+        padding: 0.35rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    .editResume {
+        padding: 1rem;
+    }
+
+    .editResume h2 {
+        font-size: 1.1rem;
+    }
+
+    .editResume input,
+    .editResume select,
+    .editResume textarea {
+        font-size: 0.9rem;
+    }
+
+    .jobCard {
+        padding: 1rem;
+        min-height: 10rem;
+    }
+
+    .jobCompany img {
+        width: 3rem;
+    }
 }

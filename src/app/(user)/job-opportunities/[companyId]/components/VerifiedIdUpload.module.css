@@ -1,0 +1,422 @@
+/* peso-job-application/src/app/(user)/job-opportunities/[companyId]/components/VerifiedIdUpload.module.css */
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Header */
+.header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.subtitle {
+    font-size: 0.95rem;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+/* Step Indicator */
+.stepIndicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    border-radius: 1.25rem;
+}
+
+.stepItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.stepCircle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.125rem;
+    background: white;
+    color: #cbd5e1;
+    border: 3px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.stepActive .stepCircle {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    color: white;
+    border-color: #f97316;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+}
+
+.stepLabel {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #94a3b8;
+    transition: color 0.3s ease;
+}
+
+.stepActive .stepLabel {
+    color: #9a3412;
+}
+
+.stepLine {
+    width: 120px;
+    height: 3px;
+    background: #e2e8f0;
+    margin: 0 1rem;
+    position: relative;
+    top: -12px;
+}
+
+/* Form */
+.form {
+    margin-bottom: 2rem;
+}
+
+.stepContent {
+    animation: fadeInUp 0.4s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.formGroup {
+    margin-bottom: 2rem;
+}
+
+.label {
+    display: block;
+    margin-bottom: 0.75rem;
+}
+
+.labelText {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.required {
+    color: #f97316;
+    margin-left: 0.25rem;
+}
+
+/* Select */
+.select {
+    width: 100%;
+    padding: 0.875rem 1.25rem;
+    border-radius: 0.75rem;
+    background: white;
+    border: 2px solid #e5e7eb;
+    font-size: 1rem;
+    color: #374151;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23374151'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.5rem;
+    padding-right: 3rem;
+}
+
+.select:hover {
+    border-color: #fb923c;
+}
+
+.select:focus {
+    outline: none;
+    border-color: #f97316;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+/* Upload Area */
+.uploadArea {
+    position: relative;
+}
+
+.fileInput {
+    display: none;
+}
+
+.uploadLabel {
+    display: block;
+    cursor: pointer;
+}
+
+.uploadPlaceholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    border: 2px dashed #e5e7eb;
+    border-radius: 1.25rem;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.uploadPlaceholder:hover {
+    border-color: #f97316;
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    transform: translateY(-2px);
+}
+
+.uploadIcon {
+    width: 48px;
+    height: 48px;
+    color: #f97316;
+    margin-bottom: 1rem;
+}
+
+.uploadText {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+
+.uploadHint {
+    font-size: 0.875rem;
+    color: #94a3b8;
+}
+
+/* Preview */
+.previewContainer {
+    position: relative;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    border: 2px solid #f97316;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.15);
+}
+
+.previewImage {
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+    object-fit: contain;
+    display: block;
+    background: #f8fafc;
+}
+
+.changeOverlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(249, 115, 22, 0.9),
+        rgba(234, 88, 12, 0.9)
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.changeOverlay span {
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.previewContainer:hover .changeOverlay {
+    opacity: 1;
+}
+
+/* Button Group */
+.buttonGroup {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding-top: 1.5rem;
+    border-top: 2px solid #f3f4f6;
+    margin-top: 2rem;
+}
+
+.buttonGroup button {
+    min-width: 180px;
+}
+
+/* Message */
+.message {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.messageSuccess {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    border: 2px solid #10b981;
+}
+
+.messageError {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    border: 2px solid #ef4444;
+}
+
+.messageIcon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.125rem;
+}
+
+.messageSuccess .messageIcon {
+    background: #10b981;
+    color: white;
+}
+
+.messageError .messageIcon {
+    background: #ef4444;
+    color: white;
+}
+
+.messageText {
+    flex: 1;
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.messageSuccess .messageText {
+    color: #065f46;
+}
+
+.messageError .messageText {
+    color: #991b1b;
+}
+
+/* Instructions */
+.instructions {
+    padding: 1.75rem;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-left: 4px solid #3b82f6;
+    border-radius: 1rem;
+}
+
+.instructionsTitle {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1e40af;
+    margin-bottom: 1rem;
+}
+
+.instructionsList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.instructionsList li {
+    position: relative;
+    padding-left: 1.75rem;
+    font-size: 0.9rem;
+    color: #1e40af;
+    line-height: 1.6;
+}
+
+.instructionsList li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: #3b82f6;
+    font-weight: 700;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .stepIndicator {
+        padding: 1.5rem 1rem;
+    }
+
+    .stepCircle {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .stepLine {
+        width: 60px;
+    }
+
+    .stepLabel {
+        font-size: 0.75rem;
+    }
+
+    .buttonGroup {
+        flex-direction: column-reverse;
+    }
+
+    .buttonGroup button {
+        width: 100%;
+        min-width: auto;
+    }
+
+    .uploadPlaceholder {
+        padding: 2rem 1rem;
+    }
+
+    .uploadIcon {
+        width: 36px;
+        height: 36px;
+    }
+}
