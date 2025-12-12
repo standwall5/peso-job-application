@@ -21,7 +21,6 @@ interface Message {
   text: string;
   sender: "user" | "admin";
   timestamp: Date;
-  manilaTime: string;
 }
 
 interface AdminChatPanelProps {
