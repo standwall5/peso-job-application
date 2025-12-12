@@ -448,17 +448,18 @@ const Profile = () => {
     return (
       <div key={job.id} className={`${styles.jobCard}`}>
         <div className={`${styles.jobCompany}`}>
-          <img
-            src={job.companies?.logo || "/assets/images/default_profile.png"}
-            alt={job.companies.name + " logo"}
-            className={styles.companyLogo}
-            style={{
-              width: "64px",
-              height: "64px",
-              objectFit: "contain",
-              border: "1px solid black",
-            }}
-          />
+          {job.companies?.logo && (
+            <img
+              src={job.companies.logo}
+              alt={job.companies.name + " logo"}
+              className={styles.companyLogo}
+              style={{
+                width: "64px",
+                height: "64px",
+                objectFit: "contain",
+              }}
+            />
+          )}
           <span>{job.companies?.name}</span>
           <span>{job.title}</span>
         </div>
@@ -729,8 +730,46 @@ const Profile = () => {
                 className={styles.profileDetailsInfo}
                 onSubmit={handleProfileDetailsSave}
               >
-                {/* ... other fields (phone, email) ... */}
-
+                <span>
+                  <strong>PHONE:</strong>
+                  <Button className="grey-button" variant="warning">
+                    <span>
+                      Edit on settings
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-6"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M15.75 2.25H21a.75.75 0 0 1 .75.75v5.25a.75.75 0 0 1-1.5 0V4.81L8.03 17.03a.75.75 0 0 1-1.06-1.06L19.19 3.75h-3.44a.75.75 0 0 1 0-1.5Zm-10.5 4.5a1.5 1.5 0 0 0-1.5 1.5v10.5a1.5 1.5 0 0 0 1.5 1.5h10.5a1.5 1.5 0 0 0 1.5-1.5V10.5a.75.75 0 0 1 1.5 0v8.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V8.25a3 3 0 0 1 3-3h8.25a.75.75 0 0 1 0 1.5H5.25Z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </span>
+                  </Button>
+                </span>
+                <span>
+                  <strong>EMAIL:</strong>
+                  <Button className="grey-button" variant="warning">
+                    <span>
+                      Edit on settings
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-6"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M15.75 2.25H21a.75.75 0 0 1 .75.75v5.25a.75.75 0 0 1-1.5 0V4.81L8.03 17.03a.75.75 0 0 1-1.06-1.06L19.19 3.75h-3.44a.75.75 0 0 1 0-1.5Zm-10.5 4.5a1.5 1.5 0 0 0-1.5 1.5v10.5a1.5 1.5 0 0 0 1.5 1.5h10.5a1.5 1.5 0 0 0 1.5-1.5V10.5a.75.75 0 0 1 1.5 0v8.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V8.25a3 3 0 0 1 3-3h8.25a.75.75 0 0 1 0 1.5H5.25Z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </span>
+                  </Button>
+                </span>
                 <span>
                   <strong>PREFERRED PLACE OF ASSIGNMENT: </strong>
                   <input
@@ -738,14 +777,8 @@ const Profile = () => {
                     placeholder={
                       user?.preferred_poa || "No preferred place of assignment"
                     }
-<<<<<<< HEAD
-                    // FIX: Use controlled component pattern with state and onChange
-                    value={editPreferredPoa}
-=======
-                    defaultValue={user?.preferred_poa}
->>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
+                    value={user?.preferred_poa}
                     name="preferred_poa"
-                    onChange={(e) => setEditPreferredPoa(e.target.value)}
                   />
                 </span>
                 <span>
@@ -753,14 +786,8 @@ const Profile = () => {
                   <input
                     type="text"
                     placeholder={user?.applicant_type}
-<<<<<<< HEAD
-                    // FIX: Use controlled component pattern with state and onChange
-                    value={editApplicantType}
-=======
-                    defaultValue={user?.applicant_type || "No applicant type"}
->>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
+                    value={user?.applicant_type || "No applicant type"}
                     name="applicant_type"
-                    onChange={(e) => setEditApplicantType(e.target.value)}
                   />
                 </span>
                 <Button variant="success">Save</Button>
@@ -1281,10 +1308,7 @@ const Profile = () => {
                     </div>
 
                     {/* Actions inside the form for proper submit */}
-                    <div
-                      className={styles.resumeActions}
-                      style={{ display: "flex", gap: 8 }}
-                    >
+                    <div style={{ marginTop: "1rem", display: "flex", gap: 8 }}>
                       <Button
                         type="button"
                         className={styles.resumeButton}
