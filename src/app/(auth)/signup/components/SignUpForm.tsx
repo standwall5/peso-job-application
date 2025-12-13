@@ -4,13 +4,8 @@ import React, { useState, useCallback, useRef, useEffect } from "react";
 import styles from "./SignUp.module.css";
 import { signup } from "@/lib/auth-actions";
 import Link from "next/link";
-<<<<<<< HEAD
 import Image from "next/image";
-=======
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
-// import { Fascinate_Inline } from "next/font/google";
->>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
+
 
 const SignUpForm: React.FC = () => {
   const [district, setDistrict] = useState<string>("");
@@ -31,29 +26,41 @@ const SignUpForm: React.FC = () => {
     special: false,
   });
   const [applicantType, setApplicantType] = useState<string[]>([]);
-  const [formData, setFormData] = useState({
-    residency: "",
+  
+
+  const [formData, setFormData] = useState<{
+    residency: "resident" | "nonresident" | null | "";
+    address: string;
+    district: string;
+    preferredPlaceOfAssignment: string;
+    barangay: string;
+  }>({
+    residency: null, 
     address: "",
     district: "",
     preferredPlaceOfAssignment: "",
     barangay: "",
   });
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showFormNotice, setShowFormNotice] = useState(false);
+  
+  
+  const [isSubmitted, setIsSubmitted] = useState(false); 
+  
+ 
   const formRef = useRef<HTMLFormElement | null>(null);
 
-  // Controlled fields for validations that need immediate feedback
+
   const [gender, setGender] = useState<string>("");
   const [genderOther, setGenderOther] = useState<string>("");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [birthDate, setBirthDate] = useState<string>("");
-  const [emailValue, setEmailValue] = useState<string>("");
-  const [residency, setResidency] = useState<string>("");
+  const [residency, setResidency] = useState<string | null>(null); 
   const [preferredPlace, setPreferredPlace] = useState<string>("");
   const [barangay, setbarangay] = useState<string>("");
   const [extNameValue, setExtNameValue] = useState<string>("None");
-
-  // keep list of required fields (for submit validation)
+  const [emailValue, setEmailValue] = useState<string>("");
   const requiredFields = [
     "firstName",
     "lastName",
@@ -66,16 +73,17 @@ const SignUpForm: React.FC = () => {
     "acceptTerms",
   ];
 
-  // Automatically toggle form notice based on current errors
+
   const getFieldRequiredMessage = (field: string) => {
     if (field === "firstName") return "First Name is required";
     if (field === "lastName") return "Last Name is required";
     return "This field is required";
   };
 
+
   useEffect(() => {
-    setShowFormNotice(Object.keys(errors).length > 0);
-  }, [errors]);
+    setShowFormNotice(isSubmitted && Object.keys(errors).length > 0);
+  }, [errors, isSubmitted]);
 
   const calculateAge = useCallback((birthDateValue: string): number | null => {
     if (!birthDateValue) return null;
@@ -104,7 +112,8 @@ const SignUpForm: React.FC = () => {
 
     if (!newBirthDate) {
       setCalculatedAge(null);
-      delete newErrors.birthDate;
+      // Only delete error if field is not empty on submit
+      if (isSubmitted) delete newErrors.birthDate; 
     } else if (isNaN(birth.getTime())) {
       newErrors.birthDate = "Invalid date";
       setCalculatedAge(null);
@@ -153,8 +162,7 @@ const SignUpForm: React.FC = () => {
     setErrors(newErrors);
   };
 
-  // Phone number handlers
-<<<<<<< HEAD
+  //  PHONE HANDLERS: 
   const handlePhoneKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const allowed =
       e.key === "Backspace" ||
@@ -196,16 +204,6 @@ const SignUpForm: React.FC = () => {
       phoneNumber.slice(end);
     const final = newVal.slice(0, 10);
     setPhoneNumber(final);
-
-    const newErrors = { ...errors };
-    if (final.length === 0) {
-      newErrors.phoneNumber = "Contact number is required";
-    } else if (!final.startsWith("9")) {
-      newErrors.phoneNumber = "Mobile number must start with 9";
-    } else if (final.length !== 10) {
-      newErrors.phoneNumber = "Mobile number must have 10 digits after +63";
-    } else delete newErrors.phoneNumber;
-    setErrors(newErrors);
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -213,26 +211,18 @@ const SignUpForm: React.FC = () => {
     setPhoneNumber(digits);
 
     const newErrors = { ...errors };
-    if (!digits || digits.length === 0) {
-      newErrors.phoneNumber = "Contact number is required";
-    } else if (!digits.startsWith("9")) {
-      newErrors.phoneNumber = "Mobile number must start with 9";
-    } else if (digits.length !== 10) {
-      newErrors.phoneNumber = "Mobile number must have 10 digits after +63";
-    } else {
-=======
-  const handlePhoneChange = (value: string, country: { dialCode: string }) => {
-    // Value comes without the '+'
-    const fullNumber = value.startsWith("63") ? "+" + value : value;
-    setPhoneNumber(fullNumber);
-
-    // Clear error if it exists (only validate on submit)
-    if (errors.phoneNumber) {
-      const newErrors = { ...errors };
->>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
-      delete newErrors.phoneNumber;
-      setErrors(newErrors);
+    if (isSubmitted || digits.length > 0) {
+        if (!digits || digits.length === 0) {
+          newErrors.phoneNumber = "Contact number is required";
+        } else if (!digits.startsWith("9")) {
+          newErrors.phoneNumber = "Mobile number must start with 9";
+        } else if (digits.length !== 10) {
+          newErrors.phoneNumber = "Mobile number must have 10 digits after +63";
+        } else {
+          delete newErrors.phoneNumber;
+        }
     }
+    setErrors(newErrors);
   };
 
   // Gender handlers
@@ -240,7 +230,7 @@ const SignUpForm: React.FC = () => {
     const val = e.target.value;
     setGender(val);
     const newErrors = { ...errors };
-    if (!val) newErrors.gender = "Please select gender";
+    if (!val && isSubmitted) newErrors.gender = "Please select gender";
     else delete newErrors.gender;
     setErrors(newErrors);
   };
@@ -249,7 +239,7 @@ const SignUpForm: React.FC = () => {
     const v = e.target.value;
     setGenderOther(v);
     const newErrors = { ...errors };
-    if (!v) newErrors.genderOther = "Please specify";
+    if (!v && isSubmitted) newErrors.genderOther = "Please specify";
     else delete newErrors.genderOther;
     setErrors(newErrors);
   };
@@ -260,7 +250,7 @@ const SignUpForm: React.FC = () => {
     setEmailValue(v);
     const newErrors = { ...errors };
     if (!v || v.trim() === "") {
-      newErrors.email = "This field is required";
+      if (isSubmitted) newErrors.email = "This field is required";
     } else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(v))
@@ -270,39 +260,25 @@ const SignUpForm: React.FC = () => {
     setErrors(newErrors);
   };
 
-<<<<<<< HEAD
-    // Barangay handler
-    const handlebarangayChange = (
-      e: React.ChangeEvent<HTMLSelectElement>
-    ) => {
-      const v = e.target.value;
-      setbarangay(v);
-      const newErrors = { ...errors };
-      if (!v)
-        newErrors.barangay = "Please select Barangay";
-      else delete newErrors.barangay;
-      setErrors(newErrors);
-    };
-=======
+  // Barangay handler (Defined once)
+  const handlebarangayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const v = e.target.value;
+    setbarangay(v);
+    const newErrors = { ...errors };
+    if (!v && isSubmitted) newErrors.barangay = "Please select Barangay";
+    else delete newErrors.barangay;
+    setErrors(newErrors);
+  };
+
   // Residence handler
   const handleResidencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const v = e.target.value;
     setResidency(v);
     const newErrors = { ...errors };
-    if (!v) newErrors.recidency = "Please select Residence";
+    if (!v && isSubmitted) newErrors.residency = "Please select Residence";
     else delete newErrors.residency;
     setErrors(newErrors);
   };
-  // Barangay handler
-  const handlebarangayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const v = e.target.value;
-    setbarangay(v);
-    const newErrors = { ...errors };
-    if (!v) newErrors.barangay = "Please select Barangay";
-    else delete newErrors.barangay;
-    setErrors(newErrors);
-  };
->>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
 
   // Preferred place handler
   const handlePreferredPlaceChange = (
@@ -311,7 +287,7 @@ const SignUpForm: React.FC = () => {
     const v = e.target.value;
     setPreferredPlace(v);
     const newErrors = { ...errors };
-    if (!v)
+    if (!v && isSubmitted)
       newErrors.preferredPlaceOfAssignment = "Please select preferred place";
     else delete newErrors.preferredPlaceOfAssignment;
     setErrors(newErrors);
@@ -322,7 +298,7 @@ const SignUpForm: React.FC = () => {
     const v = e.target.value;
     setDistrict(v);
     const newErrors = { ...errors };
-    if (!v) newErrors.district = "Please select District";
+    if (!v && isSubmitted) newErrors.district = "Please select District";
     else delete newErrors.district;
     setErrors(newErrors);
   };
@@ -335,9 +311,9 @@ const SignUpForm: React.FC = () => {
     const value = (e.target as HTMLInputElement).value;
     const newErrors = { ...errors };
 
-    if (newErrors[name]) {
-      if (value && value.toString().trim() !== "") delete newErrors[name];
-      else newErrors[name] = getFieldRequiredMessage(name);
+    // Clear error only if value is present 
+    if (newErrors[name] && value && value.toString().trim() !== "") {
+      delete newErrors[name];
     }
     setErrors(newErrors);
   };
@@ -358,6 +334,9 @@ const SignUpForm: React.FC = () => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
+    
+    // FIX 4: Mark form as submitted to enable error visibility
+    setIsSubmitted(true);
 
     const formEl = e.currentTarget;
     const newErrors: Record<string, string> = {};
@@ -389,6 +368,8 @@ const SignUpForm: React.FC = () => {
         newErrors[name] = getFieldRequiredMessage(name);
       }
     }
+    
+    // --- Specific Validations ---
 
     // Gender validations
     if (!gender) {
@@ -399,26 +380,15 @@ const SignUpForm: React.FC = () => {
       }
     }
 
-    // Phone validations (phone is required)
+    // Phone validations
     if (!phoneNumber || phoneNumber.trim() === "") {
       newErrors.phoneNumber = "Contact number is required";
-<<<<<<< HEAD
     } else if (!/^\d+$/.test(phoneNumber)) {
       newErrors.phoneNumber = "Phone number must contain digits only";
     } else if (!phoneNumber.startsWith("9")) {
       newErrors.phoneNumber = "Mobile number must start with 9";
     } else if (phoneNumber.length !== 10) {
       newErrors.phoneNumber = "Mobile number must have 10 digits after +63";
-=======
-    } else if (
-      !phoneNumber.startsWith("+63") &&
-      !phoneNumber.startsWith("63")
-    ) {
-      newErrors.phoneNumber = "Only Philippines phone numbers are allowed";
-    } else if (phoneNumber.replace(/\D/g, "").length !== 12) {
-      newErrors.phoneNumber =
-        "Please enter a valid Philippines phone number (10 digits)";
->>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
     }
 
     // Email validation (required)
@@ -432,24 +402,36 @@ const SignUpForm: React.FC = () => {
     }
 
     // Residence validation (required)
-    if (!residency || residency.trim() === "") {
+    if (!residency) { // Checks against null (initial state) or ""
       newErrors.residency = "Residence is required";
     }
 
     // Barangay validation (required)
-    if (!barangay || barangay.trim() === "") {
-      newErrors.barangay = "Barangay is required";
+    if (residency === "resident") {
+      if (!barangay || barangay.trim() === "") {
+        newErrors.barangay = "Barangay is required";
+      }
+    } else if (residency !== "resident") {
+      delete newErrors.barangay;
     }
 
     // Preferred place validation (required)
-    if (!preferredPlace || preferredPlace.trim() === "") {
-      newErrors.preferredPlaceOfAssignment =
-        "Preferred place of assignment is required";
+    if (residency === "resident") {
+      if (!preferredPlace || preferredPlace.trim() === "") {
+        newErrors.preferredPlaceOfAssignment =
+          "Preferred place of assignment is required";
+      }
+    } else if (residency !== "resident") {
+      delete newErrors.preferredPlaceOfAssignment;
     }
 
     // District validation
-    if (!district || district.trim() === "") {
-      newErrors.district = "District is required";
+    if (residency === "resident") {
+      if (!district || district.trim() === "") {
+        newErrors.district = "District is required";
+      }
+    } else if (residency !== "resident") {
+      delete newErrors.district;
     }
 
     // Birthdate validations (can't be future)
@@ -492,8 +474,6 @@ const SignUpForm: React.FC = () => {
     if (!applicantType || applicantType.length === 0) {
       newErrors.applicantType = "Please select at least one applicant type";
     }
-
-<<<<<<< HEAD
     if (applicantType.includes("Others")) {
       const othersValue = (
         formEl.elements.namedItem("othersSpecify") as HTMLInputElement | null
@@ -503,7 +483,6 @@ const SignUpForm: React.FC = () => {
       }
     }
 
-=======
     // Retrieve disability type and PWD number from form
     const disabilityType =
       (formEl.elements.namedItem("disabilityType") as HTMLSelectElement | null)
@@ -511,7 +490,6 @@ const SignUpForm: React.FC = () => {
     const pwdNumber =
       (formEl.elements.namedItem("pwdNumber") as HTMLInputElement | null)
         ?.value || "";
->>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
 
     // Applicant-specific ID fields OPTIONAL
     if (Object.keys(newErrors).length > 0) {
@@ -520,17 +498,19 @@ const SignUpForm: React.FC = () => {
       return;
     }
 
-    // Submit
+    // Submit successful
     setErrors({});
+    setIsSubmitted(false); // Reset submitted state on success
     const formData = new FormData(formEl);
     formData.set(
       "gender",
       gender === "Others" ? genderOther || "Others" : gender,
     );
-    formData.set("phoneNumber", `+63${phoneNumber}`);
+    
+    formData.set("phoneNumber", `+63${phoneNumber}`); 
     formData.set("birthDate", birthDate);
     formData.set("email", emailValue);
-    formData.set("residency", residency);
+    formData.set("residency", residency || "");
     formData.set("Barangay", barangay);
     formData.set("district", district);
     formData.set("preferredPlaceOfAssignment", preferredPlace);
@@ -552,47 +532,51 @@ const SignUpForm: React.FC = () => {
     }
   }
 
-  const warningModal = () => (
-    <div
-      className={styles.modalOverlay}
-      onClick={() => {
-        setModal(false);
-      }}
-    >
-      <div className={styles.warningModal} onClick={(e) => e.stopPropagation()}>
-        <button
-          onClick={() => {
-            setModal(false);
-          }}
-          style={{
-            fontWeight: "bold",
-            right: 20,
-            top: 20,
-            position: "absolute",
-          }}
-        >
-          X
-        </button>
-        <div className={styles.warningContainer}>
-          <h2>{success ? success : error}</h2>
-          <div className={styles.warningContent}>
-            {success ? (
-              <Link href="/login" className={styles.blueButton}>
-                Back to login
-              </Link>
-            ) : (
-              <button
-                onClick={() => setModal(false)}
-                className={styles.redButton}
-              >
-                Close
-              </button>
-            )}
+  // Warning Modal
+  const warningModal = () => { 
+    return (
+      <div
+        className={styles.modalOverlay}
+        onClick={() => {
+          setModal(false);
+        }}
+      >
+        <div className={styles.warningModal} onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => {
+              setModal(false);
+            }}
+            style={{
+              fontWeight: "bold",
+              right: 20,
+              top: 20,
+              position: "absolute",
+            }}
+          >
+            X
+          </button>
+          <div className={styles.warningContainer}>
+            <h2>{success ? success : error}</h2>
+            <div className={styles.warningContent}>
+              {success ? (
+                <Link href="/login" className={styles.blueButton}>
+                  Back to login
+                </Link>
+              ) : (
+                <button
+                  onClick={() => setModal(false)}
+                  className={styles.redButton}
+                >
+                  Close
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
+  
 
   return (
     <div className={styles.signUpContainer}>
@@ -601,7 +585,7 @@ const SignUpForm: React.FC = () => {
         <h2>REGISTER</h2>
         <form
           className={styles.signUpForm}
-          ref={formRef}
+          ref={formRef} 
           onSubmit={handleSubmit}
           noValidate
         >
@@ -949,51 +933,6 @@ const SignUpForm: React.FC = () => {
             </h3>
 
             {/* Residency Radio Buttons */}
-<<<<<<< HEAD
-          <div
-            className={
-              errors["residency"]
-                ? `${styles.residencyOptions} ${styles.radioError}`
-                : styles.residencyOptions
-            }
-          >
-            <label>
-              <input
-                type="radio"
-                name="residency"
-                value="resident"
-                checked={formData.residency === "resident"}
-                onChange={() => {
-                  setFormData({ ...formData, residency: "resident" });
-                  setErrors((prev: any) => {
-                    const next = { ...prev };
-                    delete next.residency;
-                    return next;
-                  });
-                }}
-              />
-              Resident of Parañaque
-            </label>
-
-            <label>
-              <input
-                type="radio"
-                name="residency"
-                value="nonresident"
-                checked={formData.residency === "nonresident"}
-                onChange={() => {
-                  setFormData({ ...formData, residency: "nonresident" });
-                  setErrors((prev: any) => {
-                    const next = { ...prev };
-                    delete next.residency;
-                    return next;
-                  });
-                }}
-              />
-              Non-Resident of Parañaque
-            </label>
-          </div>
-=======
             <div
               className={
                 errors["residency"]
@@ -1006,13 +945,18 @@ const SignUpForm: React.FC = () => {
                   type="radio"
                   name="residency"
                   value="resident"
-                  checked={formData.residency === "resident"}
+                  checked={formData.residency === "resident"} 
                   onChange={() => {
                     setFormData({ ...formData, residency: "resident" });
                     setResidency("resident");
                     setErrors((prev: Record<string, string>) => ({
                       ...prev,
-                      residency: "",
+                      residency: "", 
+                      ...(isSubmitted && {
+                          district: "",
+                          barangay: "",
+                          preferredPlaceOfAssignment: "",
+                      })
                     }));
                   }}
                 />
@@ -1028,16 +972,23 @@ const SignUpForm: React.FC = () => {
                   onChange={() => {
                     setFormData({ ...formData, residency: "nonresident" });
                     setResidency("nonresident");
+                    setDistrict(""); 
+                    setbarangay(""); 
+                    setPreferredPlace(""); 
                     setErrors((prev: Record<string, string>) => ({
                       ...prev,
-                      residency: "",
+                      residency: "", 
+                      ...(isSubmitted && {
+                          district: "",
+                          barangay: "",
+                          preferredPlaceOfAssignment: "",
+                      })
                     }));
                   }}
                 />
                 Non-Resident of Parañaque
               </label>
             </div>
->>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
 
             {/* Residency error message */}
             {errors["residency"] && (
@@ -1138,11 +1089,7 @@ const SignUpForm: React.FC = () => {
                     <select
                       id="barangay"
                       name="barangay"
-<<<<<<< HEAD
-                      defaultValue=""
-=======
-                      value={barangay}
->>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
+                      value={barangay} 
                       onChange={handlebarangayChange}
                       className={errors["barangay"] ? styles.errorInput : ""}
                     >
@@ -1200,7 +1147,7 @@ const SignUpForm: React.FC = () => {
                 name="email"
                 type="email"
                 placeholder="@gmail.com"
-                value={emailValue}
+                value={emailValue} // Corrected value prop binding
                 onChange={handleEmailChange}
                 className={errors["email"] ? styles.errorInput : ""}
               />
@@ -1212,16 +1159,15 @@ const SignUpForm: React.FC = () => {
               <label htmlFor="phoneNumber" className={styles.fieldLabel}>
                 Contact Number <span className={styles.redAsterisk}>*</span>
               </label>
-<<<<<<< HEAD
               <div
                 className={
-                  errors["phoneNumber"]
-                    ? `${styles.phoneInputGroup} ${styles.phoneInputError}`
-                    : styles.phoneInputGroup
+                  styles.phoneInputGroup 
                 }
               >
+    
                 <div className={styles.countryPrefix}>
                   <span className={styles.flagIcon}>
+                    {/* Assuming Image component is used here */}
                     <Image
                       src="/assets/images/ph-flag.svg"
                       alt="Philippine flag"
@@ -1247,22 +1193,6 @@ const SignUpForm: React.FC = () => {
                   className={styles.phoneNumberInput}
                 />
               </div>
-=======
-              <PhoneInput
-                country={"ph"}
-                onlyCountries={["ph"]}
-                value={phoneNumber}
-                onChange={handlePhoneChange}
-                placeholder="917 123 4567"
-                inputProps={{
-                  id: "phoneNumber",
-                  name: "phoneNumber",
-                  required: true,
-                }}
-                containerClass={errors["phoneNumber"] ? styles.errorInput : ""}
-                inputStyle={{ width: "100%", height: "2.6rem" }}
-              />
->>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
               {errors["phoneNumber"] && (
                 <div className={styles.fieldError}>{errors["phoneNumber"]}</div>
               )}
@@ -1424,15 +1354,15 @@ const SignUpForm: React.FC = () => {
                 password.length === 0
                   ? styles["neutral"]
                   : passwordRequirements.length
-                    ? styles["valid"]
-                    : styles["invalid"]
+                  ? styles["valid"]
+                  : styles["invalid"]
               }`}
             >
               {password.length === 0
                 ? "○"
                 : passwordRequirements.length
-                  ? "✓"
-                  : "✗"}{" "}
+                ? "✓"
+                : "✗"}{" "}
               At least 8 characters
             </div>
             <div
@@ -1440,15 +1370,15 @@ const SignUpForm: React.FC = () => {
                 password.length === 0
                   ? styles["neutral"]
                   : passwordRequirements.uppercase
-                    ? styles["valid"]
-                    : styles["invalid"]
+                  ? styles["valid"]
+                  : styles["invalid"]
               }`}
             >
               {password.length === 0
                 ? "○"
                 : passwordRequirements.uppercase
-                  ? "✓"
-                  : "✗"}{" "}
+                ? "✓"
+                : "✗"}{" "}
               At least 1 uppercase letter
             </div>
             <div
@@ -1456,15 +1386,15 @@ const SignUpForm: React.FC = () => {
                 password.length === 0
                   ? styles["neutral"]
                   : passwordRequirements.lowercase
-                    ? styles["valid"]
-                    : styles["invalid"]
+                  ? styles["valid"]
+                  : styles["invalid"]
               }`}
             >
               {password.length === 0
                 ? "○"
                 : passwordRequirements.lowercase
-                  ? "✓"
-                  : "✗"}{" "}
+                ? "✓"
+                : "✗"}{" "}
               At least 1 lowercase letter
             </div>
             <div
@@ -1472,15 +1402,15 @@ const SignUpForm: React.FC = () => {
                 password.length === 0
                   ? styles["neutral"]
                   : passwordRequirements.number
-                    ? styles["valid"]
-                    : styles["invalid"]
+                  ? styles["valid"]
+                  : styles["invalid"]
               }`}
             >
               {password.length === 0
                 ? "○"
                 : passwordRequirements.number
-                  ? "✓"
-                  : "✗"}{" "}
+                ? "✓"
+                : "✗"}{" "}
               At least 1 number
             </div>
             <div
@@ -1488,15 +1418,15 @@ const SignUpForm: React.FC = () => {
                 password.length === 0
                   ? styles["neutral"]
                   : passwordRequirements.special
-                    ? styles["valid"]
-                    : styles["invalid"]
+                  ? styles["valid"]
+                  : styles["invalid"]
               }`}
             >
               {password.length === 0
                 ? "○"
                 : passwordRequirements.special
-                  ? "✓"
-                  : "✗"}{" "}
+                ? "✓"
+                : "✗"}{" "}
               At least 1 special character (!@#$%&)
             </div>
           </div>
@@ -1555,7 +1485,7 @@ const SignUpForm: React.FC = () => {
                   setAcceptTerms(e.target.checked);
                   const newErrors = { ...errors };
                   if (e.target.checked) delete newErrors.acceptTerms;
-                  else newErrors.acceptTerms = "You must accept terms";
+                  else if (isSubmitted) newErrors.acceptTerms = "You must accept terms"; 
                   setErrors(newErrors);
                 }}
                 required
@@ -1585,18 +1515,29 @@ const SignUpForm: React.FC = () => {
                 });
                 setCalculatedAge(null);
                 setApplicantType([]);
-                setErrors({});
+                
+                
+                setErrors({}); 
+                setIsSubmitted(false); 
+                
                 setGender("");
                 setGenderOther("");
                 setPhoneNumber("");
                 setBirthDate("");
-                setEmailValue("");
-                setResidency("");
+                setResidency(null); 
                 setbarangay("");
                 setPreferredPlace("");
                 setDistrict("");
                 setExtNameValue("None");
                 setShowFormNotice(false);
+                setFormData({
+                    residency: null,
+                    address: "",
+                    district: "",
+                    preferredPlaceOfAssignment: "",
+                    barangay: "",
+                });
+
                 const form = document.querySelector(
                   "form",
                 ) as HTMLFormElement | null;
