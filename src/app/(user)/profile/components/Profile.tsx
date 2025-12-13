@@ -255,6 +255,7 @@ const Profile = () => {
 
   // Sync basic edit fields when user/resume or when opening edit
   useEffect(() => {
+    // FIX: Set initial state values based on fetched user data
     setEditPreferredPoa(user?.preferred_poa ?? "");
     setEditApplicantType(user?.applicant_type ?? "");
   }, [user]);
@@ -325,14 +326,14 @@ const Profile = () => {
 
   const handleProfileDetailsSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget as HTMLFormElement);
+    // FIX: Use state variables instead of relying on FormData (which might miss new input values)
     await fetch("/api/updateProfileDetails", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        preferred_poa: formData.get("preferred_poa"),
-        applicant_type: formData.get("applicant_type"),
-        name: formData.get("name"),
+        preferred_poa: editPreferredPoa,
+        applicant_type: editApplicantType,
+        name: user?.name, // assuming name isn't edited here
       }),
     });
     setShowEditSuccess(true);
@@ -777,8 +778,9 @@ const Profile = () => {
                     placeholder={
                       user?.preferred_poa || "No preferred place of assignment"
                     }
-                    value={user?.preferred_poa}
+                    value={editPreferredPoa} // FIX: Use state
                     name="preferred_poa"
+                    onChange={(e) => setEditPreferredPoa(e.target.value)} // FIX: Add onChange
                   />
                 </span>
                 <span>
@@ -786,8 +788,9 @@ const Profile = () => {
                   <input
                     type="text"
                     placeholder={user?.applicant_type}
-                    value={user?.applicant_type || "No applicant type"}
+                    value={editApplicantType || "No applicant type"} // FIX: Use state
                     name="applicant_type"
+                    onChange={(e) => setEditApplicantType(e.target.value)} // FIX: Add onChange
                   />
                 </span>
                 <Button variant="success">Save</Button>
@@ -1360,8 +1363,6 @@ const Profile = () => {
                         }
                         profileIntroduction={resume?.profile_introduction}
                       />
-                    </div>
-                    {!showEditResume && (
                       <div className={styles.resumeButtonContainer}>
                         <Button
                           className={styles.resumeButton}
@@ -1378,7 +1379,7 @@ const Profile = () => {
                           Download Resume
                         </Button>
                       </div>
-                    )}
+                    </div>
                   </div>
                 ) : (
                   <div
