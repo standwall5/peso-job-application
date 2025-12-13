@@ -1,7 +1,6 @@
 .profileContainer {
     width: 80vw;
     height: 80vh;
-    /* background-color: black; */
     margin: 2rem;
     display: flex;
     align-items: center;
@@ -168,21 +167,32 @@
 }
 
 .profileOptionsNav li.active {
-    border-bottom: 2px solid var(--nav); /* or your accent color */
-    /* font-weight: bold; */
+    border-bottom: 2px solid var(--nav); 
     color: var(--nav);
 }
 
-.appliedJobs,
-.resume {
+.appliedJobs {
     height: 100%;
     width: 100%;
+}
+
+.resumeWrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    padding: 2rem; 
+    box-sizing: border-box;
 }
 
 .resume {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-grow: 1; 
+    position: relative;
+    margin: 0;
+    overflow: visible;
 }
 
 .appliedJobs {
@@ -190,14 +200,11 @@
     gap: 1.5rem;
     padding: 0 2rem;
     flex-wrap: wrap;
-    /* Center the items when there are not enough to fill the row */
-    justify-content: flex-start; 
+    justify-content: flex-start;
 }
 
-.appliedJobs,
-.resume {
+.appliedJobs {
     display: flex;
-    position: relative;
     margin: 2rem 0;
     overflow: auto;
     height: 100%;
@@ -205,42 +212,29 @@
 
 .resumeButtonContainer {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 1rem;
+    flex-direction: column; 
+    align-items: flex-end; 
+    justify-content: flex-end;
+    gap: 0.5rem; 
     margin-top: 1rem;
-    margin-right: 2rem;
     width: 100%;
-    padding-bottom: 1rem;
+    position: absolute; 
+    bottom: 2rem; 
+    right: 2rem; 
+    pointer-events: none; 
 }
 
-.resumeButton {
-<<<<<<< HEAD
-    position: static;
-    margin: 0;
-=======
-    position: absolute;
-    bottom: 4rem;
-    right: 15rem;
-    margin: 2rem auto;
-    /* display: block; */
->>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
-    padding: 0.5rem 1.5rem;
-    font-variant: 600;
-    border-radius: 6;
-    border: 1px solid #222;
-    background: #fff;
-    cursor: pointer;
-    transition: 0.25s;
-    white-space: nowrap;
+
+.resumeButtonContainer button {
+    width: max-content;
+    pointer-events: auto; 
+  
 }
 
 .createResumeButton {
-    /* margin: 2rem auto; */
-    /* display: block; */
     padding: 0.5rem 1.5rem;
-    font-variant: 600;
-    border-radius: 6;
+    font-weight: 600;
+    border-radius: 6px;
     border: 1px solid #222;
     background: #fff;
     cursor: pointer;
@@ -252,18 +246,32 @@
     background-color: #c0c0c0;
 }
 
-
-.resumeButton:hover {
-    background-color: #c0c0c0;
-}
-
 .editResume {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
     padding: 2rem;
-    gap: 1rem;
+    gap: 1.5rem;
+    background-color: white; /* Give the edit form a white background */
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+    border-radius: 0.5rem;
+    flex-grow: 1;
+    overflow: auto;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    position: relative; 
+}
+
+
+.editResumeActions {
+    display: flex;
+    gap: 8px;
+    align-self: flex-end;
+    margin-top: 1rem;
 }
 
 .editResume h2 {
@@ -297,6 +305,7 @@
 .row {
     display: flex;
     gap: 2rem;
+    width: 100%; /* Make rows take full width */
 }
 
 .row div {
@@ -304,35 +313,36 @@
     flex-direction: column;
     gap: 0.5rem;
     color: grey;
+    flex: 1; /* Allow items in the row to grow */
 }
 
 .rowInput {
     display: flex;
     flex-direction: row;
     gap: 1rem;
+    width: 100%; 
+    flex-wrap: wrap; 
 }
 
 .rowInput div:not(.row) {
     display: flex;
     flex-direction: column;
+    flex: 1; 
+    min-width: 150px; 
 }
 
-.rowInput input {
-    width: 9rem;
+.rowInput input,
+.rowInput select {
+    width: 100% !important; 
 }
 
 .educationRow .rowInput div:not(.row) input {
-    width: max-content;
+    width: 100% !important;
 }
 
-/*.workExperiencesRow button {
-    background-color: #fff;
-    box-shadow:
-        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
-        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-}*/
+.skillsRow {
+    flex-wrap: wrap; 
+}
 
 .skillsRow span {
     background-color: var(--accent);
@@ -340,11 +350,21 @@
     align-items: center;
     justify-content: center;
     border-radius: 2rem;
-    padding: 1rem;
+    padding: 0.5rem 1rem; 
     box-shadow:
         rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
         rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     transition: 0.25s;
+    margin-right: 0; 
+}
+
+.skillsRow span button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    margin-left: 4px;
+    font-weight: bold;
 }
 
 .skillsRow span:hover {
@@ -352,7 +372,7 @@
 }
 
 .skillsRow input {
-    width: 8rem;
+    flex: 1; 
 }
 
 .jobCard {
@@ -366,13 +386,9 @@
         rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     padding: 2rem;
     border-radius: 0.5rem;
-    /* ************************************************* */
-    /* CHANGE: Set width to ~45% for two cards per row */
-    width: 45%; 
-    /* ************************************************* */
+    width: 45%;
     height: 15rem;
-    /* Ensure the cards don't grow beyond the width limit if only one exists */
-    flex-grow: 0; 
+    flex-grow: 0;
 }
 
 .jobCompany {
@@ -473,12 +489,24 @@
     .appliedJobs {
         padding: 0 1rem;
         gap: 1rem;
-        flex-wrap: wrap; 
+        flex-wrap: wrap;
         justify-content: center; /* Center cards on mobile */
     }
 
+    .resumeWrapper {
+        padding: 1rem; /* Less padding on mobile */
+        position: relative;
+    }
+
     .resumeButtonContainer {
-        margin-right: 1rem;
+        position: static; 
+        flex-direction: row; 
+        justify-content: center; 
+        margin: 1rem 0 0;
+    }
+
+    .resumeButtonContainer button {
+        flex: 1; 
     }
 
     .resumeButton {
@@ -500,6 +528,11 @@
         flex-wrap: wrap;
     }
 
+    .row div {
+        flex: auto; 
+        min-width: 100%; 
+    }
+
     .rowInput {
         flex-direction: column;
         gap: 0.75rem;
@@ -518,10 +551,7 @@
     }
 
     .jobCard {
-        /* ************************************************* */
-        /* Revert to 100% width for mobile to stack them */
-        width: 100%; 
-        /* ************************************************* */
+        width: 100%;
         height: auto;
         min-height: 12rem;
         padding: 1.5rem;
