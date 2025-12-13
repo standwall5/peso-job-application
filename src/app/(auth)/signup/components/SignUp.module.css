@@ -67,6 +67,7 @@
 .signUpForm input,
 .signUpForm select {
     background-color: #fff;
+    /* Retain original box-shadow for unfocused state */
     box-shadow:
         rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
         rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
@@ -78,10 +79,20 @@
     min-width: 0;
     height: 2.6rem;
     border-radius: 3px;
+    border: none;
     transition:
         border-color 0.15s ease,
         box-shadow 0.15s ease;
 }
+
+/* FIX: Apply UNIFORM blue focus style to standard inputs and selects */
+.signUpForm input:focus,
+.signUpForm select:focus {
+    /* STRICTLY apply only the blue shadow */
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2) !important; 
+    border-color: transparent;
+}
+
 
 .signUpForm input:-webkit-autofill,
 .signUpForm input:-webkit-autofill:hover,
@@ -128,6 +139,7 @@
 }
 
 .phoneInputGroup:focus-within {
+  /* This style is the source of the requested blue glow */
   box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
 }
 
@@ -202,6 +214,13 @@
     padding-right: 2.6rem; /* room for eye icon */
     border-radius: 3px;
 }
+
+/* FIX: Apply blue focus to password container input */
+.passwordContainer input:focus {
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2) !important; 
+    border-color: transparent;
+}
+
 
 .passwordContainer svg {
     position: absolute;
@@ -353,12 +372,8 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-
-    /*width: 9px;*/
-    width: auto;
-    height: 100%;
-    /*aspect-ratio: 1/1;*/
-    /*min-width: 18px;*/
+    width: 5%;
+    height: 70%;
     border-radius: 50%;
     border: 2px solid #9aa6b2;
     background: #fff;
@@ -598,7 +613,6 @@
 }
 
 .checkboxList {
-<<<<<<< HEAD
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -606,16 +620,17 @@
   background: #ffffff;
   max-height: 250px;
   overflow-y: auto;
-=======
     display: flex;
     flex-direction: column;
     gap: 6px;
     padding: 10px;
-    border: 1px solid #000000;
+    border: 1px solid #ffffff;
     background: #ffffff;
     max-height: 250px;
     overflow-y: auto;
->>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
+    box-shadow:
+    rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+    rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
 
 /* Scrollbar (Slider) Styling */
@@ -625,12 +640,12 @@
 
 .checkboxList::-webkit-scrollbar-track {
     background: #e6e6e6;
-    border-radius: 10px;
+    border-radius: 3px;
 }
 
 .checkboxList::-webkit-scrollbar-thumb {
     background: #777;
-    border-radius: 10px;
+    border-radius: 3px;
 }
 
 .checkboxList::-webkit-scrollbar-thumb:hover {
@@ -660,24 +675,29 @@
 
 .conditionalField input,
 .conditionalField select {
-<<<<<<< HEAD
   width: 100%;
   height: 2.6rem;
   padding: 0 0.8rem;
   border: none;
   border-radius: 3px;
-  background-color: #fff;
+  /* Retain base shadow for unfocused state */
   box-shadow:
     rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
     rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
-=======
     width: 100%;
     height: 2.5rem;
-    border: 1px solid black;
+    border: 1px solid rgb(255, 255, 255);
     padding: 0 10px;
-    border-radius: 4px;
->>>>>>> bbd958647c13bdc840abd9041627cebe77ebf9a8
+    border-radius: 3px;
 }
+
+/* FIX: Apply blue focus to conditional fields as well */
+.conditionalField input:focus,
+.conditionalField select:focus {
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2) !important;
+    border-color: transparent !important;
+}
+
 
 /* Prevent shifting */
 .checkboxList::-webkit-scrollbar {
@@ -708,10 +728,12 @@
         box-shadow 0.15s ease;
 }
 
+/* FIX: Apply correct focus shadow to react-tel-input's internal input */
 .signUpForm :global(.react-tel-input .form-control):focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.12);
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2) !important; /* Added !important for strictness */
+    border-color: transparent;
 }
+
 
 .signUpForm :global(.react-tel-input .flag-dropdown) {
     background-color: transparent;
