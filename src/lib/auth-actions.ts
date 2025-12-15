@@ -84,7 +84,6 @@ export async function signup(formData: FormData) {
   // Combine names into single name field
   const fullName = [firstName, middleName, lastName, extName]
     .filter(Boolean) // Remove empty values
-    .filter("")
     .join(" ")
     .trim();
 

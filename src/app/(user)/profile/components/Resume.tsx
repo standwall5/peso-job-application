@@ -105,7 +105,7 @@ const Resume = forwardRef<HTMLDivElement, ResumeProps>(
           </ul>
         </section>
 
-        {workExperiences.WorkExperience && (
+        {workExperiences && (
           <section className={styles.section}>
             <h6 className={styles.sectionTitle}>Work Experiences</h6>
             {(Array.isArray(workExperiences) ? workExperiences : []).map(
