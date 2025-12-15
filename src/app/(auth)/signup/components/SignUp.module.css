@@ -63,9 +63,14 @@
     margin-left: 6px;
 }
 
+.mantineDateInput label {
+    margin-bottom: 0.25rem;
+}
+
 /* Inputs / selects */
 .signUpForm input,
-.signUpForm select {
+.signUpForm select,
+.mantineDateInput input {
     background-color: #fff;
     /* Retain original box-shadow for unfocused state */
     box-shadow:
@@ -89,10 +94,9 @@
 .signUpForm input:focus,
 .signUpForm select:focus {
     /* STRICTLY apply only the blue shadow */
-    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2) !important; 
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2) !important;
     border-color: transparent;
 }
-
 
 .signUpForm input:-webkit-autofill,
 .signUpForm input:-webkit-autofill:hover,
@@ -125,64 +129,64 @@
 }
 
 .phoneInputGroup {
-  display: flex;
-  align-items: center;
-  background-color: #fff;
-  box-shadow:
-    rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
-    rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
-  border-radius: 3px;
-  height: 2.6rem;
-  overflow: hidden;
-  border: 1px solid transparent;
-  transition: box-shadow 0.15s ease;
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+    border-radius: 3px;
+    height: 2.6rem;
+    overflow: hidden;
+    border: 1px solid transparent;
+    transition: box-shadow 0.15s ease;
 }
 
 .phoneInputGroup:focus-within {
-  /* This style is the source of the requested blue glow */
-  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+    /* This style is the source of the requested blue glow */
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
 }
 
 .phoneInputError {
-  border-color: #d9534f;
-  box-shadow: 0 0 0 4px rgba(217, 83, 79, 0.08);
+    border-color: #d9534f;
+    box-shadow: 0 0 0 4px rgba(217, 83, 79, 0.08);
 }
 
 .countryPrefix {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0 0.8rem;
-  border-right: 1px solid #ececec;
-  height: 100%;
-  background-color: #f8f9fb;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0 0.8rem;
+    border-right: 1px solid #ececec;
+    height: 100%;
+    background-color: #f8f9fb;
 }
 
 .flagIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 14px;
 }
 
 .countryCode {
-  font-weight: 600;
-  color: #333;
+    font-weight: 600;
+    color: #333;
 }
 
 .phoneNumberInput {
-  border: none;
-  outline: none;
-  flex: 1;
-  height: 100%;
-  padding: 0 0.8rem;
-  background: transparent;
-  font-size: 1rem;
+    border: none;
+    outline: none;
+    flex: 1;
+    height: 100%;
+    padding: 0 0.8rem;
+    background: transparent;
+    font-size: 1rem;
 }
 
 .phoneNumberInput::placeholder {
-  color: #b0b0b0;
+    color: #b0b0b0;
 }
 
 /* Inline field error message */
@@ -217,10 +221,9 @@
 
 /* FIX: Apply blue focus to password container input */
 .passwordContainer input:focus {
-    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2) !important; 
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2) !important;
     border-color: transparent;
 }
-
 
 .passwordContainer svg {
     position: absolute;
@@ -372,9 +375,11 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    width: 5%;
-    height: 70%;
-    border-radius: 50%;
+    aspect-ratio: 1/1;
+    width: auto;
+    height: 2rem;
+    transform: scale(0.8);
+    border-radius: 100%;
     border: 2px solid #9aa6b2;
     background: #fff;
     position: relative;
@@ -613,13 +618,13 @@
 }
 
 .checkboxList {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 10px;
-  background: #ffffff;
-  max-height: 250px;
-  overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px;
+    background: #ffffff;
+    max-height: 250px;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -629,8 +634,8 @@
     max-height: 250px;
     overflow-y: auto;
     box-shadow:
-    rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
-    rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
 
 /* Scrollbar (Slider) Styling */
@@ -675,20 +680,81 @@
 
 .conditionalField input,
 .conditionalField select {
-  width: 100%;
-  height: 2.6rem;
-  padding: 0 0.8rem;
-  border: none;
-  border-radius: 3px;
-  /* Retain base shadow for unfocused state */
-  box-shadow:
-    rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
-    rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+    width: 100%;
+    height: 2.6rem;
+    padding: 0 0.8rem;
+    border: none;
+    border-radius: 3px;
+    /* Retain base shadow for unfocused state */
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     width: 100%;
     height: 2.5rem;
     border: 1px solid rgb(255, 255, 255);
     padding: 0 10px;
     border-radius: 3px;
+    border-radius: 4px;
+}
+
+.phoneInputGroup {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+    border-radius: 3px;
+    height: 2.6rem;
+    overflow: hidden;
+    border: 1px solid transparent;
+    transition: box-shadow 0.15s ease;
+}
+
+.phoneInputGroup:focus-within {
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+.phoneInputError {
+    border-color: #d9534f;
+    box-shadow: 0 0 0 4px rgba(217, 83, 79, 0.08);
+}
+
+.countryPrefix {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0 0.8rem;
+    border-right: 1px solid #ececec;
+    height: 100%;
+    background-color: #f8f9fb;
+}
+
+.flagIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 14px;
+}
+
+.countryCode {
+    font-weight: 600;
+    color: #333;
+}
+
+.phoneNumberInput {
+    border: none;
+    outline: none;
+    flex: 1;
+    height: 100%;
+    padding: 0 0.8rem;
+    background: transparent;
+    font-size: 1rem;
+}
+
+.phoneNumberInput::placeholder {
+    color: #b0b0b0;
 }
 
 /* FIX: Apply blue focus to conditional fields as well */
@@ -697,7 +763,6 @@
     box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2) !important;
     border-color: transparent !important;
 }
-
 
 /* Prevent shifting */
 .checkboxList::-webkit-scrollbar {
@@ -733,7 +798,6 @@
     box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2) !important; /* Added !important for strictness */
     border-color: transparent;
 }
-
 
 .signUpForm :global(.react-tel-input .flag-dropdown) {
     background-color: transparent;

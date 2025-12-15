@@ -6,8 +6,15 @@ import { signup } from "@/lib/auth-actions";
 import Link from "next/link";
 import Image from "next/image";
 
+// import PhoneInput from "react-phone-input-2";
+// import "react-phone-input-2/lib/style.css";
+import { DatePickerInput } from "@mantine/dates";
+import "@mantine/core/styles.css";
+// ‼️ import dates styles after core package styles
+import "@mantine/dates/styles.css";
+// import { Fascinate_Inline } from "next/font/google";
 
-const SignUpForm: React.FC = () => {
+const SignUpForm = () => {
   const [district, setDistrict] = useState<string>("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -26,7 +33,6 @@ const SignUpForm: React.FC = () => {
     special: false,
   });
   const [applicantType, setApplicantType] = useState<string[]>([]);
-  
 
   const [formData, setFormData] = useState<{
     residency: "resident" | "nonresident" | null | "";
@@ -35,7 +41,7 @@ const SignUpForm: React.FC = () => {
     preferredPlaceOfAssignment: string;
     barangay: string;
   }>({
-    residency: null, 
+    residency: null,
     address: "",
     district: "",
     preferredPlaceOfAssignment: "",
@@ -44,19 +50,16 @@ const SignUpForm: React.FC = () => {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showFormNotice, setShowFormNotice] = useState(false);
-  
-  
-  const [isSubmitted, setIsSubmitted] = useState(false); 
-  
- 
-  const formRef = useRef<HTMLFormElement | null>(null);
 
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   const [gender, setGender] = useState<string>("");
   const [genderOther, setGenderOther] = useState<string>("");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [birthDate, setBirthDate] = useState<string>("");
-  const [residency, setResidency] = useState<string | null>(null); 
+  const [residency, setResidency] = useState<string | null>(null);
   const [preferredPlace, setPreferredPlace] = useState<string>("");
   const [barangay, setbarangay] = useState<string>("");
   const [extNameValue, setExtNameValue] = useState<string>("None");
@@ -73,14 +76,13 @@ const SignUpForm: React.FC = () => {
     "acceptTerms",
   ];
 
-
   const getFieldRequiredMessage = (field: string) => {
     if (field === "firstName") return "First Name is required";
     if (field === "lastName") return "Last Name is required";
     return "This field is required";
   };
 
-
+  // Automatically toggle form notice based on current errors
   useEffect(() => {
     setShowFormNotice(isSubmitted && Object.keys(errors).length > 0);
   }, [errors, isSubmitted]);
@@ -113,7 +115,7 @@ const SignUpForm: React.FC = () => {
     if (!newBirthDate) {
       setCalculatedAge(null);
       // Only delete error if field is not empty on submit
-      if (isSubmitted) delete newErrors.birthDate; 
+      if (isSubmitted) delete newErrors.birthDate;
     } else if (isNaN(birth.getTime())) {
       newErrors.birthDate = "Invalid date";
       setCalculatedAge(null);
@@ -127,6 +129,19 @@ const SignUpForm: React.FC = () => {
     }
 
     setErrors(newErrors);
+  };
+
+  const parseBirthDateString = (s: string): Date | null => {
+    if (!s) return null;
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? null : d;
+  };
+
+  const formatDateYYYYMMDD = (d: Date): string => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   };
 
   const validatePassword = (passwordValue: string) => {
@@ -162,7 +177,25 @@ const SignUpForm: React.FC = () => {
     setErrors(newErrors);
   };
 
-  //  PHONE HANDLERS: 
+  //  PHONE HANDLERS:
+  // Phone number handlers
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+    setPhoneNumber(digits);
+
+    const newErrors = { ...errors };
+    if (!digits || digits.length === 0) {
+      newErrors.phoneNumber = "Contact number is required";
+    } else if (!digits.startsWith("9")) {
+      newErrors.phoneNumber = "Mobile number must start with 9";
+    } else if (digits.length !== 10) {
+      newErrors.phoneNumber = "Mobile number must have 10 digits after +63";
+    } else {
+      delete newErrors.phoneNumber;
+    }
+    setErrors(newErrors);
+  };
+
   const handlePhoneKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const allowed =
       e.key === "Backspace" ||
@@ -204,23 +237,16 @@ const SignUpForm: React.FC = () => {
       phoneNumber.slice(end);
     const final = newVal.slice(0, 10);
     setPhoneNumber(final);
-  };
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
-    setPhoneNumber(digits);
 
     const newErrors = { ...errors };
-    if (isSubmitted || digits.length > 0) {
-        if (!digits || digits.length === 0) {
-          newErrors.phoneNumber = "Contact number is required";
-        } else if (!digits.startsWith("9")) {
-          newErrors.phoneNumber = "Mobile number must start with 9";
-        } else if (digits.length !== 10) {
-          newErrors.phoneNumber = "Mobile number must have 10 digits after +63";
-        } else {
-          delete newErrors.phoneNumber;
-        }
+    if (final.length === 0) {
+      newErrors.phoneNumber = "Contact number is required";
+    } else if (!final.startsWith("9")) {
+      newErrors.phoneNumber = "Mobile number must start with 9";
+    } else if (final.length !== 10) {
+      newErrors.phoneNumber = "Mobile number must have 10 digits after +63";
+    } else {
+      delete newErrors.phoneNumber;
     }
     setErrors(newErrors);
   };
@@ -260,16 +286,6 @@ const SignUpForm: React.FC = () => {
     setErrors(newErrors);
   };
 
-  // Barangay handler (Defined once)
-  const handlebarangayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const v = e.target.value;
-    setbarangay(v);
-    const newErrors = { ...errors };
-    if (!v && isSubmitted) newErrors.barangay = "Please select Barangay";
-    else delete newErrors.barangay;
-    setErrors(newErrors);
-  };
-
   // Residence handler
   const handleResidencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const v = e.target.value;
@@ -277,6 +293,15 @@ const SignUpForm: React.FC = () => {
     const newErrors = { ...errors };
     if (!v && isSubmitted) newErrors.residency = "Please select Residence";
     else delete newErrors.residency;
+    setErrors(newErrors);
+  };
+  // Barangay handler
+  const handlebarangayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const v = e.target.value;
+    setbarangay(v);
+    const newErrors = { ...errors };
+    if (!v) newErrors.barangay = "Please select Barangay";
+    else delete newErrors.barangay;
     setErrors(newErrors);
   };
 
@@ -311,11 +336,15 @@ const SignUpForm: React.FC = () => {
     const value = (e.target as HTMLInputElement).value;
     const newErrors = { ...errors };
 
-    // Clear error only if value is present 
+    // Clear error only if value is present
     if (newErrors[name] && value && value.toString().trim() !== "") {
       delete newErrors[name];
+      if (newErrors[name]) {
+        if (value && value.toString().trim() !== "") delete newErrors[name];
+        else newErrors[name] = "This field is required";
+      }
+      setErrors(newErrors);
     }
-    setErrors(newErrors);
   };
 
   function scrollToFirstError(localErrors: Record<string, string>) {
@@ -334,7 +363,7 @@ const SignUpForm: React.FC = () => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
-    
+
     // FIX 4: Mark form as submitted to enable error visibility
     setIsSubmitted(true);
 
@@ -365,10 +394,10 @@ const SignUpForm: React.FC = () => {
 
       const value = (element as HTMLInputElement | HTMLSelectElement).value;
       if (!value || value.trim() === "") {
-        newErrors[name] = getFieldRequiredMessage(name);
+        newErrors[name] = "This field is required";
       }
     }
-    
+
     // --- Specific Validations ---
 
     // Gender validations
@@ -389,6 +418,14 @@ const SignUpForm: React.FC = () => {
       newErrors.phoneNumber = "Mobile number must start with 9";
     } else if (phoneNumber.length !== 10) {
       newErrors.phoneNumber = "Mobile number must have 10 digits after +63";
+    } else if (
+      !phoneNumber.startsWith("+63") &&
+      !phoneNumber.startsWith("63")
+    ) {
+      newErrors.phoneNumber = "Only Philippines phone numbers are allowed";
+    } else if (phoneNumber.replace(/\D/g, "").length !== 12) {
+      newErrors.phoneNumber =
+        "Please enter a valid Philippines phone number (10 digits)";
     }
 
     // Email validation (required)
@@ -402,7 +439,8 @@ const SignUpForm: React.FC = () => {
     }
 
     // Residence validation (required)
-    if (!residency) { // Checks against null (initial state) or ""
+    if (!residency) {
+      // Checks against null (initial state) or ""
       newErrors.residency = "Residence is required";
     }
 
@@ -506,8 +544,8 @@ const SignUpForm: React.FC = () => {
       "gender",
       gender === "Others" ? genderOther || "Others" : gender,
     );
-    
-    formData.set("phoneNumber", `+63${phoneNumber}`); 
+
+    formData.set("phoneNumber", `+63${phoneNumber}`);
     formData.set("birthDate", birthDate);
     formData.set("email", emailValue);
     formData.set("residency", residency || "");
@@ -533,7 +571,7 @@ const SignUpForm: React.FC = () => {
   }
 
   // Warning Modal
-  const warningModal = () => { 
+  const warningModal = () => {
     return (
       <div
         className={styles.modalOverlay}
@@ -541,7 +579,10 @@ const SignUpForm: React.FC = () => {
           setModal(false);
         }}
       >
-        <div className={styles.warningModal} onClick={(e) => e.stopPropagation()}>
+        <div
+          className={styles.warningModal}
+          onClick={(e) => e.stopPropagation()}
+        >
           <button
             onClick={() => {
               setModal(false);
@@ -576,7 +617,6 @@ const SignUpForm: React.FC = () => {
       </div>
     );
   };
-  
 
   return (
     <div className={styles.signUpContainer}>
@@ -585,7 +625,7 @@ const SignUpForm: React.FC = () => {
         <h2>REGISTER</h2>
         <form
           className={styles.signUpForm}
-          ref={formRef} 
+          ref={formRef}
           onSubmit={handleSubmit}
           noValidate
         >
@@ -668,7 +708,7 @@ const SignUpForm: React.FC = () => {
           {/* birth / age / sex row */}
           <div className={styles.fullRow}>
             <div style={{ flex: 1 }}>
-              <label htmlFor="birthDate" className={styles.fieldLabel}>
+              {/*<label htmlFor="birthDate" className={styles.fieldLabel}>
                 Birth Date <span className={styles.redAsterisk}>*</span>
               </label>
               <input
@@ -679,6 +719,35 @@ const SignUpForm: React.FC = () => {
                 onChange={handleBirthDateChange}
                 className={errors["birthDate"] ? styles.errorInput : ""}
               />
+              {errors["birthDate"] && (
+                <div className={styles.fieldError}>{errors["birthDate"]}</div>
+              )}*/}
+
+              <DatePickerInput
+                label={
+                  <>
+                    Pick a date <span className={styles.redAsterisk}>*</span>
+                  </>
+                }
+                placeholder="Pick date"
+                value={parseBirthDateString(birthDate)}
+                onChange={(d) =>
+                  setBirthDate(
+                    d == null
+                      ? ""
+                      : typeof d === "string"
+                        ? d
+                        : formatDateYYYYMMDD(d),
+                  )
+                }
+                valueFormat="YYYY-MM-DD"
+                className={`${styles.mantineDateInput} ${errors["birthDate"] ? styles.errorInput : ""}`}
+                // Use the same height and width as your inputs
+
+                size="md" // Mantine's medium size is closest to your input
+                radius={3} // matches your border-radius
+              />
+
               {errors["birthDate"] && (
                 <div className={styles.fieldError}>{errors["birthDate"]}</div>
               )}
@@ -905,21 +974,8 @@ const SignUpForm: React.FC = () => {
 
               {applicantType.includes("Others") && (
                 <div className={styles.conditionalField}>
-                  <label className={styles.fieldLabel}>
-                    Please Specify <span className={styles.redAsterisk}>*</span>
-                  </label>
-                  <input
-                    id="othersSpecify"
-                    name="othersSpecify"
-                    type="text"
-                    onChange={handleInputChange}
-                    className={errors["othersSpecify"] ? styles.errorInput : ""}
-                  />
-                  {errors["othersSpecify"] && (
-                    <div className={styles.fieldError}>
-                      {errors["othersSpecify"]}
-                    </div>
-                  )}
+                  <label className={styles.fieldLabel}>Please Specify</label>
+                  <input id="othersSpecify" name="othersSpecify" type="text" />
                 </div>
               )}
             </div>
@@ -945,18 +1001,18 @@ const SignUpForm: React.FC = () => {
                   type="radio"
                   name="residency"
                   value="resident"
-                  checked={formData.residency === "resident"} 
+                  checked={formData.residency === "resident"}
                   onChange={() => {
                     setFormData({ ...formData, residency: "resident" });
                     setResidency("resident");
                     setErrors((prev: Record<string, string>) => ({
                       ...prev,
-                      residency: "", 
+                      residency: "",
                       ...(isSubmitted && {
-                          district: "",
-                          barangay: "",
-                          preferredPlaceOfAssignment: "",
-                      })
+                        district: "",
+                        barangay: "",
+                        preferredPlaceOfAssignment: "",
+                      }),
                     }));
                   }}
                 />
@@ -972,17 +1028,17 @@ const SignUpForm: React.FC = () => {
                   onChange={() => {
                     setFormData({ ...formData, residency: "nonresident" });
                     setResidency("nonresident");
-                    setDistrict(""); 
-                    setbarangay(""); 
-                    setPreferredPlace(""); 
+                    setDistrict("");
+                    setbarangay("");
+                    setPreferredPlace("");
                     setErrors((prev: Record<string, string>) => ({
                       ...prev,
-                      residency: "", 
+                      residency: "",
                       ...(isSubmitted && {
-                          district: "",
-                          barangay: "",
-                          preferredPlaceOfAssignment: "",
-                      })
+                        district: "",
+                        barangay: "",
+                        preferredPlaceOfAssignment: "",
+                      }),
                     }));
                   }}
                 />
@@ -1089,7 +1145,7 @@ const SignUpForm: React.FC = () => {
                     <select
                       id="barangay"
                       name="barangay"
-                      value={barangay} 
+                      value={barangay}
                       onChange={handlebarangayChange}
                       className={errors["barangay"] ? styles.errorInput : ""}
                     >
@@ -1159,17 +1215,12 @@ const SignUpForm: React.FC = () => {
               <label htmlFor="phoneNumber" className={styles.fieldLabel}>
                 Contact Number <span className={styles.redAsterisk}>*</span>
               </label>
-              <div
-                className={
-                  styles.phoneInputGroup 
-                }
-              >
-    
+              <div className={styles.phoneInputGroup}>
                 <div className={styles.countryPrefix}>
                   <span className={styles.flagIcon}>
                     {/* Assuming Image component is used here */}
                     <Image
-                      src="/assets/images/ph-flag.svg"
+                      src="/assets/images/ph-flag.webp"
                       alt="Philippine flag"
                       width={20}
                       height={14}
@@ -1354,15 +1405,15 @@ const SignUpForm: React.FC = () => {
                 password.length === 0
                   ? styles["neutral"]
                   : passwordRequirements.length
-                  ? styles["valid"]
-                  : styles["invalid"]
+                    ? styles["valid"]
+                    : styles["invalid"]
               }`}
             >
               {password.length === 0
                 ? "○"
                 : passwordRequirements.length
-                ? "✓"
-                : "✗"}{" "}
+                  ? "✓"
+                  : "✗"}{" "}
               At least 8 characters
             </div>
             <div
@@ -1370,15 +1421,15 @@ const SignUpForm: React.FC = () => {
                 password.length === 0
                   ? styles["neutral"]
                   : passwordRequirements.uppercase
-                  ? styles["valid"]
-                  : styles["invalid"]
+                    ? styles["valid"]
+                    : styles["invalid"]
               }`}
             >
               {password.length === 0
                 ? "○"
                 : passwordRequirements.uppercase
-                ? "✓"
-                : "✗"}{" "}
+                  ? "✓"
+                  : "✗"}{" "}
               At least 1 uppercase letter
             </div>
             <div
@@ -1386,15 +1437,15 @@ const SignUpForm: React.FC = () => {
                 password.length === 0
                   ? styles["neutral"]
                   : passwordRequirements.lowercase
-                  ? styles["valid"]
-                  : styles["invalid"]
+                    ? styles["valid"]
+                    : styles["invalid"]
               }`}
             >
               {password.length === 0
                 ? "○"
                 : passwordRequirements.lowercase
-                ? "✓"
-                : "✗"}{" "}
+                  ? "✓"
+                  : "✗"}{" "}
               At least 1 lowercase letter
             </div>
             <div
@@ -1402,15 +1453,15 @@ const SignUpForm: React.FC = () => {
                 password.length === 0
                   ? styles["neutral"]
                   : passwordRequirements.number
-                  ? styles["valid"]
-                  : styles["invalid"]
+                    ? styles["valid"]
+                    : styles["invalid"]
               }`}
             >
               {password.length === 0
                 ? "○"
                 : passwordRequirements.number
-                ? "✓"
-                : "✗"}{" "}
+                  ? "✓"
+                  : "✗"}{" "}
               At least 1 number
             </div>
             <div
@@ -1418,15 +1469,15 @@ const SignUpForm: React.FC = () => {
                 password.length === 0
                   ? styles["neutral"]
                   : passwordRequirements.special
-                  ? styles["valid"]
-                  : styles["invalid"]
+                    ? styles["valid"]
+                    : styles["invalid"]
               }`}
             >
               {password.length === 0
                 ? "○"
                 : passwordRequirements.special
-                ? "✓"
-                : "✗"}{" "}
+                  ? "✓"
+                  : "✗"}{" "}
               At least 1 special character (!@#$%&)
             </div>
           </div>
@@ -1485,7 +1536,8 @@ const SignUpForm: React.FC = () => {
                   setAcceptTerms(e.target.checked);
                   const newErrors = { ...errors };
                   if (e.target.checked) delete newErrors.acceptTerms;
-                  else if (isSubmitted) newErrors.acceptTerms = "You must accept terms"; 
+                  else if (isSubmitted)
+                    newErrors.acceptTerms = "You must accept terms";
                   setErrors(newErrors);
                 }}
                 required
@@ -1515,27 +1567,26 @@ const SignUpForm: React.FC = () => {
                 });
                 setCalculatedAge(null);
                 setApplicantType([]);
-                
-                
-                setErrors({}); 
-                setIsSubmitted(false); 
-                
+
+                setErrors({});
+                setIsSubmitted(false);
+
                 setGender("");
                 setGenderOther("");
                 setPhoneNumber("");
                 setBirthDate("");
-                setResidency(null); 
+                setResidency(null);
                 setbarangay("");
                 setPreferredPlace("");
                 setDistrict("");
                 setExtNameValue("None");
                 setShowFormNotice(false);
                 setFormData({
-                    residency: null,
-                    address: "",
-                    district: "",
-                    preferredPlaceOfAssignment: "",
-                    barangay: "",
+                  residency: null,
+                  address: "",
+                  district: "",
+                  preferredPlaceOfAssignment: "",
+                  barangay: "",
                 });
 
                 const form = document.querySelector(
