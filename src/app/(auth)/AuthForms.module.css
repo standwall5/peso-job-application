@@ -1,0 +1,297 @@
+/* Shared styles for Auth (Forgot Password, Reset Password) to match SignUpForm/Login look & feel */
+
+/* Root container (mirrors .signUpContainer vibe) */
+.authContainer {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 16px;
+  background: transparent;
+}
+
+/* Content panel (mirrors SignUp content panel) */
+.authContent {
+  width: 100%;
+  max-width: 560px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow:
+    rgba(0, 0, 0, 0.05) 0px 6px 24px,
+    rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+  padding: 24px;
+}
+
+/* Title + subtitle (consistent typography) */
+.authTitle {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.authSubtitle {
+  margin: 0 0 16px 0;
+  color: #4b5563;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+/* Generic notice bar (like form notice) */
+.formNotice {
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  color: #664d03;
+  background: #fff3cd;
+  border: 1px solid #ffecb5;
+  font-size: 14px;
+}
+
+/* Alerts (error/success/info) */
+.alert {
+  margin: 12px 0;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  font-size: 14px;
+}
+
+.alertError {
+  color: #842029;
+  background: #f8d7da;
+  border-color: #f5c2c7;
+}
+
+.alertSuccess {
+  color: #0f5132;
+  background: #d1e7dd;
+  border-color: #badbcc;
+}
+
+.alertInfo {
+  color: #084298;
+  background: #cfe2ff;
+  border-color: #b6d4fe;
+}
+
+/* Form */
+.authForm {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Field grouping */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Labels */
+.fieldLabel {
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Required asterisk */
+.redAsterisk {
+  color: #d9534f;
+}
+
+/* Input wrappers (for toggles/icons) */
+.inputWrapper {
+  position: relative;
+}
+
+/* Inputs */
+.input,
+.select,
+.textarea {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  outline: none;
+  box-shadow:
+    rgba(0, 0, 0, 0.05) 0px 6px 24px,
+    rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+  transition:
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+  font-size: 14px;
+  color: #111827;
+}
+
+.textarea {
+  min-height: 96px;
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+/* Focus states aligned with SignUpForm */
+.input:focus,
+.select:focus,
+.textarea:focus {
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2) !important;
+  border-color: transparent;
+}
+
+/* Error input look (red glow) */
+.errorInput {
+  border-color: #d9534f !important;
+  box-shadow: 0 0 0 4px rgba(217, 83, 79, 0.08) !important;
+}
+
+/* Inline field error message */
+.fieldError {
+  color: #d9534f;
+  font-size: 0.875rem;
+}
+
+/* Password show/hide toggle */
+.toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #2563eb;
+  font-weight: 600;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.toggle:hover {
+  text-decoration: underline;
+}
+
+.toggle:disabled {
+  color: #94a3b8;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+/* Button row */
+.buttonRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+/* Buttons mirroring SignUpForm styles */
+.blueButton,
+.greenButton,
+.redButton,
+.grayButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  min-width: 120px;
+  padding: 0 16px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease, transform 0.05s ease, box-shadow 0.15s ease;
+  color: #ffffff;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 1px 1px rgba(0, 0, 0, 0.03);
+}
+
+.blueButton {
+  background: #2563eb;
+}
+
+.blueButton:hover {
+  background: #1e4fd4;
+}
+
+.greenButton {
+  background: #22c55e;
+}
+
+.greenButton:hover {
+  background: #1aae53;
+}
+
+.redButton {
+  background: #ef4444;
+}
+
+.redButton:hover {
+  background: #d93636;
+}
+
+.grayButton {
+  background: #6b7280;
+}
+
+.grayButton:hover {
+  background: #5b606f;
+}
+
+.blueButton:disabled,
+.greenButton:disabled,
+.redButton:disabled,
+.grayButton:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* Link (back to login, etc.) */
+.centerLink {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.link {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .authContent {
+    padding: 16px;
+  }
+
+  .blueButton,
+  .greenButton,
+  .redButton,
+  .grayButton {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .buttonRow {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+  }
+}
+
+/* Autofill neutralization (keeps theme) */
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus,
+.select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px #fff inset !important;
+  box-shadow: 0 0 0px 1000px #fff inset !important;
+  -webkit-text-fill-color: #000;
+  transition: background-color 9999s ease-out 0s;
+}

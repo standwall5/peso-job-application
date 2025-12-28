@@ -140,7 +140,7 @@ const LoginForm = () => {
               </button>
             </div>
 
-            <Link href="/resetPassword">Forgot password?</Link>
+            <Link href="/auth/forgot-password">Forgot password?</Link>
             <Button
               variant="primary"
               disabled={loading}

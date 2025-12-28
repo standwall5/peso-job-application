@@ -35,7 +35,7 @@ export async function login(formData: FormData) {
     return { error: "Wrong email or password." };
   }
 
-  // Check if user is admin
+  // Check if user is super-admin > admin > applicant
   const user = authData?.user;
   if (!user) {
     redirect("/error");
@@ -368,11 +368,14 @@ export async function signout() {
 
 export async function signInWithGoogle() {
   const supabase = await createClient();
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
+
     options: {
       queryParams: {
         access_type: "offline",
+
         prompt: "consent",
       },
     },
@@ -380,8 +383,68 @@ export async function signInWithGoogle() {
 
   if (error) {
     console.log(error);
+
     redirect("/error");
   }
 
   redirect(data.url);
+}
+
+export async function requestPasswordReset(formData: FormData) {
+  const supabase = await createClient();
+
+  const email = (formData.get("email") as string)?.trim();
+
+  if (!email) {
+    return { error: "Email is required." };
+  }
+
+  // User will be redirected to this page after clicking the email link
+
+  // Create this route/page in your app (e.g., src/app/auth/reset-password/page.tsx)
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+  const redirectTo = `${siteUrl}/auth/reset-password`;
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo,
+  });
+
+  if (error) {
+    console.log("Reset password request error:", error);
+
+    // Avoid leaking whether the email exists
+
+    return {
+      error:
+        "We couldn't send the reset email right now. Please try again in a moment.",
+    };
+  }
+
+  return {
+    success:
+      "If an account exists for that email, a password reset link has been sent.",
+  };
+}
+
+export async function updatePassword(formData: FormData) {
+  const supabase = await createClient();
+  const password = (formData.get("password") as string)?.trim();
+
+  if (!password || password.length < 8) {
+    return { error: "Password must be at least 8 characters long." };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password });
+
+  if (error) {
+    console.log("Update password error:", error);
+    return { error: "Could not update password. Please try again." };
+  }
+
+  // Optionally revalidate the login page
+  revalidatePath("/login", "layout");
+
+  return { success: "Password updated successfully. You can now log in." };
 }
