@@ -9,9 +9,9 @@ import { createClient } from "@/utils/supabase/client";
 import UserProfile from "@/app/(user)/profile/components/UserProfile";
 import Link from "next/link";
 import Button from "@/components/Button";
-import TakeExam from "@/app/(user)/job-opportunities/[companyId]/components/TakeExam";
-import ExamResultView from "@/app/(user)/job-opportunities/[companyId]/components/ExamResultView";
-import VerifiedIdUpload from "@/app/(user)/job-opportunities/[companyId]/components/VerifiedIdUpload";
+import TakeExam from "@/app/(user)/job-opportunities/[companyId]/components/exam/TakeExam";
+import ExamResultView from "@/app/(user)/job-opportunities/[companyId]/components/exam/ExamResultView";
+import VerifiedIdUpload from "@/app/(user)/job-opportunities/[companyId]/components/verification/VerifiedIdUpload";
 import Toast from "@/components/toast/Toast";
 
 interface Job {
