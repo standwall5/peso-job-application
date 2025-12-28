@@ -195,6 +195,46 @@
 
 .jobseekersDetailsHeader {
     font-weight: bold !important;
+}
+
+.jobseekersDetailsHeader,
+.jobseekersDetails {
+    display: grid;
+    grid-template-columns: 2.5fr 2fr 2fr 2fr 1.2fr;
+    font-weight: normal;
+
+    align-items: center;
+    padding: 0.5rem 0.5rem;
+    width: 100%;
+    text-align: center;
+}
+
+.jobseekersTable {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 100%;
+    margin: 0 5rem;
+}
+
+.tableRow {
+    display: grid;
+    grid-template-columns: auto auto;
+    margin-bottom: 1rem;
+}
+
+.tableHeader,
+.tableRow {
+    display: grid;
+    grid-template-columns: 7fr 1.5fr 0.7fr;
+    align-items: center;
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+}
+
+.jobseekersDetailsHeader {
+    font-weight: bold !important;
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -208,7 +248,7 @@
     font-weight: normal;
 
     align-items: center;
-    padding: 0.75rem 1.5rem;
+    padding: 0.5rem 0.5rem;
     width: 100%;
     text-align: center;
 }
@@ -222,7 +262,7 @@
         box-shadow 0.25s ease,
         border-color 0.25s ease;
     height: auto;
-    padding: 0.75rem 1.5rem;
+    padding: 1rem 2rem;
     will-change: transform;
 }
 
@@ -316,8 +356,8 @@
     flex-direction: column;
     align-items: center;
     gap: 1rem;
-    margin-top: -2rem;
-    padding: 1rem 0;
+    margin-top: 2rem;
+    padding: 1.5rem 0;
 }
 
 .paginationInfo {
@@ -626,90 +666,6 @@
 }
 
 /* Responsive styles for mobile devices */
-/* Responsive styles for mobile devices */
-@media (max-width: 600px) {
-    .createCompanyWrapper,
-    .content,
-    .createCompany,
-    .companyProfiles,
-    .specificCompany {
-        width: 100vw;
-        padding: 0.5rem;
-        gap: 0.5rem;
-    }
-    .nav {
-        margin-left: 0.5rem;
-    }
-    .nav ul {
-        gap: 0.5rem;
-        font-size: 0.9rem;
-        flex-wrap: wrap;
-    }
-    .createCompany img {
-        width: 5rem;
-    }
-    .companyDetails {
-        padding: 1rem;
-        gap: 0.5rem;
-    }
-    .companyDetails > input,
-    .companyDetails > textarea,
-    .companyDetails > select {
-        width: 100%;
-        font-size: 0.9rem;
-        padding: 0.3rem 0.5rem;
-    }
-    .jobRow,
-    .jobHeader {
-        grid-template-columns: 1fr 1fr;
-        font-size: 0.8rem;
-        gap: 0.2rem;
-        padding: 0.5rem;
-    }
-    .companyLogoDiv {
-        grid-template-columns: 1fr;
-        gap: 0.2rem;
-    }
-    .jobCard {
-        height: auto;
-        aspect-ratio: unset;
-        gap: 0.5rem;
-        font-size: 0.9rem;
-        padding: 0.5rem;
-    }
-    .search input {
-        width: 90vw;
-        height: 2.5rem;
-        font-size: 1rem;
-    }
-    .top {
-        gap: 20rem;
-        flex-direction: column;
-        align-items: stretch;
-    }
-    .jobseekersTable {
-        margin: 0 1rem;
-        font-size: 0.85rem;
-        overflow-x: auto;
-    }
-
-    /* Pagination mobile styles */
-    .pagination {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .paginationBtn {
-        font-size: 0.75rem;
-        padding: 0.4rem 0.8rem;
-    }
-
-    .paginationNumber {
-        min-width: 2rem;
-        height: 2rem;
-        font-size: 0.75rem;
-    }
-}
 @media (max-width: 600px) {
     .createCompanyWrapper,
     .content,

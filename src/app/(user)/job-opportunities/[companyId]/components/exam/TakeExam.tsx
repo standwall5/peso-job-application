@@ -1,38 +1,13 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import examStyles from "@/app/admin/company-profiles/components/Exams.module.css";
+import examStyles from "@/app/admin/company-profiles/components/exam/Exams.module.css";
 import styles from "./TakeExam.module.css";
 import Button from "@/components/Button";
+import { Exam, Question, Choice } from "../../types/job.types";
 
 // Answer type: can be a single choice ID, multiple choice IDs, or text
 type ExamAnswer = number | number[] | string;
-
-// Exam Interface
-export interface Exam {
-  id: number;
-  title: string;
-  description: string;
-  questions: Question[];
-}
-
-// Question Interface
-export interface Question {
-  id: number;
-  exam_id: number;
-  question_text: string;
-  question_type: string;
-  position: number;
-  choices: Choice[];
-}
-
-// Choice Interface
-export interface Choice {
-  id: number;
-  question_id: number;
-  choice_text: string;
-  position: number;
-}
 
 interface TakeExamProps {
   exam: Exam;

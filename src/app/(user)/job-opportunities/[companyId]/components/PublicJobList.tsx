@@ -6,27 +6,9 @@ import jobStyle from "../JobsOfCompany.module.css";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import Button from "@/components/Button";
+import { Job } from "../types/job.types";
 
 // TODO: implement login redirect when clicking apply; remove modal
-
-interface Job {
-  id: number;
-  title: string;
-  description: string;
-  place_of_assignment: string;
-  sex: string;
-  education: string;
-  eligibility: string;
-  posted_date: string;
-  company?: {
-    name: string;
-    logo: string | null;
-  };
-  companies?: {
-    name: string;
-    logo: string | null;
-  };
-}
 
 const PublicJobList = () => {
   const params = useParams();

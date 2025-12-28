@@ -3,35 +3,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import styles from "./ManageCompany.module.css";
-import PostJobsModal from "./PostJobsModal";
-import Exam from "./Exam";
+import PostJobsModal from "./modals/PostJobsModal";
+import Exam from "./exam/Exam";
 import Button from "@/components/Button";
 import Toast from "@/components/toast/Toast";
-
-interface Companies {
-  id: number;
-  name: string;
-  location: string;
-  industry: string;
-  website: string;
-  logo: string;
-  contact_email: string;
-  description: string;
-  totalManpower: number;
-  jobs: {
-    id: number;
-    company_id: number;
-    title: string;
-    place_of_assignment: string;
-    sex: string;
-    education: string;
-    eligibility: string;
-    posted_date: string;
-    exam_id?: number | null; // ADD THIS LINE
-  }[];
-  totalJobsPosted: number;
-  totalJobsAllCompanies: number;
-}
+import { CompanyWithStats, Exam as ExamType } from "../types/company.types";
 
 interface Job {
   id: number;
@@ -42,7 +18,7 @@ interface Job {
   education: string;
   eligibility: string;
   posted_date: string;
-  exam_id?: number | null; // ADD THIS LINE
+  exam_id?: number | null;
   companies: {
     name: string;
     logo: string | null;
@@ -65,23 +41,15 @@ interface Question {
   choices: Choice[];
 }
 
-interface ExamType {
-  id: number;
-  title: string;
-  description: string;
-  questions: Question[];
-}
-
 const ManageCompany = ({
   company,
   exam,
   onJobsUpdated,
 }: {
-  company: Companies;
+  company: CompanyWithStats;
   exam: ExamType;
   onJobsUpdated?: () => void;
 }) => {
-
   const [nav, setNav] = useState("createCompany");
   const [activeIndex, setActiveIndex] = useState(0);
   const tabRefs = useRef<(HTMLLIElement | null)[]>([]);
@@ -135,7 +103,7 @@ const ManageCompany = ({
     const response = await fetch(`/api/getCompaniesAdmin`);
     const data = await response.json();
     const updatedCompany = data.companies.find(
-      (c: Companies) => c.id === company.id,
+      (c: CompanyWithStats) => c.id === company.id,
     );
     if (updatedCompany) {
       setJobs(updatedCompany.jobs);

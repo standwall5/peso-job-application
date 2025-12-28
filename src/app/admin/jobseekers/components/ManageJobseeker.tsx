@@ -6,7 +6,7 @@ import Resume from "@/app/(user)/profile/components/Resume";
 import jobHomeStyle from "@/app/(user)/job-opportunities/JobHome.module.css";
 import jobStyle from "@/app/(user)/job-opportunities/[companyId]/JobsOfCompany.module.css";
 import Button from "@/components/Button";
-import ExamResultView from "@/app/(user)/job-opportunities/[companyId]/components/ExamResultView";
+import ExamResultView from "@/app/(user)/job-opportunities/[companyId]/components/exam/ExamResultView";
 import BlocksWave from "@/components/BlocksWave";
 import ReferralLetter, { ReferralLetterRef } from "./ReferralLetter";
 import Toast from "@/components/toast/Toast";

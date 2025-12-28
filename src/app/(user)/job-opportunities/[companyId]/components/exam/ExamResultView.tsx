@@ -1,32 +1,9 @@
 "use client";
 
 import React, { useMemo } from "react";
-import examStyles from "@/app/admin/company-profiles/components/Exams.module.css";
+import examStyles from "@/app/admin/company-profiles/components/exam/Exams.module.css";
 import styles from "./ExamResultView.module.css";
-
-interface ExamAnswer {
-  question_id: number;
-  choice_id?: number;
-  text_answer?: string;
-  questions?: {
-    question_text: string;
-    question_type?: string;
-    position?: number;
-    choices?: Array<{
-      id: number;
-      choice_text: string;
-    }>;
-  };
-  choices?: {
-    choice_text: string;
-  };
-}
-
-interface CorrectAnswer {
-  question_id: number;
-  choice_id?: number;
-  correct_text?: string;
-}
+import { ExamAnswer, CorrectAnswer } from "../../types/job.types";
 
 interface ExamResultViewProps {
   attempt: {
@@ -60,35 +37,35 @@ const ExamResultView: React.FC<ExamResultViewProps> = ({
     correctByQuestion[ca.question_id].push(ca);
   });
 
-  const checkIfCorrect = (questionId: number, userAnswers: ExamAnswer[]) => {
-    const correct = correctByQuestion[questionId] || [];
-
-    // For text/paragraph questions
-    if (userAnswers[0]?.text_answer && correct[0]?.correct_text) {
-      return (
-        userAnswers[0].text_answer.trim().toLowerCase() ===
-        correct[0].correct_text.trim().toLowerCase()
-      );
-    }
-
-    // For choice-based questions (multiple choice or checkboxes)
-    const userChoiceIds = userAnswers
-      .map((a) => a.choice_id)
-      .filter((id): id is number => id !== undefined)
-      .sort();
-    const correctChoiceIds = correct
-      .map((c) => c.choice_id)
-      .filter((id): id is number => id !== undefined)
-      .sort();
-
-    return (
-      userChoiceIds.length === correctChoiceIds.length &&
-      userChoiceIds.every((id, idx) => id === correctChoiceIds[idx])
-    );
-  };
-
   // Calculate statistics
   const stats = useMemo(() => {
+    const checkIfCorrect = (questionId: number, userAnswers: ExamAnswer[]) => {
+      const correct = correctByQuestion[questionId] || [];
+
+      // For text/paragraph questions
+      if (userAnswers[0]?.text_answer && correct[0]?.correct_text) {
+        return (
+          userAnswers[0].text_answer.trim().toLowerCase() ===
+          correct[0].correct_text.trim().toLowerCase()
+        );
+      }
+
+      // For choice-based questions (multiple choice or checkboxes)
+      const userChoiceIds = userAnswers
+        .map((a) => a.choice_id)
+        .filter((id): id is number => id !== undefined)
+        .sort();
+      const correctChoiceIds = correct
+        .map((c) => c.choice_id)
+        .filter((id): id is number => id !== undefined)
+        .sort();
+
+      return (
+        userChoiceIds.length === correctChoiceIds.length &&
+        userChoiceIds.every((id, idx) => id === correctChoiceIds[idx])
+      );
+    };
+
     const totalQuestions = Object.keys(answersByQuestion).length;
     let correctCount = 0;
 
@@ -105,8 +82,9 @@ const ExamResultView: React.FC<ExamResultViewProps> = ({
       total: totalQuestions,
       correct: correctCount,
       incorrect: totalQuestions - correctCount,
+      checkIfCorrect, // Export this function for use in the render
     };
-  }, [answersByQuestion]);
+  }, [answersByQuestion, correctByQuestion]);
 
   const isPassed = attempt.score >= 70;
 
@@ -158,7 +136,7 @@ const ExamResultView: React.FC<ExamResultViewProps> = ({
             const firstAnswer = userAnswers[0];
             const question = firstAnswer.questions;
             const correct = correctByQuestion[questionId] || [];
-            const isCorrect = checkIfCorrect(questionId, userAnswers);
+            const isCorrect = stats.checkIfCorrect(questionId, userAnswers);
 
             return (
               <div

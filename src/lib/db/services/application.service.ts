@@ -17,6 +17,18 @@ export interface Application {
   };
 }
 
+export interface AppliedJob {
+  id: number;
+  job_id: number;
+  company_id: number;
+  company_name: string;
+  company_logo: string | null;
+  job_title: string;
+  place_of_assignment: string;
+  status: string;
+  applied_date: string;
+}
+
 export async function getUserApplications() {
   const supabase = await getSupabaseClient();
   const user = await getCurrentUser();
@@ -155,4 +167,92 @@ export async function getApplicationProgress(applicationId: number) {
   }
 
   return data;
+}
+
+export async function getApplicantAppliedJobs(applicantId: number) {
+  const supabase = await getSupabaseClient();
+
+  try {
+    // Fetch all applications for this applicant with job and company details
+    const { data: applications, error } = await supabase
+      .from("applications")
+      .select(
+        `
+        id,
+        job_id,
+        status,
+        applied_date,
+        jobs!inner (
+          id,
+          title,
+          place_of_assignment,
+          company_id,
+          companies!inner (
+            id,
+            name,
+            logo
+          )
+        )
+      `,
+      )
+      .eq("applicant_id", applicantId)
+      .order("applied_date", { ascending: false });
+
+    if (error) {
+      console.error("Supabase error:", error);
+      throw new Error(error.message);
+    }
+
+    console.log("Applications fetched:", applications);
+
+    if (!applications) {
+      return [];
+    }
+
+    // Define the structure we expect from Supabase (nested relations are arrays)
+    type SupabaseJob = {
+      id: number;
+      title: string;
+      place_of_assignment: string;
+      company_id: number;
+      companies: {
+        id: number;
+        name: string;
+        logo: string | null;
+      }[];
+    };
+
+    type SupabaseApplication = {
+      id: number;
+      job_id: number;
+      status: string;
+      applied_date: string;
+      jobs: SupabaseJob[];
+    };
+
+    // Transform the data to match our AppliedJob interface
+    const jobs: AppliedJob[] = applications.map((app) => {
+      const typedApp = app as unknown as SupabaseApplication;
+      const job = typedApp.jobs?.[0]; // Get first job from array
+      const company = job?.companies?.[0]; // Get first company from array
+
+      return {
+        id: typedApp.id,
+        job_id: typedApp.job_id,
+        company_id: job?.company_id || 0,
+        company_name: company?.name || "Unknown Company",
+        company_logo: company?.logo || null,
+        job_title: job?.title || "Unknown Position",
+        place_of_assignment: job?.place_of_assignment || "N/A",
+        status: typedApp.status || "pending",
+        applied_date: typedApp.applied_date,
+      };
+    });
+
+    console.log("Transformed jobs:", jobs);
+    return jobs;
+  } catch (error) {
+    console.error("Error fetching applied jobs:", error);
+    throw error;
+  }
 }

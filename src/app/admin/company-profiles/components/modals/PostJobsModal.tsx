@@ -1,34 +1,10 @@
 import React, { useState } from "react";
 import styles from "./PostJobsModal.module.css";
 import Modal from "./Modal";
-import { Exam as ExamType } from "./Exam";
-import ExamList from "./ExamList";
+import { Exam as ExamType } from "../exam/Exam";
+import ExamList from "../exam/ExamList";
 import Button from "@/components/Button";
-
-interface Companies {
-  id: number;
-  name: string;
-  location: string;
-  industry: string;
-  website: string;
-  logo: string;
-  contact_email: string;
-  description: string;
-  totalManpower: number;
-  jobs: {
-    id: number;
-    company_id: number;
-    title: string;
-    place_of_assignment: string;
-    sex: string;
-    education: string;
-    eligibility: string;
-    posted_date: string;
-    exam_id?: number | null;
-  }[];
-  totalJobsPosted: number;
-  totalJobsAllCompanies: number;
-}
+import { CompanyWithStats } from "../../types/company.types";
 
 interface Jobs {
   id: number;
@@ -47,12 +23,12 @@ interface Jobs {
 }
 
 interface PostJobsModalProps {
-  company: Companies;
+  company: CompanyWithStats;
   job: Jobs;
   exams: ExamType[];
   fetchExams: () => void;
   onClose?: () => void;
-  refetchJobs?: () => void; // Add this
+  refetchJobs?: () => void;
 }
 
 const PostJobsModal: React.FC<PostJobsModalProps> = ({
@@ -132,7 +108,11 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
     <Modal onClose={onClose}>
       <div className={styles.header}>
         <span>
-          <img src={company.logo} alt={company.name} />
+          <img
+            src={company.logo || "/assets/images/default_profile.png"}
+            alt={company.name}
+          />
+
           <h2>{company.name}</h2>
         </span>
         <span>Edit Job</span>

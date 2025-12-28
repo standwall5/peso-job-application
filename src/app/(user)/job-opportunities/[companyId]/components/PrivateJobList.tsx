@@ -4,54 +4,17 @@ import { useParams } from "next/navigation";
 import styles from "@/app/(user)/job-opportunities/JobHome.module.css";
 import jobStyle from "../JobsOfCompany.module.css";
 import BlocksWave from "@/components/BlocksWave";
-
 import { createClient } from "@/utils/supabase/client";
 import UserProfile from "@/app/(user)/profile/components/UserProfile";
 import Link from "next/link";
 import Button from "@/components/Button";
-import TakeExam from "./TakeExam";
-import ExamResultView from "./ExamResultView";
-import VerifiedIdUpload from "./VerifiedIdUpload";
 import Toast from "@/components/toast/Toast";
 
-interface Job {
-  id: number;
-  title: string;
-  description: string;
-  place_of_assignment: string;
-  sex: string;
-  education: string;
-  eligibility: string;
-  posted_date: string;
-  companies: {
-    name: string;
-    logo: string | null;
-  };
-  exam_id: number;
-}
-
-interface ExamData {
-  id: number;
-  title: string;
-  description: string;
-  questions: Question[];
-}
-
-interface Question {
-  id: number;
-  exam_id: number;
-  question_text: string;
-  question_type: string;
-  position: number;
-  choices: Choice[];
-}
-
-interface Choice {
-  id: number;
-  question_id: number;
-  choice_text: string;
-  position: number;
-}
+// Import from organized structure
+import TakeExam from "./exam/TakeExam";
+import ExamResultView from "./exam/ExamResultView";
+import VerifiedIdUpload from "./verification/VerifiedIdUpload";
+import { Job, Exam } from "../types/job.types";
 
 interface PrivateJobListProps {
   searchParent?: string;
@@ -113,7 +76,8 @@ const PrivateJobList = ({
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [applicationSelect, setApplicationSelect] = useState("previewResume");
   const [loading, setLoading] = useState(true);
-  const [examData, setExamData] = useState<ExamData | null>(null);
+  const [examData, setExamData] = useState<Exam | null>(null);
+
   const [loadingExam, setLoadingExam] = useState(false);
 
   const [examAttempt, setExamAttempt] = useState<ExamAttemptData | null>(null);
@@ -426,7 +390,7 @@ const PrivateJobList = ({
         <div className={`${styles.jobCompany} ${jobStyle.companyInformation}`}>
           <img
             src={job.companies?.logo || "/assets/images/default_profile.png"}
-            alt={job.companies.name + " logo"}
+            alt={job.companies?.name + " logo" || "Company logo"}
             className={styles.companyLogo}
             style={{
               width: "64px",

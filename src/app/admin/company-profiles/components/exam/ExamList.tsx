@@ -1,4 +1,4 @@
-// src/app/admin/company-profiles/components/ExamList.tsx
+// src/app/admin/company-profiles/components/exam/ExamList.tsx
 
 import React from "react";
 import styles from "./Exams.module.css";
