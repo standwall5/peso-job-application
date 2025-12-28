@@ -4,10 +4,11 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
 import AdminChatButton from "./AdminChatButton";
 import AdminChatPanel from "./AdminChatPanel";
+import { getAdminChatSessionsAction } from "@/app/admin/actions/chat.actions";
 
 interface ChatRequest {
   id: string;
-  userId: string;
+  userId: number;
   userName: string;
   userEmail: string;
   concern: string;
@@ -33,71 +34,22 @@ export default function AdminChatWidget() {
     try {
       console.log("[AdminChatWidget] Fetching all chats...");
 
-      // Fetch pending requests
-      const pendingResponse = await fetch(
-        "/api/admin/chat/requests?status=pending",
-      );
-      if (pendingResponse.ok) {
-        const pendingData = await pendingResponse.json();
-        const formattedPending = (pendingData || []).map(
-          (request: {
-            timestamp: string | Date;
-            closedAt?: string | Date | null;
-            [key: string]: unknown;
-          }) => ({
-            ...request,
-            timestamp: new Date(request.timestamp),
-            closedAt: request.closedAt ? new Date(request.closedAt) : null,
-          }),
-        );
-        setPendingChats(formattedPending);
-        console.log(
-          "[AdminChatWidget] Pending chats:",
-          formattedPending.length,
-        );
-      }
+      // Fetch all statuses in parallel using server actions
+      const [pendingData, activeData, closedData] = await Promise.all([
+        getAdminChatSessionsAction("pending"),
+        getAdminChatSessionsAction("active"),
+        getAdminChatSessionsAction("closed"),
+      ]);
 
-      // Fetch active requests
-      const activeResponse = await fetch(
-        "/api/admin/chat/requests?status=active",
-      );
-      if (activeResponse.ok) {
-        const activeData = await activeResponse.json();
-        const formattedActive = (activeData || []).map(
-          (request: {
-            timestamp: string | Date;
-            closedAt?: string | Date | null;
-            [key: string]: unknown;
-          }) => ({
-            ...request,
-            timestamp: new Date(request.timestamp),
-            closedAt: request.closedAt ? new Date(request.closedAt) : null,
-          }),
-        );
-        setActiveChats(formattedActive);
-        console.log("[AdminChatWidget] Active chats:", formattedActive.length);
-      }
+      setPendingChats(pendingData);
+      setActiveChats(activeData);
+      setClosedChats(closedData);
 
-      // Fetch closed requests
-      const closedResponse = await fetch(
-        "/api/admin/chat/requests?status=closed",
-      );
-      if (closedResponse.ok) {
-        const closedData = await closedResponse.json();
-        const formattedClosed = (closedData || []).map(
-          (request: {
-            timestamp: string | Date;
-            closedAt?: string | Date | null;
-            [key: string]: unknown;
-          }) => ({
-            ...request,
-            timestamp: new Date(request.timestamp),
-            closedAt: request.closedAt ? new Date(request.closedAt) : null,
-          }),
-        );
-        setClosedChats(formattedClosed);
-        console.log("[AdminChatWidget] Closed chats:", formattedClosed.length);
-      }
+      console.log("[AdminChatWidget] Chats fetched:", {
+        pending: pendingData.length,
+        active: activeData.length,
+        closed: closedData.length,
+      });
     } catch (error) {
       console.error("Error fetching chat requests:", error);
     } finally {
@@ -121,9 +73,6 @@ export default function AdminChatWidget() {
 
     // Initial fetch
     fetchAllChats();
-
-    // Poll every 30 seconds (reduced from 10)
-    // const interval = setInterval(fetchAllChats, 30000);
 
     // Subscribe to new chat sessions for real-time updates
     const channel = supabase
@@ -169,7 +118,6 @@ export default function AdminChatWidget() {
       .subscribe();
 
     return () => {
-      // clearInterval(interval);
       channel.unsubscribe();
       if (fetchDebounceTimerRef.current) {
         clearTimeout(fetchDebounceTimerRef.current);

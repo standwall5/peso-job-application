@@ -1,7 +1,8 @@
 import React from "react";
+import ManageAdminList from "./components/ManageAdmin";
 
-const page = () => {
-  return <div>Manage Admin Page</div>;
+const ManageAdminPage = () => {
+  return <ManageAdminList />;
 };
 
-export default page;
+export default ManageAdminPage;

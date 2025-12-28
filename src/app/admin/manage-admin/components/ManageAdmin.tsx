@@ -1,7 +1,115 @@
-import React from "react";
+"use client";
 
-const ManageAdmin = () => {
-  return <div>Manage Admin Page</div>;
+import React from "react";
+import styles from "../ManageAdmin.module.css";
+import OneEightyRing from "@/components/OneEightyRing";
+import { useAdminData } from "../hooks/useAdminData";
+import { useAdminActions } from "../hooks/useAdminActions";
+import AdminSearchBar from "./AdminSearchBar";
+import AdminTable from "./AdminTable";
+import EditAdminModal from "./modals/EditAdminModal";
+import ResetPasswordModal from "./modals/ResetPasswordModal";
+import DeleteAdminModal from "./modals/DeleteAdminModal";
+
+const ManageAdminList = () => {
+  const { filteredAdmins, loading, search, setSearch, fetchAdmins } =
+    useAdminData();
+
+  const {
+    showEditModal,
+    setShowEditModal,
+    showResetPasswordModal,
+    setShowResetPasswordModal,
+    showDeleteModal,
+    setShowDeleteModal,
+    selectedAdmin,
+    editName,
+    setEditName,
+    editStatus,
+    setEditStatus,
+    editIsSuperAdmin,
+    setEditIsSuperAdmin,
+    newPassword,
+    setNewPassword,
+    confirmPassword,
+    setConfirmPassword,
+    actionLoading,
+    handleEditClick,
+    handleSaveEdit,
+    handleUnlockAccount,
+    handleResetPasswordClick,
+    handleResetPassword,
+    handleDeleteClick,
+    handleDeleteAdmin,
+  } = useAdminActions(fetchAdmins);
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div
+          style={{ display: "flex", justifyContent: "center", padding: "4rem" }}
+        >
+          <OneEightyRing height={64} width={64} color="var(--accent)" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h1>Manage Admins</h1>
+        <p>
+          View and manage all PESO admin accounts. Edit details, reset
+          passwords, or deactivate accounts.
+        </p>
+      </div>
+
+      <AdminSearchBar search={search} setSearch={setSearch} />
+
+      <AdminTable
+        admins={filteredAdmins}
+        onEdit={handleEditClick}
+        onUnlock={handleUnlockAccount}
+        onResetPassword={handleResetPasswordClick}
+        onDelete={handleDeleteClick}
+      />
+
+      <EditAdminModal
+        show={showEditModal}
+        admin={selectedAdmin}
+        editName={editName}
+        setEditName={setEditName}
+        editStatus={editStatus}
+        setEditStatus={setEditStatus}
+        editIsSuperAdmin={editIsSuperAdmin}
+        setEditIsSuperAdmin={setEditIsSuperAdmin}
+        actionLoading={actionLoading}
+        onSave={handleSaveEdit}
+        onClose={() => setShowEditModal(false)}
+      />
+
+      <ResetPasswordModal
+        show={showResetPasswordModal}
+        admin={selectedAdmin}
+        newPassword={newPassword}
+        setNewPassword={setNewPassword}
+        confirmPassword={confirmPassword}
+        setConfirmPassword={setConfirmPassword}
+        actionLoading={actionLoading}
+        onReset={handleResetPassword}
+        onClose={() => setShowResetPasswordModal(false)}
+      />
+
+      <DeleteAdminModal
+        show={showDeleteModal}
+        admin={selectedAdmin}
+        actionLoading={actionLoading}
+        onDelete={handleDeleteAdmin}
+        onClose={() => setShowDeleteModal(false)}
+      />
+    </div>
+  );
 };
 
-export default ManageAdmin;
+export default ManageAdminList;

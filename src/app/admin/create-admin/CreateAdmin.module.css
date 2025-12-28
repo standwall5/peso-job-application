@@ -1,0 +1,218 @@
+/* src/app/admin/create-admin/CreateAdmin.module.css */
+
+.container {
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.header {
+    margin-bottom: 2rem;
+}
+
+.header h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+}
+
+.header p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Card - Following Design System */
+.card {
+    background: var(--card-bg, #ffffff);
+    border-radius: 1.25rem; /* Design System: rounded-xl for cards */
+    border: 1px solid var(--border-light, rgba(52, 152, 219, 0.1));
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Design System: medium shadow */
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.formGroup label {
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+}
+
+/* Input Fields - Following Design System */
+.formGroup input {
+    width: 100%;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem; /* Design System: standard for inputs */
+    background: var(--input-bg, #ffffff);
+    border: 1px solid var(--border-light, rgba(52, 152, 219, 0.1));
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    outline: none;
+    /* Design System: Transition specific properties, not "all" */
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.formGroup input::placeholder {
+    color: var(--text-muted, #94a3b8);
+}
+
+/* Focus state - Following Design System */
+.formGroup input:focus {
+    border-color: var(--accent, #3498db);
+    box-shadow:
+        0 0 0 3px rgba(52, 152, 219, 0.1),
+        0 2px 8px rgba(52, 152, 219, 0.15);
+}
+
+.formGroup input.error {
+    border-color: var(--error, #ef4444);
+}
+
+.formGroup input.error:focus {
+    box-shadow:
+        0 0 0 3px rgba(239, 68, 68, 0.1),
+        0 2px 8px rgba(239, 68, 68, 0.15);
+}
+
+.errorText {
+    color: var(--error, #ef4444);
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+/* Checkbox Group */
+.checkboxGroup {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: var(--highlight, #f0f9ff);
+    border-radius: 0.75rem; /* Design System: rounded-md */
+    border: 1px solid var(--border-light, rgba(52, 152, 219, 0.1));
+}
+
+.checkboxGroup input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+    accent-color: var(--accent, #3498db);
+}
+
+.checkboxGroup label {
+    margin: 0;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.checkboxDescription {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    line-height: 1.6;
+}
+
+/* Actions */
+.actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+/* Buttons - Following Design System */
+.cancelButton,
+.submitButton {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem; /* Design System: standard for buttons */
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    /* Design System: Transition specific properties */
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.cancelButton {
+    background: var(--card-bg-secondary, #f1f5f9);
+    color: var(--text-primary);
+    border: 1px solid var(--border-light, rgba(52, 152, 219, 0.1));
+}
+
+.cancelButton:hover {
+    background: var(--border-color, #e2e8f0);
+    /* Design System: Subtle lift */
+    transform: translateY(-1px);
+}
+
+.cancelButton:active {
+    transform: translateY(0);
+}
+
+.submitButton {
+    background: linear-gradient(
+        135deg,
+        var(--accent, #3498db),
+        var(--button, #27ae60)
+    );
+    color: white;
+    flex: 1;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.2);
+}
+
+/* Design System: Hover lift and shadow */
+.submitButton:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(52, 152, 219, 0.3);
+}
+
+.submitButton:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.submitButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .card {
+        padding: 1.5rem;
+    }
+
+    .actions {
+        flex-direction: column;
+    }
+
+    .cancelButton {
+        order: 2;
+    }
+
+    .submitButton {
+        order: 1;
+    }
+}

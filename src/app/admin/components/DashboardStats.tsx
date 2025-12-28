@@ -1,7 +1,44 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import styles from "@/app/admin/components/Dashboard.module.css";
+import { getDashboardOverviewAction } from "@/app/admin/actions/dashboard.actions";
+import OneEightyRing from "@/components/OneEightyRing";
+
+interface DashboardOverview {
+  totalJobseekers: number;
+  totalApplications: number;
+  totalCompanies: number;
+  totalJobsListed: number;
+}
 
 const DashboardStats = () => {
+  const [stats, setStats] = useState<DashboardOverview | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await getDashboardOverviewAction();
+        setStats(data);
+      } catch (error) {
+        console.error("Error fetching dashboard stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className={styles.dashboardStats}>
+        <OneEightyRing height={48} width={48} color="var(--accent)" />
+      </div>
+    );
+  }
+
   return (
     <div className={styles.dashboardStats}>
       <h1>
@@ -33,7 +70,7 @@ const DashboardStats = () => {
             </svg>
             <div>
               <span>Jobseekers</span>
-              <h2>150</h2>
+              <h2>{stats?.totalJobseekers || 0}</h2>
             </div>
           </li>
           <li>
@@ -82,8 +119,8 @@ const DashboardStats = () => {
               />
             </svg>
             <div>
-              <span>Referrals</span>
-              <h2>150</h2>
+              <span>Applications</span>
+              <h2>{stats?.totalApplications || 0}</h2>
             </div>
           </li>
           <li>
@@ -114,8 +151,8 @@ const DashboardStats = () => {
               />
             </svg>
             <div>
-              <span>Compaines</span>
-              <h2>150</h2>
+              <span>Companies</span>
+              <h2>{stats?.totalCompanies || 0}</h2>
             </div>
           </li>
           <li>
@@ -141,7 +178,7 @@ const DashboardStats = () => {
             </svg>
             <div>
               <span>Jobs listed</span>
-              <h2>150</h2>
+              <h2>{stats?.totalJobsListed || 0}</h2>
             </div>
           </li>
         </ul>

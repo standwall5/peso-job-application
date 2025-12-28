@@ -1,25 +1,32 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import Button from "@/components/Button";
 import { createClient } from "@/utils/supabase/client";
 import styles from "./AdminChatPanel.module.css";
-import Button from "../Button";
+import {
+  acceptChatSessionAction,
+  getChatSessionMessagesAction,
+  sendAdminMessageAction,
+  closeChatSessionAction,
+} from "@/app/admin/actions/chat.actions";
 
 interface ChatRequest {
   id: string;
-  userId: string;
+  userId: number;
   userName: string;
   userEmail: string;
   concern: string;
-  timestamp: Date;
   status: "pending" | "active" | "closed";
+  timestamp: Date;
+  closedAt: Date | null;
 }
 
 interface Message {
-  id: string;
+  id: number | string;
   chatId: string;
   text: string;
-  sender: "user" | "admin";
+  sender: "user" | "admin" | "bot";
   timestamp: Date;
 }
 
@@ -32,7 +39,7 @@ interface AdminChatPanelProps {
   onRefresh: () => void;
 }
 
-export default function AdminChatPanel({
+function AdminChatPanel({
   isOpen,
   onClose,
   pendingChats,
@@ -292,25 +299,17 @@ export default function AdminChatPanel({
 
   const fetchMessages = async (chatId: string) => {
     try {
-      const response = await fetch(`/api/admin/chat/messages/${chatId}`);
-      const data = await response.json();
+      const data = await getChatSessionMessagesAction(chatId);
 
       // Map database messages to component format
-      const mappedMessages = (data || []).map(
-        (msg: {
-          id: string;
-          chat_session_id: string;
-          message: string;
-          sender: string;
-          created_at: string;
-        }) => ({
-          id: msg.id,
-          chatId: msg.chat_session_id,
-          text: msg.message,
-          sender: msg.sender as "user" | "admin",
-          timestamp: new Date(msg.created_at),
-        }),
-      );
+      // The service already returns ChatMessage with correct structure
+      const mappedMessages = (data || []).map((msg) => ({
+        id: msg.id,
+        chatId: msg.chat_session_id,
+        text: msg.message,
+        sender: msg.sender as "user" | "admin" | "bot",
+        timestamp: new Date(msg.created_at),
+      }));
 
       setMessages(mappedMessages);
     } catch (error) {
@@ -321,33 +320,19 @@ export default function AdminChatPanel({
 
   const handleAcceptChat = async (request: ChatRequest) => {
     try {
-      const response = await fetch(`/api/admin/chat/accept`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chatId: request.id }),
-      });
+      await acceptChatSessionAction(request.id);
 
-      if (response.ok) {
-        // Update request status locally
-        const updatedRequest = { ...request, status: "active" as const };
-        setActiveChat(updatedRequest);
-        setActiveTab("active");
-        // Refresh data to ensure UI is in sync
-        onRefresh();
-      } else {
-        // Log the error details
-        const errorData = await response.json();
-        console.error("Error accepting chat:", {
-          status: response.status,
-          error: errorData,
-          chatId: request.id,
-          currentStatus: request.status,
-        });
-        alert(`Failed to accept chat: ${errorData.error || "Unknown error"}`);
-      }
+      // Update request status locally
+      const updatedRequest = { ...request, status: "active" as const };
+      setActiveChat(updatedRequest);
+      setActiveTab("active");
+      // Refresh data to ensure UI is in sync
+      onRefresh();
     } catch (error) {
       console.error("Error accepting chat:", error);
-      alert("Failed to accept chat. Please try again.");
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      alert(`Failed to accept chat: ${errorMessage}`);
     }
   };
 
@@ -380,25 +365,9 @@ export default function AdminChatPanel({
     });
 
     try {
-      const response = await fetch("/api/admin/chat/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chatId: activeChat.id,
-          message: messageText,
-        }),
-      });
+      await sendAdminMessageAction(activeChat.id, messageText);
 
-      if (!response.ok) {
-        throw new Error("Failed to send message");
-      }
-
-      // Get the real message from response
-      const data = await response.json();
-      console.log("[AdminChatPanel] Message sent successfully:", {
-        realMessageId: data.id,
-        optimisticId: optimisticMessageId,
-      });
+      console.log("[AdminChatPanel] Message sent successfully");
 
       // Replace optimistic message with real one when realtime event arrives
       // The realtime subscription will handle adding the confirmed message
@@ -425,21 +394,18 @@ export default function AdminChatPanel({
     if (!activeChat) return;
 
     try {
-      const response = await fetch(`/api/admin/chat/close`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chatId: activeChat.id }),
-      });
+      await closeChatSessionAction(activeChat.id);
 
-      if (response.ok) {
-        setActiveChat(null);
-        setMessages([]);
-        setActiveTab("closed");
-        // Refresh data to ensure UI is in sync
-        onRefresh();
-      }
+      setActiveChat(null);
+      setMessages([]);
+      setActiveTab("closed");
+      // Refresh data to ensure UI is in sync
+      onRefresh();
     } catch (error) {
       console.error("Error ending chat:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      alert(`Failed to close chat: ${errorMessage}`);
     }
   };
 
@@ -710,3 +676,5 @@ export default function AdminChatPanel({
     </div>
   );
 }
+
+export default AdminChatPanel;

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -13,6 +13,12 @@ import {
 } from "chart.js";
 
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import {
+  getMonthlyApplicationDataAction,
+  getMonthlyReferralDataAction,
+  getAvailableYearsAction,
+} from "@/app/admin/actions/dashboard.actions";
+import OneEightyRing from "@/components/OneEightyRing";
 
 ChartJS.register(
   CategoryScale,
@@ -21,25 +27,52 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  ChartDataLabels
+  ChartDataLabels,
 );
 
-const yearlyData = {
-  2024: {
-    applications: [10, 15, 8, 12, 7, 9, 11, 13, 10, 14, 12, 8],
-    referrals: [4, 7, 3, 6, 5, 4, 6, 8, 5, 7, 6, 3],
-  },
-  2025: {
-    applications: [12, 19, 3, 5, 2, 3, 7, 8, 6, 9, 10, 4],
-    referrals: [5, 9, 2, 8, 6, 4, 3, 7, 5, 6, 8, 2],
-  },
-};
-
-const years = Object.keys(yearlyData);
-
 const DashboardChart = () => {
-  const [selectedYear, setSelectedYear] =
-    useState<keyof typeof yearlyData>(2025);
+  const [selectedYear, setSelectedYear] = useState<number>(
+    new Date().getFullYear(),
+  );
+  const [years, setYears] = useState<number[]>([]);
+  const [applicationsData, setApplicationsData] = useState<number[]>([]);
+  const [referralsData, setReferralsData] = useState<number[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchYears = async () => {
+      const availableYears = await getAvailableYearsAction();
+      setYears(availableYears);
+      if (availableYears.length > 0) {
+        setSelectedYear(availableYears[0]); // Most recent year
+      }
+    };
+
+    fetchYears();
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [applications, referrals] = await Promise.all([
+          getMonthlyApplicationDataAction(selectedYear),
+          getMonthlyReferralDataAction(selectedYear),
+        ]);
+
+        setApplicationsData(applications.map((d) => d.applications));
+        setReferralsData(referrals.map((d) => d.applications));
+      } catch (error) {
+        console.error("Error fetching chart data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (selectedYear) {
+      fetchData();
+    }
+  }, [selectedYear]);
 
   const data = {
     labels: [
@@ -59,13 +92,13 @@ const DashboardChart = () => {
     datasets: [
       {
         label: "Applications",
-        data: yearlyData[selectedYear].applications,
+        data: applicationsData,
         backgroundColor: "#2bb3a8",
         stack: "Stack 0",
       },
       {
         label: "Referrals",
-        data: yearlyData[selectedYear].referrals,
+        data: referralsData,
         backgroundColor: "#1278d4",
         stack: "Stack 0",
       },
@@ -88,7 +121,7 @@ const DashboardChart = () => {
           weight: "bold" as const,
         },
         formatter: function (value: number) {
-          return value;
+          return value || "";
         },
       },
     },
@@ -97,6 +130,24 @@ const DashboardChart = () => {
       y: { stacked: true },
     },
   };
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          padding: 24,
+          borderRadius: 8,
+          height: "30rem",
+          width: "70rem",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <OneEightyRing height={64} width={64} color="var(--accent)" />
+      </div>
+    );
+  }
 
   return (
     <div
@@ -119,9 +170,7 @@ const DashboardChart = () => {
         <select
           id="year-select"
           value={selectedYear}
-          onChange={(e) =>
-            setSelectedYear(Number(e.target.value) as keyof typeof yearlyData)
-          }
+          onChange={(e) => setSelectedYear(Number(e.target.value))}
           style={{ padding: "4px 12px", borderRadius: 4 }}
         >
           {years.map((year) => (
@@ -132,7 +181,7 @@ const DashboardChart = () => {
         </select>
       </div>
       <Bar data={data} options={options} />
-      <p style={{ marginTop: "1rem" }}>Referral Reports</p>
+      <p style={{ marginTop: "1rem" }}>Application & Referral Reports</p>
     </div>
   );
 };

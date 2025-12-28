@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏢 PESO Job Application System
 
-## Getting Started
+A modern employment platform connecting jobseekers and employers in Parañaque City. Built with Next.js, React, TypeScript, and Supabase.
 
-First, run the development server:
+## ✨ Features
 
+### For Jobseekers
+- 🔐 Secure authentication and profile management
+- 📝 Digital resume builder with PDF export
+- 🔍 Browse and search job opportunities
+- 📤 One-click job applications
+- 📊 Real-time application tracking
+- 📝 Online skill assessments with instant results
+- 🔔 Application status notifications
+
+### For PESO Admin
+- 👥 Comprehensive jobseeker management
+- 🏢 Company profile and job posting management
+- 📈 Analytics dashboard with charts and reports
+- 📊 Application trends and demographics insights
+- 🎯 Exam performance tracking
+- 👨‍💼 Staff and admin account management
+
+## 🛠️ Tech Stack
+
+- **Frontend:** Next.js 15, React 19, TypeScript, Tailwind CSS
+- **Backend:** Supabase (PostgreSQL + Auth + Storage Buckets)
+- **Charts:** Chart.js with React-Chartjs-2
+- **PDF Generation:** html2pdf.js
+
+## 🚀 Getting Started
+
+1. **Install dependencies**
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. **Set up environment variables**
+Create a `.env.local` file:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloudinary_name
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. **Run the development server**
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-## Learn More
+## 📦 Build for Production
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run build
+npm run start
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 👥 Created By
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Gill Irish Lusabio**
+- **Ashanti Pedernal**
+- **Normelyn Alegre**
+- **Hamrainie Montañer**
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+<div align="center">
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Built for PESO Parañaque City** 🇵🇭
+
+</div>
+```

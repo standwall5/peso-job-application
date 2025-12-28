@@ -73,7 +73,7 @@ export async function updateSession(request: NextRequest) {
   if (user) {
     const { data: pesoUser } = await supabase
       .from("peso")
-      .select("id")
+      .select("id, is_superadmin")
       .eq("auth_id", user.id)
       .single();
 
@@ -89,6 +89,39 @@ export async function updateSession(request: NextRequest) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin";
       return NextResponse.redirect(url);
+    }
+
+    // Super admin access control
+    if (pesoUser) {
+      const isSuperAdmin = pesoUser.is_superadmin;
+
+      // Super admins can only access manage-admin and create-admin pages
+      const superAdminPaths = ["/admin/manage-admin", "/admin/create-admin"];
+      const regularAdminPaths = [
+        "/admin/jobseekers",
+        "/admin/company-profiles",
+        "/admin/reports",
+        "/admin/create-company",
+      ];
+
+      if (isSuperAdmin) {
+        // Super admin trying to access regular admin pages
+        if (
+          regularAdminPaths.some((p) => pathname.startsWith(p)) ||
+          pathname === "/admin"
+        ) {
+          const url = request.nextUrl.clone();
+          url.pathname = "/admin/manage-admin";
+          return NextResponse.redirect(url);
+        }
+      } else {
+        // Regular admin trying to access super admin pages
+        if (superAdminPaths.some((p) => pathname.startsWith(p))) {
+          const url = request.nextUrl.clone();
+          url.pathname = "/admin";
+          return NextResponse.redirect(url);
+        }
+      }
     }
   }
 
