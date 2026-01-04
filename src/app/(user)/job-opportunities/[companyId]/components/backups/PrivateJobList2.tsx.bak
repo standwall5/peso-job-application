@@ -1,0 +1,574 @@
+"use client";
+import React, { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
+import styles from "@/app/(user)/job-opportunities/JobHome.module.css";
+import jobStyle from "../JobsOfCompany.module.css";
+import BlocksWave from "@/components/BlocksWave";
+
+import { createClient } from "@/utils/supabase/client";
+import UserProfile from "@/app/(user)/profile/components/UserProfile";
+import Link from "next/link";
+import Button from "@/components/Button";
+import TakeExam from "./TakeExam";
+import ExamResultView from "./ExamResultView";
+import VerifiedIdUpload from "./VerifiedIdUpload";
+
+interface Job {
+  id: number;
+  title: string;
+  description: string;
+  place_of_assignment: string;
+  sex: string;
+  education: string;
+  eligibility: string;
+  posted_date: string;
+  companies: {
+    name: string;
+    logo: string | null;
+  };
+  exam_id: number;
+}
+
+interface ExamData {
+  id: number;
+  title: string;
+  description: string;
+  questions: Question[];
+}
+
+interface Question {
+  id: number;
+  exam_id: number;
+  question_text: string;
+  question_type: string;
+  position: number;
+  choices: Choice[];
+}
+
+interface Choice {
+  id: number;
+  question_id: number;
+  choice_text: string;
+  position: number;
+}
+
+interface PrivateJobListProps {
+  searchParent?: string;
+  onSearchChange?: (value: string) => void;
+}
+
+interface ExamAttemptData {
+  attempt: {
+    attempt_id: number;
+    exam_id: number;
+    applicant_id: number;
+    date_submitted: string;
+    score: number;
+  };
+  answers: Array<{
+    question_id: number;
+    choice_id?: number;
+    text_answer?: string;
+    questions?: {
+      question_text: string;
+      choices?: Array<{ id: number; choice_text: string }>;
+    };
+    choices?: {
+      choice_text: string;
+    };
+  }>;
+  correctAnswers: Array<{
+    question_id: number;
+    choice_id?: number;
+    correct_text?: string;
+  }>;
+}
+
+const PrivateJobList = ({
+  searchParent,
+  onSearchChange,
+}: PrivateJobListProps) => {
+  const params = useParams();
+  const companyId = params.companyId || params.id;
+
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [search, setSearch] = useState(searchParent || "");
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [applicationSelect, setApplicationSelect] = useState("previewResume");
+  const [modal, setModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [examData, setExamData] = useState<ExamData | null>(null);
+  const [loadingExam, setLoadingExam] = useState(false);
+
+  const [examAttempt, setExamAttempt] = useState<ExamAttemptData | null>(null);
+  const [loadingAttempt, setLoadingAttempt] = useState(false);
+
+  const fetchExamAttempt = async (jobId: number, examId: number) => {
+    setLoadingAttempt(true);
+    try {
+      const res = await fetch(
+        `/api/exams/attempt?jobId=${jobId}&examId=${examId}`,
+      );
+      const data = await res.json();
+      setExamAttempt(data.attempt ? data : null);
+    } catch (err) {
+      setExamAttempt(null);
+    } finally {
+      setLoadingAttempt(false);
+    }
+  };
+
+  const fetchExam = async (examId: number) => {
+    setLoadingExam(true);
+    try {
+      const response = await fetch(`/api/getExam?id=${examId}`);
+      const data = await response.json();
+      setExamData(data);
+    } catch (err) {
+      console.error("Failed to fetch exam:", err);
+      setExamData(null);
+    } finally {
+      setLoadingExam(false);
+    }
+  };
+
+  const handleExamSubmit = async (
+    answers: Record<number, number | number[] | string>,
+  ) => {
+    try {
+      const response = await fetch("/api/exams/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          examId: selectedJob?.exam_id,
+          jobId: selectedJob?.id,
+          answers,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to submit exam");
+      }
+
+      console.log("Exam submitted successfully:", result);
+      alert(
+        `Exam submitted! Score: ${result.score}% (${result.correctCount}/${result.totalQuestions} correct)`,
+      );
+
+      // Optionally refresh user applications or close modal
+      fetchUserApplications();
+      setSelectedJob(null);
+      setExamData(null);
+    } catch (error) {
+      console.error("Error submitting exam:", error);
+      alert(
+        `Failed to submit exam: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
+    }
+  };
+
+  useEffect(() => {
+    async function fetchData() {
+      const supabase = createClient();
+      // Fetch jobs for this company, including company details
+      const { data, error } = await supabase
+        .from("jobs")
+        .select("*, companies(*)")
+        .eq("company_id", companyId);
+
+      if (error) {
+        // handle error (optional)
+        console.log(error);
+        return;
+      }
+      setJobs(data || []);
+    }
+    if (companyId) fetchData();
+  }, [companyId]);
+
+  useEffect(() => {
+    async function fetchData() {
+      const supabase = createClient();
+      // Fetch jobs for this company, including company details
+      const { data, error } = await supabase
+        .from("jobs")
+        .select("*, companies(*)");
+
+      if (error) {
+        // handle error (optional)
+        console.log(error);
+        return;
+      }
+      setJobs(data || []);
+    }
+    fetchData();
+    setSearch(searchParent || "");
+  }, [search]);
+
+  const [userApplications, setUserApplications] = useState<number[]>([]);
+  async function fetchUserApplications() {
+    try {
+      const res = await fetch("/api/getUserApplications");
+      const data = await res.json();
+      // data is an array of { job_id: number }
+      setUserApplications(data.map((app: { job_id: number }) => app.job_id));
+    } catch (err) {
+      console.log("Error: " + err);
+    } finally {
+      setLoading(false);
+    }
+  }
+  useEffect(() => {
+    fetchUserApplications();
+  }, []);
+
+  const submitResume = async (job_id: number) => {
+    const response = await fetch("/api/submitResume", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        job_id: job_id,
+      }),
+    });
+
+    const result = await response.json();
+    console.log(result);
+
+    fetchUserApplications();
+  };
+
+  const filteredJobs = jobs.filter(
+    (job) =>
+      job.title.toLowerCase().includes(search.toLowerCase()) ||
+      job.description.toLowerCase().includes(search.toLowerCase()),
+  );
+
+  if (loading) {
+    return <BlocksWave />;
+  }
+
+  const jobCards = filteredJobs.map((job) => {
+    const hasApplied = userApplications.includes(job.id);
+    return (
+      <div
+        key={job.id}
+        className={`${styles.jobCard} ${jobStyle.jobSpecificCard}`}
+        onClick={() => {
+          setSelectedJob(job);
+          setExamData(null); // Reset exam data for new job
+          if (job.exam_id) {
+            fetchExam(job.exam_id); // Fetch exam immediately
+          }
+        }}
+      >
+        <div className={`${styles.jobCompany} ${jobStyle.companyInformation}`}>
+          {job.companies?.logo && (
+            <img
+              src={job.companies.logo}
+              alt={job.companies.name + " logo"}
+              className={styles.companyLogo}
+              style={{
+                width: "64px",
+                height: "64px",
+                objectFit: "contain",
+              }}
+            />
+          )}
+          <span>{job.companies?.name}</span>
+        </div>
+        <div className={jobStyle.jobDetails}>
+          <h2>{job.title}</h2>
+          <p>{job.place_of_assignment}</p>
+          <p>{job.sex}</p>
+          <p>{job.education}</p>
+          <p>{job.eligibility}</p>
+          <p>
+            {new Date(job.posted_date).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </p>
+
+          <Button variant="success" disabled={hasApplied}>
+            {hasApplied ? "Applied" : "Apply"}
+          </Button>
+        </div>
+      </div>
+    );
+  });
+
+  return (
+    <section className={styles.section}>
+      <div className={styles.jobList}>
+        {jobCards.length > 0 ? jobCards : <p>No jobs found.</p>}
+      </div>
+      {selectedJob && (
+        <div
+          className={jobStyle.modalOverlay}
+          onClick={() => {
+            setSelectedJob(null);
+            setExamData(null);
+          }}
+        >
+          <div
+            className={`${jobStyle.modal} ${jobStyle.applicationModal}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => {
+                setSelectedJob(null);
+                setExamData(null);
+              }}
+              style={{ fontWeight: "bold", right: 40, position: "absolute" }}
+            >
+              X
+            </button>
+            <div className={jobStyle.applicationContainer}>
+              <div
+                key={selectedJob.id}
+                className={`${styles.jobCard} ${jobStyle.applicationJobCompany}`}
+                onClick={() => setSelectedJob(selectedJob)}
+              >
+                <div
+                  className={`${styles.jobCompany} ${jobStyle.companyInformation}`}
+                >
+                  {selectedJob.companies?.logo && (
+                    <img
+                      src={selectedJob.companies.logo}
+                      alt={selectedJob.companies.name + " logo"}
+                      className={styles.companyLogo}
+                      style={{
+                        width: "64px",
+                        height: "64px",
+                        objectFit: "contain",
+                      }}
+                    />
+                  )}
+                  <span>{selectedJob.companies?.name}</span>
+                </div>
+                <div className={jobStyle.jobDetails}>
+                  <h2>{selectedJob.title}</h2>
+                  <p>{selectedJob.place_of_assignment}</p>
+                  <p>{selectedJob.sex}</p>
+                  <p>{selectedJob.education}</p>
+                  <p>{selectedJob.eligibility}</p>
+                  <p>
+                    {new Date(selectedJob.posted_date).toLocaleDateString(
+                      "en-US",
+                      {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      },
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              {/* Questions */}
+              <div className={jobStyle.applicationDetails}>
+                <ul className={jobStyle.applicationNav}>
+                  <li
+                    className={
+                      applicationSelect === "previewResume"
+                        ? jobStyle.active
+                        : ""
+                    }
+                    onClick={() => setApplicationSelect("previewResume")}
+                  >
+                    Preview Resume
+                  </li>
+                  <li
+                    className={
+                      applicationSelect === "exam" ? jobStyle.active : ""
+                    }
+                    onClick={() => {
+                      setApplicationSelect("exam");
+                      if (selectedJob?.id && selectedJob?.exam_id) {
+                        fetchExamAttempt(selectedJob.id, selectedJob.exam_id);
+                      }
+                    }}
+                  >
+                    Exam
+                  </li>
+                  <li
+                    className={
+                      applicationSelect === "verifiedId" ? jobStyle.active : ""
+                    }
+                    onClick={() => {
+                      setApplicationSelect("verifiedId");
+                      if (selectedJob?.id && selectedJob?.exam_id) {
+                        fetchExamAttempt(selectedJob.id, selectedJob.exam_id);
+                      }
+                    }}
+                  >
+                    Verified ID
+                  </li>
+                </ul>
+                {applicationSelect === "previewResume" && (
+                  <div className={`${jobStyle.applicantDetail}`}>
+                    {/* Render resume preview content here */}
+
+                    <div className={jobStyle.applicantDetailResume}>
+                      <UserProfile />
+                    </div>
+                    <div className={jobStyle.applicantDetailButtons}>
+                      {!userApplications.includes(selectedJob.id) ? (
+                        <>
+                          <Button
+                            variant="success"
+                            onClick={() => submitResume(selectedJob.id)}
+                          >
+                            Submit
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Link href="/profile">
+                            <Button variant="primary">Edit</Button>
+                          </Link>
+                          <Button disabled variant="success">
+                            Submitted
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {applicationSelect === "exam" ? (
+                  userApplications.includes(selectedJob.id) ? (
+                    <div className={jobStyle.applicantDetail}>
+                      {loadingAttempt || loadingExam ? (
+                        <BlocksWave />
+                      ) : examAttempt && examAttempt.attempt ? (
+                        <ExamResultView
+                          attempt={examAttempt.attempt}
+                          answers={examAttempt.answers}
+                          correctAnswers={examAttempt.correctAnswers}
+                        />
+                      ) : examData ? (
+                        <TakeExam exam={examData} onSubmit={handleExamSubmit} />
+                      ) : (
+                        <div className={jobStyle.noExam}>
+                          <p>No exam available for this job.</p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className={jobStyle.applicantDetail}>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          padding: "2rem",
+                          textAlign: "center",
+                          gap: "1rem",
+                        }}
+                      >
+                        <h2>⚠️ Resume Required</h2>
+                        <p>
+                          Please submit your resume first before taking the
+                          exam.
+                        </p>
+                        <Button
+                          variant="primary"
+                          onClick={() => setApplicationSelect("previewResume")}
+                        >
+                          Go to Resume
+                        </Button>
+                      </div>
+                    </div>
+                  )
+                ) : null}
+                {applicationSelect === "verifiedId" ? (
+                  userApplications.includes(selectedJob.id) ? (
+                    examAttempt && examAttempt.attempt ? (
+                      <VerifiedIdUpload
+                        jobId={selectedJob.id}
+                        onSubmitted={() => {
+                          // Refresh or show success message
+                          console.log("Verified ID submitted successfully");
+                        }}
+                      />
+                    ) : (
+                      <div className={jobStyle.applicantDetail}>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: "2rem",
+                            textAlign: "center",
+                            gap: "1rem",
+                          }}
+                        >
+                          <h2>⚠️ Exam Required</h2>
+                          <p>
+                            Please complete the exam first before uploading your
+                            Verified ID.
+                          </p>
+                          <Button
+                            variant="primary"
+                            onClick={() => {
+                              setApplicationSelect("exam");
+                              if (selectedJob?.id && selectedJob?.exam_id) {
+                                fetchExamAttempt(
+                                  selectedJob.id,
+                                  selectedJob.exam_id,
+                                );
+                              }
+                            }}
+                          >
+                            Go to Exam
+                          </Button>
+                        </div>
+                      </div>
+                    )
+                  ) : (
+                    <div className={jobStyle.applicantDetail}>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          padding: "2rem",
+                          textAlign: "center",
+                          gap: "1rem",
+                        }}
+                      >
+                        <h2>⚠️ Resume Required</h2>
+                        <p>
+                          Please submit your resume first before uploading your
+                          Verified ID.
+                        </p>
+                        <Button
+                          variant="primary"
+                          onClick={() => setApplicationSelect("previewResume")}
+                        >
+                          Go to Resume
+                        </Button>
+                      </div>
+                    </div>
+                  )
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+};
+
+export default PrivateJobList;
