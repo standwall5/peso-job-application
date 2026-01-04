@@ -28,7 +28,7 @@ const LoginForm = () => {
   }
 
   return (
-    <section>
+    <section className="login-wrapper">
       <div className="login-container">
         <div className="login-slogan">
           <Image
@@ -138,9 +138,11 @@ const LoginForm = () => {
                   </svg>
                 )}
               </button>
+              <Link className="forgot-password" href="/auth/forgot-password">
+                Forgot password?
+              </Link>
             </div>
 
-            <Link href="/auth/forgot-password">Forgot password?</Link>
             <Button
               variant="primary"
               disabled={loading}
@@ -156,7 +158,7 @@ const LoginForm = () => {
               Login
             </Button>
           </form>
-          <p>
+          <p className="signup-link">
             No account yet? <Link href="/signup">Register now</Link>
           </p>
         </div>

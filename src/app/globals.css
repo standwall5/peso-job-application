@@ -39,6 +39,9 @@
 }
 
 body {
+    min-height: 100svh;
+    display: flex;
+    margin: 0;
     color: var(--text);
     /*font-family: var(--font-poppins-sans), Arial, sans-serif;*/
     font-size: 1rem; /* Add this line */
@@ -71,7 +74,7 @@ h3 {
     background-position: center;
 }
 
-.overlay {
+/*.overlay {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -79,13 +82,17 @@ h3 {
         rgba(255, 255, 255, 0.85),
         rgba(255, 255, 255, 0.85)
     );
-}
+}*/
 
 /* Navigation Bar */
 
 nav {
     font-family: "Poppins", sans-serif;
-    display: fixed;
+    /*01/21/26 fix: change display: fixed to position: fixed*/
+    /*01/21/26 fix: sticky is better as its size is still recognized (content elements are centered properly as a result) and top: 0 to ensure position is at the top of screen*/
+    position: sticky;
+    top: 0;
+    z-index: 100;
     /* margin-top: 2rem; */
     height: auto;
     width: 100%;
@@ -123,13 +130,14 @@ nav {
 
 /* Content/Main */
 
-.content {
+/*01/4/2026 removed as content already exists */
+/*.content {
     display: flex;
     flex: 1;
     align-items: center;
     justify-content: center;
     height: auto;
-}
+}*/
 
 .admin-content {
     display: flex;
@@ -147,6 +155,8 @@ nav {
     box-shadow:
         rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
         rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+
+    background-color: #fff;
 }
 
 .nav-container-simple ul li:first-child {
@@ -176,24 +186,55 @@ nav {
 /* Footer */
 
 /* Add to your global CSS or a module */
-.page-container {
+/*.page-container {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     overflow: auto;
+}*/
+
+/*##########################################################################*/
+/* Test fix for page-container, content, overly, body and nav: 01/04/2026*/
+/*##########################################################################*/
+.page-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.overlay {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(
+        rgba(255, 255, 255, 0.85),
+        rgba(255, 255, 255, 0.85)
+    );
 }
 
 .content {
+    flex: 1;
+    margin: 0 2rem 2rem;
+    min-width: 0;
+}
+
+/*##########################################################################*/
+/* End of test fix 01/04/2026*/
+/*##########################################################################*/
+
+/*Commented out for test fix 01/04/2026*/
+/*.content {
     flex: 1;
     display: flex;
     flex-direction: column;
     margin: auto 2rem 2rem;
 
-    /*margin-bottom: 1rem;*/
+    /*margin-bottom: 1rem;
     min-height: 100lvh;
     overflow: auto;
-    /*overflow: hidden;*/
-}
+    /*overflow: hidden;
+}*/
 
 footer {
     /*border-top: 1px solid white;*/

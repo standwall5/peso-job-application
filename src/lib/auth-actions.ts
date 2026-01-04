@@ -28,7 +28,7 @@ export async function login(formData: FormData) {
     ) {
       return {
         error:
-          "Your account is not authenticated. Please check your email for a verification link.",
+          "Not authenticated. Please check your email for a verification link.",
       };
     }
 
