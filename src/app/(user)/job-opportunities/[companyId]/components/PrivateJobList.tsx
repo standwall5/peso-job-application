@@ -15,6 +15,7 @@ import TakeExam from "./exam/TakeExam";
 import ExamResultView from "./exam/ExamResultView";
 import VerifiedIdUpload from "./verification/VerifiedIdUpload";
 import { Job, Exam } from "../types/job.types";
+import { submitExam } from "@/lib/db/services/exam.service";
 
 interface PrivateJobListProps {
   searchParent?: string;
@@ -206,39 +207,43 @@ const PrivateJobList = ({
     answers: Record<number, number | number[] | string>,
   ) => {
     try {
-      const response = await fetch("/api/exams/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          examId: selectedJob?.exam_id,
-          jobId: selectedJob?.id,
-          answers,
-        }),
+      // Validate selectedJob exists
+      if (!selectedJob?.exam_id || !selectedJob?.id) {
+        throw new Error("Job or exam information is missing");
+      }
+
+      const result = await submitExam({
+        examId: selectedJob.exam_id,
+        jobId: selectedJob.id,
+        answers,
       });
 
-      const result = await response.json();
+      if (result.success) {
+        // Mark exam as completed in progress
+        if (selectedJob) {
+          await updateProgress(selectedJob.id, { exam_completed: true });
+        }
 
-      if (!response.ok) {
-        throw new Error(result.error || "Failed to submit exam");
-      }
+        // Build the toast message
+        let message = "";
+        if (result.autoGradedCount > 0) {
+          if (result.score !== null) {
+            message += `Auto-graded score: ${result.score}% (${result.correctCount}/${result.autoGradedCount} correct)\n`;
+          }
+        }
+        if (result.paragraphCount > 0) {
+          message += `${result.paragraphCount} paragraph question(s) pending admin review.`;
+        }
+        if (!message) {
+          message = "Your exam has been submitted successfully!";
+        }
 
-      console.log("Exam submitted successfully:", result);
+        showToast("Exam Submitted! 🎉", message.trim());
 
-      // Mark exam as completed in progress
-      if (selectedJob) {
-        await updateProgress(selectedJob.id, { exam_completed: true });
-      }
-
-      showToast(
-        "Exam Submitted! 🎉",
-        `Score: ${result.score}% (${result.correctCount}/${result.totalQuestions} correct)`,
-      );
-
-      // Refresh exam attempt to show results
-      if (selectedJob?.id && selectedJob?.exam_id) {
-        await fetchExamAttempt(selectedJob.id, selectedJob.exam_id);
+        // Refresh exam attempt to show results
+        if (selectedJob?.id && selectedJob?.exam_id) {
+          await fetchExamAttempt(selectedJob.id, selectedJob.exam_id);
+        }
       }
     } catch (error) {
       console.error("Error submitting exam:", error);

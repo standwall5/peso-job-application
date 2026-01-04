@@ -8,6 +8,7 @@ export * from "./exam.service";
 export * from "./notification.service";
 export * from "./chat.service";
 export * from "./analytics.service";
+export * from "./exam-grading.service";
 
 // Re-export client utilities
 export { getSupabaseClient, getCurrentUser } from "../client";

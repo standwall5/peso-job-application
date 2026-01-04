@@ -96,3 +96,83 @@ export interface AppliedJob {
 export interface ApplicantWithJobs extends Application {
   appliedJobs?: AppliedJob[];
 }
+
+// Add to existing file
+
+export interface JobApplication {
+  id: number;
+  applicant_id: number;
+  job_id: number;
+  status: string;
+  applied_date: string;
+  company: {
+    id: number;
+    name: string;
+    logo?: string | null;
+    location: string;
+  };
+  job: {
+    id: number;
+    title: string;
+    place_of_assignment: string;
+    sex: string;
+    education: string;
+    eligibility: string;
+    posted_date: string;
+    exam_id: number;
+  };
+}
+
+export interface Jobseeker {
+  id: number;
+  applicant: {
+    name: string;
+    birth_date: string;
+    age: number;
+    address: string;
+    sex: string;
+    barangay: string;
+    district: string;
+    email: string;
+    phone: string;
+    profile_pic_url: string | null;
+    preferred_poa: string;
+    applicant_type: string;
+    disability_type?: string;
+  };
+  resume: {
+    profile_pic_url: string | null;
+    education: Education;
+    skills: string[] | string;
+    work_experiences: WorkExperience[];
+    profile_introduction?: string;
+  } | null;
+}
+
+export interface ExamAttemptData {
+  attempt: {
+    attempt_id: number;
+    exam_id: number;
+    applicant_id: number;
+    date_submitted: string;
+    score: number;
+  };
+  answers: Array<{
+    question_id: number;
+    choice_id?: number;
+    text_answer?: string;
+    questions?: {
+      question_text: string;
+      question_type?: string;
+      choices?: Array<{ id: number; choice_text: string }>;
+    };
+    choices?: {
+      choice_text: string;
+    };
+  }>;
+  correctAnswers: Array<{
+    question_id: number;
+    choice_id?: number;
+    correct_text?: string;
+  }>;
+}
