@@ -30,34 +30,56 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   const [loading, setLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [applicantId, setApplicantId] = useState<number | null>(null);
+  const [lastFetchTime, setLastFetchTime] = useState<number>(0);
+  const [hasInitialLoad, setHasInitialLoad] = useState(false);
 
-  const fetchNotifications = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await fetch("/api/notifications");
-      const data = await response.json();
+  // Cache duration: 30 seconds
+  const CACHE_DURATION = 30000;
 
-      if (data.error) {
-        console.error("Error fetching notifications:", data.error);
-        setNotifications([]);
+  const fetchNotifications = useCallback(
+    async (forceRefresh: boolean = false) => {
+      const now = Date.now();
+      const timeSinceLastFetch = now - lastFetchTime;
+
+      // Skip fetch if cache is still valid and not forced
+      if (
+        !forceRefresh &&
+        timeSinceLastFetch < CACHE_DURATION &&
+        hasInitialLoad
+      ) {
         return;
       }
 
-      setNotifications(Array.isArray(data) ? data : []);
-      const unread = data.filter((n: Notification) => !n.is_read).length;
-      setUnreadCount(unread);
+      setLoading(true);
+      try {
+        const response = await fetch("/api/notifications");
+        const data = await response.json();
 
-      // Notify parent component about unread count
-      if (onUnreadCountChange) {
-        onUnreadCountChange(unread);
+        if (data.error) {
+          console.error("Error fetching notifications:", data.error);
+          setNotifications([]);
+          return;
+        }
+
+        setNotifications(Array.isArray(data) ? data : []);
+        const unread = data.filter((n: Notification) => !n.is_read).length;
+        setUnreadCount(unread);
+        setLastFetchTime(now);
+        setHasInitialLoad(true);
+
+        // Notify parent component about unread count
+        if (onUnreadCountChange) {
+          onUnreadCountChange(unread);
+        }
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+        setNotifications([]);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-      setNotifications([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [onUnreadCountChange]);
+    },
+    [onUnreadCountChange, lastFetchTime, hasInitialLoad],
+  );
 
   // Get current user's applicant ID
   useEffect(() => {
@@ -89,13 +111,13 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
 
   // Fetch notifications on mount (realtime will handle updates)
   useEffect(() => {
-    fetchNotifications();
+    fetchNotifications(false);
   }, [fetchNotifications]);
 
-  // Refresh when dropdown opens
+  // Refresh when dropdown opens (use cache if available)
   useEffect(() => {
     if (isOpen) {
-      fetchNotifications();
+      fetchNotifications(false);
     }
   }, [isOpen, fetchNotifications]);
 
@@ -117,7 +139,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
         },
         (payload) => {
           console.log("Notification change:", payload);
-          fetchNotifications();
+          fetchNotifications(true); // Force refresh on real-time update
         },
       )
       .subscribe((status) => {
@@ -136,7 +158,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ notification_id: notificationId }),
       });
-      fetchNotifications();
+      fetchNotifications(true); // Force refresh after marking as read
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
@@ -149,10 +171,39 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mark_all: true }),
       });
-      fetchNotifications();
+      fetchNotifications(true); // Force refresh after marking all as read
     } catch (error) {
       console.error("Error marking all as read:", error);
     }
+  };
+
+  const deleteNotification = async (notificationId: number) => {
+    try {
+      await fetch(`/api/notifications?id=${notificationId}`, {
+        method: "DELETE",
+      });
+      fetchNotifications(true); // Force refresh after deletion
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+    }
+  };
+
+  const handleNotificationClick = (notif: Notification) => {
+    // Mark as read if unread
+    if (!notif.is_read) {
+      markAsRead(notif.id);
+    }
+
+    // Handle navigation
+    if (notif.type === "application_update") {
+      // For application updates, navigate to profile with applications tab
+      window.location.href = "/profile?tab=applications";
+    } else if (notif.link) {
+      // For other notifications with links
+      window.location.href = notif.link;
+    }
+
+    onClose();
   };
 
   const getNotificationIcon = (type: Notification["type"]) => {
@@ -256,7 +307,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
         )}
       </div>
 
-      {loading ? (
+      {loading && !hasInitialLoad ? (
         <div className={styles.loading}>Loading...</div>
       ) : notifications.length === 0 ? (
         <div className={styles.empty}>
@@ -281,27 +332,46 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
             <div
               key={notif.id}
               className={`${styles.notificationItem} ${!notif.is_read ? styles.unread : ""}`}
-              onClick={() => {
-                if (!notif.is_read) {
-                  markAsRead(notif.id);
-                }
-                if (notif.link) {
-                  window.location.href = notif.link;
-                }
-                onClose();
-              }}
             >
-              <div className={styles.iconWrapper}>
-                {getNotificationIcon(notif.type)}
+              <div
+                className={styles.notificationContent}
+                onClick={() => handleNotificationClick(notif)}
+              >
+                <div className={styles.iconWrapper}>
+                  {getNotificationIcon(notif.type)}
+                </div>
+                <div className={styles.content}>
+                  <h4>{notif.title}</h4>
+                  <p>{notif.message}</p>
+                  <span className={styles.time}>
+                    {formatTime(notif.created_at)}
+                  </span>
+                </div>
+                {!notif.is_read && <div className={styles.unreadDot} />}
               </div>
-              <div className={styles.content}>
-                <h4>{notif.title}</h4>
-                <p>{notif.message}</p>
-                <span className={styles.time}>
-                  {formatTime(notif.created_at)}
-                </span>
-              </div>
-              {!notif.is_read && <div className={styles.unreadDot} />}
+              <button
+                className={styles.deleteBtn}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteNotification(notif.id);
+                }}
+                aria-label="Delete notification"
+                title="Delete notification"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18 18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
             </div>
           ))}
         </div>

@@ -130,7 +130,7 @@ export async function POST(request: Request) {
         type: notificationData.type,
         title: notificationData.title,
         message: notificationData.message,
-        link: `/profile`,
+        link: `/profile?tab=applications`,
         is_read: false,
         created_at: new Date().toISOString(),
       })

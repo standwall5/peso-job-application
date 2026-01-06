@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import styles from "./Profile.module.css";
 import BlocksWave from "@/components/BlocksWave";
 import Toast from "@/components/toast/Toast";
@@ -24,6 +25,9 @@ import { ViewIdSection } from "./sections/ViewIdSection";
 import { InProgressSection } from "./sections/InProgressSection";
 
 const Profile = () => {
+  // Get URL search params
+  const searchParams = useSearchParams();
+
   // Main data hooks
   const { user, setUser, resume, loading, refreshResume, refreshUser } =
     useProfileData();
@@ -43,6 +47,24 @@ const Profile = () => {
     useState<ProfileTab>("viewResume");
   const dateNow = Date.now();
   const resumeRef = useRef<HTMLDivElement>(null);
+
+  // Handle tab parameter from URL (e.g., from notifications)
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (
+      tab &&
+      [
+        "viewResume",
+        "editResume",
+        "applications",
+        "inProgress",
+        "viewId",
+        "settings",
+      ].includes(tab)
+    ) {
+      setProfileOptionsNav(tab as ProfileTab);
+    }
+  }, [searchParams]);
 
   // Auto-hide success toast
   useEffect(() => {

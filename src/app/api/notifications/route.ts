@@ -1,6 +1,53 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
+export async function DELETE(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const notificationId = searchParams.get("id");
+
+  if (!notificationId) {
+    return NextResponse.json(
+      { error: "Notification ID is required" },
+      { status: 400 },
+    );
+  }
+
+  const supabase = await createClient();
+
+  // Get the current user
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Get applicant ID from user (using auth_id instead of user_id)
+  const { data: applicant } = await supabase
+    .from("applicants")
+    .select("id")
+    .eq("auth_id", user.id)
+    .single();
+
+  if (!applicant) {
+    return NextResponse.json({ error: "Applicant not found" }, { status: 404 });
+  }
+
+  // Delete the notification (only if it belongs to the user)
+  const { error } = await supabase
+    .from("notifications")
+    .delete()
+    .eq("id", notificationId)
+    .eq("applicant_id", applicant.id);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const unreadOnly = searchParams.get("unread") === "true";

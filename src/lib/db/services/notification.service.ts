@@ -117,3 +117,31 @@ export async function markAllNotificationsAsRead(): Promise<void> {
     throw new Error(error.message);
   }
 }
+
+export async function deleteNotification(
+  notificationId: number,
+): Promise<void> {
+  const supabase = await getSupabaseClient();
+  const user = await getCurrentUser();
+
+  // Get applicant ID
+  const { data: applicant } = await supabase
+    .from("applicants")
+    .select("id")
+    .eq("auth_id", user.id)
+    .single();
+
+  if (!applicant) {
+    throw new Error("Applicant not found");
+  }
+
+  const { error } = await supabase
+    .from("notifications")
+    .delete()
+    .eq("id", notificationId)
+    .eq("applicant_id", applicant.id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
