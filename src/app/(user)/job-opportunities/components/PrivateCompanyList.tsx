@@ -1,14 +1,16 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import styles from "@/app/(user)/job-opportunities/JobHome.module.css";
-import privateStyles from "@app/job-opportunities/components/PrivateCompanyList.module.css";
 import Link from "next/link";
 import BlocksWave from "@/components/BlocksWave";
+import SortCompany, { SortOption } from "./sort/SortCompany";
+import { sortCompanies } from "../utils/sortCompanies";
 
 interface Job {
   id: number;
   company_id: number;
   manpower_needed: number;
+  posted_date: string | null;
 }
 
 interface Company {
@@ -33,6 +35,7 @@ const PrivateCompanyList = ({
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(searchParent || "");
+  const [sortOption, setSortOption] = useState<SortOption>("recent");
 
   useEffect(() => {
     async function fetchAll() {
@@ -70,8 +73,14 @@ const PrivateCompanyList = ({
       company.description.toLowerCase().includes(search.toLowerCase()),
   );
 
+  const sortedCompanies = sortCompanies(filteredCompanies, jobs, sortOption);
+
   return (
     <section className={styles.section}>
+      <div className={styles.listHeader}>
+        <div></div>
+        <SortCompany currentSort={sortOption} onSortChange={setSortOption} />
+      </div>
       <div
         className={styles.jobList}
         style={
@@ -88,8 +97,8 @@ const PrivateCompanyList = ({
       >
         {loading ? (
           <BlocksWave />
-        ) : filteredCompanies.length > 0 ? (
-          filteredCompanies.map((company) => (
+        ) : sortedCompanies.length > 0 ? (
+          sortedCompanies.map((company) => (
             <Link key={company.id} href={`/job-opportunities/${company.id}`}>
               <div key={company.id} className={styles.jobCard}>
                 <div className={styles.jobCompany}>

@@ -27,7 +27,6 @@ export const useProfileEdit = (
 
   // Skills and work experience
   const [skills, setSkills] = useState<string[]>([]);
-  const [newSkill, setNewSkill] = useState("");
   const [workExperiences, setWorkExperiences] = useState<WorkExperience[]>([]);
 
   // Sync profile details when user changes
@@ -116,8 +115,6 @@ export const useProfileEdit = (
     setEditEducationEndDate,
     skills,
     setSkills,
-    newSkill,
-    setNewSkill,
     workExperiences,
     setWorkExperiences,
   };

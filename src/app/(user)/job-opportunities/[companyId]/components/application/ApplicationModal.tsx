@@ -1,0 +1,256 @@
+// src/app/(user)/job-opportunities/[companyId]/components/application/ApplicationModal.tsx
+"use client";
+import React, { useState } from "react";
+import jobStyle from "../../JobsOfCompany.module.css";
+import ResumePreviewTab from "./ResumePreviewTab";
+import ExamTab from "./ExamTab";
+import VerifiedIdTab from "./VerifiedIdTab";
+import WithdrawConfirmModal from "./WithdrawConfirmModal";
+import Button from "@/components/Button";
+import { Job, Exam } from "../../types/job.types";
+import {
+  ApplicationProgress,
+  ExamAttemptData,
+} from "../../types/application.types";
+import { withdrawApplication } from "@/lib/db/services/application.service";
+
+interface ApplicationModalProps {
+  job: Job;
+  hasApplied: boolean;
+  examData: Exam | null;
+  loadingExam: boolean;
+  examAttempt: ExamAttemptData | null;
+  loadingAttempt: boolean;
+  progress: ApplicationProgress | undefined;
+  onClose: () => void;
+  onExamSubmit: (
+    answers: Record<number, number | number[] | string>,
+  ) => Promise<void>;
+  onContinueToExam: () => void;
+  onIdUploaded: () => void;
+  onSubmitFinalApplication: () => void;
+  onFetchExamAttempt: () => void;
+  onWithdrawSuccess?: () => void;
+}
+
+const ApplicationModal: React.FC<ApplicationModalProps> = ({
+  job,
+  hasApplied,
+  examData,
+  loadingExam,
+  examAttempt,
+  loadingAttempt,
+  progress,
+  onClose,
+  onExamSubmit,
+  onContinueToExam,
+  onIdUploaded,
+  onSubmitFinalApplication,
+  onFetchExamAttempt,
+  onWithdrawSuccess,
+}) => {
+  const [activeTab, setActiveTab] = useState<
+    "previewResume" | "exam" | "verifiedId"
+  >("previewResume");
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
+  const [examDataFetched, setExamDataFetched] = useState(false);
+
+  const handleTabChange = (tab: "previewResume" | "exam" | "verifiedId") => {
+    setActiveTab(tab);
+    // Only fetch exam data once
+    if ((tab === "exam" || tab === "verifiedId") && !examDataFetched) {
+      onFetchExamAttempt();
+      setExamDataFetched(true);
+    }
+  };
+
+  const handleWithdrawClick = () => {
+    setShowWithdrawModal(true);
+  };
+
+  const handleWithdrawConfirm = async () => {
+    setIsWithdrawing(true);
+    try {
+      await withdrawApplication(job.id);
+      setShowWithdrawModal(false);
+      onClose();
+
+      // Call the success callback if provided
+      if (onWithdrawSuccess) {
+        onWithdrawSuccess();
+      }
+    } catch (error) {
+      console.error("Error withdrawing application:", error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to withdraw application",
+      );
+    } finally {
+      setIsWithdrawing(false);
+    }
+  };
+
+  const handleWithdrawCancel = () => {
+    setShowWithdrawModal(false);
+  };
+
+  return (
+    <>
+      <div className={jobStyle.modalOverlay} onClick={onClose}>
+        <div
+          className={`${jobStyle.modal} ${jobStyle.applicationModal}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={onClose}
+            className={jobStyle.closeButton}
+            aria-label="Close modal"
+          >
+            ✕
+          </button>
+          <div className={jobStyle.applicationContainer}>
+            {/* Job Information Card */}
+            <div className={jobStyle.applicationJobCompany}>
+              <div className={jobStyle.companyInformation}>
+                {job.companies?.logo && (
+                  <img
+                    src={job.companies.logo}
+                    alt={job.companies.name + " logo"}
+                    style={{
+                      width: "80px",
+                      height: "80px",
+                      objectFit: "contain",
+                    }}
+                  />
+                )}
+                <span>{job.companies?.name}</span>
+              </div>
+              <div className={jobStyle.jobDetails}>
+                <h2>{job.title}</h2>
+                <p>
+                  <strong>Location:</strong> {job.place_of_assignment}
+                </p>
+                <p>
+                  <strong>Sex:</strong> {job.sex}
+                </p>
+                <p>
+                  <strong>Education:</strong> {job.education}
+                </p>
+                <p>
+                  <strong>Eligibility:</strong> {job.eligibility}
+                </p>
+                <p>
+                  <strong>Posted:</strong>{" "}
+                  {job.posted_date
+                    ? new Date(job.posted_date).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })
+                    : "No date"}
+                </p>
+              </div>
+
+              {/* Withdraw Button - Only show if user has applied */}
+              {hasApplied && (
+                <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
+                  <Button
+                    variant="danger"
+                    onClick={handleWithdrawClick}
+                    style={{ width: "100%" }}
+                  >
+                    Withdraw Application
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Application Details with Tabs */}
+            <div className={jobStyle.applicationDetails}>
+              <ul className={jobStyle.applicationNav}>
+                <li
+                  className={
+                    activeTab === "previewResume" ? jobStyle.active : ""
+                  }
+                  onClick={() => handleTabChange("previewResume")}
+                >
+                  Preview Resume
+                </li>
+                <li
+                  className={activeTab === "exam" ? jobStyle.active : ""}
+                  onClick={() => handleTabChange("exam")}
+                >
+                  Exam
+                </li>
+                <li
+                  className={activeTab === "verifiedId" ? jobStyle.active : ""}
+                  onClick={() => handleTabChange("verifiedId")}
+                >
+                  Verified ID
+                </li>
+              </ul>
+
+              {/* Tab Content - All tabs rendered but hidden to cache resume */}
+              <div className={jobStyle.tabContentContainer}>
+                <div
+                  style={{
+                    display: activeTab === "previewResume" ? "block" : "none",
+                  }}
+                >
+                  <ResumePreviewTab
+                    hasApplied={hasApplied}
+                    onContinueToExam={onContinueToExam}
+                  />
+                </div>
+
+                <div
+                  style={{ display: activeTab === "exam" ? "block" : "none" }}
+                >
+                  <ExamTab
+                    loadingAttempt={loadingAttempt}
+                    loadingExam={loadingExam}
+                    examAttempt={examAttempt}
+                    examData={examData}
+                    hasApplied={hasApplied}
+                    onExamSubmit={onExamSubmit}
+                  />
+                </div>
+
+                <div
+                  style={{
+                    display: activeTab === "verifiedId" ? "block" : "none",
+                  }}
+                >
+                  <VerifiedIdTab
+                    jobId={job.id}
+                    hasApplied={hasApplied}
+                    examAttempt={examAttempt}
+                    progress={progress}
+                    onIdUploaded={onIdUploaded}
+                    onSubmitFinalApplication={onSubmitFinalApplication}
+                    onGoToExam={() => handleTabChange("exam")}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Withdraw Confirmation Modal */}
+      {showWithdrawModal && (
+        <WithdrawConfirmModal
+          jobTitle={job.title}
+          companyName={job.companies?.name || ""}
+          onConfirm={handleWithdrawConfirm}
+          onCancel={handleWithdrawCancel}
+          isLoading={isWithdrawing}
+        />
+      )}
+    </>
+  );
+};
+
+export default ApplicationModal;

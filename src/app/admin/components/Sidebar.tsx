@@ -4,36 +4,15 @@ import React, { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import styles from "@/app/admin/Admin.module.css";
 import { getAdminProfileAction } from "@/app/admin/actions/admin.actions";
-
-interface AdminProfile {
-  id: number;
-  name: string;
-  is_superadmin: boolean;
-  auth_id: string;
-  email?: string;
-}
+import { AdminProfile } from "@/lib/types";
+import { useSuperAdmin } from "@/app/admin/hooks/useSuperAdmin";
 
 const Sidebar = () => {
   const [openMenus, setOpenMenus] = useState<string[]>([]);
-  const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  // const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null);
   const pathname = usePathname();
   const router = useRouter();
-
-  useEffect(() => {
-    const fetchAdminProfile = async () => {
-      try {
-        const profile = await getAdminProfileAction();
-        setAdminProfile(profile);
-      } catch (error) {
-        console.error("Error fetching admin profile:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAdminProfile();
-  }, []);
+  const { loading, isSuperAdmin } = useSuperAdmin();
 
   const handleToggle = (key: string) => {
     setOpenMenus((openMenus) =>
@@ -43,17 +22,21 @@ const Sidebar = () => {
     );
   };
 
-  const isSuperAdmin = adminProfile?.is_superadmin ?? false;
-
   if (loading) {
     return (
-      <section className={styles.sideBar}>
-        <div className={styles.sideBarPeso}>
-          <img src="/assets/pesoLogo.png" alt="PESO" />
-          <span>PESO</span>
-        </div>
-      </section>
+      // <section className={styles.sideBar}>
+      //   <div className={styles.sideBarPeso}>
+      //     <img src="/assets/pesoLogo.png" alt="PESO" />
+      //     <span>PESO</span>
+      //   </div>
+      // </section>
+      null
     );
+  }
+
+  // Super Admin Only - Manage Staff - Sidebar has no use, therefore nothing should be returned
+  if (isSuperAdmin) {
+    return null;
   }
 
   return (

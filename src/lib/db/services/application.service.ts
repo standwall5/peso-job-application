@@ -1,4 +1,7 @@
 // Application service
+// Functions: getUserApplications: used in /profile, submitApplication: used at the end of jobs, updateApplicationStatus, getApplicationProgress, getApplicantAppliedJobs, withdrawApplication
+//
+//
 "use server";
 
 import { getSupabaseClient, getCurrentUser } from "../client";
@@ -255,4 +258,69 @@ export async function getApplicantAppliedJobs(applicantId: number) {
     console.error("Error fetching applied jobs:", error);
     throw error;
   }
+}
+
+export async function withdrawApplication(jobId: number) {
+  const supabase = await getSupabaseClient();
+  const user = await getCurrentUser();
+
+  // Get applicant ID
+  const { data: applicant } = await supabase
+    .from("applicants")
+    .select("id, name")
+    .eq("auth_id", user.id)
+    .single();
+
+  if (!applicant) {
+    throw new Error("Applicant not found");
+  }
+
+  // Get the application with job details
+  const { data: application, error: fetchError } = await supabase
+    .from("applications")
+    .select(
+      `
+      *,
+      jobs (
+        title,
+        companies (name)
+      )
+    `,
+    )
+    .eq("applicant_id", applicant.id)
+    .eq("job_id", jobId)
+    .single();
+
+  if (fetchError || !application) {
+    throw new Error("Application not found");
+  }
+
+  // Check if application can be withdrawn (only Pending applications)
+  if (application.status !== "Pending" && application.status !== "pending") {
+    throw new Error(
+      `Cannot withdraw application with status: ${application.status}. Only pending applications can be withdrawn.`,
+    );
+  }
+
+  // Delete the application
+  const { error: deleteError } = await supabase
+    .from("applications")
+    .delete()
+    .eq("id", application.id);
+
+  if (deleteError) {
+    throw new Error(deleteError.message);
+  }
+
+  // Delete application progress if exists
+  await supabase
+    .from("application_progress")
+    .delete()
+    .eq("applicant_id", applicant.id)
+    .eq("job_id", jobId);
+
+  return {
+    success: true,
+    message: "Application withdrawn successfully",
+  };
 }

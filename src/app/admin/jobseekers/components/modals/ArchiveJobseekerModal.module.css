@@ -1,0 +1,133 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal {
+    background: white;
+    border-radius: 1rem;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #1e293b;
+    font-weight: 700;
+}
+
+.content {
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    text-align: center;
+}
+
+.warningIcon {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background: #fef2f2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #dc2626;
+}
+
+.icon {
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+.message {
+    font-size: 1.1rem;
+    color: #334155;
+    margin: 0;
+    line-height: 1.6;
+}
+
+.message strong {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.infoBox {
+    width: 100%;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    text-align: left;
+}
+
+.infoTitle {
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 0.75rem 0;
+    font-size: 0.95rem;
+}
+
+.infoList {
+    margin: 0;
+    padding-left: 1.25rem;
+    color: #64748b;
+    font-size: 0.9rem;
+    line-height: 1.8;
+}
+
+.infoList li {
+    margin-bottom: 0.5rem;
+}
+
+.actions {
+    padding: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.actions button {
+    min-width: 120px;
+}

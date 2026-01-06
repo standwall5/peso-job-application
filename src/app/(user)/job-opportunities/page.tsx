@@ -2,10 +2,12 @@
 import React, { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
+import { useSearchParams } from "next/navigation";
 import PublicCompanyList from "./components/PublicCompanyList";
-import PrivateCompanyList from "./components/PrivateCompanyList";
+import PrivateCompanyListWithRecommendations from "./components/PrivateCompanyListWithRecommendations";
 
 const Companies = () => {
+  const searchParams = useSearchParams();
   const [user, setUser] = useState<User | null>(null);
   const [search, setSearch] = useState("");
   const supabase = createClient();
@@ -16,18 +18,24 @@ const Companies = () => {
     });
   }, []);
 
-  // Placeholder components - replace with your actual components
+  // Get search query from URL parameters
+  useEffect(() => {
+    const searchQuery = searchParams.get("search");
+    if (searchQuery) {
+      setSearch(searchQuery);
+    }
+  }, [searchParams]);
 
-  // In your job/company page
   if (!user) {
-    // Show public view
     return (
       <PublicCompanyList searchParent={search} onSearchChange={setSearch} />
     );
   } else {
-    // Show logged-in view
     return (
-      <PrivateCompanyList searchParent={search} onSearchChange={setSearch} />
+      <PrivateCompanyListWithRecommendations
+        searchParent={search}
+        onSearchChange={setSearch}
+      />
     );
   }
 };

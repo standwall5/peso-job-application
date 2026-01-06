@@ -9,11 +9,17 @@ import { getApplicantAppliedJobs } from "@/lib/db/services/application.service";
 interface JobseekerTableProps {
   applications: Application[];
   onViewDetails: (application: Application) => void;
+  sortBy: string;
+  setSortBy: (sort: string) => void;
+  onArchive?: (application: Application) => void;
 }
 
 const JobseekerTable: React.FC<JobseekerTableProps> = ({
   applications,
   onViewDetails,
+  sortBy,
+  setSortBy,
+  onArchive,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedApplicantId, setExpandedApplicantId] = useState<number | null>(
@@ -137,18 +143,79 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
     );
   }
 
+  const handleHeaderClick = (sortKey: string) => {
+    setSortBy(sortKey);
+  };
+
+  const getSortIcon = (sortKey: string) => {
+    if (sortBy !== sortKey) {
+      return (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={2}
+          stroke="currentColor"
+          style={{ width: "16px", height: "16px", opacity: 0.3 }}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
+          />
+        </svg>
+      );
+    }
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={2}
+        stroke="currentColor"
+        style={{ width: "16px", height: "16px", color: "var(--accent)" }}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3"
+        />
+      </svg>
+    );
+  };
+
   return (
     <div className={styles.jobseekersTable}>
       <div className={styles.tableHeader}>
         <div className={styles.jobseekersDetailsHeader}>
           <div style={{ width: "5.8rem" }}></div>
-          <div>FULL NAME</div>
-          <div>TYPE OF APPLICANT</div>
-          <div>PLACE OF ASSIGNMENT</div>
-          <div>DATE APPLIED</div>
+          <div
+            className={styles.sortableHeader}
+            onClick={() => handleHeaderClick("name")}
+          >
+            FULL NAME {getSortIcon("name")}
+          </div>
+          <div
+            className={styles.sortableHeader}
+            onClick={() => handleHeaderClick("type")}
+          >
+            TYPE OF APPLICANT {getSortIcon("type")}
+          </div>
+          <div
+            className={styles.sortableHeader}
+            onClick={() => handleHeaderClick("place")}
+          >
+            PLACE OF ASSIGNMENT {getSortIcon("place")}
+          </div>
+          <div
+            className={styles.sortableHeader}
+            onClick={() => handleHeaderClick("date")}
+          >
+            DATE APPLIED {getSortIcon("date")}
+          </div>
         </div>
         <div>ACTIONS</div>
-        <div>SELECT</div>
+        <div>ARCHIVE</div>
       </div>
 
       {currentApplications.map((app) => (
@@ -212,13 +279,30 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
                 View Details
               </button>
             </div>
-            <div className={styles.checkbox}>
-              <input
-                type="checkbox"
-                checked={app.selected}
-                readOnly
-                onClick={(e) => e.stopPropagation()}
-              />
+            <div className={styles.archiveCell}>
+              <button
+                className={styles.archiveBtn}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onArchive?.(app);
+                }}
+                title="Archive jobseeker"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  style={{ width: "20px", height: "20px" }}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0-3-3m3 3 3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
 

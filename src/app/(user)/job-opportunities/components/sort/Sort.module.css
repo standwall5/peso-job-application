@@ -1,0 +1,102 @@
+.sortContainer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+}
+
+.sortLabel {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1e293b;
+    font-family: var(--font-geist), sans-serif;
+}
+
+.sortSelectWrapper {
+    position: relative;
+    display: inline-block;
+    min-width: 220px;
+}
+
+/* Custom arrow icon */
+.sortSelectWrapper::after {
+    content: "▼";
+    position: absolute;
+    right: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    pointer-events: none;
+    font-size: 0.75rem;
+    transition: color 0.25s ease;
+}
+
+.sortSelectWrapper:hover::after {
+    color: var(--button);
+}
+
+.sortSelect {
+    width: 100%;
+    padding: 0.75rem 3rem 0.75rem 1.25rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    background: white
+        url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")
+        no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.25rem;
+    font-size: 0.875rem;
+    color: #1e293b;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    outline: none;
+    font-family: var(--font-geist), sans-serif;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+    /* Remove default appearance */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Remove default arrow in IE */
+.sortSelect::-ms-expand {
+    display: none;
+}
+
+.sortSelect:hover {
+    border-color: rgba(52, 152, 219, 0.3);
+    box-shadow: 0 8px 24px rgba(52, 152, 219, 0.15);
+    transform: translateY(-2px);
+}
+
+.sortSelect:focus {
+    border-color: var(--accent);
+    box-shadow:
+        rgba(128, 231, 177, 0.3) 0px 6px 24px 0px,
+        rgba(128, 231, 177, 0.5) 0px 0px 0px 2px,
+        0 0 0 4px rgba(128, 231, 177, 0.1);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .sortContainer {
+        gap: 0.75rem;
+    }
+
+    .sortSelectWrapper {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .sortSelect {
+        font-size: 0.8125rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .sortLabel {
+        font-size: 0.8125rem;
+    }
+}

@@ -80,7 +80,13 @@ export async function updateSession(request: NextRequest) {
     // Redirect applicant away from /admin
     if (!pesoUser && pathname.startsWith("/admin")) {
       const url = request.nextUrl.clone();
-      url.pathname = "/";
+      url.pathname = "/job-opportunities";
+      return NextResponse.redirect(url);
+    }
+
+    if (!pesoUser && pathname === "/") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/job-opportunities";
       return NextResponse.redirect(url);
     }
 

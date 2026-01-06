@@ -3,6 +3,7 @@ import React from "react";
 import Button from "@/components/Button";
 import styles from "../Profile.module.css";
 import { User, WorkExperience } from "../../types/profile.types";
+import { SkillsAutocomplete } from "../SkillsAutocomplete";
 
 interface ResumeEditSectionProps {
   user: User | null;
@@ -20,7 +21,6 @@ interface ResumeEditSectionProps {
   editEducationEndDate: string;
   editIntroduction: string;
   skills: string[];
-  newSkill: string;
   workExperiences: WorkExperience[];
   onCancel: () => void;
   onSave: (e: React.FormEvent) => void;
@@ -38,7 +38,6 @@ interface ResumeEditSectionProps {
   setEditEducationEndDate: (value: string) => void;
   setEditIntroduction: (value: string) => void;
   setSkills: (skills: string[]) => void;
-  setNewSkill: (value: string) => void;
   setWorkExperiences: (experiences: WorkExperience[]) => void;
 }
 
@@ -58,7 +57,6 @@ export const ResumeEditSection: React.FC<ResumeEditSectionProps> = ({
   editEducationEndDate,
   editIntroduction,
   skills,
-  newSkill,
   workExperiences,
   onCancel,
   onSave,
@@ -76,7 +74,6 @@ export const ResumeEditSection: React.FC<ResumeEditSectionProps> = ({
   setEditEducationEndDate,
   setEditIntroduction,
   setSkills,
-  setNewSkill,
   setWorkExperiences,
 }) => {
   return (
@@ -446,46 +443,11 @@ export const ResumeEditSection: React.FC<ResumeEditSectionProps> = ({
 
       <div>
         <label>Skills</label>
-        <div className={`${styles.row} ${styles.skillsRow}`}>
-          {skills.map((skill: string, idx: number) => (
-            <span key={idx} style={{ marginRight: "-1rem" }}>
-              {skill}
-              <button
-                type="button"
-                onClick={() => setSkills(skills.filter((_, i) => i !== idx))}
-                style={{ marginLeft: 4 }}
-              >
-                ×
-              </button>
-            </span>
-          ))}
-          <input
-            type="text"
-            name="skills"
-            value={newSkill}
-            placeholder="Add Skills"
-            onChange={(e) => setNewSkill(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && newSkill.trim()) {
-                setSkills([...skills, newSkill.trim()]);
-                setNewSkill("");
-                e.preventDefault();
-              }
-            }}
-          />
-          <Button
-            type="button"
-            onClick={() => {
-              if (newSkill.trim()) {
-                setSkills([...skills, newSkill.trim()]);
-                setNewSkill("");
-              }
-            }}
-            variant="success"
-          >
-            +
-          </Button>
-        </div>
+        <SkillsAutocomplete
+          selectedSkills={skills}
+          onSkillsChange={setSkills}
+          placeholder="Type to search and add skills..."
+        />
       </div>
 
       <div>

@@ -1,16 +1,4 @@
 .jobCard {
-    /* OLD STYLES (commented for reference):
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-radius: 8px;
-    background: #fff;
-    box-shadow:
-        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
-        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
-    gap: 2rem;
-    font-size: 12px;
-    */
-
     /* NEW MODERN STYLES (OPTIMIZED FOR PERFORMANCE): */
     padding: 1.5rem;
     margin-bottom: 0;
@@ -29,6 +17,7 @@
     border: 1px solid rgba(52, 152, 219, 0.1);
     height: auto;
     min-height: 20rem;
+    max-height: 20rem;
     gap: 1rem;
     cursor: pointer;
     font-size: 13px;
@@ -182,17 +171,29 @@
     margin: 0;
 }
 
+.listHeader {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .section {
     display: flex;
     flex-direction: column;
     width: 100%;
+    max-width: 1600px;
     justify-content: center;
-    align-items: center;
-    /* height: 80vh; */
+    align-items: flex-start;
+    justify-self: center;
+    align-self: flex-start;
+    min-height: 100%;
+    margin: 1rem auto;
+    padding: 0 2rem;
 }
 
 .section a {
-    text-decoration: none;
+    text-decoration: none !important;
     color: black;
 }
 
@@ -333,7 +334,6 @@
     grid-template-columns: repeat(4, 1fr); /* 5 columns */
     gap: 1.75rem;
     width: 100%;
-    margin-top: 2rem;
 }
 
 /* NEW: Company info section styling */
@@ -372,7 +372,8 @@
 /* Mobile Media Queries */
 @media (max-width: 768px) {
     .section {
-        width: 95%;
+        width: 100%;
+        padding: 0 1rem;
     }
 
     .welcomeSearch {

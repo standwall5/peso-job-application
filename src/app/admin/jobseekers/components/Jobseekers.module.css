@@ -810,3 +810,125 @@
         overflow-x: hidden;
     }
 }
+
+/* Sortable Header Styles */
+.sortableHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s ease;
+}
+
+.sortableHeader:hover {
+    color: var(--accent);
+}
+
+/* Archive Button Styles */
+.archiveCell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.archiveBtn {
+    padding: 0.5rem;
+    background: transparent;
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #dc2626;
+}
+
+.archiveBtn:hover {
+    background: #fef2f2;
+    border-color: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+}
+
+.archiveBtn:active {
+    transform: translateY(0);
+}
+
+/* Tabs Styles */
+.tabs {
+    display: flex;
+    gap: 0.5rem;
+    width: 90%;
+    margin: 0 2rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.tab {
+    padding: 1rem 1.5rem;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #64748b;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+    bottom: -2px;
+}
+
+.tab:hover {
+    color: var(--accent);
+    background: rgba(52, 152, 219, 0.05);
+}
+
+.activeTab {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+.tabCount {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0 0.5rem;
+    background: rgba(52, 152, 219, 0.1);
+    border-radius: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.activeTab .tabCount {
+    background: var(--accent);
+    color: white;
+}
+
+/* Archived View Styles */
+.archivedView {
+    width: 90%;
+    margin: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 40vh;
+}
+
+.archivedView .notFound {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.archivedView .notFound p {
+    color: #94a3b8;
+    font-size: 0.95rem;
+    margin: 0;
+}

@@ -378,6 +378,281 @@
     font-weight: 700;
 }
 
+/* Add these styles at the end of your existing CSS */
+
+/* View Mode Styles */
+.viewHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+}
+
+.uploadDate {
+    margin: 0.25rem 0 0 0;
+    color: #94a3b8;
+    font-size: 0.8125rem;
+}
+
+.viewGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.viewCard {
+    background: white;
+    border-radius: 1rem;
+    padding: 1rem;
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    transition: all 0.25s ease;
+}
+
+.viewCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(52, 152, 219, 0.15);
+    border-color: rgba(52, 152, 219, 0.3);
+}
+
+.viewLabel {
+    margin-bottom: 0.75rem;
+    color: #64748b;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.viewImageWrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 65%;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    cursor: pointer;
+    background: #f1f5f9;
+}
+
+.viewImage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.25s ease;
+}
+
+.viewOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.viewOverlay span {
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.viewImageWrapper:hover .viewImage {
+    transform: scale(1.05);
+}
+
+.viewImageWrapper:hover .viewOverlay {
+    opacity: 1;
+}
+
+.editNote {
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.25rem;
+    background: #fffdf1;
+    border: 1px solid rgba(249, 115, 22, 0.2);
+    border-radius: 1rem;
+    color: #92400e;
+    font-size: 0.8125rem;
+}
+
+.editNote p {
+    margin: 0;
+}
+
+.editNote strong {
+    font-weight: 600;
+}
+
+/* Submit Section */
+.submitSection {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--accent) 85%, transparent),
+        color-mix(in srgb, var(--button) 70%, transparent)
+    );
+    border-radius: 1rem;
+    border: 1px solid rgba(128, 231, 177, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+}
+
+.submitInfo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-align: center;
+}
+
+.checkIcon {
+    width: 48px;
+    height: 48px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.submitInfo h3 {
+    margin: 0 0 0.25rem 0;
+    color: white;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.submitInfo p {
+    margin: 0;
+    color: white;
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+/* Image Modal */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.2s ease;
+    padding: 2rem;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    animation: slideInModal 0.25s ease;
+}
+
+@keyframes slideInModal {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.modalImage {
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 1rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+.closeButton {
+    position: absolute;
+    top: -3rem;
+    right: 0;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #1e293b;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.closeButton:hover {
+    transform: scale(1.1);
+    background: #f1f5f9;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .viewHeader {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .viewGrid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .submitSection {
+        padding: 1.25rem;
+    }
+
+    .submitInfo {
+        flex-direction: column;
+    }
+
+    .checkIcon {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .submitSection button {
+        width: 100%;
+    }
+
+    .modalOverlay {
+        padding: 1rem;
+    }
+
+    .closeButton {
+        top: -2.5rem;
+        width: 36px;
+        height: 36px;
+        font-size: 1.25rem;
+    }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .title {

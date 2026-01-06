@@ -26,6 +26,18 @@ export const ProfileNavigation: React.FC<ProfileNavigationProps> = ({
       >
         Applied Jobs
       </li>
+      <li
+        className={activeTab === "inProgress" ? styles.active : ""}
+        onClick={() => onTabChange("inProgress")}
+      >
+        In Progress
+      </li>
+      <li
+        className={activeTab === "viewId" ? styles.active : ""}
+        onClick={() => onTabChange("viewId")}
+      >
+        View ID
+      </li>
     </ul>
   );
 };

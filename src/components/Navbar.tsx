@@ -1,5 +1,5 @@
 "use client";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -103,6 +103,7 @@ interface ApplicantUser {
 }
 
 const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
+  const router = useRouter();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [userLoggedIn, setUserLoggedIn] = useState();
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -113,8 +114,14 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
   const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const searchRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   const settingsRef = useRef<HTMLDivElement>(null);
+
+  // Check if we're on job-opportunities page
+  const isJobOpportunitiesPage =
+    props.pathname === "/job-opportunities" ||
+    props.pathname.startsWith("/job-opportunities/");
 
   useEffect(() => {
     async function fetchAll() {
@@ -135,10 +142,7 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        searchRef.current &&
-        !searchRef.current.contains(event.target as Node)
-      ) {
+      if (formRef.current && !formRef.current.contains(event.target as Node)) {
         setShowDropdown(false);
       }
       if (
@@ -166,6 +170,16 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
       job.description.toLowerCase().includes(search.toLowerCase()),
   );
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (search.trim()) {
+      router.push(
+        `/job-opportunities?search=${encodeURIComponent(search.trim())}`,
+      );
+      setShowDropdown(false);
+    }
+  };
+
   return (
     <nav className={styles.privateNav}>
       <div className="nav-container-simple">
@@ -175,83 +189,93 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
               <Image src={PesoLogo} alt="PESO Logo" className="peso-logo" />
             </Link>
           </li>
-          <li>
-            <div className={styles.searchContainer} ref={searchRef}>
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setSearch(value);
-                  setShowDropdown(
-                    value !== "" &&
-                      jobs.some(
-                        (job) =>
-                          job.title
-                            .toLowerCase()
-                            .includes(value.toLowerCase()) ||
-                          job.description
-                            .toLowerCase()
-                            .includes(value.toLowerCase()),
-                      ),
-                  );
-                }}
-                onFocus={(e) => {
-                  setShowDropdown(
-                    e.target.value !== "" && searchResults.length > 0,
-                  );
-                }}
-                placeholder="location, company, job-title, category of job"
-              />
-              <Link href={`/search/${search}`} className={styles.searchIcon}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="white"
-                  className="size-4"
+          {!isJobOpportunitiesPage && (
+            <li>
+              <form
+                onSubmit={handleSearch}
+                className={styles.searchContainer}
+                ref={formRef}
+              >
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setSearch(value);
+                    setShowDropdown(
+                      value !== "" &&
+                        jobs.some(
+                          (job) =>
+                            job.title
+                              .toLowerCase()
+                              .includes(value.toLowerCase()) ||
+                            job.description
+                              .toLowerCase()
+                              .includes(value.toLowerCase()),
+                        ),
+                    );
+                  }}
+                  onFocus={(e) => {
+                    setShowDropdown(
+                      e.target.value !== "" && searchResults.length > 0,
+                    );
+                  }}
+                  placeholder="Search jobs and companies..."
+                />
+                <button
+                  type="submit"
+                  className={styles.searchIcon}
+                  onClick={handleSearch}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-                  />
-                </svg>
-              </Link>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="white"
+                    className="size-4"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                    />
+                  </svg>
+                </button>
 
-              <div className={styles.searchDropdown}>
-                <Dropdown isOpen={showDropdown} position="left">
-                  {searchResults.map((job) => (
-                    <DropdownItem
-                      key={job.id}
-                      href={`/search/${job.title.toLowerCase()}`}
-                      icon={
-                        job.companies?.logo ? (
-                          <img
-                            src={job.companies.logo}
-                            alt={job.companies.name + " logo"}
-                            style={{
-                              width: 24,
-                              height: 24,
-                              objectFit: "contain",
-                            }}
-                          />
-                        ) : undefined
-                      }
-                    >
-                      <strong>{job.title}</strong>
-                      {job.companies?.name && (
-                        <span style={{ marginLeft: 8, color: "#888" }}>
-                          &mdash; {job.companies.name}
-                        </span>
-                      )}
-                    </DropdownItem>
-                  ))}
-                </Dropdown>
-              </div>
-            </div>
-          </li>
+                <div className={styles.searchDropdown}>
+                  <Dropdown isOpen={showDropdown} position="left">
+                    {searchResults.slice(0, 5).map((job) => (
+                      <DropdownItem
+                        key={job.id}
+                        href={`/job-opportunities?search=${encodeURIComponent(job.title)}`}
+                        icon={
+                          job.companies?.logo ? (
+                            <img
+                              src={job.companies.logo}
+                              alt={job.companies.name + " logo"}
+                              style={{
+                                width: 24,
+                                height: 24,
+                                objectFit: "contain",
+                              }}
+                            />
+                          ) : undefined
+                        }
+                      >
+                        <strong>{job.title}</strong>
+                        {job.companies?.name && (
+                          <span style={{ marginLeft: 8, color: "#888" }}>
+                            &mdash; {job.companies.name}
+                          </span>
+                        )}
+                      </DropdownItem>
+                    ))}
+                  </Dropdown>
+                </div>
+              </form>
+            </li>
+          )}
 
           {/* Icons -- add selected states -- Done*/}
           <li>

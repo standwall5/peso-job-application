@@ -58,7 +58,6 @@ const ManageAdminList = () => {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1>Manage Admins</h1>
         <p>
           View and manage all PESO admin accounts. Edit details, reset
           passwords, or deactivate accounts.

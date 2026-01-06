@@ -1,0 +1,142 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10001;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal {
+    background: white;
+    border-radius: 1.25rem;
+    padding: 1.5rem;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    animation: slideIn 0.25s ease;
+    position: relative;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.header {
+    margin-bottom: 1.5rem;
+}
+
+.header h2 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-family: var(--font-poppins-sans, sans-serif);
+}
+
+.content {
+    margin-bottom: 1.75rem;
+    text-align: center;
+}
+
+.warningIcon {
+    width: 64px;
+    height: 64px;
+    color: #f59e0b;
+    margin: 0 auto 1rem;
+    stroke-width: 1.5;
+}
+
+.content p {
+    margin: 0.75rem 0;
+    color: #64748b;
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+.warning {
+    font-size: 0.8125rem;
+    color: #dc2626;
+    font-weight: 500;
+    margin-top: 1rem;
+}
+
+.actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.actions button {
+    min-width: 140px;
+    transition: all 0.25s ease;
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+    .modal {
+        padding: 1.25rem;
+        max-width: 90%;
+    }
+
+    .actions button {
+        min-width: 120px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .modal {
+        padding: 1rem;
+        width: 95%;
+    }
+
+    .header h2 {
+        font-size: 1.25rem;
+    }
+
+    .warningIcon {
+        width: 48px;
+        height: 48px;
+    }
+
+    .content p {
+        font-size: 0.8125rem;
+    }
+
+    .warning {
+        font-size: 0.75rem;
+    }
+
+    .actions {
+        flex-direction: column-reverse;
+        gap: 0.75rem;
+    }
+
+    .actions button {
+        width: 100%;
+        min-width: unset;
+    }
+}

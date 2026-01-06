@@ -7,8 +7,8 @@ import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import Button from "@/components/Button";
 import { Job } from "../types/job.types";
-
-// TODO: implement login redirect when clicking apply; remove modal
+import SortJobs, { JobSortOption } from "../components/sort/SortJobs";
+import { sortJobs } from "../utils/sortJobs";
 
 const PublicJobList = () => {
   const params = useParams();
@@ -17,29 +17,7 @@ const PublicJobList = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [search, setSearch] = useState("");
   const [loginModal, setLoginModal] = useState(false);
-  // const [loginModal, setLoginModal] = useState<any | null>(null);
-  // const [applicationSelect, setApplicationSelect] = useState("previewResume");
-
-  // useEffect(() => {
-  //   async function fetchData() {
-  //     const response = await fetch(
-  //       `http://localhost:5000/jobs?companyId=${companyId}&_expand=company`,
-  //       {
-  //         method: "GET",
-  //         cache: "no-store",
-  //       }
-  //     );
-  //     const data = await response.json();
-  //     setJobs(data);
-  //   }
-  //   if (companyId) fetchData();
-  // }, [companyId]);
-
-  // const filteredJobs = jobs.filter(
-  //   (job) =>
-  //     job.title.toLowerCase().includes(search.toLowerCase()) ||
-  //     job.description.toLowerCase().includes(search.toLowerCase())
-  // );
+  const [sortOption, setSortOption] = useState<JobSortOption>("recent");
 
   useEffect(() => {
     async function fetchData() {
@@ -51,7 +29,6 @@ const PublicJobList = () => {
         .eq("company_id", companyId);
 
       if (error) {
-        // handle error (optional)
         setJobs([]);
         return;
       }
@@ -66,11 +43,16 @@ const PublicJobList = () => {
       job.description.toLowerCase().includes(search.toLowerCase()),
   );
 
+  const sortedJobs = sortJobs(filteredJobs, sortOption);
+
   return (
     <section className={styles.section}>
+      <div className={styles.sort}>
+        <SortJobs currentSort={sortOption} onSortChange={setSortOption} />
+      </div>
       <div className={styles.jobList}>
-        {filteredJobs.length > 0 ? (
-          filteredJobs.map((job) => (
+        {sortedJobs.length > 0 ? (
+          sortedJobs.map((job) => (
             <div
               key={job.id}
               className={`${styles.jobCard} ${jobStyle.jobSpecificCard}`}
@@ -100,11 +82,13 @@ const PublicJobList = () => {
                 <p>{job.education}</p>
                 <p>{job.eligibility}</p>
                 <p>
-                  {new Date(job.posted_date).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
+                  {job.posted_date
+                    ? new Date(job.posted_date).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })
+                    : "No date"}
                 </p>
 
                 <Button variant="success">Apply</Button>

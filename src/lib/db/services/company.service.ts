@@ -185,3 +185,39 @@ export async function uploadCompanyLogo(companyId: number, file: File) {
 
   return urlData.publicUrl;
 }
+
+export async function archiveCompany(id: number) {
+  const supabase = await getSupabaseClient();
+  await getCurrentUser(); // Ensure authenticated admin
+
+  const { data, error } = await supabase
+    .from("companies")
+    .update({ is_active: false })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as Company;
+}
+
+export async function restoreCompany(id: number) {
+  const supabase = await getSupabaseClient();
+  await getCurrentUser(); // Ensure authenticated admin
+
+  const { data, error } = await supabase
+    .from("companies")
+    .update({ is_active: true })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as Company;
+}

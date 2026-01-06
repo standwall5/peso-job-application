@@ -1,0 +1,399 @@
+.container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 2rem;
+}
+
+.card {
+    background: white;
+    border-radius: 1.25rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    padding: 3rem 2.5rem;
+    max-width: 600px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    text-align: center;
+    animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.card h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+}
+
+.card h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+    align-self: flex-start;
+}
+
+.card h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 0.5rem 0;
+}
+
+.card p {
+    font-size: 0.9375rem;
+    color: #64748b;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Loading Spinner */
+.spinner {
+    width: 4rem;
+    height: 4rem;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner svg {
+    width: 100%;
+    height: 100%;
+    color: var(--accent);
+}
+
+.spinnerCircle {
+    opacity: 0.25;
+}
+
+.spinnerPath {
+    opacity: 0.75;
+}
+
+/* Success Icon */
+.iconSuccess {
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--accent) 20%, transparent),
+        color-mix(in srgb, var(--button) 15%, transparent)
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: scaleIn 0.5s ease;
+}
+
+@keyframes scaleIn {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.iconSuccess svg {
+    width: 2.5rem;
+    height: 2.5rem;
+    color: var(--accent);
+}
+
+/* Error Icon */
+.iconError {
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(5px);
+    }
+}
+
+.iconError svg {
+    width: 2.5rem;
+    height: 2.5rem;
+    color: #dc2626;
+}
+
+/* Messages */
+.successMessage {
+    font-size: 1rem !important;
+    color: var(--text) !important;
+    font-weight: 500;
+}
+
+.errorMessage {
+    font-size: 1rem !important;
+    color: #dc2626 !important;
+    font-weight: 500;
+}
+
+/* Final Steps Section */
+.finalSteps {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.stepBox {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    text-align: left;
+    padding: 1rem;
+    background: #f8fcff;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    transition: all 0.25s ease;
+}
+
+.stepBox:hover {
+    border-color: rgba(52, 152, 219, 0.3);
+    background: white;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
+}
+
+.stepNumber {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--button));
+    color: white;
+    font-weight: 700;
+    font-size: 0.9375rem;
+    flex-shrink: 0;
+}
+
+.stepBox p {
+    font-size: 0.875rem;
+    color: var(--text);
+    margin: 0;
+    padding-top: 0.25rem;
+    line-height: 1.6;
+}
+
+/* Note Box */
+.noteBox {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: #fffdf1;
+    border: 1px solid rgba(249, 115, 22, 0.2);
+    border-radius: 0.75rem;
+    text-align: left;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.noteBox svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    color: #f97316;
+    margin-top: 0.125rem;
+}
+
+.noteBox p {
+    font-size: 0.8125rem;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* Error Reasons */
+.errorReasons {
+    width: 100%;
+    text-align: left;
+    padding: 1rem 1.25rem;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 0.75rem;
+}
+
+.errorReasons h4 {
+    color: #dc2626;
+    font-size: 0.9375rem;
+    margin: 0 0 0.75rem 0;
+}
+
+.errorReasons ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    list-style: disc;
+}
+
+.errorReasons li {
+    font-size: 0.8125rem;
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+}
+
+.errorReasons li:last-child {
+    margin-bottom: 0;
+}
+
+/* Actions */
+.actions {
+    display: flex;
+    gap: 0.75rem;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.actions button {
+    flex: 1;
+}
+
+.card > button {
+    min-width: 200px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 1.5rem;
+    }
+
+    .card {
+        padding: 2rem 1.5rem;
+        border-radius: 1rem;
+    }
+
+    .card h2 {
+        font-size: 1.5rem;
+    }
+
+    .card h3 {
+        font-size: 1.1rem;
+    }
+
+    .card p {
+        font-size: 0.875rem;
+    }
+
+    .iconSuccess,
+    .iconError {
+        width: 4rem;
+        height: 4rem;
+    }
+
+    .iconSuccess svg,
+    .iconError svg {
+        width: 2rem;
+        height: 2rem;
+    }
+
+    .spinner {
+        width: 3.5rem;
+        height: 3.5rem;
+    }
+
+    .stepBox {
+        padding: 0.875rem;
+        gap: 0.75rem;
+    }
+
+    .stepNumber {
+        width: 1.75rem;
+        height: 1.75rem;
+        font-size: 0.875rem;
+    }
+
+    .stepBox p {
+        font-size: 0.8125rem;
+    }
+
+    .actions {
+        flex-direction: column-reverse;
+    }
+
+    .actions button {
+        width: 100%;
+    }
+
+    .card > button {
+        min-width: auto;
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .card {
+        padding: 1.5rem 1rem;
+    }
+
+    .card h2 {
+        font-size: 1.25rem;
+    }
+
+    .card h3 {
+        font-size: 1rem;
+    }
+
+    .card p {
+        font-size: 0.8125rem;
+    }
+
+    .noteBox,
+    .errorReasons {
+        padding: 0.875rem 1rem;
+    }
+
+    .noteBox p,
+    .errorReasons li {
+        font-size: 0.75rem;
+    }
+}

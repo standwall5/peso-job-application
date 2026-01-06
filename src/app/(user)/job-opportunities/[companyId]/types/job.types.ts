@@ -8,7 +8,13 @@ export interface Job {
   sex: string;
   education: string;
   eligibility: string;
-  posted_date: string;
+  posted_date: string | null;
+  company_id?: number;
+  manpower_needed?: number;
+  deadline?: string | null;
+  salary?: string | null;
+  status?: string;
+  skills?: string[];
   company?: {
     name: string;
     logo: string | null;

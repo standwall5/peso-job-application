@@ -1,0 +1,152 @@
+.panel {
+    position: sticky;
+    top: 2rem;
+    background: white;
+    border-radius: 1.25rem;
+    padding: 2rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border: 2px solid rgba(52, 152, 219, 0.15);
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 4rem;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1.25rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 2px solid rgba(52, 152, 219, 0.15);
+}
+
+.title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.count {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: rgba(52, 152, 219, 0.15);
+    padding: 0.35rem 0.65rem;
+    border-radius: 0.5rem;
+}
+
+.loading,
+.noJobs {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.jobsList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.jobItem {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    background: #f8fcff;
+    border-radius: 0.875rem;
+    border: 1px solid rgba(52, 152, 219, 0.15);
+    transition: all 0.2s ease;
+    text-decoration: none;
+    color: inherit;
+}
+
+.jobItem:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+    border-color: rgba(52, 152, 219, 0.3);
+    background: white;
+}
+
+.jobHeader {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+
+.companyLogo {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.5rem;
+    object-fit: contain;
+    background: white;
+    padding: 0.25rem;
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    flex-shrink: 0;
+}
+
+.jobInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.jobTitle {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 0.25rem 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.3;
+}
+
+.companyName {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin: 0 0 0.25rem 0;
+    font-weight: 500;
+}
+
+.location {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin: 0;
+}
+
+.viewMoreButton {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.viewMoreButton:hover {
+    background: var(--button);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+@media (max-width: 1024px) {
+    .panel {
+        position: relative;
+        top: 0;
+        max-height: none;
+        margin-top: 1.5rem;
+    }
+}

@@ -55,6 +55,7 @@ export interface Job {
   education: string;
   eligibility: string;
   posted_date: string;
+  exam_id?: number | null;
   companies: {
     name: string;
     logo: string | null;
@@ -71,4 +72,6 @@ export type ProfileTab =
   | "viewResume"
   | "editResume"
   | "applications"
+  | "inProgress"
+  | "viewId"
   | "settings";

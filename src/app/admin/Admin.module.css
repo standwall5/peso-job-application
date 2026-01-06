@@ -138,6 +138,18 @@
     cursor: pointer;
 }
 
+.superAdminText {
+    margin-right: auto;
+}
+
+.superAdminText p {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    color: var(--accent);
+    margin-bottom: 0;
+}
+
 .subMenu {
     max-height: 0;
     display: flex;

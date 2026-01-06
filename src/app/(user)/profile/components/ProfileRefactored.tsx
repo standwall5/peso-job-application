@@ -20,6 +20,8 @@ import { ProfileNavigation } from "./sections/ProfileNavigation";
 import { ResumeViewSection } from "./sections/ResumeViewSection";
 import { ResumeEditSection } from "./sections/ResumeEditSection";
 import { ApplicationsSection } from "./sections/ApplicationsSection";
+import { ViewIdSection } from "./sections/ViewIdSection";
+import { InProgressSection } from "./sections/InProgressSection";
 
 const Profile = () => {
   // Main data hooks
@@ -193,6 +195,10 @@ const Profile = () => {
           onSaveProfileDetails={handleProfileDetailsSave}
           setEditPreferredPoa={profileEditHook.setEditPreferredPoa}
           setEditApplicantType={profileEditHook.setEditApplicantType}
+          onDataRefresh={async () => {
+            await Promise.all([refreshUser(), refreshResume()]);
+            setShowEditSuccess(true);
+          }}
         />
 
         {/* Profile Options Section */}
@@ -234,6 +240,17 @@ const Profile = () => {
                 userApplications={userApplications}
               />
             )}
+
+            {/* In Progress Applications Section */}
+            {profileOptionsNav === "inProgress" && (
+              <InProgressSection
+                jobs={jobs}
+                userApplicationIds={userApplications.map((app) => app.job_id)}
+              />
+            )}
+
+            {/* View ID Section */}
+            {profileOptionsNav === "viewId" && <ViewIdSection />}
           </div>
         </div>
       </div>

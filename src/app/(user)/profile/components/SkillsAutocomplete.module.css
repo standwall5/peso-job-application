@@ -1,0 +1,242 @@
+.container {
+    width: 100%;
+    position: relative;
+}
+
+.skillsWrapper {
+    width: 100%;
+    min-height: 3rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.skillsWrapper:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+}
+
+.skillsTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    min-height: 0;
+}
+
+.skillTag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(52, 152, 219, 0.1);
+    color: var(--accent);
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 1px solid rgba(52, 152, 219, 0.2);
+    transition: all 0.2s ease;
+}
+
+.skillTag:hover {
+    background: rgba(52, 152, 219, 0.15);
+    border-color: rgba(52, 152, 219, 0.3);
+}
+
+.removeButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.removeButton:hover {
+    background: rgba(52, 152, 219, 0.2);
+    transform: scale(1.1);
+}
+
+.inputWrapper {
+    position: relative;
+    flex: 1;
+}
+
+.input {
+    width: 100%;
+    border: none;
+    outline: none;
+    padding: 0.5rem;
+    font-size: 1rem;
+    background: transparent;
+    min-height: 2rem;
+}
+
+.input::placeholder {
+    color: #94a3b8;
+}
+
+.dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    max-height: 20rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.dropdownHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.dropdownTitle {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.dropdownHint {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.dropdownList {
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem;
+    overflow-y: auto;
+    max-height: 18rem;
+}
+
+.dropdownItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-radius: 0.5rem;
+    transition: all 0.15s ease;
+    font-size: 0.95rem;
+    color: #1e293b;
+}
+
+.dropdownItem:hover,
+.dropdownItem.highlighted {
+    background: rgba(52, 152, 219, 0.08);
+    color: var(--accent);
+}
+
+.dropdownItem.highlighted {
+    background: rgba(52, 152, 219, 0.12);
+}
+
+.itemIcon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    opacity: 0.6;
+}
+
+.dropdownItem:hover .itemIcon,
+.dropdownItem.highlighted .itemIcon {
+    opacity: 1;
+}
+
+.helperText {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.85rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Scrollbar Styling */
+.dropdownList::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dropdownList::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+.dropdownList::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.dropdownList::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .skillsWrapper {
+        min-height: 2.5rem;
+        padding: 0.4rem;
+    }
+
+    .skillTag {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+    }
+
+    .input {
+        font-size: 0.9rem;
+        padding: 0.4rem;
+    }
+
+    .dropdown {
+        max-height: 16rem;
+    }
+
+    .dropdownList {
+        max-height: 14rem;
+    }
+
+    .dropdownItem {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.9rem;
+    }
+
+    .helperText {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .dropdownHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+
+    .dropdownHint {
+        font-size: 0.7rem;
+    }
+}
