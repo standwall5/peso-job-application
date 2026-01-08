@@ -8,11 +8,50 @@ import PublicCompanyList from "./components/PublicCompanyList";
 import PrivateCompanyListWithRecommendations from "./components/PrivateCompanyListWithRecommendations";
 import BlocksWave from "@/components/BlocksWave";
 
+interface Job {
+  id: number;
+  company_id: number;
+  manpower_needed?: number;
+  posted_date: string | null;
+}
+
+interface JobWithCompanyId {
+  id: number;
+  title: string;
+  description: string;
+  place_of_assignment: string;
+  sex: string;
+  education: string;
+  eligibility: string;
+  posted_date: string | null;
+  company_id: number;
+  manpower_needed?: number;
+  exam_id?: number | null;
+  companies: {
+    name: string;
+    logo: string | null;
+  };
+}
+
+interface Company {
+  id: number;
+  name: string;
+  logo: string | null;
+  industry: string;
+  location: string;
+  description: string;
+}
+
 export const CompaniesContent = () => {
   const searchParams = useSearchParams();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobsWithCompany, setJobsWithCompany] = useState<JobWithCompanyId[]>(
+    [],
+  );
   const supabase = createClient();
 
   useEffect(() => {
@@ -23,6 +62,29 @@ export const CompaniesContent = () => {
     };
 
     checkUser();
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data: companiesData } = await supabase
+        .from("companies")
+        .select("*")
+        .order("name");
+
+      const { data: jobsData } = await supabase
+        .from("jobs")
+        .select("id, company_id, manpower_needed, posted_date");
+
+      const { data: jobsWithCompanyData } = await supabase
+        .from("jobs")
+        .select("*, companies(name, logo)");
+
+      setCompanies(companiesData || []);
+      setJobs(jobsData || []);
+      setJobsWithCompany(jobsWithCompanyData || []);
+    };
+
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -50,14 +112,19 @@ export const CompaniesContent = () => {
 
   if (!user) {
     return (
-      <PublicCompanyList searchParent={search} onSearchChange={setSearch} />
+      <PublicCompanyList
+        initialCompanies={companies}
+        initialJobs={jobs}
+        searchParent={search}
+      />
     );
   }
 
   return (
     <PrivateCompanyListWithRecommendations
+      initialCompanies={companies}
+      initialJobs={jobsWithCompany}
       searchParent={search}
-      onSearchChange={setSearch}
     />
   );
 };
