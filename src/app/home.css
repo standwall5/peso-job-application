@@ -19,7 +19,7 @@ section {
     align-items: center;
     width: 65rem;
     height: 28rem;
-    background-color: var(--highlight);
+    background-color: #eaffee;
     border-radius: 1rem;
     box-shadow:
         rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,

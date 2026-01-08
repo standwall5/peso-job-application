@@ -28,13 +28,13 @@
 }
 
 .primary {
-    background: var(--button);
+    background: #7adaef;
     box-shadow: 0 2px 8px rgba(122, 218, 239, 0.3);
 }
 
 .primary:hover {
-    background: #448bc5;
-    box-shadow: 0 4px 12px rgba(68, 139, 197, 0.4);
+    background: #5bc4dc;
+    box-shadow: 0 4px 12px rgba(91, 196, 220, 0.4);
 }
 
 .primary:active {
