@@ -1,18 +1,25 @@
 // src/app/admin/manage-admin/components/modals/EditAdminModal.tsx
 
-import React from "react";
+import React, { useState } from "react";
 import styles from "../../ManageAdmin.module.css";
 import { AdminWithEmail, AdminStatus } from "../../types/admin.types";
+import ActionButton from "@/components/ActionButton";
 
 interface EditAdminModalProps {
   show: boolean;
   admin: AdminWithEmail | null;
   editName: string;
   setEditName: (name: string) => void;
+  editEmail: string;
+  setEditEmail: (email: string) => void;
   editStatus: AdminStatus;
   setEditStatus: (status: AdminStatus) => void;
   editIsSuperAdmin: boolean;
   setEditIsSuperAdmin: (isSuperAdmin: boolean) => void;
+  newPassword: string;
+  setNewPassword: (password: string) => void;
+  confirmPassword: string;
+  setConfirmPassword: (password: string) => void;
   actionLoading: boolean;
   onSave: () => void;
   onClose: () => void;
@@ -23,22 +30,39 @@ const EditAdminModal: React.FC<EditAdminModalProps> = ({
   admin,
   editName,
   setEditName,
+  editEmail,
+  setEditEmail,
   editStatus,
   setEditStatus,
   editIsSuperAdmin,
   setEditIsSuperAdmin,
+  newPassword,
+  setNewPassword,
+  confirmPassword,
+  setConfirmPassword,
   actionLoading,
   onSave,
   onClose,
 }) => {
+  const [showPasswordFields, setShowPasswordFields] = useState(false);
+
   if (!show || !admin) return null;
 
+  const handleClose = () => {
+    setShowPasswordFields(false);
+    onClose();
+  };
+
   return (
-    <div className={styles.modalOverlay} onClick={onClose}>
+    <div className={styles.modalOverlay} onClick={handleClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2>Edit Admin</h2>
-          <button className={styles.closeButton} onClick={onClose}>
+          <button
+            className={styles.closeButton}
+            onClick={handleClose}
+            disabled={actionLoading}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -56,6 +80,7 @@ const EditAdminModal: React.FC<EditAdminModalProps> = ({
         </div>
 
         <div className={styles.modalBody}>
+          {/* Name Field */}
           <div className={styles.formGroup}>
             <label>Name</label>
             <input
@@ -63,9 +88,23 @@ const EditAdminModal: React.FC<EditAdminModalProps> = ({
               className={styles.formInput}
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
+              placeholder="Enter admin name"
             />
           </div>
 
+          {/* Email Field */}
+          <div className={styles.formGroup}>
+            <label>Email</label>
+            <input
+              type="email"
+              className={styles.formInput}
+              value={editEmail}
+              onChange={(e) => setEditEmail(e.target.value)}
+              placeholder="Enter admin email"
+            />
+          </div>
+
+          {/* Status Field */}
           <div className={styles.formGroup}>
             <label>Status</label>
             <select
@@ -79,6 +118,7 @@ const EditAdminModal: React.FC<EditAdminModalProps> = ({
             </select>
           </div>
 
+          {/* Super Admin Checkbox */}
           <div className={styles.formGroup}>
             <div className={styles.checkboxGroup}>
               <input
@@ -90,19 +130,103 @@ const EditAdminModal: React.FC<EditAdminModalProps> = ({
               <label htmlFor="isSuperAdmin">Super Admin</label>
             </div>
           </div>
+
+          {/* Password Section */}
+          <div className={styles.formGroup}>
+            <div
+              style={{
+                marginTop: "1rem",
+                paddingTop: "1rem",
+                borderTop: "1px solid var(--border-light)",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setShowPasswordFields(!showPasswordFields)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "var(--accent)",
+                  cursor: "pointer",
+                  fontSize: "0.875rem",
+                  fontWeight: 600,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  padding: "0.5rem 0",
+                }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  style={{
+                    width: "1rem",
+                    height: "1rem",
+                    transform: showPasswordFields
+                      ? "rotate(90deg)"
+                      : "rotate(0deg)",
+                    transition: "transform 0.2s",
+                  }}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                  />
+                </svg>
+                {showPasswordFields
+                  ? "Hide Password Section"
+                  : "Change Password"}
+              </button>
+            </div>
+          </div>
+
+          {/* Password Fields (Collapsible) */}
+          {showPasswordFields && (
+            <>
+              <div className={styles.formGroup}>
+                <label>New Password</label>
+                <input
+                  type="password"
+                  className={styles.formInput}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Enter new password (leave blank to keep current)"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Confirm Password</label>
+                <input
+                  type="password"
+                  className={styles.formInput}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm new password"
+                />
+              </div>
+            </>
+          )}
         </div>
 
         <div className={styles.modalFooter}>
-          <button className={styles.cancelButton} onClick={onClose}>
-            Cancel
-          </button>
-          <button
-            className={styles.saveButton}
-            onClick={onSave}
+          <ActionButton
+            variant="secondary"
+            onClick={handleClose}
             disabled={actionLoading}
           >
-            {actionLoading ? "Saving..." : "Save Changes"}
-          </button>
+            Cancel
+          </ActionButton>
+          <ActionButton
+            variant="primary"
+            onClick={onSave}
+            isLoading={actionLoading}
+          >
+            Save Changes
+          </ActionButton>
         </div>
       </div>
     </div>

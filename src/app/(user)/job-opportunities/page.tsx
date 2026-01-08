@@ -1,43 +1,61 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import { createClient } from "@/utils/supabase/client";
-import { User } from "@supabase/supabase-js";
-import { useSearchParams } from "next/navigation";
+import React from "react";
+import { createClient } from "@/utils/supabase/server";
 import PublicCompanyList from "./components/PublicCompanyList";
 import PrivateCompanyListWithRecommendations from "./components/PrivateCompanyListWithRecommendations";
+import {
+  getCompanies,
+  Company as ServiceCompany,
+} from "@/lib/db/services/company.service";
+import { getJobs, Job as ServiceJob } from "@/lib/db/services/job.service";
 
-const Companies = () => {
-  const searchParams = useSearchParams();
-  const [user, setUser] = useState<User | null>(null);
-  const [search, setSearch] = useState("");
-  const supabase = createClient();
+interface PageProps {
+  searchParams: { search?: string };
+}
 
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-    });
-  }, []);
+export default async function JobOpportunitiesPage({
+  searchParams,
+}: PageProps) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  // Get search query from URL parameters
-  useEffect(() => {
-    const searchQuery = searchParams.get("search");
-    if (searchQuery) {
-      setSearch(searchQuery);
-    }
-  }, [searchParams]);
+  const search = searchParams.search || "";
+
+  // Fetch data on the server - only once, no repeated client-side calls!
+  const [companiesData, jobsData] = await Promise.all([
+    getCompanies().catch(() => [] as ServiceCompany[]),
+    getJobs().catch(() => [] as ServiceJob[]),
+  ]);
+
+  // Transform to match component types
+  const companies = companiesData.map((c) => ({
+    ...c,
+    industry: c.industry || "",
+    location: c.location || "",
+    description: c.description || "",
+  }));
+
+  const jobs = jobsData.map((j) => ({
+    ...j,
+    company_id: j.company_id,
+  }));
 
   if (!user) {
     return (
-      <PublicCompanyList searchParent={search} onSearchChange={setSearch} />
-    );
-  } else {
-    return (
-      <PrivateCompanyListWithRecommendations
+      <PublicCompanyList
+        initialCompanies={companies}
+        initialJobs={jobs}
         searchParent={search}
-        onSearchChange={setSearch}
       />
     );
   }
-};
 
-export default Companies;
+  return (
+    <PrivateCompanyListWithRecommendations
+      initialCompanies={companies}
+      initialJobs={jobs}
+      searchParent={search}
+    />
+  );
+}

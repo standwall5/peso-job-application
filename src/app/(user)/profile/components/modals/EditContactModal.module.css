@@ -23,7 +23,7 @@
 
 .modalContent {
     background: white;
-    border-radius: 1.25rem;
+    border-radius: 0.5rem;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     border: 1px solid rgba(52, 152, 219, 0.1);
     width: 90%;
@@ -67,7 +67,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 0.5rem;
+    border-radius: 0.25rem;
     transition: all 0.2s ease;
     color: #64748b;
 }
@@ -96,7 +96,7 @@
     padding: 0.75rem 1rem;
     background: #fef2f2;
     border: 1px solid #fecaca;
-    border-radius: 0.75rem;
+    border-radius: 0.25rem;
     color: #dc2626;
     font-size: 0.875rem;
 }
@@ -113,7 +113,7 @@
     gap: 0.5rem;
     padding: 1rem;
     background: #f8fcff;
-    border-radius: 0.75rem;
+    border-radius: 0.25rem;
     border: 1px solid rgba(52, 152, 219, 0.1);
 }
 
@@ -145,7 +145,7 @@
 
 .inputGroup input {
     padding: 0.75rem 1.25rem;
-    border-radius: 1rem;
+    border-radius: 0.375rem;
     border: 1px solid rgba(52, 152, 219, 0.1);
     background: white;
     font-size: 0.875rem;
@@ -180,7 +180,7 @@
     padding: 1rem;
     background: #fffdf1;
     border: 1px solid rgba(249, 115, 22, 0.2);
-    border-radius: 0.75rem;
+    border-radius: 0.25rem;
 }
 
 .infoBox svg {
@@ -208,7 +208,7 @@
         color-mix(in srgb, var(--button) 10%, transparent)
     );
     border: 1px solid rgba(128, 231, 177, 0.3);
-    border-radius: 0.75rem;
+    border-radius: 0.25rem;
 }
 
 .otpSent svg {
@@ -275,7 +275,7 @@
 .successIcon {
     width: 4rem;
     height: 4rem;
-    border-radius: 50%;
+    border-radius: 0.25rem;
     background: linear-gradient(
         135deg,
         color-mix(in srgb, var(--accent) 20%, transparent),
@@ -331,7 +331,7 @@
     text-align: left;
     padding: 0.75rem;
     background: #f8fcff;
-    border-radius: 0.75rem;
+    border-radius: 0.25rem;
     border: 1px solid rgba(52, 152, 219, 0.1);
 }
 
@@ -341,7 +341,7 @@
     justify-content: center;
     width: 1.75rem;
     height: 1.75rem;
-    border-radius: 50%;
+    border-radius: 0.25rem;
     background: linear-gradient(135deg, var(--accent), var(--button));
     color: white;
     font-weight: 700;
@@ -364,7 +364,7 @@
     padding: 1rem;
     background: #fffdf1;
     border: 1px solid rgba(249, 115, 22, 0.2);
-    border-radius: 0.75rem;
+    border-radius: 0.25rem;
     text-align: left;
     width: 100%;
 }
@@ -388,7 +388,7 @@
     .modalContent {
         width: 95%;
         max-width: none;
-        border-radius: 1rem;
+        border-radius: 0.375rem;
     }
 
     .modalHeader {

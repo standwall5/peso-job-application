@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import Image from "next/image";
 import styles from "@/app/(user)/job-opportunities/JobHome.module.css";
 import jobStyle from "../JobsOfCompany.module.css";
 import { createClient } from "@/utils/supabase/client";
@@ -9,6 +10,8 @@ import Button from "@/components/Button";
 import { Job } from "../types/job.types";
 import SortJobs, { JobSortOption } from "../components/sort/SortJobs";
 import { sortJobs } from "../utils/sortJobs";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import JobListCard from "@/components/jobs/JobListCard";
 
 const PublicJobList = () => {
   const params = useParams();
@@ -18,6 +21,8 @@ const PublicJobList = () => {
   const [search, setSearch] = useState("");
   const [loginModal, setLoginModal] = useState(false);
   const [sortOption, setSortOption] = useState<JobSortOption>("recent");
+  const [companyName, setCompanyName] = useState<string>("");
+  const [companyLogo, setCompanyLogo] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -37,6 +42,27 @@ const PublicJobList = () => {
     if (companyId) fetchData();
   }, [companyId]);
 
+  // Fetch company info for header
+  useEffect(() => {
+    async function fetchCompanyInfo() {
+      if (!companyId) return;
+
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("companies")
+        .select("name, logo")
+        .eq("id", companyId)
+        .single();
+
+      if (data && !error) {
+        setCompanyName(data.name);
+        setCompanyLogo(data.logo);
+      }
+    }
+
+    fetchCompanyInfo();
+  }, [companyId]);
+
   const filteredJobs = jobs.filter(
     (job) =>
       job.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -47,53 +73,58 @@ const PublicJobList = () => {
 
   return (
     <section className={styles.section}>
-      <div className={styles.sort}>
+      {/* Company Header */}
+      <div className={jobStyle.companyHeader}>
+        <div className={jobStyle.companyHeaderContent}>
+          <Image
+            src={companyLogo || "/assets/images/default_profile.png"}
+            alt={companyName || "Company"}
+            className={jobStyle.companyHeaderLogo}
+            width={80}
+            height={80}
+          />
+          <div className={jobStyle.companyHeaderInfo}>
+            <h1 className={jobStyle.companyHeaderName}>
+              {companyName || "Loading..."}
+            </h1>
+            <p className={jobStyle.companyHeaderSubtext}>Available Positions</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Search Bar */}
+      <div className={jobStyle.searchContainer}>
+        <input
+          type="text"
+          placeholder="Search jobs..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className={jobStyle.searchInput}
+        />
+      </div>
+
+      <div className={styles.listHeader}>
+        <Breadcrumbs
+          customLabels={{
+            "job-opportunities": "Job Opportunities",
+            [companyId as string]: companyName || (companyId as string),
+          }}
+        />
         <SortJobs currentSort={sortOption} onSortChange={setSortOption} />
       </div>
+
+      <h2 className={jobStyle.jobsTitle}>Jobs</h2>
+
       <div className={styles.jobList}>
         {sortedJobs.length > 0 ? (
           sortedJobs.map((job) => (
-            <div
+            <JobListCard
               key={job.id}
-              className={`${styles.jobCard} ${jobStyle.jobSpecificCard}`}
+              job={job}
+              showSkillMatch={false}
+              showApplyButton={true}
               onClick={() => setLoginModal(true)}
-            >
-              <div
-                className={`${styles.jobCompany} ${jobStyle.companyInformation}`}
-              >
-                <img
-                  src={
-                    job.companies?.logo || "/assets/images/default_profile.png"
-                  }
-                  alt={job.companies?.name + " logo"}
-                  className={styles.companyLogo}
-                  style={{
-                    width: "64px",
-                    height: "64px",
-                    objectFit: "contain",
-                  }}
-                />
-                <span>{job.companies?.name}</span>
-              </div>
-              <div className={jobStyle.jobDetails}>
-                <h2>{job.title}</h2>
-                <p>{job.place_of_assignment}</p>
-                <p>{job.sex}</p>
-                <p>{job.education}</p>
-                <p>{job.eligibility}</p>
-                <p>
-                  {job.posted_date
-                    ? new Date(job.posted_date).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })
-                    : "No date"}
-                </p>
-
-                <Button variant="success">Apply</Button>
-              </div>
-            </div>
+            />
           ))
         ) : (
           <p>No jobs found.</p>

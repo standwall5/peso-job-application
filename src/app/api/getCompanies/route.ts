@@ -1,16 +1,18 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server"; // ensure this is server-safe
+import { getCompanies } from "@/lib/db/services/company.service";
 
 export async function GET() {
-  const supabase = await createClient();
-  const { data: companies, error } = await supabase
-    .from("companies")
-    .select("*");
-
-  if (error) {
+  try {
+    const companies = await getCompanies();
+    return NextResponse.json(companies);
+  } catch (error) {
     console.error("Fetch companies error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error ? error.message : "Failed to fetch companies",
+      },
+      { status: 500 },
+    );
   }
-
-  return NextResponse.json(companies);
 }

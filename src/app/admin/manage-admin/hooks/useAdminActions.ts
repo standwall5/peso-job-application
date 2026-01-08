@@ -7,6 +7,8 @@ import {
   unlockAdminAccountAction,
   resetAdminPasswordAction,
   deleteAdminAction,
+  archiveAdminAction,
+  createAdminAction,
 } from "@/app/admin/actions/admin.actions";
 import { AdminWithEmail, AdminStatus } from "../types/admin.types";
 
@@ -14,39 +16,77 @@ export const useAdminActions = (fetchAdmins: () => Promise<void>) => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showArchiveModal, setShowArchiveModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState<AdminWithEmail | null>(
     null,
   );
   const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
   const [editStatus, setEditStatus] = useState<AdminStatus>("active");
   const [editIsSuperAdmin, setEditIsSuperAdmin] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
 
+  // Add Admin states
+  const [addName, setAddName] = useState("");
+  const [addEmail, setAddEmail] = useState("");
+  const [addPassword, setAddPassword] = useState("");
+  const [addConfirmPassword, setAddConfirmPassword] = useState("");
+  const [addIsSuperAdmin, setAddIsSuperAdmin] = useState(false);
+
   const handleEditClick = (admin: AdminWithEmail) => {
     setSelectedAdmin(admin);
     setEditName(admin.name);
+    setEditEmail(admin.email);
     setEditStatus((admin.status as AdminStatus) || "active");
     setEditIsSuperAdmin(admin.is_superadmin);
+    setNewPassword("");
+    setConfirmPassword("");
     setShowEditModal(true);
   };
 
   const handleSaveEdit = async () => {
     if (!selectedAdmin) return;
 
+    // Validate password if provided
+    if (newPassword || confirmPassword) {
+      if (newPassword !== confirmPassword) {
+        alert("Passwords do not match!");
+        return;
+      }
+      if (newPassword.length < 8) {
+        alert("Password must be at least 8 characters long!");
+        return;
+      }
+    }
+
     setActionLoading(true);
     try {
+      // Update admin info
       await updateAdminInfoAction(selectedAdmin.id, {
         name: editName,
         is_superadmin: editIsSuperAdmin,
       });
 
+      // Update status
       await updateAdminStatusAction(selectedAdmin.id, editStatus);
+
+      // Update password if provided
+      if (newPassword) {
+        await resetAdminPasswordAction(selectedAdmin.auth_id, newPassword);
+      }
+
+      // TODO: Update email if changed
+      // Note: Email update might require additional backend support
 
       await fetchAdmins();
       setShowEditModal(false);
       setSelectedAdmin(null);
+      setNewPassword("");
+      setConfirmPassword("");
+      alert("Admin updated successfully!");
     } catch (error) {
       console.error("Error updating admin:", error);
       alert("Failed to update admin. Please try again.");
@@ -123,6 +163,87 @@ export const useAdminActions = (fetchAdmins: () => Promise<void>) => {
     }
   };
 
+  const handleArchiveClick = (admin: AdminWithEmail) => {
+    setSelectedAdmin(admin);
+    setShowArchiveModal(true);
+  };
+
+  const handleArchiveAdmin = async () => {
+    if (!selectedAdmin) return;
+
+    setActionLoading(true);
+    try {
+      await archiveAdminAction(selectedAdmin.id);
+      await fetchAdmins();
+      setShowArchiveModal(false);
+      setSelectedAdmin(null);
+    } catch (error) {
+      console.error("Error archiving admin:", error);
+      alert("Failed to archive admin. Please try again.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleAddAdminClick = () => {
+    setAddName("");
+    setAddEmail("");
+    setAddPassword("");
+    setAddConfirmPassword("");
+    setAddIsSuperAdmin(false);
+    setShowAddModal(true);
+  };
+
+  const handleAddAdmin = async () => {
+    // Validate inputs
+    if (!addName.trim()) {
+      alert("Name is required!");
+      return;
+    }
+
+    if (!addEmail.trim()) {
+      alert("Email is required!");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(addEmail)) {
+      alert("Invalid email format!");
+      return;
+    }
+
+    if (!addPassword) {
+      alert("Password is required!");
+      return;
+    }
+
+    if (addPassword.length < 8) {
+      alert("Password must be at least 8 characters long!");
+      return;
+    }
+
+    if (addPassword !== addConfirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    setActionLoading(true);
+    try {
+      await createAdminAction(addEmail, addPassword, addName, addIsSuperAdmin);
+      await fetchAdmins();
+      setShowAddModal(false);
+      alert("Admin created successfully!");
+    } catch (error) {
+      console.error("Error creating admin:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to create admin. Please try again.";
+      alert(errorMessage);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   return {
     showEditModal,
     setShowEditModal,
@@ -130,9 +251,15 @@ export const useAdminActions = (fetchAdmins: () => Promise<void>) => {
     setShowResetPasswordModal,
     showDeleteModal,
     setShowDeleteModal,
+    showArchiveModal,
+    setShowArchiveModal,
+    showAddModal,
+    setShowAddModal,
     selectedAdmin,
     editName,
     setEditName,
+    editEmail,
+    setEditEmail,
     editStatus,
     setEditStatus,
     editIsSuperAdmin,
@@ -141,6 +268,16 @@ export const useAdminActions = (fetchAdmins: () => Promise<void>) => {
     setNewPassword,
     confirmPassword,
     setConfirmPassword,
+    addName,
+    setAddName,
+    addEmail,
+    setAddEmail,
+    addPassword,
+    setAddPassword,
+    addConfirmPassword,
+    setAddConfirmPassword,
+    addIsSuperAdmin,
+    setAddIsSuperAdmin,
     actionLoading,
     handleEditClick,
     handleSaveEdit,
@@ -149,5 +286,9 @@ export const useAdminActions = (fetchAdmins: () => Promise<void>) => {
     handleResetPassword,
     handleDeleteClick,
     handleDeleteAdmin,
+    handleArchiveClick,
+    handleArchiveAdmin,
+    handleAddAdminClick,
+    handleAddAdmin,
   };
 };

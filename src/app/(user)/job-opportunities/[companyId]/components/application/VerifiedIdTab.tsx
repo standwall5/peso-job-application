@@ -71,12 +71,13 @@ const VerifiedIdTab: React.FC<VerifiedIdTabProps> = ({
             gap: "1rem",
           }}
         >
-          <h2>⚠️ Exam Required</h2>
-          <p>
-            Please complete the exam first before uploading your Verified ID.
+          <h2>⚠️ Pre-Screening Required</h2>
+          <p className={jobStyle.message}>
+            Please complete the pre-screening questions first before uploading
+            your Verified ID.
           </p>
           <Button variant="primary" onClick={onGoToExam}>
-            Go to Exam
+            Go to Pre-Screening
           </Button>
         </div>
       </div>

@@ -78,7 +78,7 @@ const Exam: React.FC<ExamProps> = ({ exam, fetchExams }) => {
           setShowModal(true);
         }}
       >
-        + Create New Exam
+        + Create New Question
       </Button>
 
       {selectedExam && showModal && (

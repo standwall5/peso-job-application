@@ -28,7 +28,7 @@
 /* Card - Following Design System */
 .card {
     background: var(--card-bg, #ffffff);
-    border-radius: 1.25rem; /* Design System: rounded-xl for cards */
+    border-radius: 0.5rem; /* Design System: rounded-xl for cards */
     border: 1px solid var(--border-light, rgba(52, 152, 219, 0.1));
     padding: 2rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Design System: medium shadow */
@@ -56,7 +56,7 @@
 .formGroup input {
     width: 100%;
     padding: 0.75rem 1.25rem;
-    border-radius: 0.5rem; /* Design System: standard for inputs */
+    border-radius: 0.25rem; /* Design System: standard for inputs */
     background: var(--input-bg, #ffffff);
     border: 1px solid var(--border-light, rgba(52, 152, 219, 0.1));
     font-size: 0.875rem;
@@ -103,7 +103,7 @@
     gap: 0.75rem;
     padding: 1rem 1.25rem;
     background: var(--highlight, #f0f9ff);
-    border-radius: 0.75rem; /* Design System: rounded-md */
+    border-radius: 0.25rem; /* Design System: rounded-md */
     border: 1px solid var(--border-light, rgba(52, 152, 219, 0.1));
 }
 
@@ -140,7 +140,7 @@
 .cancelButton,
 .submitButton {
     padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem; /* Design System: standard for buttons */
+    border-radius: 0.25rem; /* Design System: standard for buttons */
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;

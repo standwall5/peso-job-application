@@ -1,0 +1,42 @@
+# Changes
+
+- Fixed notification delete functionality with proper error handling
+- Fixed notification mark as read with optimistic UI updates
+- Added notification archive feature (archive without deleting)
+- Added Active/Archived filter tabs in notification dropdown
+- Added toast notifications for success/error feedback
+- Added optimistic updates for instant UI feedback on all notification actions
+- Added rollback mechanism when notification operations fail
+- Added unread count badge on Active notifications tab
+- Improved notification API error handling with try-catch blocks
+- Added PATCH endpoint for archive/unarchive operations
+- Added `is_archived` column to notifications table (requires SQL migration)
+- Created database migration file for archive support
+- Updated notification service with archive functions
+- Changed language selector to horizontal dropdown layout
+- Updated language button to say "Select Language"
+- Repositioned language button to bottom of page below chat widget
+- Changed language button to solid green (#80e7b1)
+- Simplified language button hover effect (color darkens on hover)
+- Changed dropdown to display horizontally below button
+- Removed emojis from language selector
+- Added upward chevron indicator to language button (rotates when open)
+- Changed chat button border-radius to 100% (circular)
+- Moved chat button up to make space for language selector
+- Increased company card size to prevent text wrapping on labels
+- Decreased font size for manpower and jobs posted labels
+- Fixed TypeScript error by replacing `any` type with proper Record type in LanguageContext
+- Fixed linting error by changing `let` to `const` in notifications route
+- Fixed ApplicationSuccessModal button variant from secondary to danger
+- Hide recommended jobs panel when user has no skills set
+- Added comprehensive mobile responsive styles for 480px breakpoint
+- Improved mobile spacing and layout in PrivateCompanyListWithRecommendations
+- Enhanced mobile responsiveness for AllJobsSection component
+- Added mobile optimizations for RecommendedJobsPanel
+- Fixed mobile margins and padding across all job opportunity pages
+- Reduced company card size on mobile (14rem min-height on 480px)
+- Centered company grid on mobile with max-width constraint
+- Made JobListCard collapsible on mobile with expandable details section
+- Reduced JobListCard size and padding on mobile for better space efficiency
+- Added expand/collapse button for job details on mobile devices
+- Improved mobile typography and spacing across all job cards

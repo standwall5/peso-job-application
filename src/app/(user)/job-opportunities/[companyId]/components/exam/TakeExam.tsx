@@ -194,7 +194,7 @@ const TakeExam: React.FC<TakeExamProps> = ({ exam, onSubmit, onClose }) => {
           </Button>
         )}
         <Button variant="success" onClick={handleSubmitExam}>
-          Submit Exam ({answeredCount}/{exam.questions.length})
+          Submit Answers ({answeredCount}/{exam.questions.length})
         </Button>
       </div>
     </div>

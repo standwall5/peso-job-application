@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import styles from "@/app/(user)/job-opportunities/JobHome.module.css";
-import Link from "next/link";
 import BlocksWave from "@/components/BlocksWave";
 import SortCompany, { SortOption } from "./sort/SortCompany";
 import { sortCompanies } from "../utils/sortCompanies";
@@ -9,7 +8,7 @@ import { sortCompanies } from "../utils/sortCompanies";
 interface Job {
   id: number;
   company_id: number;
-  manpower_needed: number;
+  manpower_needed?: number;
   posted_date: string | null;
 }
 
@@ -23,40 +22,21 @@ interface Company {
 }
 
 interface PublicCompanyListProps {
+  initialCompanies: Company[];
+  initialJobs: Job[];
   searchParent: string;
-  onSearchChange?: (value: string) => void;
 }
 
 const PublicCompanyList = ({
+  initialCompanies,
+  initialJobs,
   searchParent,
-  onSearchChange,
 }: PublicCompanyListProps) => {
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [companies, setCompanies] = useState<Company[]>([]);
+  const [jobs] = useState<Job[]>(initialJobs);
+  const [companies] = useState<Company[]>(initialCompanies);
   const [search, setSearch] = useState(searchParent || "");
-  const [loading, setLoading] = useState(true);
+  const [loading] = useState(false);
   const [sortOption, setSortOption] = useState<SortOption>("recent");
-
-  useEffect(() => {
-    async function fetchAll() {
-      try {
-        const companiesRes = await fetch("/api/getCompanies");
-        const jobsRes = await fetch("/api/getJobs");
-        const companiesData = await companiesRes.json();
-        const jobsData = await jobsRes.json();
-
-        setCompanies(Array.isArray(companiesData) ? companiesData : []);
-        setJobs(Array.isArray(jobsData) ? jobsData : []);
-      } catch (err) {
-        console.error("Fetch failed:", err);
-        setCompanies([]);
-        setJobs([]);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchAll();
-  }, []);
 
   const getJobCount = (companyId: number) =>
     jobs.filter((job) => job.company_id === companyId).length;
@@ -94,25 +74,22 @@ const PublicCompanyList = ({
 
       <SortCompany currentSort={sortOption} onSortChange={setSortOption} />
 
-      <div
-        className={styles.jobList}
-        style={
-          loading
-            ? {
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                minHeight: "60vh",
-                width: "100%",
-              }
-            : undefined
-        }
-      >
+      <div className={styles.jobList}>
         {loading ? (
-          <BlocksWave />
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              minHeight: "60vh",
+              width: "100%",
+            }}
+          >
+            <BlocksWave />
+          </div>
         ) : sortedCompanies.length > 0 ? (
           sortedCompanies.map((company) => (
-            <Link key={company.id} href={`/job-opportunities/${company.id}`}>
+            <a key={company.id} href={`/job-opportunities/${company.id}`}>
               <div key={company.id} className={styles.jobCard}>
                 <div className={styles.jobCompany}>
                   <div className={`${styles.manpowerCount} ${styles.jobStats}`}>
@@ -139,7 +116,7 @@ const PublicCompanyList = ({
                   <p>{company.description}</p>
                 </div>
               </div>
-            </Link>
+            </a>
           ))
         ) : (
           <p>No jobs found.</p>

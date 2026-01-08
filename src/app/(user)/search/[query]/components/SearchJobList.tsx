@@ -275,10 +275,10 @@ const SearchJobList = ({
           message += `${result.paragraphCount} paragraph question(s) pending admin review.`;
         }
         if (!message) {
-          message = "Your exam has been submitted successfully!";
+          message = "Your answers have been submitted successfully!";
         }
 
-        showToast("Exam Submitted! 🎉", message.trim());
+        showToast("Pre-Screening Submitted! 🎉", message.trim());
 
         // Refresh exam attempt to show results
         if (selectedJob?.id && selectedJob?.exam_id) {

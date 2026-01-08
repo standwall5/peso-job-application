@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import Image from "next/image";
 import styles from "@/app/(user)/job-opportunities/JobHome.module.css";
 import jobStyle from "../JobsOfCompany.module.css";
 import BlocksWave from "@/components/BlocksWave";
@@ -8,6 +9,8 @@ import Toast from "@/components/toast/Toast";
 import SortJobs from "./sort/SortJobs";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { createClient } from "@/utils/supabase/client";
+import { getUserSkillsAction } from "../../actions/job-opportunities.actions";
+import { sortJobsBySkillMatch } from "@/lib/utils/skillMatching";
 
 // Custom Hooks
 import { useToast } from "../hooks/useToast";
@@ -17,8 +20,9 @@ import { useUserApplications } from "../hooks/useUserApplications";
 import { useJobs } from "../hooks/useJobs";
 
 // Components
-import JobCard from "./application/JobCard";
+import JobListCard from "@/components/jobs/JobListCard";
 import ApplicationModal from "./application/ApplicationModal";
+import ApplicationSuccessModal from "./application/ApplicationSuccessModal";
 
 // Types
 import { Job } from "../types/job.types";
@@ -36,6 +40,8 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [companyName, setCompanyName] = useState<string>("");
   const [companyLogo, setCompanyLogo] = useState<string | null>(null);
+  const [userSkills, setUserSkills] = useState<string[]>([]);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Custom Hooks
   const { toast, showToast, hideToast } = useToast();
@@ -63,13 +69,35 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
     submitFinalApplication,
   } = useUserApplications();
   const {
-    jobs,
+    jobs: rawJobs,
     search,
     setSearch,
     sortOption,
     setSortOption,
     loading: jobsLoading,
   } = useJobs(companyId);
+
+  // Apply skill matching to jobs
+  const jobs = React.useMemo(() => {
+    if (sortOption === "relevance" && userSkills.length > 0) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return sortJobsBySkillMatch(rawJobs as any, userSkills);
+    }
+    return rawJobs;
+  }, [rawJobs, sortOption, userSkills]);
+
+  // Fetch user skills
+  useEffect(() => {
+    async function fetchUserSkills() {
+      try {
+        const skills = await getUserSkillsAction();
+        setUserSkills(skills);
+      } catch (error) {
+        console.error("Failed to fetch user skills:", error);
+      }
+    }
+    fetchUserSkills();
+  }, []);
 
   // Sync search with parent
   useEffect(() => {
@@ -156,22 +184,25 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
           message += `${result.paragraphCount} paragraph question(s) pending admin review.`;
         }
         if (!message) {
-          message = "Your exam has been submitted successfully!";
+          message = "Your answers have been submitted successfully!";
         }
 
-        showToast("Exam Submitted! 🎉", message.trim());
+        showToast("Pre-Screening Submitted! 🎉", message.trim());
       }
     } catch (error) {
-      console.error("Error submitting exam:", error);
+      console.error("Error submitting pre-screening:", error);
       showToast(
-        "Exam Submission Failed",
+        "Pre-Screening Submission Failed",
         error instanceof Error ? error.message : "Unknown error",
       );
     }
   };
 
   const handleContinueToExam = () => {
-    showToast("Resume Reviewed ✓", "Please proceed to take the exam.");
+    showToast(
+      "Resume Reviewed ✓",
+      "Please proceed to answer the pre-screening questions.",
+    );
   };
 
   const handleIdUploaded = () => {
@@ -191,12 +222,9 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
       await submitFinalApplication(selectedJob.id);
       await clearProgress(selectedJob.id);
 
-      showToast(
-        "Application Submitted! 🎉",
-        "Your application has been successfully submitted.",
-      );
-
+      // Close application modal and show success modal
       setSelectedJob(null);
+      setShowSuccessModal(true);
     } catch (error) {
       console.error("Error submitting application:", error);
       showToast(
@@ -220,12 +248,19 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
   // Render job cards
   const jobCards = jobs.map((job) => {
     const hasApplied = userApplications.includes(job.id);
+    const matchPercentage =
+      sortOption === "relevance"
+        ? (job as Job & { matchPercentage?: number }).matchPercentage || 0
+        : 0;
 
     return (
-      <JobCard
+      <JobListCard
         key={job.id}
-        job={job}
+        job={{ ...job, matchPercentage }}
+        userSkills={userSkills}
         hasApplied={hasApplied}
+        showSkillMatch={sortOption === "relevance"}
+        showApplyButton={true}
         onClick={() => handleJobClick(job)}
       />
     );
@@ -236,10 +271,12 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
       {/* Company Header */}
       <div className={jobStyle.companyHeader}>
         <div className={jobStyle.companyHeaderContent}>
-          <img
+          <Image
             src={companyLogo || "/assets/images/default_profile.png"}
             alt={companyName || "Company"}
             className={jobStyle.companyHeaderLogo}
+            width={80}
+            height={80}
           />
           <div className={jobStyle.companyHeaderInfo}>
             <h1 className={jobStyle.companyHeaderName}>
@@ -307,6 +344,11 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
         title={toast.title}
         message={toast.message}
       />
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <ApplicationSuccessModal onClose={() => setShowSuccessModal(false)} />
+      )}
     </section>
   );
 };

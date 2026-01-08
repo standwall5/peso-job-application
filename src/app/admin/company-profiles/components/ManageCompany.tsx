@@ -401,7 +401,7 @@ const ManageCompany = ({
     return exams ? (
       <Exam exam={exams} fetchExams={fetchExams} />
     ) : (
-      <div>No exam available</div>
+      <div>No pre-screening question available</div>
     );
   };
 
@@ -423,7 +423,7 @@ const ManageCompany = ({
             >
               {tab === "createCompany" && "EDIT COMPANY PROFILE"}
               {tab === "postJobs" && "POST JOBS"}
-              {tab === "createExam" && "CREATE EXAM"}
+              {tab === "createExam" && "CREATE PRE-SCREENING QUESTIONS"}
             </li>
           ))}
           <div

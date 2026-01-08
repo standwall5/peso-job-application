@@ -10,6 +10,9 @@ import {
   resetAdminPassword,
   deleteAdmin,
   createAdmin,
+  archiveAdmin,
+  unarchiveAdmin,
+  getArchivedAdmins,
 } from "@/lib/db/services/admin.service";
 
 export async function getAdminProfileAction() {
@@ -103,6 +106,33 @@ export async function createAdminAction(
     return await createAdmin(email, password, name, isSuperAdmin);
   } catch (error) {
     console.error("Failed to create admin:", error);
+    throw error;
+  }
+}
+
+export async function archiveAdminAction(adminId: number) {
+  try {
+    return await archiveAdmin(adminId);
+  } catch (error) {
+    console.error("Failed to archive admin:", error);
+    throw error;
+  }
+}
+
+export async function unarchiveAdminAction(adminId: number) {
+  try {
+    return await unarchiveAdmin(adminId);
+  } catch (error) {
+    console.error("Failed to unarchive admin:", error);
+    throw error;
+  }
+}
+
+export async function getArchivedAdminsAction() {
+  try {
+    return await getArchivedAdmins();
+  } catch (error) {
+    console.error("Failed to get archived admins:", error);
     throw error;
   }
 }

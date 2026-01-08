@@ -9,7 +9,7 @@
 
 .card {
     background: white;
-    border-radius: 1.25rem;
+    border-radius: 0.5rem;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     border: 1px solid rgba(52, 152, 219, 0.1);
     padding: 3rem 2.5rem;
@@ -97,7 +97,7 @@
 .iconSuccess {
     width: 5rem;
     height: 5rem;
-    border-radius: 50%;
+    border-radius: 0.25rem;
     background: linear-gradient(
         135deg,
         color-mix(in srgb, var(--accent) 20%, transparent),
@@ -131,7 +131,7 @@
 .iconError {
     width: 5rem;
     height: 5rem;
-    border-radius: 50%;
+    border-radius: 0.25rem;
     background: linear-gradient(135deg, #fef2f2, #fee2e2);
     display: flex;
     align-items: center;
@@ -186,7 +186,7 @@
     text-align: left;
     padding: 1rem;
     background: #f8fcff;
-    border-radius: 0.75rem;
+    border-radius: 0.25rem;
     border: 1px solid rgba(52, 152, 219, 0.1);
     transition: all 0.25s ease;
 }
@@ -203,7 +203,7 @@
     justify-content: center;
     width: 2rem;
     height: 2rem;
-    border-radius: 50%;
+    border-radius: 0.25rem;
     background: linear-gradient(135deg, var(--accent), var(--button));
     color: white;
     font-weight: 700;
@@ -227,7 +227,7 @@
     padding: 1rem 1.25rem;
     background: #fffdf1;
     border: 1px solid rgba(249, 115, 22, 0.2);
-    border-radius: 0.75rem;
+    border-radius: 0.25rem;
     text-align: left;
     width: 100%;
     margin-top: 0.5rem;
@@ -255,7 +255,7 @@
     padding: 1rem 1.25rem;
     background: #fef2f2;
     border: 1px solid #fecaca;
-    border-radius: 0.75rem;
+    border-radius: 0.25rem;
 }
 
 .errorReasons h4 {
@@ -305,7 +305,7 @@
 
     .card {
         padding: 2rem 1.5rem;
-        border-radius: 1rem;
+        border-radius: 0.375rem;
     }
 
     .card h2 {

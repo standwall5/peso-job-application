@@ -324,3 +324,145 @@ export async function withdrawApplication(jobId: number) {
     message: "Application withdrawn successfully",
   };
 }
+
+// Application Progress Functions
+
+export interface ApplicationProgress {
+  job_id: number;
+  applicant_id: number;
+  resume_viewed: boolean;
+  exam_completed: boolean;
+  verified_id_uploaded: boolean;
+  updated_at: string;
+}
+
+export async function getApplicationProgressForJob(jobId: number) {
+  const supabase = await getSupabaseClient();
+  const user = await getCurrentUser();
+
+  // Get applicant ID
+  const { data: applicant } = await supabase
+    .from("applicants")
+    .select("id")
+    .eq("auth_id", user.id)
+    .single();
+
+  if (!applicant) {
+    throw new Error("Applicant not found");
+  }
+
+  const { data, error } = await supabase
+    .from("application_progress")
+    .select("*")
+    .eq("job_id", jobId)
+    .eq("applicant_id", applicant.id)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as ApplicationProgress | null;
+}
+
+export async function getAllApplicationProgress() {
+  const supabase = await getSupabaseClient();
+  const user = await getCurrentUser();
+
+  // Get applicant ID
+  const { data: applicant } = await supabase
+    .from("applicants")
+    .select("id")
+    .eq("auth_id", user.id)
+    .single();
+
+  if (!applicant) {
+    throw new Error("Applicant not found");
+  }
+
+  const { data, error } = await supabase
+    .from("application_progress")
+    .select("*")
+    .eq("applicant_id", applicant.id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data || []) as ApplicationProgress[];
+}
+
+export async function upsertApplicationProgress(
+  jobId: number,
+  progress: {
+    resumeViewed?: boolean;
+    examCompleted?: boolean;
+    verifiedIdUploaded?: boolean;
+  },
+) {
+  const supabase = await getSupabaseClient();
+  const user = await getCurrentUser();
+
+  // Get applicant ID
+  const { data: applicant } = await supabase
+    .from("applicants")
+    .select("id")
+    .eq("auth_id", user.id)
+    .single();
+
+  if (!applicant) {
+    throw new Error("Applicant not found");
+  }
+
+  const { data, error } = await supabase
+    .from("application_progress")
+    .upsert(
+      {
+        job_id: jobId,
+        applicant_id: applicant.id,
+        resume_viewed: progress.resumeViewed ?? false,
+        exam_completed: progress.examCompleted ?? false,
+        verified_id_uploaded: progress.verifiedIdUploaded ?? false,
+        updated_at: new Date().toISOString(),
+      },
+      {
+        onConflict: "job_id,applicant_id",
+      },
+    )
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as ApplicationProgress;
+}
+
+export async function deleteApplicationProgress(jobId: number) {
+  const supabase = await getSupabaseClient();
+  const user = await getCurrentUser();
+
+  // Get applicant ID
+  const { data: applicant } = await supabase
+    .from("applicants")
+    .select("id")
+    .eq("auth_id", user.id)
+    .single();
+
+  if (!applicant) {
+    throw new Error("Applicant not found");
+  }
+
+  const { error } = await supabase
+    .from("application_progress")
+    .delete()
+    .eq("job_id", jobId)
+    .eq("applicant_id", applicant.id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return { success: true };
+}

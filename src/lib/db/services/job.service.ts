@@ -13,7 +13,8 @@ export interface Job {
   eligibility: string;
   posted_date: string;
   company_id: number;
-  skills?: string[]; // NEW: Add skills field
+  manpower_needed?: number;
+  skills?: string[];
   companies: {
     name: string;
     logo: string | null;

@@ -1,166 +1,105 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server";
+import {
+  getApplicationProgressForJob,
+  getAllApplicationProgress,
+  upsertApplicationProgress,
+  deleteApplicationProgress,
+} from "@/lib/db/services/application.service";
 
 export async function GET(request: Request) {
-  const supabase = await createClient();
-  const { searchParams } = new URL(request.url);
-  const jobId = searchParams.get("jobId");
+  try {
+    const { searchParams } = new URL(request.url);
+    const jobId = searchParams.get("jobId");
 
-  // Get current logged-in user
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
-
-  // Get applicant_id from applicants table
-  const { data: applicantData, error: applicantError } = await supabase
-    .from("applicants")
-    .select("id")
-    .eq("auth_id", user.id)
-    .single();
-
-  if (applicantError || !applicantData) {
-    return NextResponse.json({ error: "Applicant not found" }, { status: 404 });
-  }
-
-  const applicant_id = applicantData.id;
-
-  if (jobId) {
-    // Get progress for specific job
-    const { data, error } = await supabase
-      .from("application_progress")
-      .select("*")
-      .eq("job_id", jobId)
-      .eq("applicant_id", applicant_id)
-      .maybeSingle();
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    if (jobId) {
+      // Get progress for specific job
+      const progress = await getApplicationProgressForJob(Number(jobId));
+      return NextResponse.json({ progress: progress || null });
+    } else {
+      // Get all progress for this applicant
+      const progress = await getAllApplicationProgress();
+      return NextResponse.json({ progress: progress || [] });
     }
-
-    return NextResponse.json({ progress: data || null });
-  } else {
-    // Get all progress for this applicant
-    const { data, error } = await supabase
-      .from("application_progress")
-      .select("*")
-      .eq("applicant_id", applicant_id);
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    return NextResponse.json({ progress: data || [] });
+  } catch (error) {
+    console.error("Application progress fetch error:", error);
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch application progress",
+      },
+      {
+        status:
+          error instanceof Error && error.message === "Applicant not found"
+            ? 404
+            : 500,
+      },
+    );
   }
 }
 
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const { jobId, resumeViewed, examCompleted, verifiedIdUploaded } =
-    await request.json();
+  try {
+    const { jobId, resumeViewed, examCompleted, verifiedIdUploaded } =
+      await request.json();
 
-  // Get current logged-in user
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    if (!jobId) {
+      return NextResponse.json({ error: "Missing jobId" }, { status: 400 });
+    }
 
-  if (!user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
+    const data = await upsertApplicationProgress(Number(jobId), {
+      resumeViewed,
+      examCompleted,
+      verifiedIdUploaded,
+    });
 
-  // Get applicant_id from applicants table
-  const { data: applicantData, error: applicantError } = await supabase
-    .from("applicants")
-    .select("id")
-    .eq("auth_id", user.id)
-    .single();
-
-  if (applicantError || !applicantData) {
-    return NextResponse.json({ error: "Applicant not found" }, { status: 404 });
-  }
-
-  const applicant_id = applicantData.id;
-
-  if (!jobId) {
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    console.error("Application progress update error:", error);
     return NextResponse.json(
-      { error: "Missing jobId" },
-      { status: 400 }
-    );
-  }
-
-  // Upsert progress (insert or update)
-  const { data, error } = await supabase
-    .from("application_progress")
-    .upsert(
       {
-        job_id: jobId,
-        applicant_id: applicant_id,
-        resume_viewed: resumeViewed ?? false,
-        exam_completed: examCompleted ?? false,
-        verified_id_uploaded: verifiedIdUploaded ?? false,
-        updated_at: new Date().toISOString(),
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to update application progress",
       },
       {
-        onConflict: "job_id,applicant_id",
-      }
-    )
-    .select()
-    .single();
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+        status:
+          error instanceof Error && error.message === "Applicant not found"
+            ? 404
+            : 500,
+      },
+    );
   }
-
-  return NextResponse.json({ success: true, data });
 }
 
 export async function DELETE(request: Request) {
-  const supabase = await createClient();
-  const { searchParams } = new URL(request.url);
-  const jobId = searchParams.get("jobId");
+  try {
+    const { searchParams } = new URL(request.url);
+    const jobId = searchParams.get("jobId");
 
-  // Get current logged-in user
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    if (!jobId) {
+      return NextResponse.json({ error: "Missing jobId" }, { status: 400 });
+    }
 
-  if (!user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
-
-  // Get applicant_id from applicants table
-  const { data: applicantData, error: applicantError } = await supabase
-    .from("applicants")
-    .select("id")
-    .eq("auth_id", user.id)
-    .single();
-
-  if (applicantError || !applicantData) {
-    return NextResponse.json({ error: "Applicant not found" }, { status: 404 });
-  }
-
-  const applicant_id = applicantData.id;
-
-  if (!jobId) {
+    await deleteApplicationProgress(Number(jobId));
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Application progress delete error:", error);
     return NextResponse.json(
-      { error: "Missing jobId" },
-      { status: 400 }
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to delete application progress",
+      },
+      {
+        status:
+          error instanceof Error && error.message === "Applicant not found"
+            ? 404
+            : 500,
+      },
     );
   }
-
-  // Delete progress for this job
-  const { error } = await supabase
-    .from("application_progress")
-    .delete()
-    .eq("job_id", jobId)
-    .eq("applicant_id", applicant_id);
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  return NextResponse.json({ success: true });
 }

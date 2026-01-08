@@ -10,8 +10,10 @@ import { createClient } from "@/utils/supabase/client";
 import { signout } from "@/lib/auth-actions";
 import Dropdown, { DropdownItem } from "@/components/Dropdown";
 import NotificationDropdown from "./NotificationDropdown";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const SimpleNavBar = (props: { pathname: string }) => {
+  const { t } = useLanguage();
   return (
     <nav>
       <div className="nav-container-simple">
@@ -30,7 +32,7 @@ const SimpleNavBar = (props: { pathname: string }) => {
                     : "nav-button-default"
                 }
               >
-                Home
+                {t("nav.home")}
               </button>
             </Link>
           </li>
@@ -43,7 +45,7 @@ const SimpleNavBar = (props: { pathname: string }) => {
                     : "nav-button-default"
                 }
               >
-                Job Opportunities
+                {t("nav.jobOpportunities")}
               </button>
             </Link>
           </li>
@@ -56,7 +58,7 @@ const SimpleNavBar = (props: { pathname: string }) => {
                     : "nav-button-default"
                 }
               >
-                How it Works
+                {t("nav.howItWorks")}
               </button>
             </Link>
           </li>
@@ -69,7 +71,7 @@ const SimpleNavBar = (props: { pathname: string }) => {
                     : "nav-button-default"
                 }
               >
-                About
+                {t("nav.about")}
               </button>
             </Link>
           </li>
@@ -111,12 +113,12 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotificationsDropdown, setShowNotificationsDropdown] =
     useState(false);
-  const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const searchRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
-  const settingsRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   // Check if we're on job-opportunities page
   const isJobOpportunitiesPage =
@@ -152,10 +154,10 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
         setShowNotificationsDropdown(false);
       }
       if (
-        settingsRef.current &&
-        !settingsRef.current.contains(event.target as Node)
+        profileRef.current &&
+        !profileRef.current.contains(event.target as Node)
       ) {
-        setShowSettingsDropdown(false);
+        setShowProfileDropdown(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -302,7 +304,7 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
               className={styles.notificationIcon}
               onClick={() => {
                 setShowNotificationsDropdown(true);
-                setShowSettingsDropdown(false);
+                setShowProfileDropdown(false);
               }}
               ref={notifRef}
             >
@@ -331,60 +333,26 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
             </div>
           </li>
           <li className={styles.profileIconContainer}>
-            <Link href="/profile" className={styles.profileIcon}>
-              {/* <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="size-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                />
-              </svg> */}
-              <img
-                src={
-                  props.user?.profile_pic_url ||
-                  "/assets/images/default_profile.png"
-                }
-                alt="Profile Icon"
-              />
-            </Link>
-          </li>
-          <li>
             <div
               className={styles.dropdown}
-              ref={settingsRef}
+              ref={profileRef}
               onClick={() => {
-                setShowSettingsDropdown(true);
+                setShowProfileDropdown(!showProfileDropdown);
                 setShowNotificationsDropdown(false);
               }}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="size-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"
+              <div className={styles.profileIcon}>
+                <img
+                  src={
+                    props.user?.profile_pic_url ||
+                    "/assets/images/default_profile.png"
+                  }
+                  alt="Profile Icon"
                 />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                />
-              </svg>
+              </div>
 
-              <Dropdown isOpen={showSettingsDropdown} position="right">
+              <Dropdown isOpen={showProfileDropdown} position="right">
+                <DropdownItem href="/profile">Profile</DropdownItem>
                 <DropdownItem onClick={signout}>Logout</DropdownItem>
               </Dropdown>
             </div>
@@ -403,11 +371,11 @@ const PesoNavbar = (props: { pathname: string }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotificationsDropdown, setShowNotificationsDropdown] =
     useState(false);
-  const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const searchRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
-  const settingsRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function fetchAll() {
@@ -441,10 +409,10 @@ const PesoNavbar = (props: { pathname: string }) => {
         setShowNotificationsDropdown(false);
       }
       if (
-        settingsRef.current &&
-        !settingsRef.current.contains(event.target as Node)
+        profileRef.current &&
+        !profileRef.current.contains(event.target as Node)
       ) {
-        setShowSettingsDropdown(false);
+        setShowProfileDropdown(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -552,7 +520,7 @@ const PesoNavbar = (props: { pathname: string }) => {
               className={styles.notificationIcon}
               onClick={() => {
                 setShowNotificationsDropdown(true);
-                setShowSettingsDropdown(false);
+                setShowProfileDropdown(false);
               }}
               ref={notifRef}
             >
@@ -580,29 +548,11 @@ const PesoNavbar = (props: { pathname: string }) => {
             </div>
           </li>
           <li>
-            <Link href="/profile">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="size-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                />
-              </svg>
-            </Link>
-          </li>
-          <li>
             <div
               className={styles.dropdown}
-              ref={settingsRef}
+              ref={profileRef}
               onClick={() => {
-                setShowSettingsDropdown(true);
+                setShowProfileDropdown(!showProfileDropdown);
                 setShowNotificationsDropdown(false);
               }}
             >
@@ -617,22 +567,14 @@ const PesoNavbar = (props: { pathname: string }) => {
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                  d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
                 />
               </svg>
 
-              {showSettingsDropdown && (
-                <div
-                  className={`${styles.dropdownContent} ${styles.settingsDropdown}`}
-                >
-                  <button onClick={signout}>Logout</button>
-                </div>
-              )}
+              <Dropdown isOpen={showProfileDropdown} position="right">
+                <DropdownItem href="/profile">Profile</DropdownItem>
+                <DropdownItem onClick={signout}>Logout</DropdownItem>
+              </Dropdown>
             </div>
           </li>
         </ul>

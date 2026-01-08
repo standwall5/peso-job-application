@@ -79,6 +79,7 @@ export async function getAllAdmins(): Promise<AdminWithEmail[]> {
       account_locked
     `,
     )
+    .eq("is_archived", false)
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -117,14 +118,17 @@ export async function updateAdminStatus(
     .from("peso")
     .update({ status })
     .eq("id", adminId)
-    .select()
-    .single();
+    .select();
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return data;
+  if (!data || data.length === 0) {
+    throw new Error("Admin not found");
+  }
+
+  return data[0];
 }
 
 export async function updateAdminInfo(
@@ -143,14 +147,17 @@ export async function updateAdminInfo(
     .from("peso")
     .update(updates)
     .eq("id", adminId)
-    .select()
-    .single();
+    .select();
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return data;
+  if (!data || data.length === 0) {
+    throw new Error(`Admin not found with ID: ${adminId}`);
+  }
+
+  return data[0];
 }
 
 export async function unlockAdminAccount(adminId: number) {
@@ -170,14 +177,17 @@ export async function unlockAdminAccount(adminId: number) {
       failed_login_attempts: 0,
     })
     .eq("id", adminId)
-    .select()
-    .single();
+    .select();
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return data;
+  if (!data || data.length === 0) {
+    throw new Error("Admin not found");
+  }
+
+  return data[0];
 }
 
 export async function resetAdminPassword(authId: string, newPassword: string) {
@@ -286,4 +296,110 @@ export async function createAdmin(
     ...pesoData,
     email: authData.user.email,
   };
+}
+
+export async function archiveAdmin(adminId: number) {
+  const supabase = await getSupabaseClient();
+
+  // Only super admins can archive admins
+  const currentUserIsSuperAdmin = await checkIsSuperAdmin();
+  if (!currentUserIsSuperAdmin) {
+    throw new Error("Unauthorized: Super admin access required");
+  }
+
+  const { data, error } = await supabase
+    .from("peso")
+    .update({
+      is_archived: true,
+      archived_at: new Date().toISOString(),
+    })
+    .eq("id", adminId)
+    .select();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data || data.length === 0) {
+    throw new Error("Admin not found");
+  }
+
+  return data[0];
+}
+
+export async function unarchiveAdmin(adminId: number) {
+  const supabase = await getSupabaseClient();
+
+  // Only super admins can unarchive admins
+  const currentUserIsSuperAdmin = await checkIsSuperAdmin();
+  if (!currentUserIsSuperAdmin) {
+    throw new Error("Unauthorized: Super admin access required");
+  }
+
+  const { data, error } = await supabase
+    .from("peso")
+    .update({
+      is_archived: false,
+      archived_at: null,
+    })
+    .eq("id", adminId)
+    .select();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data || data.length === 0) {
+    throw new Error("Admin not found");
+  }
+
+  return data[0];
+}
+
+export async function getArchivedAdmins(): Promise<AdminWithEmail[]> {
+  const supabase = await getSupabaseClient();
+  const adminClient = getSupabaseAdminClient();
+
+  // Only super admins should call this
+  const isSuperAdmin = await checkIsSuperAdmin();
+  if (!isSuperAdmin) {
+    throw new Error("Unauthorized: Super admin access required");
+  }
+
+  const { data: pesoData, error } = await supabase
+    .from("peso")
+    .select(
+      `
+      id,
+      name,
+      is_superadmin,
+      auth_id,
+      created_at,
+      status,
+      last_login,
+      account_locked,
+      archived_at
+    `,
+    )
+    .eq("is_archived", true)
+    .order("archived_at", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  // Fetch emails from auth.users using admin client
+  const adminsWithEmails: AdminWithEmail[] = [];
+
+  for (const admin of pesoData || []) {
+    const { data: userData } = await adminClient.auth.admin.getUserById(
+      admin.auth_id,
+    );
+    adminsWithEmails.push({
+      ...admin,
+      email: userData?.user?.email || "N/A",
+    });
+  }
+
+  return adminsWithEmails;
 }

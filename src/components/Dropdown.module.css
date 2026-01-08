@@ -65,10 +65,11 @@
         color 0.15s ease;
     text-decoration: none;
     color: var(--text);
-    font-size: 0.95rem;
+    font-size: 0.95rem !important;
     user-select: none;
     width: 100%;
     box-sizing: border-box;
+    text-align: left !important;
 }
 
 .dropdownItem:hover {
@@ -96,6 +97,8 @@
 .text {
     flex: 1;
     white-space: nowrap;
+    text-align: left !important;
+    font-size: inherit !important;
 }
 
 .divider {

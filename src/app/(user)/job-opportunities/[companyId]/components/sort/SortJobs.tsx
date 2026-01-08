@@ -4,6 +4,7 @@ import React from "react";
 import CustomSelect from "@/components/CustomSelect";
 
 export type JobSortOption =
+  | "relevance"
   | "recent"
   | "oldest"
   | "title-asc"
@@ -19,6 +20,7 @@ interface SortJobsProps {
 }
 
 const options = [
+  { value: "relevance", label: "Most Relevant (Skill Match)" },
   { value: "recent", label: "Recently Posted" },
   { value: "oldest", label: "Oldest First" },
   { value: "deadline-soon", label: "Deadline Soon" },

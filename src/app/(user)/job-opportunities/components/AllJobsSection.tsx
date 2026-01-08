@@ -2,8 +2,9 @@
 import React, { useState } from "react";
 import styles from "./AllJobsSection.module.css";
 import { sortJobsBySkillMatch } from "@/lib/utils/skillMatching";
-import SkillMatchBadge from "@/components/SkillMatchBadge";
+import JobListCard from "@/components/jobs/JobListCard";
 import { Job } from "../[companyId]/types/job.types";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AllJobsSectionProps {
   jobs: Job[];
@@ -18,6 +19,7 @@ const AllJobsSection: React.FC<AllJobsSectionProps> = ({
   searchQuery,
   onJobClick,
 }) => {
+  const { t } = useLanguage();
   const [sortBy, setSortBy] = useState<"relevance" | "date">("relevance");
   const [showAll, setShowAll] = useState(false);
 
@@ -49,7 +51,7 @@ const AllJobsSection: React.FC<AllJobsSectionProps> = ({
     <section className={styles.section}>
       <div className={styles.header}>
         <h2 className={styles.title}>
-          All Job Openings
+          {t("jobs.allJobs")}
           <span className={styles.count}>({filteredJobs.length})</span>
         </h2>
         <div className={styles.sortButtons}>
@@ -57,89 +59,39 @@ const AllJobsSection: React.FC<AllJobsSectionProps> = ({
             className={`${styles.sortButton} ${sortBy === "relevance" ? styles.active : ""}`}
             onClick={() => setSortBy("relevance")}
           >
-            Most Relevant
+            {t("jobs.relevance")}
           </button>
           <button
             className={`${styles.sortButton} ${sortBy === "date" ? styles.active : ""}`}
             onClick={() => setSortBy("date")}
           >
-            Most Recent
+            {t("jobs.recent")}
           </button>
         </div>
       </div>
 
-      <div className={styles.jobsGrid}>
-        {displayedJobs.map((job) => {
-          const matchPercentage =
-            sortBy === "relevance"
-              ? (job as Job & { matchPercentage?: number }).matchPercentage || 0
-              : 0;
+      {displayedJobs.length > 0 && (
+        <div className={styles.jobsGrid}>
+          {displayedJobs.map((job) => {
+            const matchPercentage =
+              sortBy === "relevance"
+                ? (job as Job & { matchPercentage?: number }).matchPercentage ||
+                  0
+                : 0;
 
-          return (
-            <div
-              key={job.id}
-              className={styles.jobCard}
-              onClick={() => onJobClick(job)}
-            >
-              <div className={styles.jobCardHeader}>
-                <img
-                  src={
-                    job.companies?.logo || "/assets/images/default_profile.png"
-                  }
-                  alt={job.companies?.name || "Company"}
-                  className={styles.companyLogo}
-                />
-                {sortBy === "relevance" && matchPercentage > 0 && (
-                  <SkillMatchBadge percentage={matchPercentage} size="small" />
-                )}
-              </div>
-
-              <div className={styles.jobContent}>
-                <h3 className={styles.jobTitle}>{job.title}</h3>
-                <p className={styles.companyName}>{job.companies?.name}</p>
-                <p className={styles.location}>{job.place_of_assignment}</p>
-
-                <div className={styles.jobDetails}>
-                  <span className={styles.detail}>
-                    <svg
-                      className={styles.icon}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                      />
-                    </svg>
-                    {job.education}
-                  </span>
-                  <span className={styles.detail}>
-                    <svg
-                      className={styles.icon}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                    {job.posted_date
-                      ? new Date(job.posted_date).toLocaleDateString()
-                      : "No date"}
-                  </span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            return (
+              <JobListCard
+                key={job.id}
+                job={{ ...job, matchPercentage }}
+                userSkills={userSkills}
+                showSkillMatch={sortBy === "relevance"}
+                showApplyButton={true}
+                onClick={() => onJobClick(job)}
+              />
+            );
+          })}
+        </div>
+      )}
 
       {filteredJobs.length > 12 && (
         <button
@@ -147,8 +99,8 @@ const AllJobsSection: React.FC<AllJobsSectionProps> = ({
           onClick={() => setShowAll(!showAll)}
         >
           {showAll
-            ? "Show Less"
-            : `Show All Jobs (${filteredJobs.length - 12} more)`}
+            ? t("common.showLess")
+            : `${t("common.showAll")} (${sortedJobs.length - 12} ${t("common.viewMore").toLowerCase()})`}
         </button>
       )}
     </section>

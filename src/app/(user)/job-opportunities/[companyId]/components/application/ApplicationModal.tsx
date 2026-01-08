@@ -13,6 +13,11 @@ import {
   ExamAttemptData,
 } from "../../types/application.types";
 import { withdrawApplication } from "@/lib/db/services/application.service";
+import { ResumeEditSection } from "@/app/(user)/profile/components/sections/ResumeEditSection";
+import { useProfileData } from "@/app/(user)/profile/hooks/useProfileData";
+import { useProfileEdit } from "@/app/(user)/profile/hooks/useProfileEdit";
+import { updateResumeAction } from "@/app/(user)/profile/actions/profile.actions";
+import Toast from "@/components/toast/Toast";
 
 interface ApplicationModalProps {
   job: Job;
@@ -55,6 +60,12 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [examDataFetched, setExamDataFetched] = useState(false);
+  const [showEditResume, setShowEditResume] = useState(false);
+  const [showEditSuccess, setShowEditSuccess] = useState(false);
+
+  // Resume editing hooks
+  const { user, resume, refreshResume, refreshUser } = useProfileData();
+  const profileEditHook = useProfileEdit(user, resume);
 
   const handleTabChange = (tab: "previewResume" | "exam" | "verifiedId") => {
     setActiveTab(tab);
@@ -96,8 +107,69 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({
     setShowWithdrawModal(false);
   };
 
+  const handleEditResume = () => {
+    setShowEditResume(true);
+    setActiveTab("previewResume");
+  };
+
+  const handleResumeSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await updateResumeAction({
+        name: profileEditHook.editName,
+        birth_date: profileEditHook.editBirthDate,
+        address: profileEditHook.editAddress,
+        sex: profileEditHook.editSex,
+        barangay: profileEditHook.editBarangay,
+        district: profileEditHook.editDistrict,
+        education: {
+          attainment: profileEditHook.editEducationAttainment,
+          degree: profileEditHook.editDegree,
+          school: profileEditHook.editSchool,
+          location: profileEditHook.editEducationLocation,
+          start_date: profileEditHook.editEducationStartDate,
+          end_date: profileEditHook.editEducationEndDate,
+        },
+        skills: profileEditHook.skills,
+        work_experiences: profileEditHook.workExperiences,
+        profile_introduction: profileEditHook.editIntroduction,
+      });
+
+      await Promise.all([refreshUser(), refreshResume()]);
+      setShowEditResume(false);
+      setShowEditSuccess(true);
+      setTimeout(() => setShowEditSuccess(false), 3000);
+    } catch (error) {
+      console.error("Failed to update resume:", error);
+    }
+  };
+
   return (
     <>
+      {/* Success Toast */}
+      <Toast
+        show={showEditSuccess}
+        onClose={() => setShowEditSuccess(false)}
+        title="Success"
+        message="Resume updated!"
+        icon={
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="m4.5 12.75 6 6 9-13.5"
+            />
+          </svg>
+        }
+      />
+
       <div className={jobStyle.modalOverlay} onClick={onClose}>
         <div
           className={`${jobStyle.modal} ${jobStyle.applicationModal}`}
@@ -182,7 +254,7 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({
                   className={activeTab === "exam" ? jobStyle.active : ""}
                   onClick={() => handleTabChange("exam")}
                 >
-                  Exam
+                  Pre-Screening Questions
                 </li>
                 <li
                   className={activeTab === "verifiedId" ? jobStyle.active : ""}
@@ -199,10 +271,28 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({
                     display: activeTab === "previewResume" ? "block" : "none",
                   }}
                 >
-                  <ResumePreviewTab
-                    hasApplied={hasApplied}
-                    onContinueToExam={onContinueToExam}
-                  />
+                  {showEditResume && user ? (
+                    <div
+                      style={{
+                        padding: "1rem",
+                        overflowY: "auto",
+                        height: "100%",
+                      }}
+                    >
+                      <ResumeEditSection
+                        user={user}
+                        {...profileEditHook}
+                        onCancel={() => setShowEditResume(false)}
+                        onSave={handleResumeSave}
+                      />
+                    </div>
+                  ) : (
+                    <ResumePreviewTab
+                      hasApplied={hasApplied}
+                      onContinueToExam={onContinueToExam}
+                      onEditResume={handleEditResume}
+                    />
+                  )}
                 </div>
 
                 <div

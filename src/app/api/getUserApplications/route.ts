@@ -1,38 +1,25 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server";
+import { getUserApplications } from "@/lib/db/services/application.service";
 
 export async function GET() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
-
-  // Fetch only this user's applicant data
-  const { data: applicantData, error: applicantError } = await supabase
-    .from("applicants")
-    .select("id")
-    .eq("auth_id", user.id)
-    .single();
-
-  if (applicantError || !applicantData) {
-    return NextResponse.json({ error: "Applicant not found" }, { status: 404 });
-  }
-
-  const { data: applicationData, error } = await supabase
-    .from("applications")
-    .select("*")
-    .eq("applicant_id", applicantData.id);
-  if (error) {
+  try {
+    const applications = await getUserApplications();
+    return NextResponse.json(applications);
+  } catch (error) {
+    console.error("Get user applications error:", error);
     return NextResponse.json(
-      { error: "Failed to fetch applications" },
-      { status: 500 }
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch user applications",
+      },
+      {
+        status:
+          error instanceof Error && error.message === "Applicant not found"
+            ? 404
+            : 500,
+      },
     );
   }
-
-  // Return application data
-  return NextResponse.json(applicationData);
 }

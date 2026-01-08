@@ -1,6 +1,5 @@
 // src/app/(user)/profile/components/sections/ResumeViewSection.tsx
 import React from "react";
-import Button from "@/components/Button";
 import Resume from "../Resume";
 import styles from "../Profile.module.css";
 import { User, ResumeData, WorkExperience } from "../../types/profile.types";
@@ -36,13 +35,18 @@ export const ResumeViewSection: React.FC<ResumeViewSectionProps> = ({
       >
         <h3>No resume found.</h3>
         <p>Click below to create your resume.</p>
-        <Button
+        <button
           className={styles.createResumeButton}
           onClick={onEdit}
-          variant="primary"
+          style={{
+            background: "linear-gradient(90deg, var(--accent), var(--button))",
+            color: "white",
+            border: "none",
+            cursor: "pointer",
+          }}
         >
           Create Resume
-        </Button>
+        </button>
       </div>
     );
   }
@@ -58,6 +62,49 @@ export const ResumeViewSection: React.FC<ResumeViewSectionProps> = ({
   return (
     <div className={styles.resumeWrapper}>
       <div className={styles.resume}>
+        <div className={styles.resumeIconButtons}>
+          <button
+            className={styles.resumeIconButton}
+            onClick={onEdit}
+            style={{ backgroundColor: "transparent", border: "none" }}
+            title="Edit Resume"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="black"
+              style={{ width: "1.25rem", height: "1.25rem" }}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+              />
+            </svg>
+          </button>
+          <button
+            className={styles.resumeIconButton}
+            onClick={onDownload}
+            title="Download Resume"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="black"
+              style={{ width: "1.25rem", height: "1.25rem" }}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
+              />
+            </svg>
+          </button>
+        </div>
         <Resume
           ref={resumeRef}
           profilePicUrl={
@@ -83,22 +130,6 @@ export const ResumeViewSection: React.FC<ResumeViewSectionProps> = ({
           workExperiences={workExperiences}
           profileIntroduction={resume?.profile_introduction}
         />
-        <div className={styles.resumeButtonContainer}>
-          <Button
-            className={styles.resumeButton}
-            onClick={onEdit}
-            variant="success"
-          >
-            Edit Resume
-          </Button>
-          <Button
-            className={styles.resumeButton}
-            onClick={onDownload}
-            variant="danger"
-          >
-            Download Resume
-          </Button>
-        </div>
       </div>
     </div>
   );

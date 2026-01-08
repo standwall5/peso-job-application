@@ -1,10 +1,10 @@
 .chatButton {
     position: fixed;
-    bottom: 2rem;
+    bottom: 5rem;
     right: 2rem;
     width: 60px;
     height: 60px;
-    border-radius: 50%;
+    border-radius: 100%;
     background: linear-gradient(135deg, var(--accent), var(--button));
     border: none;
     cursor: pointer;
@@ -44,7 +44,7 @@
     right: -4px;
     background: #ff556e;
     color: white;
-    border-radius: 12px;
+    border-radius: 6px;
     padding: 2px 6px;
     font-size: 11px;
     font-weight: bold;
@@ -55,7 +55,8 @@
 }
 
 @keyframes pulse {
-    0%, 100% {
+    0%,
+    100% {
         transform: scale(1);
     }
     50% {
@@ -66,7 +67,7 @@
 /* Mobile responsiveness */
 @media (max-width: 768px) {
     .chatButton {
-        bottom: 1rem;
+        bottom: 4rem;
         right: 1rem;
         width: 56px;
         height: 56px;

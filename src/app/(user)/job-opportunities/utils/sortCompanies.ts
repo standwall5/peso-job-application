@@ -3,7 +3,7 @@ import { SortOption } from "../components/sort/SortCompany";
 interface Job {
   id: number;
   company_id: number;
-  manpower_needed: number;
+  manpower_needed?: number;
   posted_date: string | null;
 }
 

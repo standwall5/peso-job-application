@@ -647,3 +647,72 @@ footer img {
         flex-direction: column;
     }
 }
+
+/* Translation-safe text utilities */
+.text-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.text-truncate-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.text-wrap {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+.text-balance {
+    text-wrap: balance;
+}
+
+/* Flexible button text */
+button,
+.btn {
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+/* Ensure labels don't break layout */
+label {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Translation-safe containers */
+.translation-safe {
+    min-width: 0;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
+}
+
+/* Badge/pill text wrapping */
+.badge,
+.pill,
+[class*="badge"],
+[class*="Badge"] {
+    white-space: normal;
+    word-wrap: break-word;
+    text-align: center;
+}
+
+/* Navigation items */
+nav a,
+nav button {
+    white-space: normal;
+    text-align: center;
+}

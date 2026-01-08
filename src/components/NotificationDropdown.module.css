@@ -58,6 +58,60 @@
     background: #e5e7eb;
 }
 
+.headerActions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.filterTabs {
+    display: flex;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.filterTab {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #6b7280;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.filterTab:hover {
+    color: #111827;
+    background: #f3f4f6;
+}
+
+.filterTab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: white;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.375rem;
+    background: var(--accent);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 10px;
+}
+
 .loading,
 .empty {
     display: flex;
@@ -82,14 +136,14 @@
 }
 
 .notificationList {
-    max-height: 420px;
+    max-height: 380px;
     overflow-y: auto;
 }
 
 .notificationItem {
     display: flex;
     align-items: flex-start;
-    gap: 0.5rem;
+    gap: 0.75rem;
     padding: 1rem;
     border-bottom: 1px solid #f3f4f6;
     transition: background-color 0.15s;
@@ -137,6 +191,26 @@
     color: white;
 }
 
+.companyLogoWrapper {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 0.375rem;
+    border: 1px solid #e5e7eb;
+    padding: 0.25rem;
+}
+
+.companyLogo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 0.25rem;
+}
+
 .content {
     flex: 1;
     min-width: 0;
@@ -165,6 +239,14 @@
     color: #9ca3af;
 }
 
+.jobInfo {
+    display: block;
+    font-size: 0.75rem;
+    color: #3b82f6;
+    margin: 0.25rem 0;
+    font-weight: 500;
+}
+
 .unreadDot {
     position: absolute;
     top: 1.25rem;
@@ -175,6 +257,14 @@
     border-radius: 50%;
 }
 
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    margin-top: 0.5rem;
+}
+
+.actionBtn,
 .deleteBtn {
     flex-shrink: 0;
     width: 28px;
@@ -188,8 +278,12 @@
     cursor: pointer;
     color: #9ca3af;
     transition: all 0.15s;
-    margin-top: 0.5rem;
     padding: 0;
+}
+
+.actionBtn:hover {
+    background: #dbeafe;
+    color: #3b82f6;
 }
 
 .deleteBtn:hover {
@@ -197,9 +291,48 @@
     color: #dc2626;
 }
 
+.actionBtn svg,
 .deleteBtn svg {
     width: 16px;
     height: 16px;
+}
+
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    padding: 0.875rem 1.25rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow:
+        0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    font-size: 0.875rem;
+    font-weight: 500;
+    z-index: 10000;
+    animation: slideIn 0.3s ease;
+    border-left: 4px solid;
+}
+
+.toastSuccess {
+    border-left-color: #10b981;
+    color: #065f46;
+}
+
+.toastError {
+    border-left-color: #ef4444;
+    color: #991b1b;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 /* Mobile Media Queries */
@@ -207,8 +340,19 @@
     .notificationDropdown {
         width: 90vw;
         max-width: 340px;
-        max-height: 450px;
+        max-height: 500px;
         right: -1rem;
+    }
+
+    .filterTab {
+        padding: 0.625rem 0.75rem;
+        font-size: 0.813rem;
+    }
+
+    .badge {
+        min-width: 1.125rem;
+        height: 1.125rem;
+        font-size: 0.688rem;
     }
 
     .header {
@@ -224,12 +368,12 @@
     }
 
     .notificationList {
-        max-height: 370px;
+        max-height: 420px;
     }
 
     .notificationItem {
         padding: 0.875rem;
-        gap: 0.5rem;
+        gap: 0.625rem;
     }
 
     .notificationContent {
@@ -246,15 +390,33 @@
         height: 18px;
     }
 
-    .deleteBtn {
-        width: 26px;
-        height: 26px;
+    .companyLogoWrapper {
+        width: 36px;
+        height: 36px;
+    }
+
+    .actions {
+        gap: 0.3rem;
         margin-top: 0.375rem;
     }
 
+    .actionBtn,
+    .deleteBtn {
+        width: 26px;
+        height: 26px;
+    }
+
+    .actionBtn svg,
     .deleteBtn svg {
         width: 15px;
         height: 15px;
+    }
+
+    .toast {
+        bottom: 1.5rem;
+        right: 1.5rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.813rem;
     }
 
     .content h4 {
@@ -288,10 +450,21 @@
     .notificationDropdown {
         width: 95vw;
         max-width: 100vw;
-        max-height: 400px;
+        max-height: 450px;
         right: -1.5rem;
         left: 50%;
         transform: translateX(-50%);
+    }
+
+    .filterTab {
+        padding: 0.5rem 0.625rem;
+        font-size: 0.75rem;
+    }
+
+    .badge {
+        min-width: 1rem;
+        height: 1rem;
+        font-size: 0.625rem;
     }
 
     .header {
@@ -308,12 +481,12 @@
     }
 
     .notificationList {
-        max-height: 320px;
+        max-height: 370px;
     }
 
     .notificationItem {
         padding: 0.75rem;
-        gap: 0.4rem;
+        gap: 0.5rem;
     }
 
     .notificationContent {
@@ -330,15 +503,38 @@
         height: 16px;
     }
 
-    .deleteBtn {
-        width: 24px;
-        height: 24px;
+    .companyLogoWrapper {
+        width: 32px;
+        height: 32px;
+    }
+
+    .jobInfo {
+        font-size: 0.7rem;
+    }
+
+    .actions {
+        gap: 0.25rem;
         margin-top: 0.25rem;
     }
 
+    .actionBtn,
+    .deleteBtn {
+        width: 24px;
+        height: 24px;
+    }
+
+    .actionBtn svg,
     .deleteBtn svg {
         width: 14px;
         height: 14px;
+    }
+
+    .toast {
+        bottom: 1rem;
+        right: 1rem;
+        left: 1rem;
+        padding: 0.625rem 0.875rem;
+        font-size: 0.75rem;
     }
 
     .content h4 {

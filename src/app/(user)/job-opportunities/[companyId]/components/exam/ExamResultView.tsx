@@ -94,7 +94,7 @@ const ExamResultView: React.FC<ExamResultViewProps> = ({
       <div className={examStyles.header}>
         <div className={styles.scoreHeader}>
           <div className={styles.scoreInfo}>
-            <h2 className={styles.scoreTitle}>Exam Results</h2>
+            <h2 className={styles.scoreTitle}>Pre-Screening Results</h2>
             <p className={styles.scoreDate}>
               📅 {new Date(attempt.date_submitted).toLocaleString()}
             </p>

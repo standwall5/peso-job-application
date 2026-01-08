@@ -14,7 +14,9 @@ interface ExamTabProps {
   examAttempt: ExamAttemptData | null;
   examData: Exam | null;
   hasApplied: boolean;
-  onExamSubmit: (answers: Record<number, number | number[] | string>) => Promise<void>;
+  onExamSubmit: (
+    answers: Record<number, number | number[] | string>,
+  ) => Promise<void>;
 }
 
 const ExamTab: React.FC<ExamTabProps> = ({
@@ -81,7 +83,7 @@ const ExamTab: React.FC<ExamTabProps> = ({
   return (
     <div className={jobStyle.applicantDetail}>
       <div className={jobStyle.noExam}>
-        <p>No exam available for this job.</p>
+        <p>No pre-screening questions available for this job.</p>
       </div>
     </div>
   );

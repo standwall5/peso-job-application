@@ -10,7 +10,7 @@
 /* Modern editable field styles */
 .editable {
     cursor: pointer;
-    border-radius: 0.5rem;
+    border-radius: 0.25rem;
     padding: 4px 8px;
     margin: -4px -8px;
     display: inline-block;
@@ -24,7 +24,7 @@
     background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
-    border-radius: 0.5rem;
+    border-radius: 0.25rem;
 }
 
 .editable::before {
@@ -53,7 +53,7 @@
     cursor: pointer;
     padding: 1rem;
     margin: -1rem;
-    border-radius: 0.75rem;
+    border-radius: 0.25rem;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     text-align: justify;
     will-change: transform;
@@ -68,7 +68,7 @@
 /* Rich text editor styles */
 .editorContainer {
     border: 2px solid #3498db;
-    border-radius: 0.75rem;
+    border-radius: 0.25rem;
     overflow: hidden;
     background: #ffffff;
     box-shadow: 0 8px 24px rgba(52, 152, 219, 0.2);
@@ -89,7 +89,7 @@
     padding: 0.5rem 0.75rem;
     border: 1px solid rgba(52, 152, 219, 0.2);
     background: #ffffff;
-    border-radius: 0.375rem;
+    border-radius: 0.25rem;
     cursor: pointer;
     font-size: 0.875rem;
     font-weight: 600;
@@ -231,7 +231,7 @@
     border: 1px solid #3498db;
     background: #ffffff;
     padding: 0.5rem 0.75rem;
-    border-radius: 0.5rem;
+    border-radius: 0.25rem;
     outline: none;
     width: 100%;
     resize: vertical;

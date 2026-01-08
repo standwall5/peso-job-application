@@ -12,7 +12,7 @@
 .profileDetailsContainer,
 .profileOptionsContainer {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border-radius: 1.25rem;
+    border-radius: 0.5rem;
     border: 1px solid rgba(52, 152, 219, 0.1);
     transition: all 0.25s ease;
 }
@@ -44,7 +44,7 @@
     display: inline-block;
     width: 10rem;
     aspect-ratio: 1/1;
-    border-radius: 50%;
+    border-radius: 0.25rem;
     overflow: hidden;
 }
 
@@ -113,7 +113,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 0.5rem;
+    border-radius: 0.25rem;
     transition: all 0.2s ease;
     color: #64748b;
 }
@@ -144,7 +144,7 @@
     gap: 0.5rem;
     padding: 1rem;
     background: #f8fcff;
-    border-radius: 0.75rem;
+    border-radius: 0.25rem;
     border: 1px solid rgba(52, 152, 219, 0.1);
     transition: all 0.25s ease;
     position: relative;
@@ -186,7 +186,7 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     outline: none;
     padding: 0.75rem 1rem;
-    border-radius: 0.75rem;
+    border-radius: 0.25rem;
     border: 1px solid rgba(52, 152, 219, 0.1);
     transition: all 0.25s ease;
     font-size: 0.875rem;
@@ -208,7 +208,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 0.5rem;
+    border-radius: 0.25rem;
     transition: all 0.2s ease;
     color: #64748b;
     position: absolute;
@@ -317,29 +317,50 @@
     width: 100%;
 }
 
-.resumeButtonContainer {
+.resumeIconButtons {
+    position: absolute;
+    top: 0.5rem;
+    right: 7rem;
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
-    justify-content: flex-end;
     gap: 0.5rem;
-    margin-top: 1rem;
-    width: 100%;
-    position: absolute;
-    bottom: 2rem;
-    right: 2rem;
-    pointer-events: none;
+    z-index: 10;
 }
 
-.resumeButtonContainer button {
-    width: max-content;
-    pointer-events: auto;
+.resumeIconButton {
+    color: black;
+
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+}
+
+.resumeIconButton:hover {
+    transform: translateY(-2px);
+}
+
+.resumeIconButton:active {
+    transform: translateY(0);
+}
+
+/* Specific button styles with background colors get their shadows */
+.resumeIconButton[style*="ef4444"] {
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.resumeIconButton[style*="ef4444"]:hover {
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5);
 }
 
 .createResumeButton {
     padding: 0.5rem 1.5rem;
     font-weight: 600;
-    border-radius: 0.5rem;
+    border-radius: 0.25rem;
     border: 1px solid rgba(52, 152, 219, 0.1);
     background: #fff;
     cursor: pointer;
@@ -364,7 +385,7 @@
     background-color: white;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     border: 1px solid rgba(52, 152, 219, 0.1);
-    border-radius: 1.25rem;
+    border-radius: 0.5rem;
     flex-grow: 1;
     overflow: auto;
     width: 100%;
@@ -394,7 +415,7 @@
     width: max-content;
     padding: 0.75rem 1.25rem;
     background-color: white;
-    border-radius: 1rem;
+    border-radius: 0.375rem;
     border: 1px solid rgba(52, 152, 219, 0.1);
     color: black;
     font-weight: bold;
@@ -415,7 +436,7 @@
 .educationInput {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     border: 1px solid rgba(52, 152, 219, 0.1);
-    border-radius: 1rem;
+    border-radius: 0.375rem;
 }
 
 .row {
@@ -465,7 +486,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 2rem;
+    border-radius: 0.375rem;
     padding: 0.5rem 1rem;
     box-shadow: 0 2px 8px rgba(52, 152, 219, 0.2);
     transition: all 0.25s ease;
@@ -501,7 +522,7 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     border: 1px solid rgba(52, 152, 219, 0.1);
     padding: 1.5rem;
-    border-radius: 1.25rem;
+    border-radius: 0.5rem;
     width: 45%;
     height: 15rem;
     flex-grow: 0;
@@ -544,7 +565,7 @@
 }
 
 .jobCompany img {
-    border-radius: 1rem;
+    border-radius: 0.375rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     border: 1px solid rgba(52, 152, 219, 0.1);
     padding: 0.25rem;
@@ -566,7 +587,7 @@
 }
 
 .status {
-    border-radius: 2rem;
+    border-radius: 0.375rem;
     font-weight: 600;
     font-size: 0.8125rem;
     padding: 0.4rem 0.8rem;
@@ -685,20 +706,19 @@
         position: relative;
     }
 
-    .resumeButtonContainer {
-        position: static;
-        flex-direction: row;
-        justify-content: center;
-        margin: 1rem 0 0;
+    .resumeIconButtons {
+        top: 0.5rem;
+        right: 0.5rem;
     }
 
-    .resumeButtonContainer button {
-        flex: 1;
+    .resumeIconButton {
+        width: 2.25rem;
+        height: 2.25rem;
     }
 
-    .resumeButton {
-        padding: 0.4rem 1.25rem;
-        font-size: 0.9rem;
+    .resumeIconButton svg {
+        width: 1.1rem;
+        height: 1.1rem;
     }
 
     .editResume {
@@ -753,7 +773,7 @@
     }
 
     .profileDetailsContainer {
-        border-radius: 1rem;
+        border-radius: 0.375rem;
         min-height: 18rem;
         padding: 1.5rem 0;
     }
@@ -794,7 +814,7 @@
     }
 
     .profileOptionsContainer {
-        border-radius: 1rem;
+        border-radius: 0.375rem;
     }
 
     .profileOptionsNav {
@@ -811,13 +831,19 @@
         gap: 1rem;
     }
 
-    .resumeButtonContainer {
-        margin-right: 0.5rem;
+    .resumeIconButtons {
+        top: 0.5rem;
+        right: 0.5rem;
     }
 
-    .resumeButton {
-        padding: 0.35rem 1rem;
-        font-size: 0.85rem;
+    .resumeIconButton {
+        width: 2rem;
+        height: 2rem;
+    }
+
+    .resumeIconButton svg {
+        width: 1rem;
+        height: 1rem;
     }
 
     .editResume {
