@@ -20,13 +20,17 @@ export const useJobs = () => {
         ]);
 
         setJobs(jobsData);
-        setUserApplications(
-          applicationsData.map((app) => ({
+
+        const mappedApplications: UserApplication[] = applicationsData.map(
+          (app) => ({
+            id: app.id,
             job_id: app.job_id,
             applied_date: app.applied_date,
             status: app.status,
-          })),
+          }),
         );
+
+        setUserApplications(mappedApplications);
       } catch (error) {
         console.error("Failed to fetch jobs and applications:", error);
       }

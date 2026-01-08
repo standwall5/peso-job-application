@@ -621,19 +621,22 @@
 /* Mobile Media Queries */
 @media (max-width: 768px) {
     .profileContainer {
-        width: 95vw;
+        width: 100vw;
         height: auto;
-        min-height: 80vh;
-        margin: 1rem;
+        min-height: 100vh;
+        margin: 0;
         flex-direction: column;
-        gap: 1.5rem;
+        gap: 1rem;
+        padding: 0.5rem;
+        box-sizing: border-box;
     }
 
     .profileDetailsContainer {
         width: 100%;
         height: auto;
-        min-height: 20rem;
-        padding: 2rem 0;
+        min-height: auto;
+        padding: 1.5rem 0;
+        border-radius: 0.375rem;
     }
 
     .profileDetailsContent {
@@ -648,6 +651,7 @@
     .profileDetailsInfo {
         width: 90%;
         gap: 0.75rem;
+        padding: 0 0.5rem;
     }
 
     .nameContainer h4 {
@@ -661,6 +665,7 @@
 
     .infoRow {
         padding: 0.875rem;
+        -webkit-tap-highlight-color: rgba(52, 152, 219, 0.1);
     }
 
     .infoLabel {
@@ -681,24 +686,32 @@
         width: 100%;
         height: auto;
         min-height: 50vh;
+        border-radius: 0.375rem;
     }
 
     .profileOptionsNav {
         font-size: 11px;
-        gap: 1rem;
+        gap: 0.75rem;
         overflow-x: auto;
+        overflow-y: hidden;
         white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        padding: 0.5rem 0.75rem;
     }
 
     .profileOptionsNav li {
-        padding: 0.75rem 1.5rem 0.5rem;
+        padding: 0.75rem 1.25rem 0.5rem;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .appliedJobs {
-        padding: 0 1rem;
-        gap: 1.25rem;
+        padding: 0.75rem;
+        gap: 1rem;
         flex-wrap: wrap;
         justify-content: center;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .resumeWrapper {
@@ -768,14 +781,16 @@
 @media (max-width: 480px) {
     .profileContainer {
         width: 100vw;
-        margin: 0.5rem 0;
-        gap: 1rem;
+        margin: 0;
+        padding: 0.25rem;
+        gap: 0.75rem;
+        min-height: 100vh;
     }
 
     .profileDetailsContainer {
-        border-radius: 0.375rem;
-        min-height: 18rem;
-        padding: 1.5rem 0;
+        border-radius: 0.25rem;
+        min-height: auto;
+        padding: 1rem 0;
     }
 
     .profileDetailsContent {
@@ -789,6 +804,7 @@
 
     .profileDetailsInfo {
         width: 92%;
+        padding: 0 0.25rem;
     }
 
     .nameContainer h4 {
@@ -802,6 +818,7 @@
 
     .infoRow {
         padding: 0.75rem;
+        -webkit-tap-highlight-color: rgba(52, 152, 219, 0.1);
     }
 
     .infoLabel {
@@ -814,21 +831,27 @@
     }
 
     .profileOptionsContainer {
-        border-radius: 0.375rem;
+        border-radius: 0.25rem;
     }
 
     .profileOptionsNav {
-        font-size: 10px;
-        gap: 0.5rem;
+        font-size: 9.5px;
+        gap: 0.35rem;
+        padding: 0.35rem 0.5rem;
+        -webkit-overflow-scrolling: touch;
     }
 
     .profileOptionsNav li {
-        padding: 0.75rem 1rem 0.5rem;
+        padding: 0.65rem 0.9rem 0.45rem;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .appliedJobs {
-        padding: 0 0.75rem;
-        gap: 1rem;
+        padding: 0.5rem;
+        gap: 0.75rem;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .resumeIconButtons {
@@ -847,25 +870,30 @@
     }
 
     .editResume {
-        padding: 1rem;
+        padding: 0.75rem;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .editResume h2 {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
     }
 
     .editResume input,
     .editResume select,
     .editResume textarea {
-        font-size: 0.9rem;
+        font-size: 0.875rem;
+        touch-action: manipulation;
     }
 
     .jobCard {
-        padding: 1rem;
-        min-height: 10rem;
+        padding: 0.875rem;
+        min-height: 9rem;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(52, 152, 219, 0.1);
     }
 
     .jobCompany img {
-        width: 3rem;
+        width: 2.75rem;
     }
 }

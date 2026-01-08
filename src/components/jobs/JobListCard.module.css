@@ -300,81 +300,100 @@
 /* Mobile Media Queries */
 @media (max-width: 768px) {
     .jobCard {
-        padding: 1.25rem;
-        min-height: 28rem;
+        padding: 1rem;
+        min-height: auto;
+        -webkit-tap-highlight-color: rgba(52, 152, 219, 0.1);
     }
 
     .companySection {
-        padding: 0.85rem;
-        gap: 0.4rem;
+        padding: 0.75rem;
+        gap: 0.5rem;
     }
 
     .companyHeader {
         gap: 0.75rem;
+        flex-wrap: wrap;
     }
 
     .companyInfoLeft {
-        gap: 0.4rem;
+        gap: 0.5rem;
+        min-width: 0;
+        flex: 1;
     }
 
     .companyLogo {
-        width: 56px;
-        height: 56px;
+        width: 52px;
+        height: 52px;
+    }
+
+    .manpowerStats {
+        flex-shrink: 0;
     }
 
     .manpowerStats h3 {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
     }
 
     .manpowerStats p {
-        font-size: 0.65rem;
+        font-size: 0.6rem;
+        line-height: 1.1;
     }
 
     .companyName {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
+        line-height: 1.2;
     }
 
     .jobTitle {
-        font-size: 1.1rem;
+        font-size: 1rem;
         padding-bottom: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .expandButton {
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 0.5rem;
+        touch-action: manipulation;
     }
 
     .detailItem {
-        font-size: 0.85rem;
-        padding: 0.4rem 0.6rem;
-        gap: 0.6rem;
-    }
-
-    .icon {
-        width: 1.1rem;
-        height: 1.1rem;
+        font-size: 0.8rem;
+        padding: 0.35rem 0.5rem;
         gap: 0.5rem;
     }
 
+    .icon {
+        width: 1rem;
+        height: 1rem;
+    }
+
     .skillsSection {
-        padding-top: 0.6rem;
+        padding-top: 0.5rem;
+        margin-top: 0.5rem;
     }
 
     .skillTag {
         font-size: 0.7rem;
-        padding: 0.25rem 0.55rem;
+        padding: 0.25rem 0.5rem;
     }
 
-    .manpowerBadge {
-        font-size: 0.75rem;
-        padding: 0.2rem 0.5rem;
+    .jobContent button {
+        font-size: 0.8rem;
+        padding: 0.6rem 1rem;
+        touch-action: manipulation;
     }
 
-    .jobDetails button {
-        font-size: 0.875rem;
-        padding: 0.65rem 1.25rem;
+    .badgeContainer {
+        top: 0.5rem;
+        right: 0.5rem;
     }
 }
 
 @media (max-width: 480px) {
     .jobCard {
-        padding: 0.875rem;
+        padding: 0.75rem;
         min-height: auto;
+        border-radius: 0.375rem;
     }
 
     /* Show expand button on mobile */
@@ -383,21 +402,27 @@
         align-items: center;
         justify-content: space-between;
         width: 100%;
-        padding: 0.625rem 0.75rem;
-        background: rgba(52, 152, 219, 0.05);
+        padding: 0.5rem 0.75rem;
+        background: linear-gradient(
+            135deg,
+            rgba(52, 152, 219, 0.05),
+            rgba(52, 152, 219, 0.08)
+        );
         border: 1px solid rgba(52, 152, 219, 0.2);
         border-radius: 0.375rem;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         font-weight: 600;
         color: var(--accent);
         cursor: pointer;
         transition: all 0.2s ease;
         margin-bottom: 0.5rem;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
     }
 
-    .expandButton:hover {
-        background: rgba(52, 152, 219, 0.1);
-        border-color: var(--accent);
+    .expandButton:active {
+        background: rgba(52, 152, 219, 0.15);
+        transform: scale(0.98);
     }
 
     /* Collapse details by default on mobile */
@@ -406,7 +431,10 @@
         opacity: 0;
         overflow: hidden;
         margin-bottom: 0;
-        gap: 0.5rem;
+        gap: 0.4rem;
+        transition:
+            max-height 0.3s ease,
+            opacity 0.3s ease;
     }
 
     .detailsList.expanded {
@@ -422,10 +450,13 @@
         padding-top: 0;
         margin-top: 0;
         border-top: none;
+        transition:
+            max-height 0.3s ease,
+            opacity 0.3s ease;
     }
 
     .skillsSection.expanded {
-        max-height: 500px;
+        max-height: 600px;
         opacity: 1;
         padding-top: 0.5rem;
         margin-top: 0.5rem;
@@ -433,31 +464,38 @@
     }
 
     .companySection {
-        padding: 0.625rem;
-        gap: 0.3rem;
+        padding: 0.5rem;
+        gap: 0.4rem;
     }
 
     .companyHeader {
         gap: 0.5rem;
+        flex-wrap: wrap;
     }
 
     .companyInfoLeft {
-        gap: 0.3rem;
+        gap: 0.4rem;
+        min-width: 0;
     }
 
     .companyLogo {
-        width: 40px;
-        height: 40px;
+        width: 44px;
+        height: 44px;
         padding: 0.25rem;
     }
 
     .companyName {
-        font-size: 0.8rem;
-        line-height: 1.2;
+        font-size: 0.75rem;
+        line-height: 1.15;
+    }
+
+    .manpowerStats {
+        padding: 0.25rem 0;
     }
 
     .manpowerStats h3 {
-        font-size: 1.1rem;
+        font-size: 1.15rem;
+        line-height: 1;
     }
 
     .manpowerStats p {
@@ -466,36 +504,51 @@
     }
 
     .jobTitle {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         padding-bottom: 0.4rem;
         margin-bottom: 0.5rem;
-        -webkit-line-clamp: 3;
+        -webkit-line-clamp: 2;
+        line-height: 1.25;
     }
 
     .detailItem {
-        font-size: 0.75rem;
-        padding: 0.4rem 0.5rem;
+        font-size: 0.7rem;
+        padding: 0.35rem 0.5rem;
         gap: 0.4rem;
+        line-height: 1.3;
     }
 
     .icon {
-        width: 0.9rem;
-        height: 0.9rem;
+        width: 0.85rem;
+        height: 0.85rem;
+        flex-shrink: 0;
     }
 
     .skillTag {
-        font-size: 0.625rem;
-        padding: 0.25rem 0.45rem;
+        font-size: 0.6rem;
+        padding: 0.2rem 0.4rem;
+        border-radius: 0.25rem;
     }
 
     .jobContent button {
         font-size: 0.75rem;
-        padding: 0.625rem 1rem;
+        padding: 0.6rem 1rem;
         min-height: 2.5rem;
+        border-radius: 0.375rem;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .jobContent button:active {
+        transform: translateY(0);
     }
 
     .badgeContainer {
-        top: 0.5rem;
-        right: 0.5rem;
+        top: 0.4rem;
+        right: 0.4rem;
+    }
+
+    .jobContent > div:last-child {
+        padding-top: 0.75rem;
     }
 }

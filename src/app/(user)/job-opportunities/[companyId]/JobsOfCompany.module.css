@@ -15,10 +15,7 @@
 .modal {
     padding: 2rem 4rem;
     border-radius: 4px;
-
-    /*max-width: 60vw;*/
     max-height: 80vh;
-
     overflow-y: auto;
     position: relative;
 }
@@ -28,8 +25,9 @@
     width: auto;
     height: 80vh;
     min-width: 60vw;
-    /*max-width: 60vw;*/
     max-height: 80vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .jobCard {
@@ -588,17 +586,24 @@
         margin-bottom: 1rem;
     }
 
+    .modalOverlay {
+        padding: 0;
+        align-items: flex-start;
+    }
+
     .modal {
-        padding: 1rem 1.5rem;
-        max-height: 90vh;
+        padding: 1rem;
+        max-height: 100vh;
+        border-radius: 0;
     }
 
     .applicationModal {
-        width: 95vw;
+        width: 100vw;
         min-width: auto;
-        height: 90vh;
-        max-height: 90vh;
-        overflow-y: auto;
+        height: 100vh;
+        max-height: 100vh;
+        overflow: hidden;
+        border-radius: 0;
     }
 
     .jobSpecificCard {
@@ -634,6 +639,8 @@
         height: auto;
         gap: 1.5rem;
         overflow-y: auto;
+        flex: 1;
+        min-height: 0;
     }
 
     .applicationJobCompany,
@@ -654,6 +661,8 @@
         font-size: 11px;
         overflow-x: auto;
         white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        flex-shrink: 0;
     }
 
     .applicationNav li {
@@ -661,16 +670,22 @@
     }
 
     .closeButton {
-        top: 1rem;
-        right: 1rem;
-        width: 2rem;
-        height: 2rem;
-        font-size: 1.25rem;
+        top: 0.5rem;
+        right: 0.5rem;
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 1.5rem;
+        z-index: 10;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     }
 
     .tabContentContainer {
         overflow-y: auto;
-        max-height: calc(90vh - 200px);
+        flex: 1;
+        min-height: 0;
+        -webkit-overflow-scrolling: touch;
     }
 
     .applicantDetail {
@@ -803,17 +818,22 @@
         margin-bottom: 0.75rem;
     }
 
+    .modalOverlay {
+        padding: 0;
+    }
+
     .modal {
-        padding: 0.75rem 1rem;
-        max-height: 95vh;
+        padding: 0.5rem;
+        max-height: 100vh;
+        border-radius: 0;
     }
 
     .applicationModal {
         width: 100vw;
-        height: 95vh;
-        max-height: 95vh;
+        height: 100vh;
+        max-height: 100vh;
         border-radius: 0;
-        overflow-y: auto;
+        overflow: hidden;
     }
 
     .jobSpecificCard {
@@ -855,31 +875,36 @@
 
     .applicationNav {
         gap: 0.5rem;
-        font-size: 10px;
+        font-size: 9px;
+        padding: 0 0.5rem;
     }
 
     .applicationNav li {
-        padding: 0.75rem 1rem 0.5rem;
+        padding: 0.65rem 0.85rem 0.45rem;
     }
 
     .closeButton {
-        top: 0.75rem;
-        right: 0.75rem;
-        width: 1.75rem;
-        height: 1.75rem;
-        font-size: 1rem;
+        top: 0.25rem;
+        right: 0.25rem;
+        width: 2.25rem;
+        height: 2.25rem;
+        font-size: 1.25rem;
+        z-index: 10;
     }
 
     .tabContentContainer {
         overflow-y: auto;
-        max-height: calc(95vh - 180px);
+        flex: 1;
+        min-height: 0;
+        -webkit-overflow-scrolling: touch;
     }
 
     .applicantDetail {
         gap: 1rem;
-        padding: 1rem 0;
+        padding: 0.75rem 0.5rem;
         overflow-y: auto;
         height: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .applicantDetailResume {
@@ -893,6 +918,8 @@
     .applicantDetailButtons {
         flex-direction: column;
         gap: 0.75rem;
+        position: static;
+        margin-top: 1rem;
     }
 
     .resumeEditIcon {
