@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import styles from "./ManageJobseeker.module.css";
+import styles from "./Jobseekers.module.css";
 import Toast from "@/components/toast/Toast";
 import { Jobseeker, JobApplication } from "../types/jobseeker.types";
 import { useApplications } from "../hooks/useApplications";
@@ -11,7 +11,6 @@ import PreviewResumeTab from "./manage/PreviewResumeTab";
 import AppliedJobsTab from "./manage/AppliedJobsTab";
 import ReferralLetterModal from "./manage/ReferralLetterModal";
 import ExamResultModal from "./manage/ExamResultModal";
-import IDViewModal from "@/components/admin/IDViewModal";
 
 const ManageJobseeker = ({ jobseeker }: { jobseeker: Jobseeker }) => {
   const [nav, setNav] = useState("previewResume");
@@ -23,7 +22,6 @@ const ManageJobseeker = ({ jobseeker }: { jobseeker: Jobseeker }) => {
   const [selectedApplication, setSelectedApplication] =
     useState<JobApplication | null>(null);
   const [showExamResult, setShowExamResult] = useState(false);
-  const [showIDModal, setShowIDModal] = useState(false);
 
   // Custom hooks
   const { applications, loading, fetchApplications, updateApplicationStatus } =
@@ -96,46 +94,43 @@ const ManageJobseeker = ({ jobseeker }: { jobseeker: Jobseeker }) => {
     setShowReferralModal(true);
   };
 
-  const handleViewID = (app: JobApplication) => {
-    setSelectedApplication(app);
-    setShowIDModal(true);
-  };
-
   return (
     <section className={styles.manageJobseekerWrapper}>
       <JobseekerHeader jobseeker={jobseeker} />
 
-      <div className={styles.navContainer}>
-        <ul className={styles.navList}>
-          <li
-            ref={(el) => {
-              tabRefs.current[0] = el;
-            }}
-            onClick={() => {
-              setNav("previewResume");
-              setActiveIndex(0);
-            }}
-            className={nav === "previewResume" ? styles.active : ""}
-          >
-            Preview Resume
-          </li>
-          <li
-            ref={(el) => {
-              tabRefs.current[1] = el;
-            }}
-            onClick={() => {
-              setNav("appliedJobs");
-              setActiveIndex(1);
-            }}
-            className={nav === "appliedJobs" ? styles.active : ""}
-          >
-            Applied Jobs
-          </li>
-        </ul>
-        <div className={styles.indicator} style={indicatorStyle}></div>
+      <div className={styles.navWrapper}>
+        <div className={styles.navContainer}>
+          <ul className={styles.navList}>
+            <li
+              ref={(el) => {
+                tabRefs.current[0] = el;
+              }}
+              onClick={() => {
+                setNav("previewResume");
+                setActiveIndex(0);
+              }}
+              className={nav === "previewResume" ? styles.activeNav : ""}
+            >
+              PREVIEW RESUME
+            </li>
+            <li
+              ref={(el) => {
+                tabRefs.current[1] = el;
+              }}
+              onClick={() => {
+                setNav("appliedJobs");
+                setActiveIndex(1);
+              }}
+              className={nav === "appliedJobs" ? styles.activeNav : ""}
+            >
+              APPLIED JOBS
+            </li>
+          </ul>
+          <div className={styles.navIndicator} style={indicatorStyle}></div>
+        </div>
       </div>
 
-      <div className={styles.tabContent}>
+      <div className={styles.tabContentWrapper}>
         {nav === "previewResume" && <PreviewResumeTab jobseeker={jobseeker} />}
         {nav === "appliedJobs" && (
           <AppliedJobsTab
@@ -143,7 +138,6 @@ const ManageJobseeker = ({ jobseeker }: { jobseeker: Jobseeker }) => {
             loading={loading}
             onViewExam={handleViewExam}
             onViewReferral={handleViewReferral}
-            onViewID={handleViewID}
           />
         )}
       </div>
@@ -175,15 +169,6 @@ const ManageJobseeker = ({ jobseeker }: { jobseeker: Jobseeker }) => {
               );
             }
           }}
-        />
-      )}
-
-      {showIDModal && selectedApplication && (
-        <IDViewModal
-          applicantId={selectedApplication.applicant_id}
-          applicantName={jobseeker.applicant.name}
-          applicationId={selectedApplication.id}
-          onClose={() => setShowIDModal(false)}
         />
       )}
 

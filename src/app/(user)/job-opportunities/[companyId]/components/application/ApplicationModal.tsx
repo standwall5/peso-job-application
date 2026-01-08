@@ -27,6 +27,7 @@ interface ApplicationModalProps {
   examAttempt: ExamAttemptData | null;
   loadingAttempt: boolean;
   progress: ApplicationProgress | undefined;
+  applicationId?: number | null;
   onClose: () => void;
   onExamSubmit: (
     answers: Record<number, number | number[] | string>,
@@ -46,6 +47,7 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({
   examAttempt,
   loadingAttempt,
   progress,
+  applicationId,
   onClose,
   onExamSubmit,
   onContinueToExam,
@@ -73,6 +75,26 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({
     if ((tab === "exam" || tab === "verifiedId") && !examDataFetched) {
       onFetchExamAttempt();
       setExamDataFetched(true);
+    }
+  };
+
+  const handleNextTab = () => {
+    if (activeTab === "previewResume") {
+      setActiveTab("exam");
+      if (!examDataFetched) {
+        onFetchExamAttempt();
+        setExamDataFetched(true);
+      }
+    } else if (activeTab === "exam") {
+      setActiveTab("verifiedId");
+    }
+  };
+
+  const handlePrevTab = () => {
+    if (activeTab === "verifiedId") {
+      setActiveTab("exam");
+    } else if (activeTab === "exam") {
+      setActiveTab("previewResume");
     }
   };
 
@@ -264,65 +286,175 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({
                 </li>
               </ul>
 
-              {/* Tab Content - All tabs rendered but hidden to cache resume */}
-              <div className={jobStyle.tabContentContainer}>
-                <div
-                  style={{
-                    display: activeTab === "previewResume" ? "block" : "none",
-                  }}
-                >
-                  {showEditResume && user ? (
-                    <div
-                      style={{
-                        padding: "1rem",
-                        overflowY: "auto",
-                        height: "100%",
-                      }}
-                    >
-                      <ResumeEditSection
-                        user={user}
-                        {...profileEditHook}
-                        onCancel={() => setShowEditResume(false)}
-                        onSave={handleResumeSave}
+              {/* Tab Content Container with Navigation Arrows */}
+              <div style={{ position: "relative", flex: 1, display: "flex" }}>
+                {/* Tab Content - All tabs rendered but hidden to cache resume */}
+                <div className={jobStyle.tabContentContainer}>
+                  <div
+                    style={{
+                      display: activeTab === "previewResume" ? "block" : "none",
+                    }}
+                  >
+                    {showEditResume && user ? (
+                      <div
+                        style={{
+                          padding: "1rem",
+                          overflowY: "auto",
+                          height: "100%",
+                        }}
+                      >
+                        <ResumeEditSection
+                          user={user}
+                          {...profileEditHook}
+                          onCancel={() => setShowEditResume(false)}
+                          onSave={handleResumeSave}
+                        />
+                      </div>
+                    ) : (
+                      <ResumePreviewTab
+                        hasApplied={hasApplied}
+                        onContinueToExam={onContinueToExam}
+                        onEditResume={handleEditResume}
                       />
-                    </div>
-                  ) : (
-                    <ResumePreviewTab
+                    )}
+                  </div>
+
+                  <div
+                    style={{ display: activeTab === "exam" ? "block" : "none" }}
+                  >
+                    <ExamTab
+                      loadingAttempt={loadingAttempt}
+                      loadingExam={loadingExam}
+                      examAttempt={examAttempt}
+                      examData={examData}
                       hasApplied={hasApplied}
-                      onContinueToExam={onContinueToExam}
-                      onEditResume={handleEditResume}
+                      onExamSubmit={onExamSubmit}
                     />
-                  )}
+                  </div>
+
+                  <div
+                    style={{
+                      display: activeTab === "verifiedId" ? "block" : "none",
+                    }}
+                  >
+                    <VerifiedIdTab
+                      hasApplied={hasApplied}
+                      examAttempt={examAttempt}
+                      progress={progress}
+                      jobId={job.id}
+                      applicationId={applicationId}
+                      onIdUploaded={onIdUploaded}
+                      onSubmitFinalApplication={onSubmitFinalApplication}
+                    />
+                  </div>
                 </div>
 
-                <div
-                  style={{ display: activeTab === "exam" ? "block" : "none" }}
-                >
-                  <ExamTab
-                    loadingAttempt={loadingAttempt}
-                    loadingExam={loadingExam}
-                    examAttempt={examAttempt}
-                    examData={examData}
-                    hasApplied={hasApplied}
-                    onExamSubmit={onExamSubmit}
-                  />
-                </div>
+                {/* Navigation Arrows - Bottom Right Corner */}
+                {!hasApplied && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: "1rem",
+                      right: "1rem",
+                      display: "flex",
+                      gap: "0.5rem",
+                      zIndex: 1000,
+                    }}
+                  >
+                    {/* Previous Arrow - Show on exam and verifiedId tabs */}
+                    {(activeTab === "exam" || activeTab === "verifiedId") && (
+                      <button
+                        onClick={handlePrevTab}
+                        title="Previous"
+                        style={{
+                          background: "rgba(122, 218, 239, 0.9)",
+                          border: "none",
+                          borderRadius: "0.375rem",
+                          width: "3rem",
+                          height: "3rem",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          cursor: "pointer",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+                          transition: "all 0.2s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background =
+                            "rgba(91, 196, 220, 1)";
+                          e.currentTarget.style.transform = "scale(1.1)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background =
+                            "rgba(122, 218, 239, 0.9)";
+                          e.currentTarget.style.transform = "scale(1)";
+                        }}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={3}
+                          stroke="black"
+                          style={{ width: "1.5rem", height: "1.5rem" }}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+                          />
+                        </svg>
+                      </button>
+                    )}
 
-                <div
-                  style={{
-                    display: activeTab === "verifiedId" ? "block" : "none",
-                  }}
-                >
-                  <VerifiedIdTab
-                    jobId={job.id}
-                    hasApplied={hasApplied}
-                    examAttempt={examAttempt}
-                    progress={progress}
-                    onIdUploaded={onIdUploaded}
-                    onSubmitFinalApplication={onSubmitFinalApplication}
-                    onGoToExam={() => handleTabChange("exam")}
-                  />
-                </div>
+                    {/* Next Arrow - Show on previewResume and exam tabs */}
+                    {(activeTab === "previewResume" ||
+                      activeTab === "exam") && (
+                      <button
+                        onClick={handleNextTab}
+                        title="Next"
+                        style={{
+                          background: "rgba(122, 218, 239, 0.9)",
+                          border: "none",
+                          borderRadius: "0.375rem",
+                          width: "3rem",
+                          height: "3rem",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          cursor: "pointer",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+                          transition: "all 0.2s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background =
+                            "rgba(91, 196, 220, 1)";
+                          e.currentTarget.style.transform = "scale(1.1)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background =
+                            "rgba(122, 218, 239, 0.9)";
+                          e.currentTarget.style.transform = "scale(1)";
+                        }}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={3}
+                          stroke="black"
+                          style={{ width: "1.5rem", height: "1.5rem" }}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                          />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>

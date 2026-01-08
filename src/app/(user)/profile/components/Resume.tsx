@@ -52,12 +52,17 @@ const Resume = forwardRef<HTMLDivElement, ResumeProps>(
     ref,
   ) => {
     return (
-      <div ref={ref} className={styles.resumeRoot}>
+      <div
+        ref={ref}
+        className={styles.resumeRoot}
+        data-html2canvas-ignore-transparency="true"
+      >
         <div className={styles.resumeHeader}>
           <img
             src={profilePicUrl || "/default-profile.png"}
             alt="Profile"
             className={styles.profilePic}
+            crossOrigin="anonymous"
           />
           <div className={styles.headerInfo}>
             <h2 className={styles.resumeName}>{name}</h2>

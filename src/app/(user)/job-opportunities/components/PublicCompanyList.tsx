@@ -37,6 +37,8 @@ const PublicCompanyList = ({
   const [search, setSearch] = useState(searchParent || "");
   const [loading] = useState(false);
   const [sortOption, setSortOption] = useState<SortOption>("recent");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10; // 5 columns x 2 rows
 
   const getJobCount = (companyId: number) =>
     jobs.filter((job) => job.company_id === companyId).length;
@@ -54,6 +56,22 @@ const PublicCompanyList = ({
   );
 
   const sortedCompanies = sortCompanies(filteredCompanies, jobs, sortOption);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(sortedCompanies.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedCompanies = sortedCompanies.slice(startIndex, endIndex);
+
+  // Reset to page 1 when search or sort changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, sortOption]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <section className={styles.section}>
@@ -87,8 +105,8 @@ const PublicCompanyList = ({
           >
             <BlocksWave />
           </div>
-        ) : sortedCompanies.length > 0 ? (
-          sortedCompanies.map((company) => (
+        ) : paginatedCompanies.length > 0 ? (
+          paginatedCompanies.map((company) => (
             <a key={company.id} href={`/job-opportunities/${company.id}`}>
               <div key={company.id} className={styles.jobCard}>
                 <div className={styles.jobCompany}>
@@ -122,6 +140,23 @@ const PublicCompanyList = ({
           <p>No jobs found.</p>
         )}
       </div>
+
+      {sortedCompanies.length > 0 && totalPages > 1 && (
+        <div className={styles.pagination}>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => handlePageChange(page)}
+              className={`${styles.pageButton} ${
+                currentPage === page ? styles.activePage : ""
+              }`}
+              disabled={currentPage === page}
+            >
+              {page}
+            </button>
+          ))}
+        </div>
+      )}
     </section>
   );
 };

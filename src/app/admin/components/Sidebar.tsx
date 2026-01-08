@@ -1,10 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import styles from "@/app/admin/Admin.module.css";
-import { getAdminProfileAction } from "@/app/admin/actions/admin.actions";
-import { AdminProfile } from "@/lib/types";
 import { useSuperAdmin } from "@/app/admin/hooks/useSuperAdmin";
 
 const Sidebar = () => {
@@ -120,17 +118,36 @@ const Sidebar = () => {
           <>
             <li
               className={`${styles.menuItem} ${
-                pathname === "/admin/jobseekers" ||
-                pathname === "/admin/referrals"
-                  ? styles.active
-                  : ""
+                openMenus.includes("dashboard") ? styles.active : ""
               }`}
-              onClick={() => {
-                handleToggle("dashboard");
-                router.push("/admin/jobseekers");
-              }}
+              onClick={() => handleToggle("dashboard")}
             >
               <span>Dashboard</span>
+              <ul
+                className={`${styles.subMenu} ${
+                  openMenus.includes("dashboard") ? styles.open : ""
+                }`}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <li
+                  className={`${
+                    pathname === "/admin/jobseekers" ? styles.active : ""
+                  }`}
+                  onClick={() => router.push("/admin/jobseekers")}
+                >
+                  Jobseekers
+                </li>
+                <li
+                  className={`${
+                    pathname === "/admin/archived-jobseekers"
+                      ? styles.active
+                      : ""
+                  }`}
+                  onClick={() => router.push("/admin/archived-jobseekers")}
+                >
+                  Archived Jobseekers
+                </li>
+              </ul>
             </li>
             <li
               className={`${styles.menuItem} ${

@@ -148,8 +148,10 @@
 .headerActions {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     padding: 1rem;
     gap: 1rem;
+    margin-left: auto;
 }
 
 .header ul {
@@ -216,6 +218,7 @@
     opacity: 1;
     transform: translateY(0);
     margin-top: 0.5rem;
+    /*background-color: white;*/
 }
 
 .active {

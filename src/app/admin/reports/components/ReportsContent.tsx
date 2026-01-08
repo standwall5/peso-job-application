@@ -26,6 +26,14 @@ import BarChart from "./BarChart";
 import LineChart from "./LineChart";
 import TableView from "./TableView";
 import OneEightyRing from "@/components/OneEightyRing";
+import ExportButton from "./ExportButton";
+import {
+  exportToXLSX,
+  exportToCSV,
+  exportToPDF,
+  exportComprehensiveReportToPDF,
+  exportMultipleToXLSX,
+} from "@/lib/utils/export";
 
 export default function ReportsContent() {
   const [loading, setLoading] = useState(true);
@@ -82,6 +90,184 @@ export default function ReportsContent() {
     fetchAllData();
   }, [fetchAllData]);
 
+  const handleExport = async (format: "xlsx" | "csv" | "pdf") => {
+    if (format === "pdf") {
+      exportComprehensiveReport();
+    } else if (format === "xlsx") {
+      await exportAllDataToExcel();
+    } else if (format === "csv") {
+      exportAllDataToCSV();
+    }
+  };
+
+  const exportComprehensiveReport = () => {
+    const statsData = [
+      { label: "Total Applicants", value: stats?.totalApplicants || 0 },
+      { label: "Total Applications", value: stats?.totalApplications || 0 },
+      { label: "Active Jobs", value: stats?.activeJobs || 0 },
+      { label: "Pending Applications", value: stats?.pendingApplications || 0 },
+      { label: "Total Companies", value: stats?.totalCompanies || 0 },
+      { label: "Total Jobs Posted", value: stats?.totalJobs || 0 },
+    ];
+
+    const tables = [
+      {
+        title: "Application Status Distribution",
+        headers: ["Status", "Count"],
+        rows: statusBreakdown.map((item) => [item.status, item.count]),
+      },
+      {
+        title: "Most Popular Jobs",
+        headers: ["Job Title", "Company", "Applications"],
+        rows: popularJobs.map((job) => [
+          job.job_title,
+          job.company_name,
+          job.application_count,
+        ]),
+      },
+      {
+        title: "Exam Performance",
+        headers: ["Exam Title", "Total Attempts", "Avg Score", "Pass Rate"],
+        rows: examPerformance.map((exam) => [
+          exam.exam_title,
+          exam.total_attempts,
+          `${exam.average_score}%`,
+          `${exam.pass_rate}%`,
+        ]),
+      },
+      {
+        title: "Company Performance",
+        headers: [
+          "Company",
+          "Jobs Posted",
+          "Total Applications",
+          "Avg per Job",
+        ],
+        rows: companyPerformance.map((company) => [
+          company.company_name,
+          company.total_jobs,
+          company.total_applications,
+          company.avg_applications_per_job,
+        ]),
+      },
+    ];
+
+    const charts = [
+      {
+        title: "Gender Distribution",
+        data: demographics
+          ? [
+              { label: "Male", value: demographics.sex.male },
+              { label: "Female", value: demographics.sex.female },
+              { label: "Other", value: demographics.sex.other },
+            ]
+          : [],
+      },
+      {
+        title: "Applicant Type Distribution",
+        data: demographics
+          ? [
+              { label: "Regular", value: demographics.applicantType.regular },
+              { label: "PWD", value: demographics.applicantType.pwd },
+              { label: "Senior", value: demographics.applicantType.senior },
+              {
+                label: "Indigenous",
+                value: demographics.applicantType.indigenous,
+              },
+            ]
+          : [],
+      },
+    ];
+
+    exportComprehensiveReportToPDF({
+      title: "PESO Reports & Analytics",
+      stats: statsData,
+      tables,
+      charts,
+    });
+  };
+
+  const exportAllDataToExcel = async () => {
+    const sheets = [
+      {
+        name: "Overview Stats",
+        data: {
+          headers: ["Metric", "Value"],
+          rows: [
+            ["Total Applicants", stats?.totalApplicants || 0],
+            ["Total Applications", stats?.totalApplications || 0],
+            ["Active Jobs", stats?.activeJobs || 0],
+            ["Pending Applications", stats?.pendingApplications || 0],
+            ["Total Companies", stats?.totalCompanies || 0],
+            ["Total Jobs Posted", stats?.totalJobs || 0],
+          ],
+        },
+      },
+      {
+        name: "Application Status",
+        data: {
+          headers: ["Status", "Count"],
+          rows: statusBreakdown.map((item) => [item.status, item.count]),
+        },
+      },
+      {
+        name: "Popular Jobs",
+        data: {
+          headers: ["Job Title", "Company", "Applications"],
+          rows: popularJobs.map((job) => [
+            job.job_title,
+            job.company_name,
+            job.application_count,
+          ]),
+        },
+      },
+      {
+        name: "Exam Performance",
+        data: {
+          headers: ["Exam Title", "Total Attempts", "Avg Score", "Pass Rate"],
+          rows: examPerformance.map((exam) => [
+            exam.exam_title,
+            exam.total_attempts,
+            exam.average_score,
+            exam.pass_rate,
+          ]),
+        },
+      },
+      {
+        name: "Company Performance",
+        data: {
+          headers: [
+            "Company",
+            "Jobs Posted",
+            "Total Applications",
+            "Avg per Job",
+          ],
+          rows: companyPerformance.map((company) => [
+            company.company_name,
+            company.total_jobs,
+            company.total_applications,
+            company.avg_applications_per_job,
+          ]),
+        },
+      },
+    ];
+
+    await exportMultipleToXLSX(sheets, "peso_reports_analytics");
+  };
+
+  const exportAllDataToCSV = () => {
+    // Export the main popular jobs table as CSV
+    exportToCSV({
+      headers: ["Job Title", "Company", "Applications"],
+      rows: popularJobs.map((job) => [
+        job.job_title,
+        job.company_name,
+        job.application_count,
+      ]),
+      filename: "popular_jobs_report",
+    });
+  };
+
   if (loading) {
     return (
       <section style={{ alignSelf: "center" }}>
@@ -105,6 +291,7 @@ export default function ReportsContent() {
             <option value={90}>Last 90 days</option>
             <option value={365}>Last year</option>
           </select>
+          <ExportButton onExport={handleExport} disabled={loading} />
         </div>
       </div>
 

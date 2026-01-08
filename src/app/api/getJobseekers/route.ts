@@ -1,8 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const supabase = await createClient();
+
+  // Get archived filter from query params (default to false = only non-archived)
+  const searchParams = req.nextUrl.searchParams;
+  const archived = searchParams.get("archived");
+  const isArchived = archived === "true";
 
   // Get all applications
   const { data: applications, error: appError } = await supabase
@@ -22,6 +27,11 @@ export async function GET() {
         .select("*")
         .eq("id", app.applicant_id)
         .single();
+
+      // Filter by archived status
+      if (applicant?.is_archived !== isArchived) {
+        return null;
+      }
 
       // Get job info
       const { data: job } = await supabase
@@ -66,8 +76,11 @@ export async function GET() {
         company,
         resume: resumeWithDetails,
       };
-    })
+    }),
   );
 
-  return NextResponse.json(results);
+  // Filter out null results (applicants that didn't match archived status)
+  const filteredResults = results.filter((result) => result !== null);
+
+  return NextResponse.json(filteredResults);
 }

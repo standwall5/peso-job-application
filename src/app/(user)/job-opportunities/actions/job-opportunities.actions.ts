@@ -32,3 +32,28 @@ export async function getUserSkillsAction() {
     return [];
   }
 }
+
+export async function getUserPreferredLocationAction() {
+  try {
+    const { getSupabaseClient, getCurrentUser } =
+      await import("@/lib/db/client");
+    const supabase = await getSupabaseClient();
+    const user = await getCurrentUser();
+
+    const { data: applicant, error } = await supabase
+      .from("applicants")
+      .select("preferred_poa")
+      .eq("auth_id", user.id)
+      .single();
+
+    if (error || !applicant) {
+      console.error("Failed to get preferred location:", error);
+      return null;
+    }
+
+    return applicant.preferred_poa;
+  } catch (error) {
+    console.error("Failed to get user preferred location:", error);
+    return null;
+  }
+}

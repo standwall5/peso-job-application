@@ -58,52 +58,80 @@ const TakeExam: React.FC<TakeExamProps> = ({ exam, onSubmit, onClose }) => {
   };
 
   return (
-    <div>
-      <div className={examStyles.header}>
-        <div className={styles.examHeader}>
-          <h2 className={styles.examTitle}>{exam.title}</h2>
-          <p className={styles.examDescription}>{exam.description}</p>
-        </div>
-
-        {/* Progress Indicator */}
-        <div className={styles.questionProgress}>
-          <span>📝</span>
-          <span>
-            Answered: <strong>{answeredCount}</strong> of{" "}
-            <strong>{exam.questions.length}</strong> questions
-          </span>
-          <span className={styles.answerCount}>
-            {Math.round((answeredCount / exam.questions.length) * 100)}%
-          </span>
-        </div>
+    <div style={{ padding: "2rem", maxWidth: "900px", margin: "0 auto" }}>
+      <div style={{ marginBottom: "2rem" }}>
+        <h2
+          style={{
+            fontSize: "1.5rem",
+            fontWeight: "600",
+            marginBottom: "0.5rem",
+          }}
+        >
+          {exam.title}
+        </h2>
+        {exam.description && (
+          <p style={{ color: "#64748b", fontSize: "0.95rem" }}>
+            {exam.description}
+          </p>
+        )}
       </div>
 
-      <div className={examStyles.modalContent}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
         {exam.questions && exam.questions.length > 0 ? (
-          exam.questions.map((question) => (
-            <div key={question.id} className={examStyles.questionBlock}>
-              <div className={examStyles.questionHeader}>
-                <div className={examStyles.questionText}>
-                  <h4>
-                    <span style={{ color: "#f97316" }}>
-                      {question.position}.{" "}
+          exam.questions.map((question, index) => (
+            <div
+              key={question.id}
+              style={{
+                background: "white",
+                border: "1px solid #e5e7eb",
+                borderRadius: "0.5rem",
+                padding: "1.5rem",
+              }}
+            >
+              <div style={{ marginBottom: "1rem" }}>
+                <h4
+                  style={{
+                    fontSize: "0.95rem",
+                    fontWeight: "500",
+                    color: "#1e293b",
+                    lineHeight: "1.6",
+                  }}
+                >
+                  {index + 1}. <strong>{question.question_text}</strong>
+                  {question.question_type === "paragraph" && (
+                    <span style={{ color: "#94a3b8", fontWeight: "normal" }}>
+                      {" "}
+                      (Ano ang isang kahinaan na pinagtatrabahuhan mo at paano
+                      mo ito pinapabuti?)
                     </span>
-                    {question.question_text}
-                  </h4>
-                </div>
+                  )}
+                </h4>
               </div>
 
               {/* Multiple Choice */}
               {question.question_type === "multiple-choice" && (
-                <div className={styles.choicesContainer}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.5rem",
+                  }}
+                >
                   {question.choices.map((choice) => {
                     const isSelected = answers[question.id] === choice.id;
                     return (
                       <label
                         key={choice.id}
-                        className={`${styles.choiceLabel} ${
-                          isSelected ? styles.choiceSelected : ""
-                        }`}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "0.75rem",
+                          border: `2px solid ${isSelected ? "#7adaef" : "#e5e7eb"}`,
+                          borderRadius: "0.375rem",
+                          cursor: "pointer",
+                          backgroundColor: isSelected ? "#f0fdff" : "white",
+                          transition: "all 0.2s ease",
+                        }}
                       >
                         <input
                           type="radio"
@@ -113,13 +141,9 @@ const TakeExam: React.FC<TakeExamProps> = ({ exam, onSubmit, onClose }) => {
                           onChange={() =>
                             handleMultipleChoiceChange(question.id, choice.id)
                           }
-                          className={styles.choiceInput}
+                          style={{ marginRight: "0.75rem" }}
                         />
-                        <span
-                          className={`${styles.choiceText} ${
-                            isSelected ? styles.choiceSelectedText : ""
-                          }`}
-                        >
+                        <span style={{ fontSize: "0.9rem", color: "#1e293b" }}>
                           {choice.choice_text}
                         </span>
                       </label>
@@ -130,7 +154,13 @@ const TakeExam: React.FC<TakeExamProps> = ({ exam, onSubmit, onClose }) => {
 
               {/* Checkboxes */}
               {question.question_type === "checkboxes" && (
-                <div className={styles.choicesContainer}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.5rem",
+                  }}
+                >
                   {question.choices.map((choice) => {
                     const isSelected = (
                       answers[question.id] as number[]
@@ -138,9 +168,16 @@ const TakeExam: React.FC<TakeExamProps> = ({ exam, onSubmit, onClose }) => {
                     return (
                       <label
                         key={choice.id}
-                        className={`${styles.choiceLabel} ${
-                          isSelected ? styles.choiceSelected : ""
-                        }`}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "0.75rem",
+                          border: `2px solid ${isSelected ? "#7adaef" : "#e5e7eb"}`,
+                          borderRadius: "0.375rem",
+                          cursor: "pointer",
+                          backgroundColor: isSelected ? "#f0fdff" : "white",
+                          transition: "all 0.2s ease",
+                        }}
                       >
                         <input
                           type="checkbox"
@@ -148,13 +185,9 @@ const TakeExam: React.FC<TakeExamProps> = ({ exam, onSubmit, onClose }) => {
                           onChange={() =>
                             handleCheckboxChange(question.id, choice.id)
                           }
-                          className={styles.choiceInput}
+                          style={{ marginRight: "0.75rem" }}
                         />
-                        <span
-                          className={`${styles.choiceText} ${
-                            isSelected ? styles.choiceSelectedText : ""
-                          }`}
-                        >
+                        <span style={{ fontSize: "0.9rem", color: "#1e293b" }}>
                           {choice.choice_text}
                         </span>
                       </label>
@@ -165,35 +198,68 @@ const TakeExam: React.FC<TakeExamProps> = ({ exam, onSubmit, onClose }) => {
 
               {/* Paragraph */}
               {question.question_type === "paragraph" && (
-                <div className={styles.paragraphContainer}>
-                  <textarea
-                    value={(answers[question.id] as string) || ""}
-                    onChange={(e) =>
-                      handleParagraphChange(question.id, e.target.value)
-                    }
-                    placeholder="Type your answer here..."
-                    rows={5}
-                    className={styles.paragraphInput}
-                  />
-                </div>
+                <textarea
+                  value={(answers[question.id] as string) || ""}
+                  onChange={(e) =>
+                    handleParagraphChange(question.id, e.target.value)
+                  }
+                  placeholder="Type Here..."
+                  rows={5}
+                  style={{
+                    width: "100%",
+                    padding: "0.75rem",
+                    border: "1px solid #d1d5db",
+                    borderRadius: "0.375rem",
+                    fontSize: "0.9rem",
+                    fontFamily: "inherit",
+                    resize: "vertical",
+                    outline: "none",
+                    transition: "border-color 0.2s ease",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#7adaef";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "#d1d5db";
+                  }}
+                />
               )}
             </div>
           ))
         ) : (
-          <div className={styles.noQuestions}>
-            <div className={styles.noQuestionsIcon}>📋</div>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "3rem",
+              color: "#64748b",
+            }}
+          >
+            <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📋</div>
             <p>No questions available for this exam.</p>
           </div>
         )}
       </div>
 
-      <div className={styles.buttonContainer}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          gap: "1rem",
+          marginTop: "2rem",
+          paddingTop: "1.5rem",
+          borderTop: "1px solid #e5e7eb",
+        }}
+      >
         {onClose && (
           <Button variant="primary" onClick={onClose}>
             Cancel
           </Button>
         )}
-        <Button variant="success" onClick={handleSubmitExam}>
+        <Button
+          variant="success"
+          onClick={handleSubmitExam}
+          disabled={answeredCount !== exam.questions.length}
+        >
           Submit Answers ({answeredCount}/{exam.questions.length})
         </Button>
       </div>

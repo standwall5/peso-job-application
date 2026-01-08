@@ -63,6 +63,7 @@ export interface Job {
 }
 
 export interface UserApplication {
+  id: number;
   job_id: number;
   applied_date: string;
   status: string;

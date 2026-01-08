@@ -22,7 +22,6 @@ import { ResumeViewSection } from "./sections/ResumeViewSection";
 import { ResumeEditSection } from "./sections/ResumeEditSection";
 import { ApplicationsSection } from "./sections/ApplicationsSection";
 import { ViewIdSection } from "./sections/ViewIdSection";
-import { InProgressSection } from "./sections/InProgressSection";
 
 const Profile = () => {
   // Get URL search params
@@ -57,7 +56,6 @@ const Profile = () => {
         "viewResume",
         "editResume",
         "applications",
-        "inProgress",
         "viewId",
         "settings",
       ].includes(tab)
@@ -134,9 +132,17 @@ const Profile = () => {
         .set({
           margin: 0.5,
           filename: `${user?.name} Resume.pdf`,
-          image: { type: "jpeg", quality: 0.2 },
-          html2canvas: { scale: 2, useCORS: true },
-          jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            letterRendering: true,
+            allowTaint: true,
+          },
+          jsPDF: {
+            unit: "in",
+            format: "letter",
+            orientation: "portrait",
+          },
         })
         .from(resumeRef.current)
         .save();
@@ -260,14 +266,6 @@ const Profile = () => {
               <ApplicationsSection
                 jobs={jobs}
                 userApplications={userApplications}
-              />
-            )}
-
-            {/* In Progress Applications Section */}
-            {profileOptionsNav === "inProgress" && (
-              <InProgressSection
-                jobs={jobs}
-                userApplicationIds={userApplications.map((app) => app.job_id)}
               />
             )}
 

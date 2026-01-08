@@ -1,10 +1,20 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import NextImage from "next/image";
 import styles from "./RecommendedJobsPanel.module.css";
 import { calculateSkillMatch } from "@/lib/utils/skillMatching";
 import SkillMatchBadge from "@/components/SkillMatchBadge";
 import { Job } from "../[companyId]/types/job.types";
 import { useLanguage } from "@/contexts/LanguageContext";
+
+interface Company {
+  id: number;
+  name: string;
+  logo: string | null;
+  jobCount: number;
+  totalMatchPercentage: number;
+  averageMatchPercentage: number;
+}
 
 // Function to get dominant color from image
 const getDominantColor = (imageSrc: string): Promise<string> => {
@@ -149,59 +159,112 @@ const getTextColor = (bgColor: string): string => {
 interface RecommendedJobsPanelProps {
   jobs: Job[];
   userSkills: string[];
-  onJobClick?: (job: Job) => void;
+  userPreferredLocation?: string | null;
 }
 
 const RecommendedJobsPanel: React.FC<RecommendedJobsPanelProps> = ({
   jobs,
   userSkills,
-  onJobClick,
+  userPreferredLocation,
 }) => {
   const { t } = useLanguage();
-  const [jobColors, setJobColors] = useState<
+  const [companyColors, setCompanyColors] = useState<
     Record<number, { bg: string; text: string }>
   >({});
 
-  const recommendedJobs = jobs
-    .map((job) => ({
-      ...job,
-      matchPercentage: calculateSkillMatch(userSkills, job.skills || []),
-    }))
-    .filter((job) => job.matchPercentage > 0)
-    .sort((a, b) => b.matchPercentage - a.matchPercentage);
+  // Group jobs by company and calculate match percentages
+  const recommendedCompanies = React.useMemo(() => {
+    const companyMap = new Map<
+      number,
+      Company & { locationMatchCount: number }
+    >();
 
-  // Show 4-5 jobs by default (no expansion)
-  const displayedJobs = recommendedJobs.slice(0, 5);
+    jobs.forEach((job) => {
+      if (!job.companies || !job.company_id) return;
 
-  // Extract dominant colors for each job
+      const matchPercentage = calculateSkillMatch(userSkills, job.skills || []);
+
+      // Check if job location matches user's preferred location
+      const isLocationMatch = userPreferredLocation
+        ? (() => {
+            const jobLocation = job.place_of_assignment?.toLowerCase() || "";
+            const preferredLocation = userPreferredLocation.toLowerCase();
+            return (
+              jobLocation.includes(preferredLocation) ||
+              preferredLocation.includes(jobLocation)
+            );
+          })()
+        : false;
+
+      if (matchPercentage > 0) {
+        const companyId = job.company_id;
+        const existing = companyMap.get(companyId);
+
+        if (existing) {
+          existing.jobCount += 1;
+          existing.totalMatchPercentage += matchPercentage;
+          existing.averageMatchPercentage =
+            existing.totalMatchPercentage / existing.jobCount;
+          if (isLocationMatch) {
+            existing.locationMatchCount += 1;
+          }
+        } else {
+          companyMap.set(companyId, {
+            id: companyId,
+            name: job.companies.name,
+            logo: job.companies.logo,
+            jobCount: 1,
+            totalMatchPercentage: matchPercentage,
+            averageMatchPercentage: matchPercentage,
+            locationMatchCount: isLocationMatch ? 1 : 0,
+          });
+        }
+      }
+    });
+
+    return Array.from(companyMap.values())
+      .sort((a, b) => {
+        // First sort by location match count (descending)
+        if (userPreferredLocation) {
+          const locationDiff = b.locationMatchCount - a.locationMatchCount;
+          if (locationDiff !== 0) return locationDiff;
+        }
+        // Then sort by skill match percentage (descending)
+        return b.averageMatchPercentage - a.averageMatchPercentage;
+      })
+      .slice(0, 5);
+  }, [jobs, userSkills, userPreferredLocation]);
+
+  const displayedCompanies = recommendedCompanies;
+
+  // Extract dominant colors for each company
   useEffect(() => {
     const extractColors = async () => {
       const colors: Record<number, { bg: string; text: string }> = {};
 
-      for (const job of displayedJobs) {
-        const imageSrc =
-          job.companies?.logo || "/assets/images/default_profile.png";
+      for (const company of displayedCompanies) {
+        const imageSrc = company.logo || "/assets/images/default_profile.png";
         try {
           const dominantColor = await getDominantColor(imageSrc);
           const vibrantColor = makeVibrant(dominantColor);
           const textColor = getTextColor(vibrantColor);
-          colors[job.id] = { bg: vibrantColor, text: textColor };
+          colors[company.id] = { bg: vibrantColor, text: textColor };
         } catch (error) {
           console.error("Error extracting color:", error);
-          colors[job.id] = { bg: "#3498db", text: "#ffffff" };
+          colors[company.id] = { bg: "#3498db", text: "#ffffff" };
         }
       }
 
-      setJobColors(colors);
+      setCompanyColors(colors);
     };
 
-    if (displayedJobs.length > 0) {
+    if (displayedCompanies.length > 0) {
       extractColors();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [displayedJobs.length, jobs.length]);
+  }, [displayedCompanies.length, jobs.length]);
 
-  if (recommendedJobs.length === 0) {
+  if (recommendedCompanies.length === 0) {
     return (
       <div className={styles.panel}>
         <h3 className={styles.title}>{t("jobs.recommendedForYou")}</h3>
@@ -219,45 +282,54 @@ const RecommendedJobsPanel: React.FC<RecommendedJobsPanelProps> = ({
       <div className={styles.header}>
         <h3 className={styles.title}>
           {t("jobs.recommendedForYou")}
-          <span className={styles.count}>({recommendedJobs.length})</span>
+          <span className={styles.count}>({recommendedCompanies.length})</span>
         </h3>
       </div>
 
       <div className={styles.jobsList}>
-        {displayedJobs.map((job) => {
-          const colors = jobColors[job.id] || {
+        {displayedCompanies.map((company) => {
+          const colors = companyColors[company.id] || {
             bg: "#f8f9fa",
             text: "#1e293b",
           };
 
           return (
-            <div
-              key={job.id}
-              className={styles.jobItem}
-              onClick={() => onJobClick?.(job)}
-              style={{
-                cursor: "pointer",
-                backgroundColor: colors.bg,
-                color: colors.text,
-                transition: "all 0.3s ease",
-              }}
+            <a
+              key={company.id}
+              href={`/job-opportunities/${company.id}`}
+              style={{ textDecoration: "none", color: "inherit" }}
             >
-              <div className={styles.jobHeader}>
-                <img
-                  src={
-                    job.companies?.logo || "/assets/images/default_profile.png"
-                  }
-                  alt={job.companies?.name || "Company"}
-                  className={styles.companyLogo}
-                />
-                <div className={styles.jobInfo}>
-                  <h4 className={styles.jobTitle}>{job.title}</h4>
-                  <p className={styles.companyName}>{job.companies?.name}</p>
-                  <p className={styles.location}>{job.place_of_assignment}</p>
+              <div
+                className={styles.jobItem}
+                style={{
+                  cursor: "pointer",
+                  backgroundColor: colors.bg,
+                  color: colors.text,
+                  transition: "all 0.3s ease",
+                }}
+              >
+                <div className={styles.jobHeader}>
+                  <NextImage
+                    src={company.logo || "/assets/images/default_profile.png"}
+                    alt={company.name || "Company"}
+                    className={styles.companyLogo}
+                    width={48}
+                    height={48}
+                  />
+                  <div className={styles.jobInfo}>
+                    <h4 className={styles.jobTitle}>{company.name}</h4>
+                    <p className={styles.companyName}>
+                      {company.jobCount}{" "}
+                      {company.jobCount === 1 ? "Job" : "Jobs"} Available
+                    </p>
+                  </div>
                 </div>
+                <SkillMatchBadge
+                  percentage={Math.round(company.averageMatchPercentage)}
+                  size="small"
+                />
               </div>
-              <SkillMatchBadge percentage={job.matchPercentage} size="small" />
-            </div>
+            </a>
           );
         })}
       </div>

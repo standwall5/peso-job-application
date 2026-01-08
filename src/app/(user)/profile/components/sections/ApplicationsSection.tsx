@@ -20,6 +20,9 @@ export const ApplicationsSection: React.FC<ApplicationsSectionProps> = ({
   userApplications,
 }) => {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [selectedApplicationId, setSelectedApplicationId] = useState<
+    number | null
+  >(null);
 
   // Use hooks for modal functionality
   const { toast, showToast, hideToast } = useToast();
@@ -52,6 +55,10 @@ export const ApplicationsSection: React.FC<ApplicationsSectionProps> = ({
     setSelectedJob(job);
     resetExamData();
 
+    // Get application ID for this job
+    const application = userApplications.find((app) => app.job_id === job.id);
+    setSelectedApplicationId(application?.id || null);
+
     // Fetch exam data if available
     if (job.exam_id) {
       fetchExam(job.exam_id);
@@ -61,6 +68,7 @@ export const ApplicationsSection: React.FC<ApplicationsSectionProps> = ({
 
   const handleCloseModal = () => {
     setSelectedJob(null);
+    setSelectedApplicationId(null);
     resetExamData();
   };
 
@@ -228,6 +236,7 @@ export const ApplicationsSection: React.FC<ApplicationsSectionProps> = ({
           examAttempt={examAttempt}
           loadingAttempt={loadingAttempt}
           progress={applicationProgress[selectedJob.id]}
+          applicationId={selectedApplicationId}
           onClose={handleCloseModal}
           onExamSubmit={handleExamSubmitWrapper}
           onContinueToExam={() => {

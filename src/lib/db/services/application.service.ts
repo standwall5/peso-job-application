@@ -124,6 +124,30 @@ export async function updateApplicationStatus(
   const supabase = await getSupabaseClient();
   await getCurrentUser(); // Ensure authenticated
 
+  // Get the application with job and applicant details
+  const { data: application, error: appError } = await supabase
+    .from("applications")
+    .select(
+      `
+      *,
+      jobs (
+        title,
+        companies (name)
+      ),
+      applicants (
+        id,
+        name
+      )
+    `,
+    )
+    .eq("id", applicationId)
+    .single();
+
+  if (appError || !application) {
+    throw new Error(appError?.message || "Application not found");
+  }
+
+  // Update the application status
   const { data, error } = await supabase
     .from("applications")
     .update({ status })
@@ -133,6 +157,50 @@ export async function updateApplicationStatus(
 
   if (error) {
     throw new Error(error.message);
+  }
+
+  // Create notification for the applicant
+  const job = Array.isArray(application.jobs)
+    ? application.jobs[0]
+    : application.jobs;
+  const company =
+    job && Array.isArray(job.companies) ? job.companies[0] : job?.companies;
+  const applicant = Array.isArray(application.applicants)
+    ? application.applicants[0]
+    : application.applicants;
+
+  const statusMessages: Record<string, { title: string; message: string }> = {
+    referred: {
+      title: "Application Referred! 🎉",
+      message: `Your application for ${job?.title || "the position"} at ${company?.name || "the company"} has been referred. Good luck!`,
+    },
+    rejected: {
+      title: "Application Update",
+      message: `Your application for ${job?.title || "the position"} at ${company?.name || "the company"} has been updated to rejected.`,
+    },
+    pending: {
+      title: "Application Status Changed",
+      message: `Your application for ${job?.title || "the position"} at ${company?.name || "the company"} is now pending review.`,
+    },
+  };
+
+  const notificationContent = statusMessages[status.toLowerCase()] || {
+    title: "Application Status Changed",
+    message: `Your application status has been updated to ${status}.`,
+  };
+
+  // Send notification
+  if (applicant?.id) {
+    await supabase.from("notifications").insert({
+      applicant_id: applicant.id,
+      type: "application_status",
+      title: notificationContent.title,
+      message: notificationContent.message,
+      link: `/profile?tab=applications`,
+      is_read: false,
+      is_archived: false,
+      created_at: new Date().toISOString(),
+    });
   }
 
   return data;
@@ -175,6 +243,25 @@ export async function getApplicationProgress(applicationId: number) {
 export async function getApplicantAppliedJobs(applicantId: number) {
   const supabase = await getSupabaseClient();
 
+  // Define the expected structure from Supabase
+  interface SupabaseApplicationData {
+    id: number;
+    job_id: number;
+    status: string;
+    applied_date: string;
+    jobs: {
+      id: number;
+      title: string;
+      place_of_assignment: string;
+      company_id: number;
+      companies: {
+        id: number;
+        name: string;
+        logo: string | null;
+      } | null;
+    } | null;
+  }
+
   try {
     // Fetch all applications for this applicant with job and company details
     const { data: applications, error } = await supabase
@@ -185,12 +272,12 @@ export async function getApplicantAppliedJobs(applicantId: number) {
         job_id,
         status,
         applied_date,
-        jobs!inner (
+        jobs (
           id,
           title,
           place_of_assignment,
           company_id,
-          companies!inner (
+          companies (
             id,
             name,
             logo
@@ -206,53 +293,48 @@ export async function getApplicantAppliedJobs(applicantId: number) {
       throw new Error(error.message);
     }
 
-    console.log("Applications fetched:", applications);
+    console.log(
+      "Raw applications fetched:",
+      JSON.stringify(applications, null, 2),
+    );
 
-    if (!applications) {
+    if (!applications || applications.length === 0) {
       return [];
     }
 
-    // Define the structure we expect from Supabase (nested relations are arrays)
-    type SupabaseJob = {
-      id: number;
-      title: string;
-      place_of_assignment: string;
-      company_id: number;
-      companies: {
-        id: number;
-        name: string;
-        logo: string | null;
-      }[];
-    };
-
-    type SupabaseApplication = {
-      id: number;
-      job_id: number;
-      status: string;
-      applied_date: string;
-      jobs: SupabaseJob[];
-    };
-
     // Transform the data to match our AppliedJob interface
-    const jobs: AppliedJob[] = applications.map((app) => {
-      const typedApp = app as unknown as SupabaseApplication;
-      const job = typedApp.jobs?.[0]; // Get first job from array
-      const company = job?.companies?.[0]; // Get first company from array
+    const jobs: AppliedJob[] = (
+      applications as unknown as SupabaseApplicationData[]
+    )
+      .map((app) => {
+        console.log("Processing application:", JSON.stringify(app, null, 2));
 
-      return {
-        id: typedApp.id,
-        job_id: typedApp.job_id,
-        company_id: job?.company_id || 0,
-        company_name: company?.name || "Unknown Company",
-        company_logo: company?.logo || null,
-        job_title: job?.title || "Unknown Position",
-        place_of_assignment: job?.place_of_assignment || "N/A",
-        status: typedApp.status || "pending",
-        applied_date: typedApp.applied_date,
-      };
-    });
+        const job = app.jobs;
+        const company = job?.companies;
 
-    console.log("Transformed jobs:", jobs);
+        if (!job) {
+          console.warn("No job data found for application:", app.id);
+          return null;
+        }
+
+        const transformedJob = {
+          id: app.id,
+          job_id: app.job_id,
+          company_id: job.company_id || 0,
+          company_name: company?.name || "Unknown Company",
+          company_logo: company?.logo || null,
+          job_title: job.title || "Unknown Position",
+          place_of_assignment: job.place_of_assignment || "N/A",
+          status: app.status || "pending",
+          applied_date: app.applied_date,
+        };
+
+        console.log("Transformed job:", transformedJob);
+        return transformedJob;
+      })
+      .filter((job): job is AppliedJob => job !== null);
+
+    console.log("Final transformed jobs:", jobs);
     return jobs;
   } catch (error) {
     console.error("Error fetching applied jobs:", error);
@@ -465,4 +547,36 @@ export async function deleteApplicationProgress(jobId: number) {
   }
 
   return { success: true };
+}
+
+/**
+ * Get application ID for a specific job for the current user
+ * Used for tracking ID changes on submitted applications
+ */
+export async function getApplicationIdByJobId(
+  jobId: number,
+): Promise<number | null> {
+  const supabase = await getSupabaseClient();
+  const user = await getCurrentUser();
+
+  // Get applicant ID
+  const { data: applicant } = await supabase
+    .from("applicants")
+    .select("id")
+    .eq("auth_id", user.id)
+    .single();
+
+  if (!applicant) {
+    return null;
+  }
+
+  // Get application
+  const { data: application } = await supabase
+    .from("applications")
+    .select("id")
+    .eq("job_id", jobId)
+    .eq("applicant_id", applicant.id)
+    .single();
+
+  return application?.id || null;
 }

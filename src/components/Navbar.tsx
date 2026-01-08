@@ -675,7 +675,9 @@ const Navbar = () => {
 
   useEffect(() => {
     setMounted(true);
+    const supabase = createClient();
 
+    // Initial fetch
     async function fetchUser() {
       const res = await fetch("/api/getUser");
       const data = await res.json();
@@ -684,7 +686,22 @@ const Navbar = () => {
 
     fetchUser();
 
-    // Optionally, you can set up a polling interval or use a custom event to refetch on auth changes
+    // Listen for auth state changes (login/logout)
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        if (session?.user) {
+          // User logged in - fetch updated user data
+          await fetchUser();
+        } else {
+          // User logged out - clear user state
+          setUser(null);
+        }
+      },
+    );
+
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
   }, [pathname]);
 
   if (!mounted) return null;

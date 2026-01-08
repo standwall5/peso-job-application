@@ -5,6 +5,22 @@ import styles from "../Profile.module.css";
 import { User } from "../../types/profile.types";
 import { EditContactModal } from "../modals/EditContactModal";
 
+// Import constants from signup
+const PREFERRED_PLACES = ["Paranaque", "Las Piñas", "Muntinlupa"] as const;
+
+const APPLICANT_TYPES = [
+  "Student",
+  "Indigenous Person (IP)",
+  "Out of School Youth",
+  "Person with Disability (PWD)",
+  "Rehabilitation Program Graduate",
+  "Reintegrated Individual (Former Detainee)",
+  "Returning Overseas Filipino Worker (OFW)",
+  "Senior Citizen",
+  "Solo Parent/Single Parent",
+  "Others",
+] as const;
+
 interface ProfileHeaderProps {
   user: User;
   dateNow: number;
@@ -230,13 +246,24 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   </svg>
                   PREFERRED PLACE
                 </span>
-                <input
-                  type="text"
-                  placeholder="Enter preferred place of assignment"
+                <select
                   value={editPreferredPoa}
                   name="preferred_poa"
                   onChange={(e) => setEditPreferredPoa(e.target.value)}
-                />
+                  style={{
+                    padding: "0.5rem",
+                    borderRadius: "0.25rem",
+                    border: "1px solid #cbd5e1",
+                    fontSize: "0.875rem",
+                  }}
+                >
+                  <option value="">Select preferred place</option>
+                  {PREFERRED_PLACES.map((place) => (
+                    <option key={place} value={place}>
+                      {place}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className={styles.infoRow}>
@@ -256,13 +283,24 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   </svg>
                   APPLICANT TYPE
                 </span>
-                <input
-                  type="text"
-                  placeholder="Enter applicant type"
+                <select
                   value={editApplicantType}
                   name="applicant_type"
                   onChange={(e) => setEditApplicantType(e.target.value)}
-                />
+                  style={{
+                    padding: "0.5rem",
+                    borderRadius: "0.25rem",
+                    border: "1px solid #cbd5e1",
+                    fontSize: "0.875rem",
+                  }}
+                >
+                  <option value="">Select applicant type</option>
+                  {APPLICANT_TYPES.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className={styles.buttonRow}>

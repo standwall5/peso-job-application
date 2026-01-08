@@ -4,14 +4,18 @@ import React, { useState } from "react";
 import styles from "../Jobseekers.module.css";
 import { Application, AppliedJob } from "../../types/jobseeker.types";
 import AppliedJobsRow from "./AppliedJobsRow";
-import { getApplicantAppliedJobs } from "@/lib/db/services/application.service";
+import {
+  getApplicantAppliedJobs,
+  updateApplicationStatus,
+} from "@/lib/db/services/application.service";
 
 interface JobseekerTableProps {
   applications: Application[];
   onViewDetails: (application: Application) => void;
   sortBy: string;
   setSortBy: (sort: string) => void;
-  onArchive?: (application: Application) => void;
+  selectedJobseekers: number[];
+  onToggleSelect: (applicantId: number) => void;
 }
 
 const JobseekerTable: React.FC<JobseekerTableProps> = ({
@@ -19,7 +23,8 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
   onViewDetails,
   sortBy,
   setSortBy,
-  onArchive,
+  selectedJobseekers,
+  onToggleSelect,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedApplicantId, setExpandedApplicantId] = useState<number | null>(
@@ -75,6 +80,29 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
       setAppliedJobs([]);
     } finally {
       setLoadingJobs(false);
+    }
+  };
+
+  const handleStatusChange = async (
+    applicationId: number,
+    newStatus: string,
+  ) => {
+    try {
+      await updateApplicationStatus(applicationId, newStatus);
+
+      // Refresh the applied jobs list for the expanded row
+      if (expandedApplicantId) {
+        const jobs = await getApplicantAppliedJobs(expandedApplicantId);
+        setAppliedJobs(jobs);
+      }
+
+      // TODO: Send notification to user about status change
+      console.log(
+        `Status changed to ${newStatus} for application ${applicationId}`,
+      );
+    } catch (error) {
+      console.error("Error updating application status:", error);
+      throw error;
     }
   };
 
@@ -215,7 +243,7 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
           </div>
         </div>
         <div>ACTIONS</div>
-        <div>ARCHIVE</div>
+        <div></div>
       </div>
 
       {currentApplications.map((app) => (
@@ -279,36 +307,26 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
                 View Details
               </button>
             </div>
-            <div className={styles.archiveCell}>
-              <button
-                className={styles.archiveBtn}
-                onClick={(e) => {
+            <div className={styles.checkbox}>
+              <input
+                type="checkbox"
+                checked={selectedJobseekers.includes(app.applicant.id)}
+                onChange={(e) => {
                   e.stopPropagation();
-                  onArchive?.(app);
+                  onToggleSelect(app.applicant.id);
                 }}
-                title="Archive jobseeker"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  style={{ width: "20px", height: "20px" }}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0-3-3m3 3 3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z"
-                  />
-                </svg>
-              </button>
+                onClick={(e) => e.stopPropagation()}
+              />
             </div>
           </div>
 
           {/* Expanded row showing applied jobs */}
           {expandedApplicantId === app.applicant.id && (
-            <AppliedJobsRow jobs={appliedJobs} loading={loadingJobs} />
+            <AppliedJobsRow
+              jobs={appliedJobs}
+              loading={loadingJobs}
+              onStatusChange={handleStatusChange}
+            />
           )}
         </React.Fragment>
       ))}

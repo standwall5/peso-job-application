@@ -5,6 +5,7 @@ interface Job {
   company_id: number;
   manpower_needed?: number;
   posted_date: string | null;
+  place_of_assignment?: string;
 }
 
 interface Company {
@@ -20,6 +21,7 @@ export function sortCompanies(
   companies: Company[],
   jobs: Job[],
   sortOption: SortOption,
+  userPreferredLocation?: string | null,
 ): Company[] {
   const companiesWithData = companies.map((company) => {
     const companyJobs = jobs.filter((job) => job.company_id === company.id);
@@ -36,36 +38,87 @@ export function sortCompanies(
         .map((job) => new Date(job.posted_date!).getTime())
         .sort((a, b) => b - a)[0] || 0;
 
+    // Calculate location match count
+    const locationMatchCount = userPreferredLocation
+      ? companyJobs.filter((job) => {
+          const jobLocation = job.place_of_assignment?.toLowerCase() || "";
+          const preferredLocation = userPreferredLocation.toLowerCase();
+          return (
+            jobLocation.includes(preferredLocation) ||
+            preferredLocation.includes(jobLocation)
+          );
+        }).length
+      : 0;
+
     return {
       ...company,
       jobCount,
       manpowerCount,
       mostRecentDate,
+      locationMatchCount,
     };
   });
 
   switch (sortOption) {
     case "recent":
-      return companiesWithData.sort(
-        (a, b) => b.mostRecentDate - a.mostRecentDate,
-      );
+      // Sort by location match first, then by most recent date
+      return companiesWithData.sort((a, b) => {
+        if (userPreferredLocation) {
+          const locationDiff = b.locationMatchCount - a.locationMatchCount;
+          if (locationDiff !== 0) return locationDiff;
+        }
+        return b.mostRecentDate - a.mostRecentDate;
+      });
 
     case "most-jobs":
-      return companiesWithData.sort((a, b) => b.jobCount - a.jobCount);
+      // Sort by location match first, then by job count
+      return companiesWithData.sort((a, b) => {
+        if (userPreferredLocation) {
+          const locationDiff = b.locationMatchCount - a.locationMatchCount;
+          if (locationDiff !== 0) return locationDiff;
+        }
+        return b.jobCount - a.jobCount;
+      });
 
     case "least-jobs":
-      return companiesWithData.sort((a, b) => a.jobCount - b.jobCount);
+      // Sort by location match first, then by job count (ascending)
+      return companiesWithData.sort((a, b) => {
+        if (userPreferredLocation) {
+          const locationDiff = b.locationMatchCount - a.locationMatchCount;
+          if (locationDiff !== 0) return locationDiff;
+        }
+        return a.jobCount - b.jobCount;
+      });
 
     case "most-manpower":
-      return companiesWithData.sort(
-        (a, b) => b.manpowerCount - a.manpowerCount,
-      );
+      // Sort by location match first, then by manpower count
+      return companiesWithData.sort((a, b) => {
+        if (userPreferredLocation) {
+          const locationDiff = b.locationMatchCount - a.locationMatchCount;
+          if (locationDiff !== 0) return locationDiff;
+        }
+        return b.manpowerCount - a.manpowerCount;
+      });
 
     case "name-asc":
-      return companiesWithData.sort((a, b) => a.name.localeCompare(b.name));
+      // Sort by location match first, then by name (ascending)
+      return companiesWithData.sort((a, b) => {
+        if (userPreferredLocation) {
+          const locationDiff = b.locationMatchCount - a.locationMatchCount;
+          if (locationDiff !== 0) return locationDiff;
+        }
+        return a.name.localeCompare(b.name);
+      });
 
     case "name-desc":
-      return companiesWithData.sort((a, b) => b.name.localeCompare(a.name));
+      // Sort by location match first, then by name (descending)
+      return companiesWithData.sort((a, b) => {
+        if (userPreferredLocation) {
+          const locationDiff = b.locationMatchCount - a.locationMatchCount;
+          if (locationDiff !== 0) return locationDiff;
+        }
+        return b.name.localeCompare(a.name);
+      });
 
     default:
       return companiesWithData;

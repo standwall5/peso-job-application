@@ -73,25 +73,6 @@ const PublicJobList = () => {
 
   return (
     <section className={styles.section}>
-      {/* Company Header */}
-      <div className={jobStyle.companyHeader}>
-        <div className={jobStyle.companyHeaderContent}>
-          <Image
-            src={companyLogo || "/assets/images/default_profile.png"}
-            alt={companyName || "Company"}
-            className={jobStyle.companyHeaderLogo}
-            width={80}
-            height={80}
-          />
-          <div className={jobStyle.companyHeaderInfo}>
-            <h1 className={jobStyle.companyHeaderName}>
-              {companyName || "Loading..."}
-            </h1>
-            <p className={jobStyle.companyHeaderSubtext}>Available Positions</p>
-          </div>
-        </div>
-      </div>
-
       {/* Search Bar */}
       <div className={jobStyle.searchContainer}>
         <input

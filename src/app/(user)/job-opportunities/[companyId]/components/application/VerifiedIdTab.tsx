@@ -1,99 +1,156 @@
 // src/app/(user)/job-opportunities/[companyId]/components/application/VerifiedIdTab.tsx
 "use client";
-import React, { useState, useEffect } from "react";
-import Button from "@/components/Button";
-import VerifiedIdUpload from "../verification/VerifiedIdUpload";
+import React from "react";
+import VerifiedIdManager from "@/components/verified-id/VerifiedIdManager";
 import { ApplicationProgress } from "../../types/application.types";
 import { ExamAttemptData } from "../../types/application.types";
-import { getMyID } from "@/lib/db/services/applicant-id.service";
-import BlocksWave from "@/components/BlocksWave";
 import jobStyle from "../../JobsOfCompany.module.css";
 
 interface VerifiedIdTabProps {
-  jobId: number;
   hasApplied: boolean;
   examAttempt: ExamAttemptData | null;
   progress: ApplicationProgress | undefined;
+  jobId: number;
+  applicationId?: number | null;
   onIdUploaded: () => void;
   onSubmitFinalApplication: () => void;
-  onGoToExam: () => void;
 }
 
 const VerifiedIdTab: React.FC<VerifiedIdTabProps> = ({
-  jobId,
   hasApplied,
   examAttempt,
   progress,
+  jobId,
+  applicationId,
   onIdUploaded,
   onSubmitFinalApplication,
-  onGoToExam,
 }) => {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Just a quick check, the component handles the rest
-    setLoading(false);
-  }, []);
-
-  if (loading) {
-    return (
-      <div className={jobStyle.applicantDetail}>
-        <BlocksWave />
-      </div>
-    );
-  }
-
-  // If application already submitted, show ID in view-only mode
+  // If application already submitted, still allow editing but hide submit button
   if (hasApplied) {
     return (
       <div className={jobStyle.applicantDetail}>
-        <VerifiedIdUpload
-          jobId={jobId}
-          onSubmitted={onIdUploaded}
+        {/* Warning message for submitted applications */}
+        <div
+          style={{
+            background: "#fff3cd",
+            border: "1px solid #ffc107",
+            borderRadius: "0.5rem",
+            padding: "1rem",
+            margin: "1rem 1rem 1.5rem 1rem",
+            display: "flex",
+            alignItems: "flex-start",
+            gap: "0.75rem",
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="#856404"
+            style={{
+              width: "1.5rem",
+              height: "1.5rem",
+              flexShrink: 0,
+              marginTop: "0.125rem",
+            }}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+            />
+          </svg>
+          <div style={{ flex: 1 }}>
+            <strong
+              style={{
+                color: "#856404",
+                display: "block",
+                marginBottom: "0.25rem",
+              }}
+            >
+              Application Already Submitted
+            </strong>
+            <p style={{ color: "#856404", margin: 0, fontSize: "0.875rem" }}>
+              You can still view and update your ID if needed. Any changes will
+              be logged and admins will be notified to review your application.
+            </p>
+          </div>
+        </div>
+
+        <VerifiedIdManager
           showSubmitButton={false}
+          readOnly={false}
+          hasApplied={hasApplied}
+          jobId={jobId}
+          applicationId={applicationId || undefined}
         />
       </div>
     );
   }
 
-  // Exam not completed yet
-  if (!examAttempt || !examAttempt.attempt) {
-    return (
-      <div className={jobStyle.applicantDetail}>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "2rem",
-            textAlign: "center",
-            gap: "1rem",
-          }}
-        >
-          <h2>⚠️ Pre-Screening Required</h2>
-          <p className={jobStyle.message}>
-            Please complete the pre-screening questions first before uploading
-            your Verified ID.
-          </p>
-          <Button variant="primary" onClick={onGoToExam}>
-            Go to Pre-Screening
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  // Exam completed - show ID upload/view/edit with submit button
-  const canSubmit = progress?.exam_completed && progress?.resume_viewed;
+  // Check if exam is completed
+  const examCompleted = !!(examAttempt && examAttempt.attempt);
+  const canSubmit = Boolean(
+    examCompleted && progress?.exam_completed && progress?.resume_viewed,
+  );
 
   return (
     <div className={jobStyle.applicantDetail}>
-      <VerifiedIdUpload
-        jobId={jobId}
-        onSubmitted={onIdUploaded}
+      {/* Show warning if exam not completed */}
+      {!examCompleted && (
+        <div
+          style={{
+            background: "#fff3cd",
+            border: "1px solid #ffc107",
+            borderRadius: "0.5rem",
+            padding: "1rem",
+            margin: "1rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.75rem",
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="#856404"
+            style={{ width: "1.5rem", height: "1.5rem", flexShrink: 0 }}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+            />
+          </svg>
+          <div style={{ flex: 1 }}>
+            <strong
+              style={{
+                color: "#856404",
+                display: "block",
+                marginBottom: "0.25rem",
+              }}
+            >
+              Complete Pre-Screening First
+            </strong>
+            <p style={{ color: "#856404", margin: 0, fontSize: "0.875rem" }}>
+              You can upload your ID here, but you must complete the
+              pre-screening questions before submitting your application.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Always show ID manager, but control submit button */}
+      <VerifiedIdManager
         showSubmitButton={canSubmit}
         onSubmitFinalApplication={onSubmitFinalApplication}
+        onIdUploaded={onIdUploaded}
+        readOnly={false}
+        hasApplied={false}
+        jobId={jobId}
       />
     </div>
   );

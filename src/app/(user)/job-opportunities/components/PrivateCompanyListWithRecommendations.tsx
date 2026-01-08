@@ -7,8 +7,10 @@ import BlocksWave from "@/components/BlocksWave";
 import SortCompany, { SortOption } from "./sort/SortCompany";
 import { sortCompanies } from "../utils/sortCompanies";
 import RecommendedJobsPanel from "./RecommendedJobsPanel";
-import AllJobsSection from "./AllJobsSection";
-import { getUserSkillsAction } from "../actions/job-opportunities.actions";
+import {
+  getUserSkillsAction,
+  getUserPreferredLocationAction,
+} from "../actions/job-opportunities.actions";
 import ApplicationModal from "../[companyId]/components/application/ApplicationModal";
 import ApplicationSuccessModal from "../[companyId]/components/application/ApplicationSuccessModal";
 import Toast from "@/components/toast/Toast";
@@ -55,6 +57,9 @@ const PrivateCompanyListWithRecommendations = ({
   const [search, setSearch] = useState(searchParent || "");
   const [sortOption, setSortOption] = useState<SortOption>("recent");
   const [userSkills, setUserSkills] = useState<string[]>([]);
+  const [userPreferredLocation, setUserPreferredLocation] = useState<
+    string | null
+  >(null);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [showAllCompanies, setShowAllCompanies] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -77,15 +82,18 @@ const PrivateCompanyListWithRecommendations = ({
     useUserApplications();
 
   useEffect(() => {
-    async function fetchUserSkills() {
+    async function fetchUserData() {
       try {
         const skills = await getUserSkillsAction();
         setUserSkills(skills);
+
+        const preferredLocation = await getUserPreferredLocationAction();
+        setUserPreferredLocation(preferredLocation);
       } catch (error) {
-        console.error("Failed to fetch user skills:", error);
+        console.error("Failed to fetch user data:", error);
       }
     }
-    fetchUserSkills();
+    fetchUserData();
   }, []);
 
   // Fetch user applications and progress
@@ -117,8 +125,10 @@ const PrivateCompanyListWithRecommendations = ({
       company_id: job.company_id || 0,
       manpower_needed: job.manpower_needed || 0,
       posted_date: job.posted_date,
+      place_of_assignment: job.place_of_assignment,
     })),
     sortOption,
+    userPreferredLocation,
   );
 
   const displayedCompanies = showAllCompanies
@@ -302,14 +312,6 @@ const PrivateCompanyListWithRecommendations = ({
             </div>
           )}
         </div>
-        {/*<div className={panelStyles.allJobsSection}>*/}
-        <AllJobsSection
-          jobs={jobs}
-          userSkills={userSkills}
-          searchQuery={search}
-          onJobClick={handleJobClick}
-        />
-        {/*</div>*/}
       </section>
 
       {userSkills.length > 0 && (
@@ -317,7 +319,7 @@ const PrivateCompanyListWithRecommendations = ({
           <RecommendedJobsPanel
             jobs={jobs}
             userSkills={userSkills}
-            onJobClick={handleJobClick}
+            userPreferredLocation={userPreferredLocation}
           />
         </aside>
       )}

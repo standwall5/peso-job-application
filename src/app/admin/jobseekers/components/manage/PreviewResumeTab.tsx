@@ -1,6 +1,6 @@
 import React from "react";
 import Resume from "@/app/(user)/profile/components/Resume";
-import styles from "../ManageJobseeker.module.css";
+import styles from "../Jobseekers.module.css";
 import { Jobseeker } from "../../types/jobseeker.types";
 
 interface PreviewResumeTabProps {
