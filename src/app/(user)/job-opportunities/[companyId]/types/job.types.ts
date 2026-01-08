@@ -15,6 +15,7 @@ export interface Job {
   salary?: string | null;
   status?: string;
   skills?: string[];
+  icon_url?: string | null;
   company?: {
     name: string;
     logo: string | null;

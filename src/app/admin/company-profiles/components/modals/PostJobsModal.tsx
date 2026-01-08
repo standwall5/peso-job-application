@@ -5,8 +5,12 @@ import ConfirmCloseModal from "./ConfirmCloseModal";
 import { Exam as ExamType } from "../exam/Exam";
 import ExamList from "../exam/ExamList";
 import Button from "@/components/Button";
-import SkillsInput from "@/components/SkillsInput"; // NEW: Import SkillsInput
+import SkillsInput from "@/components/SkillsInput";
 import { CompanyWithStats } from "../../types/company.types";
+import Cropper from "react-easy-crop";
+
+type Point = { x: number; y: number };
+type Area = { x: number; y: number; width: number; height: number };
 
 interface Jobs {
   id: number;
@@ -18,7 +22,8 @@ interface Jobs {
   eligibility: string;
   posted_date: string;
   exam_id?: number | null;
-  skills?: string[]; // NEW: Add skills field
+  skills?: string[];
+  icon_url?: string | null;
   companies: {
     name: string;
     logo: string | null;
@@ -47,10 +52,21 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
     job?.exam_id ?? null,
   );
 
-  // NEW: Track skills
+  // Track skills
   const [selectedSkills, setSelectedSkills] = useState<string[]>(
     job?.skills || [],
   );
+
+  // Icon upload states
+  const [iconFile, setIconFile] = useState<File | null>(null);
+  const [iconPreview, setIconPreview] = useState<string | null>(
+    job?.icon_url || null,
+  );
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [tempImageSrc, setTempImageSrc] = useState<string | null>(null);
 
   // Track form changes
   const [hasChanges, setHasChanges] = useState(false);
@@ -64,7 +80,8 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
     education: job.education,
     eligibility: job.eligibility,
     examId: job.exam_id ?? null,
-    skills: job.skills || [], // NEW: Store initial skills
+    skills: job.skills || [],
+    iconUrl: job.icon_url || null,
   });
 
   console.log("PostJobsModal - selectedExamId:", selectedExamId);
@@ -89,15 +106,18 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
 
       const hasExamChange = selectedExamId !== initialValuesRef.current.examId;
 
-      // NEW: Check for skills changes
       const hasSkillsChange =
         JSON.stringify(selectedSkills.sort()) !==
         JSON.stringify(initialValuesRef.current.skills.sort());
 
-      return hasFormChanges || hasExamChange || hasSkillsChange;
+      const hasIconChange = iconPreview !== initialValuesRef.current.iconUrl;
+
+      return (
+        hasFormChanges || hasExamChange || hasSkillsChange || hasIconChange
+      );
     }
 
-    // Check if exam selection or skills changed
+    // Check if exam selection or skills or icon changed
     const hasExamChange = selectedExamId !== initialValuesRef.current.examId;
     const hasSkillsChange =
       JSON.stringify(selectedSkills.sort()) !==
@@ -136,13 +156,92 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
     setHasChanges(examId !== initialValuesRef.current.examId);
   };
 
-  // NEW: Handle skills change
   const handleSkillsChange = (skills: string[]) => {
     setSelectedSkills(skills);
     const hasSkillsChange =
       JSON.stringify(skills.sort()) !==
       JSON.stringify(initialValuesRef.current.skills.sort());
     setHasChanges(hasSkillsChange);
+  };
+
+  // Handle icon file selection
+  const handleIconSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setTempImageSrc(reader.result as string);
+        setShowCropModal(true);
+      };
+      reader.readAsDataURL(file);
+      setIconFile(file);
+    }
+  };
+
+  // Handle crop complete
+  const onCropComplete = (_croppedArea: Area, croppedAreaPixels: Area) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  };
+
+  // Save cropped image
+  const handleSaveCrop = async () => {
+    if (!tempImageSrc || !croppedAreaPixels) return;
+
+    try {
+      const croppedImage = await getCroppedImg(tempImageSrc, croppedAreaPixels);
+      setIconPreview(croppedImage);
+      setShowCropModal(false);
+      setHasChanges(true);
+    } catch (error) {
+      console.error("Error cropping image:", error);
+    }
+  };
+
+  // Remove icon
+  const handleRemoveIcon = () => {
+    setIconFile(null);
+    setIconPreview(null);
+    setHasChanges(true);
+  };
+
+  // Crop image helper function
+  const getCroppedImg = async (
+    imageSrc: string,
+    pixelCrop: Area,
+  ): Promise<string> => {
+    const image = new Image();
+    image.src = imageSrc;
+    await new Promise((resolve) => {
+      image.onload = resolve;
+    });
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("No 2d context");
+
+    canvas.width = pixelCrop.width;
+    canvas.height = pixelCrop.height;
+
+    ctx.drawImage(
+      image,
+      pixelCrop.x,
+      pixelCrop.y,
+      pixelCrop.width,
+      pixelCrop.height,
+      0,
+      0,
+      pixelCrop.width,
+      pixelCrop.height,
+    );
+
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          resolve(url);
+        }
+      }, "image/jpeg");
+    });
   };
 
   // Handle close with confirmation
@@ -170,16 +269,41 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
     const form = e.target as HTMLFormElement;
     const formData = new FormData(form);
 
+    // Upload icon if changed
+    let uploadedIconUrl = iconPreview;
+    if (iconFile && iconPreview && iconPreview !== job.icon_url) {
+      // Convert blob URL to file
+      const blob = await fetch(iconPreview).then((r) => r.blob());
+      const file = new File([blob], `job-icon-${Date.now()}.jpg`, {
+        type: "image/jpeg",
+      });
+
+      const uploadFormData = new FormData();
+      uploadFormData.append("file", file);
+      uploadFormData.append("jobId", job.id.toString());
+
+      const uploadResponse = await fetch("/api/upload-job-icon", {
+        method: "POST",
+        body: uploadFormData,
+      });
+
+      if (uploadResponse.ok) {
+        const uploadData = await uploadResponse.json();
+        uploadedIconUrl = uploadData.url;
+      }
+    }
+
     const jobData = {
       company_id: company.id,
       title: formData.get("title") as string,
-      description: job.description, // Or add a field if you want to edit this
+      description: job.description,
       place_of_assignment: formData.get("poa") as string,
       sex: formData.get("gender") as string,
       education: formData.get("education") as string,
       eligibility: formData.get("eligibility") as string,
       exam_id: selectedExamId,
-      skills: selectedSkills, // NEW: Include skills
+      skills: selectedSkills,
+      icon_url: uploadedIconUrl,
     };
 
     try {
@@ -287,7 +411,7 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
                 <option value="Experienced">Experienced</option>
               </select>
 
-              {/* NEW: Skills Input */}
+              {/* Skills Input */}
               <div style={{ marginTop: "1rem" }}>
                 <SkillsInput
                   skills={selectedSkills}
@@ -296,6 +420,87 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
                   label="Required Skills"
                   required={false}
                 />
+              </div>
+
+              {/* Job Icon Upload */}
+              <div style={{ marginTop: "1rem" }}>
+                <label>Job Icon (Optional)</label>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "1rem",
+                    marginTop: "0.5rem",
+                  }}
+                >
+                  {iconPreview && (
+                    <div style={{ position: "relative" }}>
+                      <img
+                        src={iconPreview}
+                        alt="Job icon preview"
+                        style={{
+                          width: "64px",
+                          height: "64px",
+                          objectFit: "cover",
+                          borderRadius: "0.375rem",
+                          border: "1px solid #e2e8f0",
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleRemoveIcon}
+                        style={{
+                          position: "absolute",
+                          top: "-8px",
+                          right: "-8px",
+                          background: "#ef4444",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "50%",
+                          width: "24px",
+                          height: "24px",
+                          cursor: "pointer",
+                          fontSize: "14px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleIconSelect}
+                    style={{ display: "none" }}
+                    id="icon-upload"
+                  />
+                  <label
+                    htmlFor="icon-upload"
+                    style={{
+                      padding: "0.5rem 1rem",
+                      background: "#3498db",
+                      color: "white",
+                      borderRadius: "0.375rem",
+                      cursor: "pointer",
+                      fontSize: "0.875rem",
+                    }}
+                  >
+                    {iconPreview ? "Change Icon" : "Upload Icon"}
+                  </label>
+                </div>
+                <p
+                  style={{
+                    fontSize: "0.75rem",
+                    color: "#64748b",
+                    marginTop: "0.5rem",
+                  }}
+                >
+                  Upload a custom icon for this job posting. Square images work
+                  best.
+                </p>
               </div>
 
               <Button variant="success" style={{ marginTop: "1rem" }}>
@@ -322,6 +527,74 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
           onConfirm={handleConfirmClose}
           onCancel={handleCancelClose}
         />
+      )}
+
+      {/* Crop Modal */}
+      {showCropModal && tempImageSrc && (
+        <Modal onClose={() => setShowCropModal(false)}>
+          <div style={{ padding: "1rem" }}>
+            <h3 style={{ marginBottom: "1rem" }}>Crop Job Icon</h3>
+            <div
+              style={{
+                position: "relative",
+                width: "100%",
+                height: "400px",
+                background: "#000",
+              }}
+            >
+              <Cropper
+                image={tempImageSrc}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+              />
+            </div>
+            <div style={{ marginTop: "1rem" }}>
+              <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                Zoom
+              </label>
+              <input
+                type="range"
+                min={1}
+                max={3}
+                step={0.1}
+                value={zoom}
+                onChange={(e) => setZoom(Number(e.target.value))}
+                style={{ width: "100%" }}
+              />
+            </div>
+            <div
+              style={{
+                display: "flex",
+                gap: "1rem",
+                marginTop: "1rem",
+                justifyContent: "flex-end",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setShowCropModal(false)}
+                style={{
+                  padding: "0.5rem 1rem",
+                  background: "#64748b",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "0.375rem",
+                  cursor: "pointer",
+                  fontSize: "0.875rem",
+                }}
+              >
+                Cancel
+              </button>
+              <Button variant="success" onClick={handleSaveCrop}>
+                Save
+              </Button>
+            </div>
+          </div>
+        </Modal>
       )}
     </>
   );

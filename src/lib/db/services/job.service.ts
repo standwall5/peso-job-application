@@ -15,6 +15,7 @@ export interface Job {
   company_id: number;
   manpower_needed?: number;
   skills?: string[];
+  icon_url?: string | null;
   companies: {
     name: string;
     logo: string | null;
@@ -60,7 +61,8 @@ export async function createJob(jobData: {
   education: string;
   eligibility: string;
   company_id: number;
-  skills?: string[]; // NEW: Add skills parameter
+  skills?: string[];
+  icon_url?: string | null;
 }) {
   const supabase = await getSupabaseClient();
   await getCurrentUser(); // Ensure authenticated
@@ -87,7 +89,8 @@ export async function updateJob(
     sex: string;
     education: string;
     eligibility: string;
-    skills: string[]; // NEW: Add skills parameter
+    skills: string[];
+    icon_url: string | null;
   }>,
 ) {
   const supabase = await getSupabaseClient();
