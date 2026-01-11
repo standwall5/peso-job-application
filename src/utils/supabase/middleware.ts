@@ -1,5 +1,4 @@
 import { createServerClient } from "@supabase/ssr";
-import { redirect } from "next/navigation";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
@@ -26,7 +25,7 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
+          cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value),
           );
           supabaseResponse = NextResponse.next({
@@ -40,113 +39,132 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // Do not run code between createServerClient and
-  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
-
   // IMPORTANT: DO NOT REMOVE auth.getUser()
-
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  // User data or null
 
   const pathname = request.nextUrl.pathname;
+
+  // Define public paths that don't require authentication
   const publicPaths = [
-    // "/", // allow public home only in development
     "/login",
+    "/signup",
     "/auth",
     "/error",
-    "/signup",
+    "/logout",
     "/job-opportunities",
     "/how-it-works",
     "/about",
-    "/api",
+    "/search",
   ];
 
-  //
-  if (!user && !publicPaths.some((p) => pathname.startsWith(p))) {
+  // Allow all API routes to pass through
+  if (pathname.startsWith("/api/")) {
+    return supabaseResponse;
+  }
+
+  // Allow static files and Next.js internals
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/static") ||
+    pathname.includes(".")
+  ) {
+    return supabaseResponse;
+  }
+
+  // If user is NOT authenticated
+  if (!user) {
+    // Allow access to public paths
+    if (publicPaths.some((p) => pathname.startsWith(p))) {
+      return supabaseResponse;
+    }
+
+    // Redirect to login for protected pages
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.searchParams.set("redirect", pathname); // Save where they wanted to go
+    return NextResponse.redirect(url);
+  }
+
+  // If user IS authenticated, check their role
+  const { data: pesoUser } = await supabase
+    .from("peso")
+    .select("id, is_superadmin")
+    .eq("auth_id", user.id)
+    .single();
+
+  // If user is a PESO admin
+  if (pesoUser) {
+    const isSuperAdmin = pesoUser.is_superadmin;
+
+    // Super admin specific paths
+    const superAdminPaths = [
+      "/admin/manage-admin",
+      "/admin/create-admin",
+      "/admin/archived-admins",
+    ];
+    const regularAdminPaths = [
+      "/admin/jobseekers",
+      "/admin/archived-jobseekers",
+      "/admin/company-profiles",
+      "/admin/reports",
+      "/admin/create-company",
+      "/admin/setup-password",
+    ];
+
+    if (isSuperAdmin) {
+      // Super admin trying to access regular admin pages or base /admin
+      if (
+        regularAdminPaths.some((p) => pathname.startsWith(p)) ||
+        pathname === "/admin"
+      ) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/admin/manage-admin";
+        return NextResponse.redirect(url);
+      }
+
+      // Super admin trying to access applicant pages
+      if (pathname === "/" || pathname.startsWith("/profile")) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/admin/manage-admin";
+        return NextResponse.redirect(url);
+      }
+    } else {
+      // Regular admin trying to access super admin pages
+      if (superAdminPaths.some((p) => pathname.startsWith(p))) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/admin";
+        return NextResponse.redirect(url);
+      }
+
+      // Regular admin trying to access applicant pages
+      if (pathname === "/" || pathname.startsWith("/profile")) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/admin";
+        return NextResponse.redirect(url);
+      }
+    }
+
+    // Allow PESO admins to access admin routes
+    return supabaseResponse;
+  }
+
+  // If user is a regular applicant (NOT a PESO user)
+  // Block access to admin pages
+  if (
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/signup") ||
+    pathname.startsWith("/about") ||
+    pathname.startsWith("/how-it-works") ||
+    pathname.startsWith("/forgot-password")
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = "/job-opportunities";
     return NextResponse.redirect(url);
   }
 
-  // If authenticated, check if they are a PESO user
-  if (user) {
-    const { data: pesoUser } = await supabase
-      .from("peso") // Table
-      .select("id, is_superadmin") //
-      .eq("auth_id", user.id)
-      .single();
-
-    // Redirect applicant away from /admin
-    if (!pesoUser && pathname.startsWith("/admin")) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/job-opportunities";
-      return NextResponse.redirect(url);
-    }
-
-    if (!pesoUser && publicPaths.some((p) => pathname.startsWith(p))) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/job-opportunities";
-      return NextResponse.redirect(url);
-    }
-
-    // Redirect peso users away from applicant pages (optional)
-    if (pesoUser && pathname === "/") {
-      const url = request.nextUrl.clone();
-      url.pathname = "/admin";
-      return NextResponse.redirect(url);
-    }
-
-    // Super admin access control
-    if (pesoUser) {
-      const isSuperAdmin = pesoUser.is_superadmin;
-
-      // Super admins can only access manage-admin and create-admin pages
-      const superAdminPaths = ["/admin/manage-admin", "/admin/create-admin"];
-      const regularAdminPaths = [
-        "/admin/jobseekers",
-        "/admin/company-profiles",
-        "/admin/reports",
-        "/admin/create-company",
-      ];
-
-      if (isSuperAdmin) {
-        // Super admin trying to access regular admin pages
-        if (
-          regularAdminPaths.some((p) => pathname.startsWith(p)) ||
-          pathname === "/admin"
-        ) {
-          const url = request.nextUrl.clone();
-          url.pathname = "/admin/manage-admin";
-          return NextResponse.redirect(url);
-        }
-      } else {
-        // Regular admin trying to access super admin pages
-        if (superAdminPaths.some((p) => pathname.startsWith(p))) {
-          const url = request.nextUrl.clone();
-          url.pathname = "/admin";
-          return NextResponse.redirect(url);
-        }
-      }
-    }
-  }
-
-  // Check if user is a PESO admin
-
-  // IMPORTANT: You *must* return the supabaseResponse object as it is.
-  // If you're creating a new response object with NextResponse.next() make sure to:
-  // 1. Pass the request in it, like so:
-  //    const myNewResponse = NextResponse.next({ request })
-  // 2. Copy over the cookies, like so:
-  //    myNewResponse.cookies.setAll(supabaseResponse.cookies.getAll())
-  // 3. Change the myNewResponse object to fit your needs, but avoid changing
-  //    the cookies!
-  // 4. Finally:
-  //    return myNewResponse
-  // If this is not done, you may be causing the browser and server to go out
-  // of sync and terminate the user's session prematurely!
-
+  // Allow applicants to access all other routes
   return supabaseResponse;
 }
