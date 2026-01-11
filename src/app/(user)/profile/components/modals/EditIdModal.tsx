@@ -11,7 +11,8 @@ interface EditIdModalProps {
 }
 
 const ID_TYPES = [
-  "National ID (PhilSys)",
+  "PhilSys (National ID)",
+  "ePhilSys (Digital ID)",
   "Driver's License",
   "Passport",
   "SSS ID",

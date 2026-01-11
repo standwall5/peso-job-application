@@ -49,6 +49,7 @@ export async function updateSession(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  // User data or null
 
   const pathname = request.nextUrl.pathname;
   const publicPaths = [
@@ -63,6 +64,7 @@ export async function updateSession(request: NextRequest) {
     "/api",
   ];
 
+  //
   if (!user && !publicPaths.some((p) => pathname.startsWith(p))) {
     const url = request.nextUrl.clone();
     url.pathname = "/job-opportunities";
@@ -72,8 +74,8 @@ export async function updateSession(request: NextRequest) {
   // If authenticated, check if they are a PESO user
   if (user) {
     const { data: pesoUser } = await supabase
-      .from("peso")
-      .select("id, is_superadmin")
+      .from("peso") // Table
+      .select("id, is_superadmin") //
       .eq("auth_id", user.id)
       .single();
 
@@ -84,7 +86,7 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    if (!pesoUser && pathname === "/") {
+    if (!pesoUser && publicPaths.some((p) => pathname.startsWith(p))) {
       const url = request.nextUrl.clone();
       url.pathname = "/job-opportunities";
       return NextResponse.redirect(url);

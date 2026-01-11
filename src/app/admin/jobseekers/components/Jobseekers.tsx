@@ -21,6 +21,10 @@ const Jobseekers = () => {
     uniqueApplicants,
     sortedApplications,
     activeApplicationsCount,
+    selectedApplicantTypes,
+    setSelectedApplicantTypes,
+    selectedPlaces,
+    setSelectedPlaces,
   } = useJobseekerData();
 
   const [showManageJobseeker, setShowManageJobseeker] = useState(false);
@@ -119,6 +123,10 @@ const Jobseekers = () => {
           onArchiveSelected={handleArchiveSelected}
           sortBy={sortBy}
           setSortBy={setSortBy}
+          selectedApplicantTypes={selectedApplicantTypes}
+          setSelectedApplicantTypes={setSelectedApplicantTypes}
+          selectedPlaces={selectedPlaces}
+          setSelectedPlaces={setSelectedPlaces}
         />
       </div>
 

@@ -1,18 +1,91 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 import styles from "./ChatButton.module.css";
+import { getUnreadMessageCountAction } from "@/app/(user)/actions/chat.actions";
 
 interface ChatButtonProps {
   onClick: () => void;
-  unreadCount?: number;
+  hasActiveSession?: boolean;
 }
 
-export default function ChatButton({ onClick, unreadCount = 0 }: ChatButtonProps) {
+export default function ChatButton({
+  onClick,
+  hasActiveSession = false,
+}: ChatButtonProps) {
+  const [unreadCount, setUnreadCount] = useState(0);
+  const supabase = createClient();
+
+  // Fetch unread count
+  const fetchUnreadCount = async () => {
+    try {
+      const count = await getUnreadMessageCountAction();
+      setUnreadCount(count);
+    } catch (error) {
+      console.error("Error fetching unread count:", error);
+    }
+  };
+
+  useEffect(() => {
+    // Initial fetch
+    fetchUnreadCount();
+
+    // Poll every 10 seconds
+    const pollInterval = setInterval(fetchUnreadCount, 10000);
+
+    // Set up real-time subscription for new messages
+    const channel = supabase
+      .channel("user-chat-messages")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "chat_messages",
+        },
+        (payload) => {
+          const newMsg = payload.new as {
+            sender: string;
+            read_by_user: boolean;
+          };
+          // If message is from admin and unread, increment count
+          if (newMsg.sender === "admin" && !newMsg.read_by_user) {
+            console.log("[ChatButton] New unread message from admin");
+            fetchUnreadCount();
+          }
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "chat_messages",
+        },
+        () => {
+          // Messages marked as read, update count
+          fetchUnreadCount();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      clearInterval(pollInterval);
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   return (
-    <button className={styles.chatButton} onClick={onClick} aria-label="Open chat">
-      {unreadCount > 0 && (
-        <span className={styles.badge}>{unreadCount > 99 ? "99+" : unreadCount}</span>
+    <button
+      className={styles.chatButton}
+      onClick={onClick}
+      aria-label="Open chat"
+    >
+      {(unreadCount > 0 || hasActiveSession) && (
+        <span className={styles.badge}>
+          {unreadCount > 0 ? (unreadCount > 99 ? "99+" : unreadCount) : "•"}
+        </span>
       )}
       <svg
         xmlns="http://www.w3.org/2000/svg"

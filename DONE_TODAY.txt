@@ -1,0 +1,36 @@
+COMPLETED TODAY:
+================
+
+✅ 1. Register (100%)
+   - Name validation & capitalization
+   - "Prefer not to say" gender
+   - Email placeholder & validation
+   Backups: 5 files
+
+✅ 2. User Applied Jobs (100%)
+   - Removed Barangay ID
+   - Added ePhilSys (Digital ID)
+   - Renamed to PhilSys (National ID)
+   Backups: 2 files
+
+✅ 3. Companies (100%)
+   - Removed deadline sort option
+   - Removed salary sort options  
+   Backups: 1 file
+
+✅ 4. Profile (Partial 50%)
+   - ✅ Renamed Profile → Overview
+   - ✅ Added certification statement
+   - ⏸️ Signature input (complex, later)
+   - ⏸️ Edit icon removal (later)
+   - ⏸️ Hover colors (later)
+   Backups: 2 files more
+
+Total Files Changed: 13
+Total Backups: 13
+Progress: 3.5 / 9 sections (39%)
+
+NEXT UP:
+- Admin change password
+- Jobseeker status display
+- Reports enhancements

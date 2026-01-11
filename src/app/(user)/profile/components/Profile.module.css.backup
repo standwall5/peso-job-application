@@ -1,0 +1,899 @@
+.profileContainer {
+    width: 80vw;
+    height: 80vh;
+    margin: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    justify-self: center;
+}
+
+.profileDetailsContainer,
+.profileOptionsContainer {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 0.5rem;
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    transition: all 0.25s ease;
+}
+
+.profileDetailsContainer {
+    width: 30%;
+    min-height: 100%;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 2rem 0;
+    overflow-y: auto;
+}
+
+.profileDetailsContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    font-size: 12px;
+    width: 100%;
+}
+
+.profilePicWrapper {
+    position: relative;
+    display: inline-block;
+    width: 10rem;
+    aspect-ratio: 1/1;
+    border-radius: 0.25rem;
+    overflow: hidden;
+}
+
+.profilePic {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: filter 0.3s;
+    border: 2px solid black;
+}
+
+.editIcon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 2rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    z-index: 2;
+}
+
+.profilePicWrapper:hover .profilePic {
+    filter: brightness(0.5);
+}
+
+.profilePicWrapper:hover .editIcon {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Hide the file input but make it clickable via the wrapper */
+.fileInput {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    left: 0;
+    top: 0;
+    cursor: pointer;
+    z-index: 3;
+}
+
+.nameContainer {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.nameContainer h4 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.editNameButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+    color: #64748b;
+}
+
+.editNameButton svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.editNameButton:hover {
+    background: rgba(52, 152, 219, 0.1);
+    color: var(--nav);
+    transform: scale(1.1);
+}
+
+.profileDetailsInfo {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    width: 85%;
+    gap: 1rem;
+}
+
+.infoRow {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: #f8fcff;
+    border-radius: 0.25rem;
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    transition: all 0.25s ease;
+    position: relative;
+}
+
+.infoRow:hover {
+    border-color: rgba(52, 152, 219, 0.2);
+    background: #ffffff;
+}
+
+.infoLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.infoLabel svg {
+    width: 1rem;
+    height: 1rem;
+    color: var(--accent);
+}
+
+.infoRow p,
+.infoValue {
+    font-size: 0.875rem;
+    color: var(--text);
+    font-weight: 500;
+    margin: 0;
+    word-break: break-word;
+}
+
+.infoRow input {
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    outline: none;
+    padding: 0.75rem 1rem;
+    border-radius: 0.25rem;
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    transition: all 0.25s ease;
+    font-size: 0.875rem;
+}
+
+.infoRow input:focus {
+    border-color: var(--accent);
+    box-shadow:
+        rgba(128, 231, 177, 0.3) 0px 6px 24px 0px,
+        rgba(128, 231, 177, 0.5) 0px 0px 0px 2px,
+        0 0 0 4px rgba(128, 231, 177, 0.1);
+}
+
+.editButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+    color: #64748b;
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+}
+
+.editButton svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.editButton:hover {
+    background: rgba(52, 152, 219, 0.1);
+    color: var(--nav);
+    transform: scale(1.1);
+}
+
+.profileDetailsInfo > button {
+    align-self: center;
+    margin-top: 0.5rem;
+}
+
+.buttonRow {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 0.5rem;
+}
+
+.buttonRow button {
+    flex: 1;
+    max-width: 150px;
+}
+
+.profileOptionsContainer {
+    width: 70%;
+    height: 100%;
+    background-color: #f7f7f7;
+    overflow: auto;
+}
+
+.profileOptionsContent {
+    display: block;
+    justify-content: flex-start;
+    width: 100%;
+    background-color: white;
+    min-height: 100%;
+}
+
+.profileOptionsNav {
+    display: flex;
+    font-weight: bold;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid rgba(52, 152, 219, 0.1);
+    gap: 2rem;
+    padding: 0;
+    width: max-content;
+    font-size: 12px;
+}
+
+.profileOptionsNav li {
+    cursor: pointer;
+    padding: 1rem 2rem 0.5rem;
+    transition: all 0.25s ease;
+}
+
+.profileOptionsNav li:hover {
+    color: var(--nav);
+}
+
+.profileOptionsNav li.active {
+    border-bottom: 2px solid var(--nav);
+    color: var(--nav);
+}
+
+.resumeWrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+.resume {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    position: relative;
+    margin: 0;
+    overflow: visible;
+}
+
+.appliedJobs {
+    align-items: center;
+    gap: 1.5rem;
+    padding: 0 2rem 1rem;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    justify-self: center;
+    display: flex;
+    overflow: auto;
+    width: 100%;
+}
+
+.resumeIconButtons {
+    position: absolute;
+    top: 0.5rem;
+    right: 7rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    z-index: 10;
+}
+
+.resumeIconButton {
+    color: black;
+
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+}
+
+.resumeIconButton:hover {
+    transform: translateY(-2px);
+}
+
+.resumeIconButton:active {
+    transform: translateY(0);
+}
+
+/* Specific button styles with background colors get their shadows */
+.resumeIconButton[style*="ef4444"] {
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.resumeIconButton[style*="ef4444"]:hover {
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5);
+}
+
+.createResumeButton {
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    border-radius: 0.25rem;
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    width: max-content;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.createResumeButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+    border-color: rgba(52, 152, 219, 0.3);
+}
+
+.editResume {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 2rem;
+    gap: 1.5rem;
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    border-radius: 0.5rem;
+    flex-grow: 1;
+    overflow: auto;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.editResumeActions {
+    display: flex;
+    gap: 8px;
+    align-self: flex-end;
+    margin-top: 1rem;
+}
+
+.editResume h2 {
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 1.5rem;
+}
+
+.editResume input,
+.editResume select,
+.editResume textarea {
+    outline: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    width: max-content;
+    padding: 0.75rem 1.25rem;
+    background-color: white;
+    border-radius: 0.375rem;
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    color: black;
+    font-weight: bold;
+    transition: all 0.25s ease;
+}
+
+.editResume input:focus,
+.editResume select:focus,
+.editResume textarea:focus {
+    border-color: var(--accent);
+    box-shadow:
+        rgba(128, 231, 177, 0.3) 0px 6px 24px 0px,
+        rgba(128, 231, 177, 0.5) 0px 0px 0px 2px,
+        0 0 0 4px rgba(128, 231, 177, 0.1);
+}
+
+.workInput,
+.educationInput {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    border-radius: 0.375rem;
+}
+
+.row {
+    display: flex;
+    gap: 2rem;
+    width: 100%;
+}
+
+.row div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    color: #64748b;
+    flex: 1;
+}
+
+.rowInput {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.rowInput div:not(.row) {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 150px;
+}
+
+.rowInput input,
+.rowInput select {
+    width: 100% !important;
+}
+
+.educationRow .rowInput div:not(.row) input {
+    width: 100% !important;
+}
+
+.skillsRow {
+    flex-wrap: wrap;
+}
+
+.skillsRow span {
+    background: linear-gradient(90deg, var(--accent), var(--button));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.2);
+    transition: all 0.25s ease;
+    margin-right: 0;
+}
+
+.skillsRow span:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.skillsRow span button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    margin-left: 4px;
+    font-weight: bold;
+}
+
+.skillsRow input {
+    flex: 1;
+}
+
+/* JOB CARDS - UPDATED TO MATCH DESIGN SYSTEM */
+.jobCard {
+    position: relative;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    width: 45%;
+    height: 15rem;
+    flex-grow: 0;
+    transition: all 0.25s ease;
+    overflow: hidden;
+}
+
+/* Gradient accent bar on top */
+.jobCard::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--button));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.jobCard:hover::before {
+    transform: scaleX(1);
+}
+
+.jobCard:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 24px rgba(52, 152, 219, 0.15);
+    border-color: rgba(52, 152, 219, 0.3);
+    background: #f8fcff;
+}
+
+.jobCompany {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.jobCompany img {
+    border-radius: 0.375rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    padding: 0.25rem;
+    background: white;
+    transition: transform 0.25s ease;
+}
+
+.jobCard:hover .jobCompany img {
+    transform: scale(1.1);
+}
+
+.jobDetails {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: #1e293b;
+}
+
+.status {
+    border-radius: 0.375rem;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    padding: 0.4rem 0.8rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    transition: all 0.25s ease;
+}
+
+.status svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.status.pending {
+    background-color: #fffdf1;
+    color: #f97316;
+    border: 1px solid rgba(249, 115, 22, 0.2);
+}
+
+.status.referred {
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--accent) 85%, transparent),
+        color-mix(in srgb, var(--button) 70%, transparent)
+    );
+    color: white;
+    border: 1px solid rgba(128, 231, 177, 0.3);
+}
+
+/* Mobile Media Queries */
+@media (max-width: 768px) {
+    .profileContainer {
+        width: 100vw;
+        height: auto;
+        min-height: 100vh;
+        margin: 0;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 0.5rem;
+        box-sizing: border-box;
+    }
+
+    .profileDetailsContainer {
+        width: 100%;
+        height: auto;
+        min-height: auto;
+        padding: 1.5rem 0;
+        border-radius: 0.375rem;
+    }
+
+    .profileDetailsContent {
+        gap: 1.5rem;
+        font-size: 11px;
+    }
+
+    .profilePicWrapper {
+        width: 8rem;
+    }
+
+    .profileDetailsInfo {
+        width: 90%;
+        gap: 0.75rem;
+        padding: 0 0.5rem;
+    }
+
+    .nameContainer h4 {
+        font-size: 1.1rem;
+    }
+
+    .editNameButton svg {
+        width: 1.1rem;
+        height: 1.1rem;
+    }
+
+    .infoRow {
+        padding: 0.875rem;
+        -webkit-tap-highlight-color: rgba(52, 152, 219, 0.1);
+    }
+
+    .infoLabel {
+        font-size: 0.65rem;
+    }
+
+    .infoLabel svg {
+        width: 0.9rem;
+        height: 0.9rem;
+    }
+
+    .infoRow p,
+    .infoValue {
+        font-size: 0.8125rem;
+    }
+
+    .profileOptionsContainer {
+        width: 100%;
+        height: auto;
+        min-height: 50vh;
+        border-radius: 0.375rem;
+    }
+
+    .profileOptionsNav {
+        font-size: 11px;
+        gap: 0.75rem;
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .profileOptionsNav li {
+        padding: 0.75rem 1.25rem 0.5rem;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .appliedJobs {
+        padding: 0.75rem;
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .resumeWrapper {
+        padding: 1rem;
+        position: relative;
+    }
+
+    .resumeIconButtons {
+        top: 0.5rem;
+        right: 0.5rem;
+    }
+
+    .resumeIconButton {
+        width: 2.25rem;
+        height: 2.25rem;
+    }
+
+    .resumeIconButton svg {
+        width: 1.1rem;
+        height: 1.1rem;
+    }
+
+    .editResume {
+        padding: 1.5rem;
+        gap: 1rem;
+    }
+
+    .editResume h2 {
+        font-size: 1.25rem;
+    }
+
+    .row {
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .row div {
+        flex: auto;
+        min-width: 100%;
+    }
+
+    .rowInput {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .rowInput input {
+        width: 100%;
+    }
+
+    .educationRow .rowInput div:not(.row) input {
+        width: 100%;
+    }
+
+    .skillsRow input {
+        width: 100%;
+    }
+
+    .jobCard {
+        width: 100%;
+        height: auto;
+        min-height: 12rem;
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .profileContainer {
+        width: 100vw;
+        margin: 0;
+        padding: 0.25rem;
+        gap: 0.75rem;
+        min-height: 100vh;
+    }
+
+    .profileDetailsContainer {
+        border-radius: 0.25rem;
+        min-height: auto;
+        padding: 1rem 0;
+    }
+
+    .profileDetailsContent {
+        gap: 1rem;
+        font-size: 10px;
+    }
+
+    .profilePicWrapper {
+        width: 7rem;
+    }
+
+    .profileDetailsInfo {
+        width: 92%;
+        padding: 0 0.25rem;
+    }
+
+    .nameContainer h4 {
+        font-size: 1rem;
+    }
+
+    .editNameButton svg {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    .infoRow {
+        padding: 0.75rem;
+        -webkit-tap-highlight-color: rgba(52, 152, 219, 0.1);
+    }
+
+    .infoLabel {
+        font-size: 0.625rem;
+    }
+
+    .infoRow p,
+    .infoValue {
+        font-size: 0.75rem;
+    }
+
+    .profileOptionsContainer {
+        border-radius: 0.25rem;
+    }
+
+    .profileOptionsNav {
+        font-size: 9.5px;
+        gap: 0.35rem;
+        padding: 0.35rem 0.5rem;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .profileOptionsNav li {
+        padding: 0.65rem 0.9rem 0.45rem;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .appliedJobs {
+        padding: 0.5rem;
+        gap: 0.75rem;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .resumeIconButtons {
+        top: 0.5rem;
+        right: 0.5rem;
+    }
+
+    .resumeIconButton {
+        width: 2rem;
+        height: 2rem;
+    }
+
+    .resumeIconButton svg {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    .editResume {
+        padding: 0.75rem;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .editResume h2 {
+        font-size: 1.05rem;
+    }
+
+    .editResume input,
+    .editResume select,
+    .editResume textarea {
+        font-size: 0.875rem;
+        touch-action: manipulation;
+    }
+
+    .jobCard {
+        padding: 0.875rem;
+        min-height: 9rem;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(52, 152, 219, 0.1);
+    }
+
+    .jobCompany img {
+        width: 2.75rem;
+    }
+}

@@ -56,12 +56,27 @@ export interface ApplicationTrend {
   count: number;
 }
 
+export interface MonthlyApplicationTrend {
+  month: string; // Format: "2024-01" or "January 2024"
+  year: number;
+  monthNumber: number;
+  count: number;
+}
+
 export interface CompanyPerformance {
   company_id: number;
   company_name: string;
   total_jobs: number;
   total_applications: number;
   avg_applications_per_job: number;
+}
+
+export interface AgeSexSummary {
+  ageGroup: string;
+  male: number;
+  female: number;
+  other: number;
+  total: number;
 }
 
 // Internal type definitions for Supabase responses
@@ -214,12 +229,21 @@ export async function getPopularJobs(
     .slice(0, limit);
 }
 
-export async function getApplicantDemographics(): Promise<ApplicantDemographics> {
+export async function getApplicantDemographics(
+  filterByParanaque: boolean = false,
+): Promise<ApplicantDemographics> {
   const supabase = await getSupabaseClient();
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("applicants")
-    .select("sex, applicant_type, age, district");
+    .select("sex, applicant_type, age, district, barangay");
+
+  // Filter by Parañaque residents if requested
+  if (filterByParanaque) {
+    query = query.neq("district", "");
+  }
+
+  const { data, error } = await query;
 
   if (error) throw new Error(error.message);
 
@@ -260,6 +284,63 @@ export async function getApplicantDemographics(): Promise<ApplicantDemographics>
   });
 
   return demographics;
+}
+
+export async function getAgeSexSummary(
+  filterByParanaque: boolean = false,
+): Promise<AgeSexSummary[]> {
+  const supabase = await getSupabaseClient();
+
+  let query = supabase.from("applicants").select("sex, age, district");
+
+  // Filter by Parañaque residents if requested
+  if (filterByParanaque) {
+    query = query.neq("district", "");
+  }
+
+  const { data, error } = await query;
+
+  if (error) throw new Error(error.message);
+
+  // Initialize summary data structure
+  const summary: Record<
+    string,
+    { male: number; female: number; other: number }
+  > = {
+    "18-25": { male: 0, female: 0, other: 0 },
+    "26-35": { male: 0, female: 0, other: 0 },
+    "36-45": { male: 0, female: 0, other: 0 },
+    "46-55": { male: 0, female: 0, other: 0 },
+    "56+": { male: 0, female: 0, other: 0 },
+  };
+
+  (data as ApplicantData[]).forEach((applicant) => {
+    const sex = (applicant.sex || "").toLowerCase();
+    const age = applicant.age || 0;
+
+    // Determine age group
+    let ageGroup = "";
+    if (age >= 18 && age <= 25) ageGroup = "18-25";
+    else if (age >= 26 && age <= 35) ageGroup = "26-35";
+    else if (age >= 36 && age <= 45) ageGroup = "36-45";
+    else if (age >= 46 && age <= 55) ageGroup = "46-55";
+    else if (age >= 56) ageGroup = "56+";
+
+    if (ageGroup && summary[ageGroup]) {
+      if (sex === "male") summary[ageGroup].male++;
+      else if (sex === "female") summary[ageGroup].female++;
+      else summary[ageGroup].other++;
+    }
+  });
+
+  // Convert to array format
+  return Object.entries(summary).map(([ageGroup, counts]) => ({
+    ageGroup,
+    male: counts.male,
+    female: counts.female,
+    other: counts.other,
+    total: counts.male + counts.female + counts.other,
+  }));
 }
 
 export async function getExamPerformance(): Promise<ExamPerformance[]> {
@@ -337,6 +418,66 @@ export async function getApplicationTrends(
   return Object.entries(dateCounts)
     .map(([date, count]) => ({ date, count }))
     .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+export async function getApplicationTrendsByMonth(
+  months: number = 12,
+): Promise<MonthlyApplicationTrend[]> {
+  const supabase = await getSupabaseClient();
+
+  const startDate = new Date();
+  startDate.setMonth(startDate.getMonth() - months);
+
+  const { data, error } = await supabase
+    .from("applications")
+    .select("applied_date")
+    .gte("applied_date", startDate.toISOString());
+
+  if (error) throw new Error(error.message);
+
+  const monthCounts: Record<
+    string,
+    { year: number; month: number; count: number }
+  > = {};
+
+  (data as ApplicationDateData[]).forEach((app) => {
+    const date = new Date(app.applied_date);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // 1-12
+    const key = `${year}-${month.toString().padStart(2, "0")}`;
+
+    if (!monthCounts[key]) {
+      monthCounts[key] = { year, month, count: 0 };
+    }
+    monthCounts[key].count++;
+  });
+
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  return Object.entries(monthCounts)
+    .map(([key, data]) => ({
+      month: `${monthNames[data.month - 1]} ${data.year}`,
+      year: data.year,
+      monthNumber: data.month,
+      count: data.count,
+    }))
+    .sort((a, b) => {
+      if (a.year !== b.year) return a.year - b.year;
+      return a.monthNumber - b.monthNumber;
+    });
 }
 
 export async function getCompanyPerformance(): Promise<CompanyPerformance[]> {

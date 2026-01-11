@@ -9,7 +9,7 @@ interface AppliedJobsTabProps {
   loading: boolean;
   onViewExam: (app: JobApplication) => void;
   onViewReferral: (app: JobApplication) => void;
-  onViewID?: (app: JobApplication) => void;
+  onViewID: (app: JobApplication) => void;
 }
 
 export default function AppliedJobsTab({
@@ -17,6 +17,7 @@ export default function AppliedJobsTab({
   loading,
   onViewExam,
   onViewReferral,
+  onViewID,
 }: AppliedJobsTabProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -162,6 +163,15 @@ export default function AppliedJobsTab({
                   }}
                 >
                   EXAM RESULT
+                </button>
+                <button
+                  className={styles.validIdBtn}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onViewID(app);
+                  }}
+                >
+                  VALID ID
                 </button>
                 <button
                   className={styles.referralBtn}

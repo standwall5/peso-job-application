@@ -8,6 +8,10 @@ export const useJobseekerData = () => {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<string>("name");
+  const [selectedApplicantTypes, setSelectedApplicantTypes] = useState<
+    string[]
+  >([]);
+  const [selectedPlaces, setSelectedPlaces] = useState<string[]>([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -45,24 +49,45 @@ export const useJobseekerData = () => {
 
   // Filter applications
   const filteredApplications = useMemo(() => {
-    return (uniqueApplicants ?? []).filter(
-      (app) =>
-        app.applicant.name.toLowerCase().includes(search.toLowerCase()) ||
-        app.applicant.sex.toLowerCase().includes(search.toLowerCase()) ||
-        app.applicant.applicant_type
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        (app.applicant.disability_type ?? "")
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        app.applicant.preferred_poa
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        app.applicant.barangay.toLowerCase().includes(search.toLowerCase()) ||
-        app.applicant.district.toLowerCase().includes(search.toLowerCase()) ||
-        app.status.toLowerCase().includes(search.toLowerCase()),
-    );
-  }, [uniqueApplicants, search]);
+    let filtered = uniqueApplicants ?? [];
+
+    // Apply text search filter
+    if (search) {
+      filtered = filtered.filter(
+        (app) =>
+          app.applicant.name.toLowerCase().includes(search.toLowerCase()) ||
+          app.applicant.sex.toLowerCase().includes(search.toLowerCase()) ||
+          app.applicant.applicant_type
+            .toLowerCase()
+            .includes(search.toLowerCase()) ||
+          (app.applicant.disability_type ?? "")
+            .toLowerCase()
+            .includes(search.toLowerCase()) ||
+          app.applicant.preferred_poa
+            .toLowerCase()
+            .includes(search.toLowerCase()) ||
+          app.applicant.barangay.toLowerCase().includes(search.toLowerCase()) ||
+          app.applicant.district.toLowerCase().includes(search.toLowerCase()) ||
+          app.status.toLowerCase().includes(search.toLowerCase()),
+      );
+    }
+
+    // Apply applicant type filter
+    if (selectedApplicantTypes.length > 0) {
+      filtered = filtered.filter((app) =>
+        selectedApplicantTypes.includes(app.applicant.applicant_type),
+      );
+    }
+
+    // Apply place of assignment filter
+    if (selectedPlaces.length > 0) {
+      filtered = filtered.filter((app) =>
+        selectedPlaces.includes(app.applicant.preferred_poa),
+      );
+    }
+
+    return filtered;
+  }, [uniqueApplicants, search, selectedApplicantTypes, selectedPlaces]);
 
   // Sort applications
   const sortedApplications = useMemo(() => {
@@ -109,5 +134,9 @@ export const useJobseekerData = () => {
     uniqueApplicants,
     sortedApplications,
     activeApplicationsCount,
+    selectedApplicantTypes,
+    setSelectedApplicantTypes,
+    selectedPlaces,
+    setSelectedPlaces,
   };
 };

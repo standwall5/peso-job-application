@@ -7,7 +7,9 @@ import {
   getApplicantDemographics,
   getExamPerformance,
   getApplicationTrends,
+  getApplicationTrendsByMonth,
   getCompanyPerformance,
+  getAgeSexSummary,
 } from "@/lib/db/services/analytics.service";
 
 export async function getDashboardStatsAction() {
@@ -44,12 +46,25 @@ export async function getPopularJobsAction(limit: number = 10) {
   }
 }
 
-export async function getApplicantDemographicsAction() {
+export async function getApplicantDemographicsAction(
+  filterByParanaque: boolean = false,
+) {
   try {
-    return await getApplicantDemographics();
+    return await getApplicantDemographics(filterByParanaque);
   } catch (error) {
     console.error("Failed to get demographics:", error);
     return null;
+  }
+}
+
+export async function getAgeSexSummaryAction(
+  filterByParanaque: boolean = false,
+) {
+  try {
+    return await getAgeSexSummary(filterByParanaque);
+  } catch (error) {
+    console.error("Failed to get age/sex summary:", error);
+    return [];
   }
 }
 
@@ -67,6 +82,15 @@ export async function getApplicationTrendsAction(days: number = 30) {
     return await getApplicationTrends(days);
   } catch (error) {
     console.error("Failed to get application trends:", error);
+    return [];
+  }
+}
+
+export async function getApplicationTrendsByMonthAction(months: number = 12) {
+  try {
+    return await getApplicationTrendsByMonth(months);
+  } catch (error) {
+    console.error("Failed to get monthly application trends:", error);
     return [];
   }
 }

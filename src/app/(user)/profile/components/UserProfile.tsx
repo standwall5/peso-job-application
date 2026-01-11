@@ -155,9 +155,33 @@ const Resume = () => {
       </section>
 
       <section className={styles.section}>
-        <h6 className={styles.sectionTitle}>Profile</h6>
+        <h6 className={styles.sectionTitle}>Overview</h6>
         <div className={styles.profileText}>
           <p>{resume.profile_introduction}</p>
+        </div>
+      </section>
+
+      {/* Certification Statement */}
+      <section
+        className={styles.section}
+        style={{
+          marginTop: "2rem",
+          borderTop: "1px solid #ddd",
+          paddingTop: "1rem",
+        }}
+      >
+        <div
+          className={styles.profileText}
+          style={{
+            fontStyle: "italic",
+            fontSize: "0.9rem",
+            textAlign: "center",
+          }}
+        >
+          <p>
+            I hereby certify that the above information is true and correct to
+            the best of my knowledge and belief.
+          </p>
         </div>
       </section>
     </div>

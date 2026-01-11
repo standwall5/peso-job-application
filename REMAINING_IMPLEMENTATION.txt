@@ -1,0 +1,53 @@
+========================================
+REMAINING ITEMS ANALYSIS
+========================================
+
+SIMPLE (Can implement now):
+============================
+✓ Last clicked application highlight
+  → Use localStorage to persist
+  → Add visual highlight
+  → Auto-scroll on return
+
+MEDIUM COMPLEXITY:
+==================
+○ Admin profile picture
+  → Need upload UI
+  → Storage handling
+  → Database column
+
+○ Individual report exports
+  → Add export buttons per section
+  → Format improvements
+  
+COMPLEX (Requires significant work):
+====================================
+○ Resume signature input
+  → Draw signature canvas OR upload
+  → Library integration (react-signature-canvas)
+  → Storage handling
+  
+○ Signature watermarks
+  → Image processing
+  → Admin info overlay
+  → Similar to ID verification watermarks
+  
+○ Admin email invitations
+  → Email service (Resend/SendGrid)
+  → Token generation
+  → Password setup flow
+  
+○ IP-based security
+  → IP tracking
+  → Geolocation API
+  → Email verification
+
+○ Admin name immutability
+  → Database constraints
+  → UI restrictions
+
+========================================
+RECOMMENDATION: Implement last clicked
+application highlight now, document
+others for future implementation.
+========================================

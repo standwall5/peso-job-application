@@ -602,6 +602,74 @@
     font-size: 0.9rem;
 }
 
+/* Timeout Warning Banner */
+.timeoutWarning {
+    background: linear-gradient(135deg, #ff9800, #ff5722);
+    color: white;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    animation: warningPulse 2s ease-in-out infinite;
+}
+
+@keyframes warningPulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.85;
+    }
+}
+
+.timeoutWarning svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    animation: warningShake 0.5s ease-in-out infinite;
+}
+
+@keyframes warningShake {
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(-10deg);
+    }
+    75% {
+        transform: rotate(10deg);
+    }
+}
+
+.timeoutWarning span {
+    flex: 1;
+}
+
+/* Session Notification */
+.sessionNotification {
+    background: #e3f2fd;
+    border-left: 4px solid #2196f3;
+    padding: 1rem;
+    margin: 1rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #1976d2;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.sessionNotification svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .chatWidget {

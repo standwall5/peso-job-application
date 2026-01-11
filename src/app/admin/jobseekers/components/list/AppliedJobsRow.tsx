@@ -100,18 +100,20 @@ const AppliedJobsRow: React.FC<AppliedJobsRowProps> = ({
                   <div className={styles.statusContainer}>
                     <span
                       className={`${styles.jobStatus} ${
-                        normalizedStatus === "referred"
-                          ? styles.statusReferred
-                          : normalizedStatus === "deployed"
-                            ? styles.statusDeployed
-                            : normalizedStatus === "rejected"
-                              ? styles.statusRejected
+                        normalizedStatus === "deployed"
+                          ? styles.statusDeployed
+                          : normalizedStatus === "rejected"
+                            ? styles.statusRejected
+                            : normalizedStatus === "referred"
+                              ? styles.statusReferred
                               : normalizedStatus === "pending"
                                 ? styles.statusPending
                                 : styles.statusDefault
                       }`}
                     >
-                      {job.status.toUpperCase()}
+                      {normalizedStatus === "pending"
+                        ? "IN PROGRESS"
+                        : job.status.toUpperCase()}
                     </span>
                     <button
                       className={styles.statusEditIcon}
@@ -147,7 +149,7 @@ const AppliedJobsRow: React.FC<AppliedJobsRowProps> = ({
                           className={styles.statusDot}
                           style={{ backgroundColor: "#fbbf24" }}
                         ></span>
-                        Pending
+                        In Progress
                       </button>
                       <button
                         className={styles.statusOption}
@@ -159,6 +161,17 @@ const AppliedJobsRow: React.FC<AppliedJobsRowProps> = ({
                           style={{ backgroundColor: "#10b981" }}
                         ></span>
                         Referred
+                      </button>
+                      <button
+                        className={styles.statusOption}
+                        onClick={() => handleStatusChange(job.id, "deployed")}
+                        disabled={updating}
+                      >
+                        <span
+                          className={styles.statusDot}
+                          style={{ backgroundColor: "#3b82f6" }}
+                        ></span>
+                        Deployed
                       </button>
                       <button
                         className={styles.statusOption}

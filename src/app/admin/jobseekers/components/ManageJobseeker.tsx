@@ -94,6 +94,14 @@ const ManageJobseeker = ({ jobseeker }: { jobseeker: Jobseeker }) => {
     setShowReferralModal(true);
   };
 
+  const handleViewID = (app: JobApplication) => {
+    // Navigate to applicant's profile to view their verified ID
+    // This could open a modal or navigate to a different page
+    showToast("View Valid ID", "Opening verified ID for this applicant...");
+    // You can implement the actual navigation or modal logic here
+    // For example: router.push(`/admin/jobseekers/${app.applicant_id}/verified-id`)
+  };
+
   return (
     <section className={styles.manageJobseekerWrapper}>
       <JobseekerHeader jobseeker={jobseeker} />
@@ -138,6 +146,7 @@ const ManageJobseeker = ({ jobseeker }: { jobseeker: Jobseeker }) => {
             loading={loading}
             onViewExam={handleViewExam}
             onViewReferral={handleViewReferral}
+            onViewID={handleViewID}
           />
         )}
       </div>

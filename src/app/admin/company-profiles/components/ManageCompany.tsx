@@ -302,97 +302,73 @@ const ManageCompany = ({
           <p>Posted Date</p>
         </div>
         {company.jobs.map((job) => (
-          <div
-            key={job.id}
-            className={styles.jobRow}
-            onClick={() => {
-              setSelectedJob({
-                id: job.id,
-                title: job.title,
-                description: "",
-                place_of_assignment: job.place_of_assignment,
-                sex: job.sex,
-                education: job.education,
-                eligibility: job.eligibility,
-                posted_date: job.posted_date,
-                exam_id: job.exam_id,
-                companies: {
-                  name: company.name,
-                  logo: company.logo || null,
-                },
-              });
-              setShowModal(true);
-            }}
-          >
-            <p>{job.title}</p>
-            <p>{job.place_of_assignment}</p>
-            <p>{job.sex}</p>
-            <p>{job.education}</p>
-            <p>{job.eligibility}</p>
-            <p
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: ".6rem",
+          <>
+            <div
+              key={job.id}
+              className={styles.jobRow}
+              onClick={() => {
+                setSelectedJob({
+                  id: job.id,
+                  title: job.title,
+                  description: "",
+                  place_of_assignment: job.place_of_assignment,
+                  sex: job.sex,
+                  education: job.education,
+                  eligibility: job.eligibility,
+                  posted_date: job.posted_date,
+                  exam_id: job.exam_id,
+                  companies: {
+                    name: company.name,
+                    logo: company.logo || null,
+                  },
+                });
+                setShowModal(true);
               }}
             >
-              {job.posted_date}
-              <span>
-                Edit
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="size-6"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
-                  />
-                </svg>
-              </span>
-            </p>
-          </div>
+              <p>{job.title}</p>
+              <p>{job.place_of_assignment}</p>
+              <p>{job.sex}</p>
+              <p>{job.education}</p>
+              <p>{job.eligibility}</p>
+              <p
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: ".6rem",
+                }}
+              >
+                {job.posted_date}
+                <span>
+                  Edit
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="size-6"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+                    />
+                  </svg>
+                </span>
+              </p>
+            </div>
+            {showModal && selectedJob && (
+              <PostJobsModal
+                company={company}
+                job={selectedJob}
+                exams={exams}
+                fetchExams={fetchExams}
+                refetchJobs={refetchJobs}
+                onClose={() => setShowModal(false)}
+              />
+            )}
+          </>
         ))}
-
-        <Button
-          variant="primary"
-          style={{ marginTop: "1rem" }}
-          onClick={() => {
-            setSelectedJob({
-              id: 0,
-              title: "",
-              description: "",
-              place_of_assignment: "",
-              sex: "Any",
-              education: "Any",
-              eligibility: "With or without experience",
-              posted_date: new Date().toISOString().split("T")[0],
-              exam_id: null,
-              companies: {
-                name: company.name,
-                logo: company.logo || null,
-              },
-            });
-            setShowModal(true);
-          }}
-        >
-          + Add New Job
-        </Button>
-
-        {showModal && selectedJob && (
-          <PostJobsModal
-            company={company}
-            job={selectedJob}
-            exams={exams}
-            fetchExams={fetchExams}
-            refetchJobs={refetchJobs}
-            onClose={() => setShowModal(false)}
-          />
-        )}
       </div>
     );
   };

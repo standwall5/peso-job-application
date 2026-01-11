@@ -19,7 +19,8 @@ interface VerifiedIdManagerProps {
 }
 
 const ID_TYPES = [
-  "NATIONAL ID",
+  "PhilSys (National ID)",
+  "ePhilSys (Digital ID)",
   "DRIVER'S LICENSE",
   "PASSPORT",
   "SSS ID",
@@ -31,7 +32,6 @@ const ID_TYPES = [
   "PRC ID",
   "PWD ID",
   "SENIOR CITIZEN ID",
-  "BARANGAY ID",
 ];
 
 const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
@@ -43,7 +43,9 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
   jobId, // Reserved for future use (e.g., fetching job-specific ID requirements)
   hasApplied = false,
 }) => {
-  const [selectedIdType, setSelectedIdType] = useState<string>("NATIONAL ID");
+  const [selectedIdType, setSelectedIdType] = useState<string>(
+    "PhilSys (National ID)",
+  );
   const [frontPreview, setFrontPreview] = useState<string | null>(null);
   const [backPreview, setBackPreview] = useState<string | null>(null);
   const [selfiePreview, setSelfiePreview] = useState<string | null>(null);
