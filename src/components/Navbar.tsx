@@ -12,6 +12,20 @@ import Dropdown, { DropdownItem } from "@/components/Dropdown";
 import NotificationDropdown from "./NotificationDropdown";
 import { useLanguage } from "@/contexts/LanguageContext";
 
+const LoadingNavBar = () => {
+  return (
+    <nav>
+      <div className="nav-container-simple">
+        <ul>
+          <li>
+            <Image src={PesoLogo} alt="PESO Logo" className="peso-logo" />
+          </li>
+        </ul>
+      </div>
+    </nav>
+  );
+};
+
 const SimpleNavBar = (props: { pathname: string }) => {
   const { t } = useLanguage();
   return (
@@ -653,6 +667,7 @@ const Navbar = () => {
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // useEffect(() => {
   //   setMounted(true);
@@ -682,6 +697,7 @@ const Navbar = () => {
       const res = await fetch("/api/getUser");
       const data = await res.json();
       setUser(data && !data.error ? data : null);
+      setLoading(false);
     }
 
     fetchUser();
@@ -695,6 +711,7 @@ const Navbar = () => {
         } else {
           // User logged out - clear user state
           setUser(null);
+          setLoading(false);
         }
       },
     );
@@ -705,6 +722,10 @@ const Navbar = () => {
   }, [pathname]);
 
   if (!mounted) return null;
+
+  if (loading) {
+    return <LoadingNavBar />;
+  }
 
   if (!user) {
     return <SimpleNavBar pathname={pathname} />;
