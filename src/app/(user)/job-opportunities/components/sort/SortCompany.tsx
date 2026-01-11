@@ -9,8 +9,7 @@ export type SortOption =
   | "least-jobs"
   | "most-manpower"
   | "name-asc"
-  | "name-desc"
-  | "deadline-soon";
+  | "name-desc";
 
 interface SortCompanyProps {
   currentSort: SortOption;
@@ -24,7 +23,6 @@ const options = [
   { value: "least-jobs", label: "Least Jobs" },
   { value: "name-asc", label: "Name (A-Z)" },
   { value: "name-desc", label: "Name (Z-A)" },
-  { value: "deadline-soon", label: "Deadline Soon"}
 ];
 
 const SortCompany = ({ currentSort, onSortChange }: SortCompanyProps) => {

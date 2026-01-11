@@ -9,7 +9,10 @@ export type JobSortOption =
   | "oldest"
   | "title-asc"
   | "title-desc"
-  | "most-manpower";
+  | "most-manpower"
+  | "deadline-soon"
+  | "salary-high"
+  | "salary-low";
 
 interface SortJobsProps {
   currentSort: JobSortOption;
@@ -23,6 +26,9 @@ const options = [
   { value: "most-manpower", label: "Most Manpower Needed" },
   { value: "title-asc", label: "Title (A-Z)" },
   { value: "title-desc", label: "Title (Z-A)" },
+  { value: "deadline-soon", label: "Deadline Soon"},
+  { value: "salary-high", label: "Salary (High-Low)"},
+  { value: "salary-low", label: "Salary (Low-High)"},
 ];
 
 const SortJobs = ({ currentSort, onSortChange }: SortJobsProps) => {
