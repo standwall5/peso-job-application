@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styles from "@/app/admin/Admin.module.css";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -8,40 +8,13 @@ import { signout } from "@/lib/auth-actions";
 import { useSuperAdmin } from "@/app/admin/hooks/useSuperAdmin";
 import ActionButton from "@/components/ActionButton";
 import { ChangePasswordModal } from "./ChangePasswordModal";
-import { ProfilePictureUpload } from "./ProfilePictureUpload";
 import { createClient } from "@/utils/supabase/client";
 
 const Header = () => {
   const { isSuperAdmin } = useSuperAdmin();
   const pathname = usePathname();
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [showProfileModal, setShowProfileModal] = useState(false);
-  const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState("");
-
-  // Load admin profile picture
-  useEffect(() => {
-    const loadProfilePicture = async () => {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (user) {
-        const { data: admin } = await supabase
-          .from("peso")
-          .select("profile_picture_url")
-          .eq("auth_id", user.id)
-          .single();
-
-        if (admin?.profile_picture_url) {
-          setProfilePicture(admin.profile_picture_url);
-        }
-      }
-    };
-
-    loadProfilePicture();
-  }, []);
 
   const handleChangePassword = async (
     currentPassword: string,
@@ -90,40 +63,6 @@ const Header = () => {
       {/* Header Actions */}
       <div className={styles.headerActions}>
         <ActionButton
-          onClick={() => setShowProfileModal(true)}
-          icon={
-            profilePicture ? (
-              <img
-                src={profilePicture}
-                alt="Profile"
-                style={{
-                  width: "2rem",
-                  height: "2rem",
-                  borderRadius: "50%",
-                  objectFit: "cover",
-                }}
-              />
-            ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
-                />
-              </svg>
-            )
-          }
-          variant="outline"
-        >
-          Profile Picture
-        </ActionButton>
-        <ActionButton
           onClick={() => setShowPasswordModal(true)}
           icon={
             <svg
@@ -162,36 +101,6 @@ const Header = () => {
           Logout
         </ActionButton>
       </div>
-
-      {/* Profile Picture Modal */}
-      {showProfileModal && (
-        <div
-          className={styles.modalOverlay}
-          onClick={() => setShowProfileModal(false)}
-        >
-          <div
-            className={styles.modalContent}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className={styles.modalHeader}>
-              <h3>Profile Picture</h3>
-              <button
-                className={styles.modalClose}
-                onClick={() => setShowProfileModal(false)}
-              >
-                ×
-              </button>
-            </div>
-            <ProfilePictureUpload
-              currentPictureUrl={profilePicture}
-              onUploadSuccess={(url) => {
-                setProfilePicture(url);
-                setTimeout(() => setShowProfileModal(false), 500);
-              }}
-            />
-          </div>
-        </div>
-      )}
 
       {/* Change Password Modal */}
       <ChangePasswordModal

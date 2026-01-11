@@ -12,15 +12,7 @@ import AppliedJobsTab from "./manage/AppliedJobsTab";
 import ReferralLetterModal from "./manage/ReferralLetterModal";
 import ExamResultModal from "./manage/ExamResultModal";
 
-const ManageJobseeker = ({
-  jobseeker,
-  lastClickedApplicationId,
-  onApplicationClick,
-}: {
-  jobseeker: Jobseeker;
-  lastClickedApplicationId?: number | null;
-  onApplicationClick?: (appId: number) => void;
-}) => {
+const ManageJobseeker = ({ jobseeker }: { jobseeker: Jobseeker }) => {
   const [nav, setNav] = useState("previewResume");
   const [activeIndex, setActiveIndex] = useState(0);
   const tabRefs = useRef<(HTMLLIElement | null)[]>([]);
@@ -155,8 +147,6 @@ const ManageJobseeker = ({
             onViewExam={handleViewExam}
             onViewReferral={handleViewReferral}
             onViewID={handleViewID}
-            lastClickedApplicationId={lastClickedApplicationId}
-            onApplicationClick={onApplicationClick}
           />
         )}
       </div>

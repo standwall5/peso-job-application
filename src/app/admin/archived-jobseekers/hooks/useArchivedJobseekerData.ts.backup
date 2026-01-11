@@ -8,10 +8,6 @@ export const useArchivedJobseekerData = () => {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<string>("name");
-  const [selectedApplicantTypes, setSelectedApplicantTypes] = useState<
-    string[]
-  >([]);
-  const [selectedPlaces, setSelectedPlaces] = useState<string[]>([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -49,9 +45,8 @@ export const useArchivedJobseekerData = () => {
 
   // Filter applications
   const filteredApplications = useMemo(() => {
-    return (uniqueApplicants ?? []).filter((app) => {
-      // Search filter
-      const matchesSearch =
+    return (uniqueApplicants ?? []).filter(
+      (app) =>
         app.applicant.name.toLowerCase().includes(search.toLowerCase()) ||
         app.applicant.sex.toLowerCase().includes(search.toLowerCase()) ||
         app.applicant.applicant_type
@@ -65,21 +60,9 @@ export const useArchivedJobseekerData = () => {
           .includes(search.toLowerCase()) ||
         app.applicant.barangay.toLowerCase().includes(search.toLowerCase()) ||
         app.applicant.district.toLowerCase().includes(search.toLowerCase()) ||
-        app.status.toLowerCase().includes(search.toLowerCase());
-
-      // Applicant type filter
-      const matchesType =
-        selectedApplicantTypes.length === 0 ||
-        selectedApplicantTypes.includes(app.applicant.applicant_type);
-
-      // Place filter
-      const matchesPlace =
-        selectedPlaces.length === 0 ||
-        selectedPlaces.includes(app.applicant.preferred_poa);
-
-      return matchesSearch && matchesType && matchesPlace;
-    });
-  }, [uniqueApplicants, search, selectedApplicantTypes, selectedPlaces]);
+        app.status.toLowerCase().includes(search.toLowerCase()),
+    );
+  }, [uniqueApplicants, search]);
 
   // Sort applications
   const sortedApplications = useMemo(() => {
@@ -115,9 +98,5 @@ export const useArchivedJobseekerData = () => {
     setSortBy,
     uniqueApplicants,
     sortedApplications,
-    selectedApplicantTypes,
-    setSelectedApplicantTypes,
-    selectedPlaces,
-    setSelectedPlaces,
   };
 };

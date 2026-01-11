@@ -13,9 +13,9 @@ interface JobseekerSearchBarProps {
   sortBy: string;
   setSortBy: (sort: string) => void;
   selectedApplicantTypes: string[];
-  setSelectedApplicantTypes: React.Dispatch<React.SetStateAction<string[]>>;
+  setSelectedApplicantTypes: (types: string[]) => void;
   selectedPlaces: string[];
-  setSelectedPlaces: React.Dispatch<React.SetStateAction<string[]>>;
+  setSelectedPlaces: (places: string[]) => void;
 }
 
 const APPLICANT_TYPES = [
@@ -52,18 +52,14 @@ const JobseekerSearchBar: React.FC<JobseekerSearchBarProps> = ({
   const [showPlaceFilter, setShowPlaceFilter] = React.useState(false);
 
   const toggleApplicantType = (type: string) => {
-    setSelectedApplicantTypes((prev: string[]) =>
-      prev.includes(type)
-        ? prev.filter((t: string) => t !== type)
-        : [...prev, type],
+    setSelectedApplicantTypes((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
     );
   };
 
   const togglePlace = (place: string) => {
-    setSelectedPlaces((prev: string[]) =>
-      prev.includes(place)
-        ? prev.filter((p: string) => p !== place)
-        : [...prev, place],
+    setSelectedPlaces((prev) =>
+      prev.includes(place) ? prev.filter((p) => p !== place) : [...prev, place],
     );
   };
 

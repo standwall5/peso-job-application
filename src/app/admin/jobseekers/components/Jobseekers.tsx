@@ -31,6 +31,9 @@ const Jobseekers = () => {
   const [selectedJobseeker, setSelectedJobseeker] =
     useState<Application | null>(null);
   const [selectedJobseekers, setSelectedJobseekers] = useState<number[]>([]);
+  const [lastClickedApplicationId, setLastClickedApplicationId] = useState<
+    number | null
+  >(null);
 
   const handleViewDetails = (application: Application) => {
     setSelectedJobseeker(application);
@@ -103,6 +106,8 @@ const Jobseekers = () => {
             applicant: selectedJobseeker.applicant,
             resume: selectedJobseeker.resume,
           }}
+          lastClickedApplicationId={lastClickedApplicationId}
+          onApplicationClick={(appId) => setLastClickedApplicationId(appId)}
         />
       </section>
     );

@@ -10,8 +10,6 @@ interface AppliedJobsTabProps {
   onViewExam: (app: JobApplication) => void;
   onViewReferral: (app: JobApplication) => void;
   onViewID: (app: JobApplication) => void;
-  lastClickedApplicationId?: number | null;
-  onApplicationClick?: (appId: number) => void;
 }
 
 export default function AppliedJobsTab({
@@ -20,8 +18,6 @@ export default function AppliedJobsTab({
   onViewExam,
   onViewReferral,
   onViewID,
-  lastClickedApplicationId,
-  onApplicationClick,
 }: AppliedJobsTabProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -124,18 +120,7 @@ export default function AppliedJobsTab({
 
         {currentApplications.map((app) => (
           <React.Fragment key={app.id}>
-            <div
-              className={`${styles.tableRow} ${lastClickedApplicationId === app.id ? styles.highlightedRow : ""}`}
-              style={
-                lastClickedApplicationId === app.id
-                  ? {
-                      backgroundColor: "#fef3c7",
-                      border: "2px solid #f59e0b",
-                      transition: "all 0.3s ease",
-                    }
-                  : undefined
-              }
-            >
+            <div className={styles.tableRow}>
               <div className={styles.jobseekersDetails}>
                 <div className={styles.avatarCell}>
                   <img
@@ -174,7 +159,6 @@ export default function AppliedJobsTab({
                   className={styles.examResultBtn}
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (onApplicationClick) onApplicationClick(app.id);
                     onViewExam(app);
                   }}
                 >
@@ -184,7 +168,6 @@ export default function AppliedJobsTab({
                   className={styles.validIdBtn}
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (onApplicationClick) onApplicationClick(app.id);
                     onViewID(app);
                   }}
                 >
@@ -194,7 +177,6 @@ export default function AppliedJobsTab({
                   className={styles.referralBtn}
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (onApplicationClick) onApplicationClick(app.id);
                     onViewReferral(app);
                   }}
                 >

@@ -20,10 +20,6 @@ const ArchivedJobseekers = () => {
     setSortBy,
     uniqueApplicants,
     sortedApplications,
-    selectedApplicantTypes,
-    setSelectedApplicantTypes,
-    selectedPlaces,
-    setSelectedPlaces,
   } = useArchivedJobseekerData();
 
   const [showManageJobseeker, setShowManageJobseeker] = useState(false);
@@ -124,10 +120,6 @@ const ArchivedJobseekers = () => {
           isArchived={true}
           sortBy={sortBy}
           setSortBy={setSortBy}
-          selectedApplicantTypes={selectedApplicantTypes}
-          setSelectedApplicantTypes={setSelectedApplicantTypes}
-          selectedPlaces={selectedPlaces}
-          setSelectedPlaces={setSelectedPlaces}
         />
       </div>
 
