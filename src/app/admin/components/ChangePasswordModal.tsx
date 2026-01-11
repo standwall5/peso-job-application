@@ -71,8 +71,12 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
     try {
       await onSubmit(currentPassword, newPassword);
       handleClose();
-    } catch (err: any) {
-      setError(err.message || "Failed to change password");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Failed to change password");
+      }
     } finally {
       setLoading(false);
     }
@@ -154,7 +158,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
             <Button
               type="button"
               onClick={handleClose}
-              variant="outline"
+              variant="danger"
               disabled={loading}
             >
               Cancel
