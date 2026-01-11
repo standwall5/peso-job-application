@@ -64,9 +64,8 @@ export const ResumeViewSection: React.FC<ResumeViewSectionProps> = ({
       <div className={styles.resume}>
         <div className={styles.resumeIconButtons}>
           <button
-            className={`${styles.resumeIconButton} ${styles.editButton}`}
+            className={`${styles.resumeIconButton} ${styles.resumeEditButton}`}
             onClick={onEdit}
-            style={{ backgroundColor: "transparent", border: "none" }}
             title="Edit Resume"
           >
             <svg
@@ -85,7 +84,7 @@ export const ResumeViewSection: React.FC<ResumeViewSectionProps> = ({
             </svg>
           </button>
           <button
-            className={`${styles.resumeIconButton} ${styles.downloadButton}`}
+            className={`${styles.resumeIconButton} ${styles.resumeDownloadButton}`}
             onClick={onDownload}
             title="Download Resume"
           >

@@ -84,6 +84,13 @@ const Resume = forwardRef<HTMLDivElement, ResumeProps>(
         </section>
 
         <section className={styles.section}>
+          <h6 className={styles.sectionTitle}>Overview</h6>
+          <div className={styles.profileText}>
+            <p>{profileIntroduction}</p>
+          </div>
+        </section>
+
+        <section className={styles.section}>
           <h6 className={styles.sectionTitle}>
             Highest Educational Attainment
           </h6>
@@ -132,15 +139,8 @@ const Resume = forwardRef<HTMLDivElement, ResumeProps>(
           </section>
         )}
 
-        <section className={styles.section}>
-          <h6 className={styles.sectionTitle}>Overview</h6>
-          <div className={styles.profileText}>
-            <p>{profileIntroduction}</p>
-          </div>
-        </section>
-
         {/* Certification Statement */}
-        <section
+        {/*<section
           className={styles.section}
           style={{
             marginTop: "2rem",
@@ -161,7 +161,7 @@ const Resume = forwardRef<HTMLDivElement, ResumeProps>(
               the best of my knowledge and belief.
             </p>
           </div>
-        </section>
+        </section>*/}
       </div>
     );
   },

@@ -303,6 +303,7 @@
     position: relative;
     margin: 0;
     overflow: visible;
+    width: 100%;
 }
 
 .appliedJobs {
@@ -320,24 +321,28 @@
 .resumeIconButtons {
     position: absolute;
     top: 0.5rem;
-    right: 7rem;
+    right: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    align-items: center;
+    justify-content: center;
+    /*width: 5%;*/
     z-index: 10;
 }
 
 .resumeIconButton {
     color: black;
 
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 3rem;
+    height: 3rem;
     border-radius: 0.25rem;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.25s ease;
+
+    margin: 1rem;
 }
 
 .resumeIconButton:hover {
@@ -355,6 +360,30 @@
 
 .resumeIconButton[style*="ef4444"]:hover {
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5);
+}
+
+/* Resume Icon Button Specific Styles */
+.resumeEditButton {
+    color: #10b981 !important;
+    background-color: rgba(16, 185, 129, 0.1) !important;
+}
+
+.resumeEditButton svg {
+    stroke: #10b981 !important;
+}
+
+.resumeDownloadButton {
+    color: #3b82f6 !important;
+    background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+.resumeDownloadButton svg {
+    stroke: #3b82f6 !important;
+}
+
+.resumeEditButton:hover,
+.resumeDownloadButton:hover {
+    filter: brightness(0.7);
 }
 
 .createResumeButton {
@@ -896,21 +925,4 @@
     .jobCompany img {
         width: 2.75rem;
     }
-}
-
-/* Resume Icon Button Hover Colors */
-.editButton:hover {
-    color: #10b981 !important;
-}
-
-.editButton:hover svg {
-    stroke: #10b981 !important;
-}
-
-.downloadButton:hover {
-    color: #3b82f6 !important;
-}
-
-.downloadButton:hover svg {
-    stroke: #3b82f6 !important;
 }
