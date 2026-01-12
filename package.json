@@ -31,17 +31,18 @@
     "react-easy-crop": "^5.5.6",
     "react-phone-input-2": "^2.15.1",
     "react-phone-number-input": "^3.4.13",
-    "sharp": "^0.34.5",
-    "xlsx": "^0.18.5"
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@prisma/client": "^5.22.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
+    "prisma": "^5.22.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

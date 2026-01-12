@@ -191,8 +191,8 @@ model Applicant {
   applicationProgress ApplicationProgress[]
   applications       Application[]
   chatSessions       ChatSession[]
-  examAttempts       ExamAttempt[]
-  idChangeLogs       IdChangeLog[]
+  // examAttempts       ExamAttempt[]  // Commented due to type mismatch (Int vs BigInt)
+  // idChangeLogs       IdChangeLog[]  // Commented due to type mismatch (Int vs BigInt)
   idViewLogs         IdViewLog[]
   notifications      Notification[]
   resume             Resume?
@@ -349,7 +349,8 @@ model ExamAttempt {
   jobId         BigInt?   @map("job_id")
 
   exam        Exam          @relation(fields: [examId], references: [id])
-  applicant   Applicant     @relation(fields: [applicantId], references: [id])
+  // Note: applicantId is Int but Applicant.id is BigInt - type mismatch in database
+  // applicant   Applicant     @relation(fields: [applicantId], references: [id])
   job         Job?          @relation(fields: [jobId], references: [id])
   examAnswers ExamAnswer[]
   applications Application[]
@@ -385,7 +386,7 @@ model Faq {
 model IdChangeLog {
   id             Int       @id @default(autoincrement())
   applicantId    Int       @map("applicant_id")
-  applicationId  Int?      @map("application_id")
+  applicationId  BigInt?   @map("application_id")
   idType         String    @map("id_type")
   changeType     String    @map("change_type")
   oldIdFrontUrl  String?   @map("old_id_front_url")
@@ -398,7 +399,8 @@ model IdChangeLog {
   ipAddress      String?   @map("ip_address")
   userAgent      String?   @map("user_agent")
 
-  applicant   Applicant    @relation(fields: [applicantId], references: [id])
+  // Note: Type mismatches prevent these relations
+  // applicant   Applicant    @relation(fields: [applicantId], references: [id])
   application Application? @relation(fields: [applicationId], references: [id])
 
   @@map("id_change_logs")
@@ -512,7 +514,7 @@ model Peso {
   chatSessions              ChatSession[]
   examAnswersGraded         ExamAnswer[]
   idViewLogs                IdViewLog[]
-  questions                 Question[]
+  // questions                 Question[]  // Removed: No foreign key in questions table
 
   @@map("peso")
 }
@@ -549,7 +551,7 @@ model Resume {
 model VerifiedId {
   id              BigInt    @id @default(autoincrement())
   applicantId     BigInt    @map("applicant_id")
-  jobId           Int       @map("job_id")
+  jobId           BigInt    @map("job_id")
   idType          String?   @map("id_type")
   idFrontUrl      String    @map("id_front_url")
   idBackUrl       String    @map("id_back_url")
