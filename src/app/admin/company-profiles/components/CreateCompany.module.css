@@ -70,19 +70,47 @@
     gap: 2rem;
 }
 
-.companyDetails > input,
-.companyDetails > textarea,
-.companyDetails > select {
+.formField {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.formField label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary, #333);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.companyDetails input,
+.companyDetails textarea,
+.companyDetails select {
     box-shadow:
         rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
         rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     padding: 0.5rem 1rem;
     width: 25rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 0.25rem;
+    font-size: 0.9rem;
+    transition: border-color 0.2s ease;
 }
 
-.companyDetails > input::placeholder,
-.companyDetails > textarea::placeholder {
-    text-align: center;
+.companyDetails input:focus,
+.companyDetails textarea:focus,
+.companyDetails select:focus {
+    outline: none;
+    border-color: #0571d3;
+    box-shadow:
+        rgba(5, 113, 211, 0.1) 0px 6px 24px 0px,
+        rgba(5, 113, 211, 0.2) 0px 0px 0px 2px;
+}
+
+.companyDetails input::placeholder,
+.companyDetails textarea::placeholder {
+    color: #999;
 }
 
 /* Logo upload */

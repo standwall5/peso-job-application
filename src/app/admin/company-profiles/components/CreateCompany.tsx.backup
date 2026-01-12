@@ -163,57 +163,40 @@ const CreateCompany = () => {
           </div>
         </div>
         <div className={styles.companyDetails}>
-          <div className={styles.formField}>
-            <label htmlFor="company-name">Company Name</label>
-            <input
-              id="company-name"
-              type="text"
-              name="name"
-              placeholder="Enter company name"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
+          <input
+            type="text"
+            name="name"
+            placeholder="NAME"
+            value={formData.name}
+            onChange={handleInputChange}
+            required
+          />
 
-          <div className={styles.formField}>
-            <label htmlFor="company-email">Contact Email</label>
-            <input
-              id="company-email"
-              type="email"
-              name="contact_email"
-              placeholder="Enter contact email"
-              value={formData.contact_email}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-
-          <div className={styles.formField}>
-            <label htmlFor="company-location">Address</label>
-            <input
-              id="company-location"
-              type="text"
-              name="location"
-              placeholder="Enter company address"
-              value={formData.location}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-
-          <div className={styles.formField}>
-            <label htmlFor="company-industry">Industry</label>
-            <select
-              id="company-industry"
-              name="industry"
-              value={formData.industry}
-              onChange={handleInputChange}
-              required
-            >
-              <option value="" disabled>
-                Select industry
-              </option>
+          <input
+            type="email"
+            name="contact_email"
+            placeholder="EMAIL"
+            value={formData.contact_email}
+            onChange={handleInputChange}
+            required
+          />
+          <input
+            type="text"
+            name="location"
+            placeholder="ADDRESS"
+            value={formData.location}
+            onChange={handleInputChange}
+            required
+          />
+          <select
+            name="industry"
+            value={formData.industry}
+            onChange={handleInputChange}
+            required
+          >
+            <option value="" disabled>
+              INDUSTRY
+            </option>
             <option value="Agriculture">Agriculture</option>
             <option value="Automotive">Automotive</option>
             <option value="Banking & Finance">Banking & Finance</option>
@@ -238,20 +221,13 @@ const CreateCompany = () => {
             <option value="Utilities">Utilities</option>
             <option value="Other">Other</option>
           </select>
-          </div>
-
-          <div className={styles.formField}>
-            <label htmlFor="company-description">Company Description</label>
-            <textarea
-              id="company-description"
-              name="description"
-              placeholder="Enter company tagline or description"
-              value={formData.description}
-              onChange={handleInputChange}
-              rows={5}
-            />
-          </div>
-
+          <textarea
+            name="description"
+            placeholder="COMPANY TAGLINE"
+            value={formData.description}
+            onChange={handleInputChange}
+            rows={5}
+          />
           <Button type="submit" variant="primary" disabled={isSubmitting}>
             {isSubmitting ? "CREATING..." : "CREATE COMPANY"}
           </Button>
