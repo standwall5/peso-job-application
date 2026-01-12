@@ -1,0 +1,567 @@
+// Prisma Schema for PESO Job Application System
+// NextAuth + Neon PostgreSQL Migration from Supabase
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// NEXTAUTH REQUIRED TABLES
+// ============================================
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model User {
+  id            String    @id @default(uuid()) @db.Uuid
+  name          String?
+  email         String    @unique
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  accounts   Account[]
+  sessions   Session[]
+  applicant  Applicant?
+  pesoAdmin  Peso?
+  emailChangeTokens EmailChangeToken[]
+  otpVerifications OtpVerification[]
+  verifiedIdsReviewed VerifiedId[]
+
+  @@map("users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ============================================
+// EXISTING BUSINESS TABLES (Preserved)
+// ============================================
+
+model AdminInvitationToken {
+  id            BigInt    @id @default(autoincrement())
+  email         String    @unique
+  adminName     String    @map("admin_name")
+  token         String    @unique
+  isSuperadmin  Boolean   @default(false) @map("is_superadmin")
+  createdBy     BigInt?   @map("created_by")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  expiresAt     DateTime  @map("expires_at") @db.Timestamptz
+  used          Boolean   @default(false)
+  usedAt        DateTime? @map("used_at") @db.Timestamptz
+
+  creator Peso? @relation(fields: [createdBy], references: [id])
+
+  @@map("admin_invitation_tokens")
+}
+
+model AdminIpVerificationToken {
+  id         BigInt    @id @default(autoincrement())
+  adminId    BigInt    @map("admin_id")
+  ipAddress  String    @map("ip_address")
+  token      String    @unique
+  userAgent  String?   @map("user_agent")
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  expiresAt  DateTime  @map("expires_at") @db.Timestamptz
+  verified   Boolean   @default(false)
+  verifiedAt DateTime? @map("verified_at") @db.Timestamptz
+
+  admin Peso @relation(fields: [adminId], references: [id])
+
+  @@map("admin_ip_verification_tokens")
+}
+
+model AdminKnownIp {
+  id         BigInt   @id @default(autoincrement())
+  adminId    BigInt   @map("admin_id")
+  ipAddress  String   @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  location   String?
+  firstSeen  DateTime @default(now()) @map("first_seen") @db.Timestamptz
+  lastSeen   DateTime @default(now()) @map("last_seen") @db.Timestamptz
+  isVerified Boolean  @default(true) @map("is_verified")
+
+  admin Peso @relation(fields: [adminId], references: [id])
+
+  @@map("admin_known_ips")
+}
+
+model AdminLoginAttempt {
+  id                     BigInt    @id @default(autoincrement())
+  adminId                BigInt?   @map("admin_id")
+  email                  String
+  ipAddress              String    @map("ip_address")
+  userAgent              String?   @map("user_agent")
+  success                Boolean
+  failureReason          String?   @map("failure_reason")
+  requiresIpVerification Boolean   @default(false) @map("requires_ip_verification")
+  attemptedAt            DateTime  @default(now()) @map("attempted_at") @db.Timestamptz
+
+  admin Peso? @relation(fields: [adminId], references: [id])
+
+  @@map("admin_login_attempts")
+}
+
+model ApplicantId {
+  id              BigInt    @id @default(autoincrement())
+  applicantId     BigInt    @map("applicant_id")
+  idType          String    @map("id_type")
+  idFrontUrl      String    @map("id_front_url")
+  idBackUrl       String    @map("id_back_url")
+  selfieWithIdUrl String    @map("selfie_with_id_url")
+  uploadedAt      DateTime  @default(now()) @map("uploaded_at") @db.Timestamptz
+  updatedAt       DateTime  @default(now()) @map("updated_at") @db.Timestamptz
+  version         Int       @default(1)
+
+  applicant            Applicant     @relation(fields: [applicantId], references: [id])
+  applicationsSnapshot Application[]
+
+  @@map("applicant_ids")
+}
+
+model Applicant {
+  id              BigInt    @id @default(autoincrement())
+  authId          String?   @unique @map("auth_id") @db.Uuid
+  name            String
+  email           String?   @unique // ADDED: Required for NextAuth
+  phone           String?
+  resumeUrl       String?   @map("resume_url")
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  age             Int?
+  sex             String?
+  applicantType   String?   @map("applicant_type")
+  disabilityType  String?   @map("disability_type")
+  pwdNumber       String?   @map("pwd_number")
+  preferredPoa    String?   @map("preferred_poa")
+  district        String?
+  barangay        String?
+  profilePicUrl   String?   @map("profile_pic_url")
+  address         String?
+  birthDate       DateTime? @map("birth_date") @db.Date
+  residency       String?
+  idVerified      Boolean   @default(false) @map("id_verified")
+  idVerifiedAt    DateTime? @map("id_verified_at") @db.Timestamptz
+  idVerifiedBy    BigInt?   @map("id_verified_by")
+  isArchived      Boolean   @default(false) @map("is_archived")
+  archivedAt      DateTime? @map("archived_at") @db.Timestamptz
+  lastLogin       DateTime? @map("last_login") @db.Timestamptz
+
+  user               User?              @relation(fields: [authId], references: [id])
+  verifier           Peso?              @relation("ApplicantVerifier", fields: [idVerifiedBy], references: [id])
+  applicantIds       ApplicantId[]
+  applicationProgress ApplicationProgress[]
+  applications       Application[]
+  chatSessions       ChatSession[]
+  examAttempts       ExamAttempt[]
+  idChangeLogs       IdChangeLog[]
+  idViewLogs         IdViewLog[]
+  notifications      Notification[]
+  resume             Resume?
+  verifiedIds        VerifiedId[]
+
+  @@map("applicants")
+}
+
+model ApplicationProgress {
+  id                   BigInt   @id @default(autoincrement())
+  jobId                BigInt   @map("job_id")
+  applicantId          BigInt   @map("applicant_id")
+  resumeViewed         Boolean  @default(false) @map("resume_viewed")
+  examCompleted        Boolean  @default(false) @map("exam_completed")
+  verifiedIdUploaded   Boolean  @default(false) @map("verified_id_uploaded")
+  createdAt            DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt            DateTime @default(now()) @map("updated_at") @db.Timestamptz
+
+  job       Job       @relation(fields: [jobId], references: [id])
+  applicant Applicant @relation(fields: [applicantId], references: [id])
+
+  @@map("application_progress")
+}
+
+model Application {
+  id                   BigInt    @id @default(autoincrement())
+  jobId                BigInt?   @map("job_id")
+  applicantId          BigInt?   @map("applicant_id")
+  status               String    @default("Pending")
+  appliedDate          DateTime  @default(now()) @map("applied_date") @db.Timestamptz
+  examId               BigInt?   @map("exam_id")
+  examAttemptId        Int?      @map("exam_attempt_id")
+  applicantIdSnapshot  BigInt?   @map("applicant_id_snapshot")
+
+  job                 Job?         @relation(fields: [jobId], references: [id])
+  applicant           Applicant?   @relation(fields: [applicantId], references: [id])
+  examAttempt         ExamAttempt? @relation(fields: [examAttemptId], references: [attemptId])
+  applicantSnapshot   ApplicantId? @relation(fields: [applicantIdSnapshot], references: [id])
+  idChangeLogs        IdChangeLog[]
+  idViewLogs          IdViewLog[]
+
+  @@map("applications")
+}
+
+model ChatMessage {
+  id              String       @id @default(uuid()) @db.Uuid
+  chatSessionId   String?      @map("chat_session_id") @db.Uuid
+  sender          String?
+  message         String
+  createdAt       DateTime     @default(now()) @map("created_at")
+  readByUser      Boolean?     @map("read_by_user")
+
+  chatSession ChatSession? @relation(fields: [chatSessionId], references: [id])
+
+  @@map("chat_messages")
+}
+
+model ChatSession {
+  id                   String    @id @default(uuid()) @db.Uuid
+  userId               BigInt?   @map("user_id")
+  status               String    @default("pending")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  closedAt             DateTime? @map("closed_at")
+  adminId              BigInt?   @map("admin_id")
+  concern              String?
+  updatedAt            DateTime  @default(now()) @map("updated_at")
+  lastUserMessageAt    DateTime? @map("last_user_message_at") @db.Timestamptz
+
+  user     Applicant?    @relation(fields: [userId], references: [id])
+  admin    Peso?         @relation(fields: [adminId], references: [id])
+  messages ChatMessage[]
+
+  @@map("chat_sessions")
+}
+
+model Choice {
+  id           Int     @id @default(autoincrement())
+  questionId   Int     @map("question_id")
+  choiceText   String  @map("choice_text")
+  position     Int     @default(1)
+
+  question       Question        @relation(fields: [questionId], references: [id])
+  correctAnswers CorrectAnswer[]
+  examAnswers    ExamAnswer[]
+
+  @@map("choices")
+}
+
+model Company {
+  id           BigInt  @id @default(autoincrement())
+  name         String
+  location     String?
+  industry     String?
+  website      String?
+  logo         String?
+  contactEmail String? @map("contact_email")
+  description  String?
+
+  jobs Job[]
+
+  @@map("companies")
+}
+
+model CorrectAnswer {
+  correctAnswerId Int     @id @default(autoincrement()) @map("correct_answer_id")
+  questionId      Int     @map("question_id")
+  choiceId        Int?    @map("choice_id")
+  correctText     String? @map("correct_text")
+
+  question Question @relation(fields: [questionId], references: [id])
+  choice   Choice?  @relation(fields: [choiceId], references: [id])
+
+  @@map("correct_answers")
+}
+
+model EmailChangeToken {
+  id        BigInt   @id @default(autoincrement())
+  userId    String   @map("user_id") @db.Uuid
+  newEmail  String   @map("new_email")
+  token     String   @unique
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  expiresAt DateTime @map("expires_at") @db.Timestamptz
+  used      Boolean  @default(false)
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("email_change_tokens")
+}
+
+model ExamAnswer {
+  answerId   Int       @id @default(autoincrement()) @map("answer_id")
+  attemptId  Int       @map("attempt_id")
+  questionId Int       @map("question_id")
+  choiceId   Int?      @map("choice_id")
+  textAnswer String?   @map("text_answer")
+  isCorrect  Boolean?  @map("is_correct")
+  gradedBy   BigInt?   @map("graded_by")
+  gradedAt   DateTime? @map("graded_at") @db.Timestamptz
+
+  attempt  ExamAttempt @relation(fields: [attemptId], references: [attemptId])
+  question Question    @relation(fields: [questionId], references: [id])
+  choice   Choice?     @relation(fields: [choiceId], references: [id])
+  grader   Peso?       @relation(fields: [gradedBy], references: [id])
+
+  @@map("exam_answers")
+}
+
+model ExamAttempt {
+  attemptId     Int       @id @default(autoincrement()) @map("attempt_id")
+  examId        Int       @map("exam_id")
+  applicantId   Int       @map("applicant_id")
+  dateSubmitted DateTime  @default(now()) @map("date_submitted")
+  score         Decimal?  @db.Decimal
+  jobId         BigInt?   @map("job_id")
+
+  exam        Exam          @relation(fields: [examId], references: [id])
+  applicant   Applicant     @relation(fields: [applicantId], references: [id])
+  job         Job?          @relation(fields: [jobId], references: [id])
+  examAnswers ExamAnswer[]
+  applications Application[]
+
+  @@map("exam_attempts")
+}
+
+model Exam {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  dateCreated DateTime  @default(now()) @map("date_created")
+
+  questions    Question[]
+  examAttempts ExamAttempt[]
+  jobs         Job[]
+
+  @@map("exams")
+}
+
+model Faq {
+  id        String   @id @default(uuid()) @db.Uuid
+  category  String?
+  question  String
+  answer    String
+  position  Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  @@map("faqs")
+}
+
+model IdChangeLog {
+  id             Int       @id @default(autoincrement())
+  applicantId    Int       @map("applicant_id")
+  applicationId  Int?      @map("application_id")
+  idType         String    @map("id_type")
+  changeType     String    @map("change_type")
+  oldIdFrontUrl  String?   @map("old_id_front_url")
+  oldIdBackUrl   String?   @map("old_id_back_url")
+  oldSelfieUrl   String?   @map("old_selfie_url")
+  newIdFrontUrl  String    @map("new_id_front_url")
+  newIdBackUrl   String    @map("new_id_back_url")
+  newSelfieUrl   String    @map("new_selfie_url")
+  changedAt      DateTime  @default(now()) @map("changed_at") @db.Timestamptz
+  ipAddress      String?   @map("ip_address")
+  userAgent      String?   @map("user_agent")
+
+  applicant   Applicant    @relation(fields: [applicantId], references: [id])
+  application Application? @relation(fields: [applicationId], references: [id])
+
+  @@map("id_change_logs")
+}
+
+model IdViewLog {
+  id            BigInt    @id @default(autoincrement())
+  applicantId   BigInt    @map("applicant_id")
+  adminId       BigInt    @map("admin_id")
+  viewedAt      DateTime  @default(now()) @map("viewed_at") @db.Timestamptz
+  ipAddress     String?   @map("ip_address")
+  userAgent     String?   @map("user_agent")
+  applicationId BigInt?   @map("application_id")
+
+  applicant   Applicant    @relation(fields: [applicantId], references: [id])
+  admin       Peso         @relation(fields: [adminId], references: [id])
+  application Application? @relation(fields: [applicationId], references: [id])
+
+  @@map("id_view_logs")
+}
+
+model Job {
+  id                BigInt    @id @default(autoincrement())
+  companyId         BigInt?   @map("company_id")
+  title             String
+  placeOfAssignment String?   @map("place_of_assignment")
+  sex               String?
+  education         String?
+  eligibility       String?
+  employmentType    String?   @map("employment_type")
+  description       String?
+  requirements      Json?     @db.JsonB
+  salary            String?
+  postedDate        DateTime? @map("posted_date") @db.Date
+  deadline          DateTime? @db.Date
+  status            String?
+  manpowerNeeded    Int?      @map("manpower_needed")
+  examId            Int?      @map("exam_id")
+  skills            String[]
+  iconUrl           String?   @map("icon_url")
+
+  company             Company?              @relation(fields: [companyId], references: [id])
+  exam                Exam?                 @relation(fields: [examId], references: [id])
+  applicationProgress ApplicationProgress[]
+  applications        Application[]
+  examAttempts        ExamAttempt[]
+  notifications       Notification[]
+  verifiedIds         VerifiedId[]
+
+  @@map("jobs")
+}
+
+model Notification {
+  id          BigInt   @id @default(autoincrement())
+  applicantId BigInt   @map("applicant_id")
+  type        String
+  title       String
+  message     String
+  link        String?
+  isRead      Boolean  @default(false) @map("is_read")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  jobId       BigInt?  @map("job_id")
+  jobTitle    String?  @map("job_title")
+  companyName String?  @map("company_name")
+  companyLogo String?  @map("company_logo")
+  isArchived  Boolean  @default(false) @map("is_archived")
+
+  applicant Applicant @relation(fields: [applicantId], references: [id])
+  job       Job?      @relation(fields: [jobId], references: [id])
+
+  @@map("notifications")
+}
+
+model OtpVerification {
+  id        BigInt   @id @default(autoincrement())
+  userId    String   @map("user_id") @db.Uuid
+  type      String
+  value     String
+  otpCode   String   @map("otp_code")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  expiresAt DateTime @map("expires_at") @db.Timestamptz
+  verified  Boolean  @default(false)
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("otp_verifications")
+}
+
+model Peso {
+  id                   BigInt    @id @default(autoincrement())
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  authId               String?   @unique @map("auth_id") @db.Uuid
+  email                String?   @unique // ADDED: Required for NextAuth
+  isSuperadmin         Boolean   @default(false) @map("is_superadmin")
+  name                 String?
+  status               String    @default("active")
+  lastLogin            DateTime? @map("last_login") @db.Timestamptz
+  accountLocked        Boolean   @default(false) @map("account_locked")
+  failedLoginAttempts  Int       @default(0) @map("failed_login_attempts")
+  lockedUntil          DateTime? @map("locked_until") @db.Timestamptz
+  isArchived           Boolean   @default(false) @map("is_archived")
+  archivedAt           DateTime? @map("archived_at") @db.Timestamptz
+  profilePictureUrl    String?   @map("profile_picture_url")
+
+  user                      User?                      @relation(fields: [authId], references: [id])
+  adminInvitationTokens     AdminInvitationToken[]
+  adminIpVerificationTokens AdminIpVerificationToken[]
+  adminKnownIps             AdminKnownIp[]
+  adminLoginAttempts        AdminLoginAttempt[]
+  applicantsVerified        Applicant[]                @relation("ApplicantVerifier")
+  chatSessions              ChatSession[]
+  examAnswersGraded         ExamAnswer[]
+  idViewLogs                IdViewLog[]
+  questions                 Question[]
+
+  @@map("peso")
+}
+
+model Question {
+  id           Int    @id @default(autoincrement())
+  examId       Int    @map("exam_id")
+  questionText String @map("question_text")
+  questionType String @map("question_type")
+  position     Int    @default(1)
+
+  exam           Exam            @relation(fields: [examId], references: [id])
+  choices        Choice[]
+  correctAnswers CorrectAnswer[]
+  examAnswers    ExamAnswer[]
+
+  @@map("questions")
+}
+
+model Resume {
+  id                  BigInt   @id @default(autoincrement())
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz
+  education           Json?    @db.JsonB
+  workExperiences     Json?    @map("work_experiences") @db.JsonB
+  profileIntroduction String?  @map("profile_introduction")
+  applicantId         BigInt?  @unique @map("applicant_id")
+  skills              Json?    @db.JsonB
+
+  applicant Applicant? @relation(fields: [applicantId], references: [id])
+
+  @@map("resume")
+}
+
+model VerifiedId {
+  id              BigInt    @id @default(autoincrement())
+  applicantId     BigInt    @map("applicant_id")
+  jobId           Int       @map("job_id")
+  idType          String?   @map("id_type")
+  idFrontUrl      String    @map("id_front_url")
+  idBackUrl       String    @map("id_back_url")
+  selfieWithIdUrl String    @map("selfie_with_id_url")
+  status          String    @default("pending")
+  submittedAt     DateTime  @default(now()) @map("submitted_at") @db.Timestamptz
+  reviewedAt      DateTime? @map("reviewed_at") @db.Timestamptz
+  reviewerId      String?   @map("reviewer_id") @db.Uuid
+
+  applicant Applicant @relation(fields: [applicantId], references: [id])
+  job       Job       @relation(fields: [jobId], references: [id])
+  reviewer  User?     @relation(fields: [reviewerId], references: [id])
+
+  @@map("verified_ids")
+}
