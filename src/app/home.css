@@ -1,329 +1,333 @@
 section {
-    /* margin-top: -15.8rem; */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    max-height: 100vh;
+  /* margin-top: -15.8rem; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-height: 100vh;
 }
 
 .login-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 }
 
 .login-container {
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-    width: 65rem;
-    height: 28rem;
-    background-color: #eaffee;
-    border-radius: 1rem;
-    box-shadow:
-        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
-        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 65rem;
+  height: 28rem;
+  background-color: #eaffee;
+  border-radius: 1rem;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+    rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
 
 .login-container img {
-    width: 27rem;
+  width: 27rem;
 }
 
 .login-slogan {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
 }
 
 .login-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    gap: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 2rem;
 }
 
 .login-section form {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 1rem;
-    position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
 }
 
 .login-section form button {
-    margin-top: 1rem;
+  margin-top: 1rem;
 }
 
 .login-section form input {
-    background-color: white;
-    box-shadow:
-        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
-        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
-    width: 23rem;
-    height: 2rem;
-    max-width: 25rem;
-    padding: 1.5rem 1rem;
-    border-radius: 0.5rem;
+  background-color: white;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+    rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+  width: 23rem;
+  height: 2rem;
+  max-width: 25rem;
+  padding: 1.5rem 1rem;
+  border-radius: 0.5rem;
 }
 
 .login-section form a {
-    position: absolute;
-    /*color: #0571d3;*/
-    text-decoration: none;
-    right: 0;
-    font-size: 0.8rem;
-    bottom: -2rem;
+  position: absolute;
+  /*color: #0571d3;*/
+  text-decoration: none;
+  right: 0;
+  font-size: 0.8rem;
+  bottom: -2rem;
 }
 
 .login-section button {
-    font-size: 1.1rem;
+  font-size: 1.1rem;
 }
 
 /* Input wrapper for icons */
 .input-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    width: 23rem;
-    max-width: 25rem;
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 23rem;
+  max-width: 25rem;
 }
 
 .input-wrapper .input-icon {
-    position: absolute;
-    left: 1rem;
-    color: var(--text-muted);
-    pointer-events: none;
-    transition: color 0.25s ease;
+  position: absolute;
+  left: 1rem;
+  color: var(--text-muted);
+  pointer-events: none;
+  transition: color 0.25s ease;
 }
 
 .input-wrapper input {
-    padding-left: 3rem !important;
-    padding-right: 3rem !important;
-    width: 100%;
+  padding-left: 3rem !important;
+  padding-right: 3rem !important;
+  width: 100%;
 }
 
 .input-wrapper input:focus ~ .input-icon,
 .input-wrapper:focus-within .input-icon {
-    color: var(--accent);
+  color: var(--accent);
 }
 
 .input-wrapper input:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    background-color: #f5f5f5;
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #f5f5f5;
 }
 
 /* Password toggle button */
 .password-toggle {
-    position: absolute;
-    bottom: 6px;
-    right: 1rem;
-    background: none;
-    border: none;
-    padding: 0.5rem;
-    cursor: pointer;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition:
-        color 0.25s ease,
-        background 0.25s ease;
-    border-radius: 0.25rem;
+  position: absolute;
+  bottom: 6px;
+  right: 1rem;
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  /* display: flex;
+  align-items: center;
+  justify-content: center; */
+  transition: color 0.25s ease, background 0.25s ease;
+  border-radius: 0.25rem;
 }
 
 .password-toggle:hover:not(:disabled) {
-    color: var(--accent);
-    background-color: rgba(52, 152, 219, 0.1);
+  color: var(--accent);
+  background-color: rgba(52, 152, 219, 0.1);
 }
 
 .password-toggle:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .password-toggle:focus {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* Forgot Password */
 .forgot-password {
-    color: var(--text-muted);
-    text-decoration: none;
-    margin-left: 0.5rem;
-    transition: color 0.25s ease;
-    font-weight: bold;
+  color: var(--text-muted);
+  text-decoration: none;
+  margin-left: 0.5rem;
+  transition: color 0.25s ease;
+  font-weight: bold;
 }
 
 .forgot-password:hover {
-    color: var(--accent);
+  color: var(--accent);
 }
 
 /* Signup link */
 .signup-link a {
-    color: var(--text);
-    font-weight: bold;
-    text-decoration: none;
-    transition: color 0.25s ease;
+  color: var(--text);
+  font-weight: bold;
+  text-decoration: none;
+  transition: color 0.25s ease;
 }
 
 .signup-link a:hover {
-    color: var(--accent);
+  color: var(--accent);
 }
 
 /* Error banner */
 .error-banner {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1.25rem;
-    background-color: #fee;
-    border: 1px solid #fcc;
-    border-radius: 0.5rem;
-    color: #c33;
-    font-size: 0.875rem;
-    font-weight: 500;
-    animation: slideDown 0.3s ease;
-    width: 100%;
-    position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  background-color: #fee;
+  border: 1px solid #fcc;
+  border-radius: 0.5rem;
+  color: #c33;
+  font-size: 0.875rem;
+  font-weight: 500;
+  animation: slideDown 0.3s ease;
+  width: 100%;
+  position: relative;
 }
 
 @keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Mobile Media Queries */
 @media (max-width: 768px) {
-    section {
-        padding: 1rem;
-        max-height: none;
-        min-height: 100vh;
-    }
+  section {
+    padding: 1rem;
+    max-height: none;
+    min-height: 100vh;
+  }
 
-    .login-container {
-        flex-direction: column;
-        width: 95%;
-        max-width: 25rem;
-        height: auto;
-        padding: 2rem 1rem;
-        gap: 2rem;
-    }
+  .login-container {
+    flex-direction: column;
+    width: 95%;
+    max-width: 25rem;
+    height: auto;
+    padding: 2rem 1rem;
+    gap: 2rem;
+  }
 
-    .login-container img {
-        width: 15rem;
-        max-width: 80%;
-    }
+  .login-container img {
+    width: 15rem;
+    max-width: 80%;
+  }
 
-    .login-slogan {
-        gap: 1rem;
-        text-align: center;
-    }
+  .login-slogan {
+    gap: 1rem;
+    text-align: center;
+  }
 
-    .login-slogan h1 {
-        font-size: 1.5rem;
-    }
+  .login-slogan h1 {
+    font-size: 1.5rem;
+  }
 
-    .login-section {
-        width: 100%;
-        gap: 1.5rem;
-    }
+  .login-section {
+    width: 100%;
+    gap: 1.5rem;
+  }
 
-    .login-section form {
-        width: 100%;
-        gap: 0.75rem;
-    }
+  .login-section form {
+    width: 100%;
+    gap: 0.75rem;
+  }
 
-    .login-section form input,
-    .input-wrapper,
-    .input-wrapper input {
-        width: 100%;
-        max-width: 100%;
-    }
+  .login-section form input,
+  .input-wrapper,
+  .input-wrapper input {
+    width: 100%;
+    max-width: 100%;
+  }
 
-    .login-section form input {
-        padding: 1.25rem 0.75rem;
-        font-size: 0.9rem;
-    }
+  .login-section form input {
+    padding: 1.25rem 0.75rem;
+    font-size: 0.9rem;
+  }
 
-    .input-wrapper input {
-        padding-left: 2.5rem !important;
-        padding-right: 2.5rem !important;
-    }
+  .input-wrapper input {
+    padding-left: 2.5rem !important;
+    padding-right: 2.5rem !important;
+  }
 
-    .input-wrapper .input-icon {
-        left: 0.75rem;
-        font-size: 0.9rem;
-    }
+  .input-wrapper .input-icon {
+    left: 0.75rem;
+    font-size: 0.9rem;
+  }
 
-    .password-toggle {
-        right: 0.75rem;
-        padding: 0.375rem;
-    }
+  .password-toggle {
+    right: 0.75rem;
+    padding: 0.375rem;
+  }
 
-    .login-section form a {
-        font-size: 0.75rem;
-        top: auto;
-        bottom: -1.5rem;
-        right: 0;
-    }
+  .login-section form a {
+    font-size: 0.75rem;
+    top: auto;
+    bottom: -1.5rem;
+    right: 0;
+  }
 
-    .login-section button {
-        font-size: 1rem;
-        padding: 0.75rem 1.5rem;
-        width: 100%;
-    }
+  .login-section button {
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+    width: 100%;
+  }
 
-    .error-banner {
-        padding: 0.625rem 1rem;
-        font-size: 0.8rem;
-        gap: 0.5rem;
-    }
+  .error-banner {
+    padding: 0.625rem 1rem;
+    font-size: 0.8rem;
+    gap: 0.5rem;
+  }
 }
 
 @media (max-width: 480px) {
-    .login-container {
-        width: 100%;
-        border-radius: 0.5rem;
-        padding: 1.5rem 1rem;
-    }
+  .login-container {
+    width: 100%;
+    border-radius: 0.5rem;
+    padding: 1.5rem 1rem;
+  }
 
-    .login-container img {
-        width: 12rem;
-    }
+  .login-container img {
+    width: 12rem;
+  }
 
-    .login-slogan h1 {
-        font-size: 1.25rem;
-    }
+  .login-slogan h1 {
+    font-size: 1.25rem;
+  }
 
-    .login-section form input {
-        padding: 1rem 0.5rem;
-        font-size: 0.85rem;
-    }
+  .login-section form input {
+    padding: 1rem 0.5rem;
+    font-size: 0.85rem;
+  }
 
-    .input-wrapper input {
-        padding-left: 2.25rem !important;
-        padding-right: 2.25rem !important;
-    }
+  .password-toggle {
+    right: 0.5rem;
+    padding: 0.375rem;
+    display: block;
+    position: absolute;
+    width: max-content;
+  }
 
-    .login-section form a {
-        font-size: 0.7rem;
-    }
+  .input-wrapper input {
+    padding-left: 2.25rem !important;
+    padding-right: 2.25rem !important;
+  }
 
-    .error-banner {
-        font-size: 0.75rem;
-        padding: 0.5rem 0.75rem;
-    }
+  .login-section form a {
+    font-size: 0.7rem;
+  }
+
+  .error-banner {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
+  }
 }

@@ -28,6 +28,25 @@ const LoadingNavBar = () => {
 
 const SimpleNavBar = (props: { pathname: string }) => {
   const { t } = useLanguage();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Close menu when route changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [props.pathname]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen]);
+
   return (
     <nav>
       <div className="nav-container-simple">
@@ -37,7 +56,9 @@ const SimpleNavBar = (props: { pathname: string }) => {
               <Image src={PesoLogo} alt="PESO Logo" className="peso-logo" />
             </Link>
           </li>
-          <li>
+
+          {/* Desktop Navigation Links */}
+          <li className={styles.desktopOnly}>
             <Link href="/login">
               <button
                 className={
@@ -50,7 +71,7 @@ const SimpleNavBar = (props: { pathname: string }) => {
               </button>
             </Link>
           </li>
-          <li>
+          <li className={styles.desktopOnly}>
             <Link href="/job-opportunities">
               <button
                 className={
@@ -63,7 +84,7 @@ const SimpleNavBar = (props: { pathname: string }) => {
               </button>
             </Link>
           </li>
-          <li>
+          <li className={styles.desktopOnly}>
             <Link href="/how-it-works">
               <button
                 className={
@@ -76,7 +97,7 @@ const SimpleNavBar = (props: { pathname: string }) => {
               </button>
             </Link>
           </li>
-          <li>
+          <li className={styles.desktopOnly}>
             <Link href="/about">
               <button
                 className={
@@ -89,8 +110,121 @@ const SimpleNavBar = (props: { pathname: string }) => {
               </button>
             </Link>
           </li>
+
+          {/* Mobile Hamburger Icon */}
+          <li className={styles.mobileOnly}>
+            <button
+              className={styles.hamburger}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+              >
+                {mobileMenuOpen ? (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                ) : (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                  />
+                )}
+              </svg>
+            </button>
+          </li>
         </ul>
       </div>
+
+      {/* Mobile Sidebar */}
+      {mobileMenuOpen && (
+        <>
+          {/* Backdrop */}
+          <div
+            className={styles.mobileBackdrop}
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          {/* Sidebar */}
+          <div className={styles.mobileSidebar}>
+            <div className={styles.mobileSidebarHeader}>
+              <h3>Menu</h3>
+              <button
+                className={styles.closeButton}
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="Close menu"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+            <nav className={styles.mobileSidebarNav}>
+              <Link href="/login">
+                <button
+                  className={
+                    props.pathname === "/login"
+                      ? "nav-button-active"
+                      : "nav-button-default"
+                  }
+                >
+                  {t("nav.home")}
+                </button>
+              </Link>
+              <Link href="/job-opportunities">
+                <button
+                  className={
+                    props.pathname === "/job-opportunities"
+                      ? "nav-button-active"
+                      : "nav-button-default"
+                  }
+                >
+                  {t("nav.jobOpportunities")}
+                </button>
+              </Link>
+              <Link href="/how-it-works">
+                <button
+                  className={
+                    props.pathname === "/how-it-works"
+                      ? "nav-button-active"
+                      : "nav-button-default"
+                  }
+                >
+                  {t("nav.howItWorks")}
+                </button>
+              </Link>
+              <Link href="/about">
+                <button
+                  className={
+                    props.pathname === "/about"
+                      ? "nav-button-active"
+                      : "nav-button-default"
+                  }
+                >
+                  {t("nav.about")}
+                </button>
+              </Link>
+            </nav>
+          </div>
+        </>
+      )}
     </nav>
   );
 };
@@ -129,6 +263,7 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
     useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
@@ -138,6 +273,23 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
   const isJobOpportunitiesPage =
     props.pathname === "/job-opportunities" ||
     props.pathname.startsWith("/job-opportunities/");
+
+  // Close menu when route changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [props.pathname]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen]);
 
   useEffect(() => {
     async function fetchAll() {
@@ -206,7 +358,7 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
             </Link>
           </li>
           {!isJobOpportunitiesPage && (
-            <li>
+            <li className={styles.searchLi}>
               <form
                 onSubmit={handleSearch}
                 className={styles.searchContainer}
@@ -293,8 +445,8 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
             </li>
           )}
 
-          {/* Icons -- add selected states -- Done*/}
-          <li>
+          {/* Desktop Icons */}
+          <li className={styles.desktopOnly}>
             <Link href="/">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -312,7 +464,7 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
               </svg>
             </Link>
           </li>
-          <li>
+          <li className={styles.desktopOnly}>
             {/* Dropdown for notifications */}
             <div
               className={styles.notificationIcon}
@@ -346,7 +498,7 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
               />
             </div>
           </li>
-          <li className={styles.profileIconContainer}>
+          <li className={`${styles.profileIconContainer} ${styles.desktopOnly}`}>
             <div
               className={styles.dropdown}
               ref={profileRef}
@@ -371,8 +523,120 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
               </Dropdown>
             </div>
           </li>
+
+          {/* Mobile Hamburger */}
+          <li className={styles.mobileOnly}>
+            <button
+              className={styles.hamburger}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+              >
+                {mobileMenuOpen ? (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                ) : (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                  />
+                )}
+              </svg>
+            </button>
+          </li>
         </ul>
       </div>
+
+      {/* Mobile Sidebar */}
+      {mobileMenuOpen && (
+        <>
+          <div
+            className={styles.mobileBackdrop}
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <div className={styles.mobileSidebar}>
+            <div className={styles.mobileSidebarHeader}>
+              <h3>Menu</h3>
+              <button
+                className={styles.closeButton}
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="Close menu"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+            <nav className={styles.mobileSidebarNav}>
+              <Link href="/">
+                <button 
+                  className={
+                    props.pathname === "/"
+                      ? "nav-button-active"
+                      : "nav-button-default"
+                  }
+                >
+                  Home
+                </button>
+              </Link>
+              <Link href="/profile">
+                <button 
+                  className={
+                    props.pathname === "/profile" || props.pathname.startsWith("/profile/")
+                      ? "nav-button-active"
+                      : "nav-button-default"
+                  }
+                >
+                  Profile
+                </button>
+              </Link>
+              <Link href="/job-opportunities">
+                <button 
+                  className={
+                    props.pathname === "/job-opportunities" || props.pathname.startsWith("/job-opportunities/")
+                      ? "nav-button-active"
+                      : "nav-button-default"
+                  }
+                >
+                  Job Opportunities
+                </button>
+              </Link>
+              <div className={styles.logoutButton}>
+                <button
+                  className="nav-button-default"
+                  onClick={() => {
+                    signout();
+                    setMobileMenuOpen(false);
+                  }}
+                  style={{ color: '#ff556e' }}
+                >
+                  Logout
+                </button>
+              </div>
+            </nav>
+          </div>
+        </>
+      )}
     </nav>
   );
 };
