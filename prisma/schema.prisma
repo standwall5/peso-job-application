@@ -191,8 +191,8 @@ model Applicant {
   applicationProgress ApplicationProgress[]
   applications       Application[]
   chatSessions       ChatSession[]
-  // examAttempts       ExamAttempt[]  // Commented due to type mismatch (Int vs BigInt)
-  // idChangeLogs       IdChangeLog[]  // Commented due to type mismatch (Int vs BigInt)
+  examAttempts       ExamAttempt[]  // Uncommented after database type fix
+  idChangeLogs       IdChangeLog[]  // Uncommented after database type fix
   idViewLogs         IdViewLog[]
   notifications      Notification[]
   resume             Resume?
@@ -343,14 +343,13 @@ model ExamAnswer {
 model ExamAttempt {
   attemptId     Int       @id @default(autoincrement()) @map("attempt_id")
   examId        Int       @map("exam_id")
-  applicantId   Int       @map("applicant_id")
+  applicantId   BigInt    @map("applicant_id")  // Fixed: Changed from Int to BigInt
   dateSubmitted DateTime  @default(now()) @map("date_submitted")
   score         Decimal?  @db.Decimal
   jobId         BigInt?   @map("job_id")
 
   exam        Exam          @relation(fields: [examId], references: [id])
-  // Note: applicantId is Int but Applicant.id is BigInt - type mismatch in database
-  // applicant   Applicant     @relation(fields: [applicantId], references: [id])
+  applicant   Applicant     @relation(fields: [applicantId], references: [id])  // Uncommented after type fix
   job         Job?          @relation(fields: [jobId], references: [id])
   examAnswers ExamAnswer[]
   applications Application[]
@@ -385,7 +384,7 @@ model Faq {
 
 model IdChangeLog {
   id             Int       @id @default(autoincrement())
-  applicantId    Int       @map("applicant_id")
+  applicantId    BigInt    @map("applicant_id")  // Fixed: Changed from Int to BigInt
   applicationId  BigInt?   @map("application_id")
   idType         String    @map("id_type")
   changeType     String    @map("change_type")
@@ -399,8 +398,7 @@ model IdChangeLog {
   ipAddress      String?   @map("ip_address")
   userAgent      String?   @map("user_agent")
 
-  // Note: Type mismatches prevent these relations
-  // applicant   Applicant    @relation(fields: [applicantId], references: [id])
+  applicant   Applicant    @relation(fields: [applicantId], references: [id])  // Uncommented after type fix
   application Application? @relation(fields: [applicationId], references: [id])
 
   @@map("id_change_logs")
