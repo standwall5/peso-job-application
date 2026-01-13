@@ -18,7 +18,7 @@ const TEST_MODE = {
 } as const;
 
 // 🔥 CHANGE THIS TO SWITCH BETWEEN TEST AND PRODUCTION
-const CURRENT_MODE = TEST_MODE.MOCK; // Set to TEST_MODE.REAL for production
+const CURRENT_MODE = TEST_MODE.REAL; // Set to TEST_MODE.REAL for production
 
 // Mock scenarios - change to test different responses
 const MOCK_SCENARIO = {
