@@ -38,12 +38,12 @@ const SimpleNavBar = (props: { pathname: string }) => {
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [mobileMenuOpen]);
 
@@ -282,12 +282,12 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [mobileMenuOpen]);
 
@@ -335,14 +335,14 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
   const searchResults = jobs.filter(
     (job) =>
       job.title.toLowerCase().includes(search.toLowerCase()) ||
-      job.description.toLowerCase().includes(search.toLowerCase()),
+      job.description.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (search.trim()) {
       router.push(
-        `/job-opportunities?search=${encodeURIComponent(search.trim())}`,
+        `/job-opportunities?search=${encodeURIComponent(search.trim())}`
       );
       setShowDropdown(false);
     }
@@ -379,13 +379,13 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
                               .includes(value.toLowerCase()) ||
                             job.description
                               .toLowerCase()
-                              .includes(value.toLowerCase()),
-                        ),
+                              .includes(value.toLowerCase())
+                        )
                     );
                   }}
                   onFocus={(e) => {
                     setShowDropdown(
-                      e.target.value !== "" && searchResults.length > 0,
+                      e.target.value !== "" && searchResults.length > 0
                     );
                   }}
                   placeholder="Search jobs and companies..."
@@ -416,7 +416,9 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
                     {searchResults.slice(0, 5).map((job) => (
                       <DropdownItem
                         key={job.id}
-                        href={`/job-opportunities?search=${encodeURIComponent(job.title)}`}
+                        href={`/job-opportunities?search=${encodeURIComponent(
+                          job.title
+                        )}`}
                         icon={
                           job.companies?.logo ? (
                             <img
@@ -498,7 +500,9 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
               />
             </div>
           </li>
-          <li className={`${styles.profileIconContainer} ${styles.desktopOnly}`}>
+          <li
+            className={`${styles.profileIconContainer} ${styles.desktopOnly}`}
+          >
             <div
               className={styles.dropdown}
               ref={profileRef}
@@ -589,7 +593,7 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
             </div>
             <nav className={styles.mobileSidebarNav}>
               <Link href="/">
-                <button 
+                <button
                   className={
                     props.pathname === "/"
                       ? "nav-button-active"
@@ -600,9 +604,10 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
                 </button>
               </Link>
               <Link href="/profile">
-                <button 
+                <button
                   className={
-                    props.pathname === "/profile" || props.pathname.startsWith("/profile/")
+                    props.pathname === "/profile" ||
+                    props.pathname.startsWith("/profile/")
                       ? "nav-button-active"
                       : "nav-button-default"
                   }
@@ -611,9 +616,10 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
                 </button>
               </Link>
               <Link href="/job-opportunities">
-                <button 
+                <button
                   className={
-                    props.pathname === "/job-opportunities" || props.pathname.startsWith("/job-opportunities/")
+                    props.pathname === "/job-opportunities" ||
+                    props.pathname.startsWith("/job-opportunities/")
                       ? "nav-button-active"
                       : "nav-button-default"
                   }
@@ -628,7 +634,7 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
                     signout();
                     setMobileMenuOpen(false);
                   }}
-                  style={{ color: '#ff556e' }}
+                  style={{ color: "#ff556e" }}
                 >
                   Logout
                 </button>
@@ -702,7 +708,7 @@ const PesoNavbar = (props: { pathname: string }) => {
   const searchResults = jobs.filter(
     (job) =>
       job.title.toLowerCase().includes(search.toLowerCase()) ||
-      job.description.toLowerCase().includes(search.toLowerCase()),
+      job.description.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -731,13 +737,13 @@ const PesoNavbar = (props: { pathname: string }) => {
                             .includes(value.toLowerCase()) ||
                           job.description
                             .toLowerCase()
-                            .includes(value.toLowerCase()),
-                      ),
+                            .includes(value.toLowerCase())
+                      )
                   );
                 }}
                 onFocus={(e) => {
                   setShowDropdown(
-                    e.target.value !== "" && searchResults.length > 0,
+                    e.target.value !== "" && searchResults.length > 0
                   );
                 }}
                 placeholder="location, company, job-title, category of job"
@@ -960,7 +966,13 @@ const Navbar = () => {
     async function fetchUser() {
       const res = await fetch("/api/getUser");
       const data = await res.json();
-      setUser(data && !data.error ? data : null);
+
+      // Only treat user as logged in if email is confirmed
+      if (data && !data.error && data.email_confirmed_at) {
+        setUser(data);
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     }
 
@@ -977,7 +989,7 @@ const Navbar = () => {
           setUser(null);
           setLoading(false);
         }
-      },
+      }
     );
 
     return () => {
