@@ -2,43 +2,10 @@
 
 import ExcelJS from "exceljs";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
-import type { CellHookData } from "jspdf-autotable";
-
-// Extend jsPDF type to include autoTable
-interface AutoTableStyles {
-  fontSize?: number;
-  cellPadding?: number;
-  fillColor?: number[];
-  textColor?: number | number[];
-  fontStyle?: string;
-}
-
-interface AutoTableMargin {
-  top?: number;
-  right?: number;
-  bottom?: number;
-  left?: number;
-}
+import autoTable, { type CellHookData } from "jspdf-autotable";
 
 declare module "jspdf" {
   interface jsPDF {
-    autoTable: (options: {
-      head?: (string | number | object)[][];
-      body?: (string | number)[][];
-      startY?: number;
-      styles?: AutoTableStyles;
-      headStyles?: AutoTableStyles;
-      alternateRowStyles?: AutoTableStyles;
-      margin?: AutoTableMargin;
-      columnStyles?: {
-        [key: number]: AutoTableStyles & {
-          cellWidth?: number;
-          halign?: string;
-        };
-      };
-      didParseCell?: (data: CellHookData) => void;
-    }) => jsPDF;
     lastAutoTable?: { finalY: number };
   }
 }
@@ -187,7 +154,7 @@ export const exportToPDF = (data: ExportData) => {
   doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 28);
 
   // Add table
-  doc.autoTable({
+  autoTable(doc, {
     head: [headers],
     body: rows,
     startY: 35,
@@ -358,7 +325,7 @@ export const exportComprehensiveReportToPDF = (sections: {
         currentY += 8;
       }
 
-      doc.autoTable({
+      autoTable(doc, {
         head: [table.headers],
         body: table.rows,
         startY: currentY,
@@ -397,7 +364,7 @@ export const exportComprehensiveReportToPDF = (sections: {
       const chartHeaders = ["Label", "Value"];
       const chartRows = chart.data.map((item) => [item.label, item.value]);
 
-      doc.autoTable({
+      autoTable(doc, {
         head: [chartHeaders],
         body: chartRows,
         startY: currentY,
@@ -714,7 +681,7 @@ export function exportSummaryTableToPDF(
     totals.grandTotal.total,
   ]);
 
-  doc.autoTable({
+  autoTable(doc, {
     startY: 25,
     head: [
       [

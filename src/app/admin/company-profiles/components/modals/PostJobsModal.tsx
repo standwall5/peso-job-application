@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "./PostJobsModal.module.css";
-import Modal from "./Modal";
 import ConfirmCloseModal from "./ConfirmCloseModal";
 import { Exam as ExamType } from "../exam/Exam";
 import ExamList from "../exam/ExamList";
@@ -47,20 +46,23 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
   fetchExams,
   refetchJobs,
 }) => {
+  // Determine if this is a new job or editing existing
+  const isNewJob = job.id === 0;
+
   // Track which exam is selected for this job
   const [selectedExamId, setSelectedExamId] = useState<number | null>(
-    job?.exam_id ?? null,
+    job?.exam_id ?? null
   );
 
   // Track skills
   const [selectedSkills, setSelectedSkills] = useState<string[]>(
-    job?.skills || [],
+    job?.skills || []
   );
 
   // Icon upload states
   const [iconFile, setIconFile] = useState<File | null>(null);
   const [iconPreview, setIconPreview] = useState<string | null>(
-    job?.icon_url || null,
+    job?.icon_url || null
   );
   const [showCropModal, setShowCropModal] = useState(false);
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
@@ -69,7 +71,7 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
   const [tempImageSrc, setTempImageSrc] = useState<string | null>(null);
 
   // Track form changes
-  const [hasChanges, setHasChanges] = useState(false);
+  const [hasChanges, setHasChanges] = useState(isNewJob); // New jobs always have "changes"
   const [showConfirmClose, setShowConfirmClose] = useState(false);
 
   // Store initial values
@@ -84,12 +86,10 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
     iconUrl: job.icon_url || null,
   });
 
-  console.log("PostJobsModal - selectedExamId:", selectedExamId);
-  console.log("PostJobsModal - job.exam_id:", job?.exam_id);
-  console.log("PostJobsModal - full job:", job);
-
   // Check if form has changes
   const checkForChanges = (formData?: FormData) => {
+    if (isNewJob) return true; // New jobs always have changes
+
     if (formData) {
       const currentTitle = formData.get("title") as string;
       const currentPoa = formData.get("poa") as string;
@@ -117,7 +117,6 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
       );
     }
 
-    // Check if exam selection or skills or icon changed
     const hasExamChange = selectedExamId !== initialValuesRef.current.examId;
     const hasSkillsChange =
       JSON.stringify(selectedSkills.sort()) !==
@@ -135,7 +134,6 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
       setHasChanges(checkForChanges(formData));
     };
 
-    // Add event listeners to all form inputs
     const inputs = form.querySelectorAll("input, select");
     inputs.forEach((input) => {
       input.addEventListener("input", handleInput);
@@ -148,23 +146,18 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
         input.removeEventListener("change", handleInput);
       });
     };
-  }, [selectedExamId, selectedSkills]); // NEW: Add selectedSkills to dependencies
+  }, [selectedExamId, selectedSkills]);
 
   const handleExamSelect = (examId: number) => {
     setSelectedExamId(examId);
-    // Check if this creates a change
-    setHasChanges(examId !== initialValuesRef.current.examId);
+    setHasChanges(true);
   };
 
   const handleSkillsChange = (skills: string[]) => {
     setSelectedSkills(skills);
-    const hasSkillsChange =
-      JSON.stringify(skills.sort()) !==
-      JSON.stringify(initialValuesRef.current.skills.sort());
-    setHasChanges(hasSkillsChange);
+    setHasChanges(true);
   };
 
-  // Handle icon file selection
   const handleIconSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -178,12 +171,10 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
     }
   };
 
-  // Handle crop complete
   const onCropComplete = (_croppedArea: Area, croppedAreaPixels: Area) => {
     setCroppedAreaPixels(croppedAreaPixels);
   };
 
-  // Save cropped image
   const handleSaveCrop = async () => {
     if (!tempImageSrc || !croppedAreaPixels) return;
 
@@ -197,17 +188,15 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
     }
   };
 
-  // Remove icon
   const handleRemoveIcon = () => {
     setIconFile(null);
     setIconPreview(null);
     setHasChanges(true);
   };
 
-  // Crop image helper function
   const getCroppedImg = async (
     imageSrc: string,
-    pixelCrop: Area,
+    pixelCrop: Area
   ): Promise<string> => {
     const image = new Image();
     image.src = imageSrc;
@@ -231,7 +220,7 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
       0,
       0,
       pixelCrop.width,
-      pixelCrop.height,
+      pixelCrop.height
     );
 
     return new Promise((resolve) => {
@@ -244,7 +233,6 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
     });
   };
 
-  // Handle close with confirmation
   const handleCloseAttempt = () => {
     if (hasChanges) {
       setShowConfirmClose(true);
@@ -262,17 +250,13 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
     setShowConfirmClose(false);
   };
 
-  // ######################### Handle submit for job submit
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const formData = new FormData(form);
 
-    // Upload icon if changed
     let uploadedIconUrl = iconPreview;
     if (iconFile && iconPreview && iconPreview !== job.icon_url) {
-      // Convert blob URL to file
       const blob = await fetch(iconPreview).then((r) => r.blob());
       const file = new File([blob], `job-icon-${Date.now()}.jpg`, {
         type: "image/jpeg",
@@ -280,7 +264,9 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
 
       const uploadFormData = new FormData();
       uploadFormData.append("file", file);
-      uploadFormData.append("jobId", job.id.toString());
+      if (!isNewJob) {
+        uploadFormData.append("jobId", job.id.toString());
+      }
 
       const uploadResponse = await fetch("/api/upload-job-icon", {
         method: "POST",
@@ -308,17 +294,17 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
 
     try {
       let response;
-      if (job && job.id) {
-        // Edit existing job
-        response = await fetch(`/api/jobs?id=${job.id}`, {
-          method: "PUT",
+      if (isNewJob) {
+        // Create new job
+        response = await fetch("/api/jobs", {
+          method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(jobData),
         });
       } else {
-        // Create new job
-        response = await fetch("/api/jobs", {
-          method: "POST",
+        // Edit existing job
+        response = await fetch(`/api/jobs?id=${job.id}`, {
+          method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(jobData),
         });
@@ -331,195 +317,208 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
 
       if (refetchJobs) refetchJobs();
 
-      // Reset hasChanges since we successfully saved
       setHasChanges(false);
-
-      // Close modal without confirmation
       if (onClose) onClose();
     } catch (err) {
-      // Handle error (show toast, etc.)
       console.error(err);
     }
   };
 
   return (
     <>
-      <Modal onClose={handleCloseAttempt}>
-        <div className={styles.header}>
-          <span>
-            <img
-              src={company.logo || "/assets/images/default_profile.png"}
-              alt={company.name}
-            />
+      {/* Main Modal */}
+      <div className={styles.overlay} onClick={handleCloseAttempt}>
+        <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+          <button className={styles.closeBtn} onClick={handleCloseAttempt}>
+            ×
+          </button>
 
-            <h2>{company.name}</h2>
-          </span>
-          <span>Edit Job</span>
-        </div>
-        <div className={styles.modalContent}>
-          <div className={styles.jobContainer}>
-            <form onSubmit={handleSubmit}>
-              <label htmlFor="poa">Place of Assignment</label>
-              <input
-                id="poa"
-                type="text"
-                name="poa"
-                defaultValue={job.place_of_assignment}
-                required
+          <div className={styles.header}>
+            <span>
+              <img
+                src={company.logo || "/assets/images/default_profile.png"}
+                alt={company.name}
               />
+              <h2>{company.name}</h2>
+            </span>
+            <span>{isNewJob ? "Add New Job" : "Edit Job"}</span>
+          </div>
 
-              <label htmlFor="title">Job Title</label>
-              <input
-                id="title"
-                type="text"
-                name="title"
-                defaultValue={job.title}
-                required
-              />
-
-              <label htmlFor="gender">Gender</label>
-              <select id="gender" name="gender" defaultValue={job.sex} required>
-                <option value="Female">Female</option>
-                <option value="Male">Male</option>
-                <option value="Any">Any</option>
-              </select>
-
-              <label htmlFor="education">Education</label>
-              <select
-                id="education"
-                name="education"
-                defaultValue={job.education}
-                required
-              >
-                <option value="Senior High School or Graduate">
-                  Senior High School or Graduate
-                </option>
-                <option value="College Graduate">College Graduate</option>
-                <option value="Any">Any</option>
-              </select>
-
-              <label htmlFor="eligibility">Eligibility</label>
-              <select
-                id="eligibility"
-                name="eligibility"
-                defaultValue={job.eligibility}
-                required
-              >
-                <option value="With or without experience">
-                  With or without experience
-                </option>
-                <option value="Experienced">Experienced</option>
-              </select>
-
-              {/* Skills Input */}
-              <div style={{ marginTop: "1rem" }}>
-                <SkillsInput
-                  skills={selectedSkills}
-                  onSkillsChange={handleSkillsChange}
-                  placeholder="Search and add required skills..."
-                  label="Required Skills"
-                  required={false}
+          <div className={styles.modalContent}>
+            <div className={styles.jobContainer}>
+              <form onSubmit={handleSubmit}>
+                <label htmlFor="poa">Place of Assignment</label>
+                <input
+                  id="poa"
+                  type="text"
+                  name="poa"
+                  defaultValue={job.place_of_assignment}
+                  required
                 />
-              </div>
 
-              {/* Job Icon Upload */}
-              <div style={{ marginTop: "1rem" }}>
-                <label>Job Icon (Optional)</label>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "1rem",
-                    marginTop: "0.5rem",
-                  }}
+                <label htmlFor="title">Job Title</label>
+                <input
+                  id="title"
+                  type="text"
+                  name="title"
+                  defaultValue={job.title}
+                  required
+                />
+
+                <label htmlFor="gender">Gender</label>
+                <select
+                  id="gender"
+                  name="gender"
+                  defaultValue={job.sex}
+                  required
                 >
-                  {iconPreview && (
-                    <div style={{ position: "relative" }}>
-                      <img
-                        src={iconPreview}
-                        alt="Job icon preview"
-                        style={{
-                          width: "64px",
-                          height: "64px",
-                          objectFit: "cover",
-                          borderRadius: "0.375rem",
-                          border: "1px solid #e2e8f0",
-                        }}
-                      />
-                      <button
-                        type="button"
-                        onClick={handleRemoveIcon}
-                        style={{
-                          position: "absolute",
-                          top: "-8px",
-                          right: "-8px",
-                          background: "#ef4444",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "50%",
-                          width: "24px",
-                          height: "24px",
-                          cursor: "pointer",
-                          fontSize: "14px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleIconSelect}
-                    style={{ display: "none" }}
-                    id="icon-upload"
+                  <option value="">Select gender</option>
+                  <option value="Female">Female</option>
+                  <option value="Male">Male</option>
+                  <option value="Any">Any</option>
+                </select>
+
+                <label htmlFor="education">Education</label>
+                <select
+                  id="education"
+                  name="education"
+                  defaultValue={job.education}
+                  required
+                >
+                  <option value="">Select education</option>
+                  <option value="Senior High School or Graduate">
+                    Senior High School or Graduate
+                  </option>
+                  <option value="College Graduate">College Graduate</option>
+                  <option value="Any">Any</option>
+                </select>
+
+                <label htmlFor="eligibility">Eligibility</label>
+                <select
+                  id="eligibility"
+                  name="eligibility"
+                  defaultValue={job.eligibility}
+                  required
+                >
+                  <option value="">Select eligibility</option>
+                  <option value="With or without experience">
+                    With or without experience
+                  </option>
+                  <option value="Experienced">Experienced</option>
+                </select>
+
+                {/* Skills Input */}
+                <div style={{ gridColumn: "1 / -1", marginTop: "1rem" }}>
+                  <SkillsInput
+                    skills={selectedSkills}
+                    onSkillsChange={handleSkillsChange}
+                    placeholder="Search and add required skills..."
+                    label="Required Skills"
+                    required={false}
                   />
-                  <label
-                    htmlFor="icon-upload"
+                </div>
+
+                {/* Job Icon Upload */}
+                <div style={{ gridColumn: "1 / -1", marginTop: "1rem" }}>
+                  <label>Job Icon (Optional)</label>
+                  <div
                     style={{
-                      padding: "0.5rem 1rem",
-                      background: "#3498db",
-                      color: "white",
-                      borderRadius: "0.375rem",
-                      cursor: "pointer",
-                      fontSize: "0.875rem",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "1rem",
+                      marginTop: "0.5rem",
                     }}
                   >
-                    {iconPreview ? "Change Icon" : "Upload Icon"}
-                  </label>
+                    {iconPreview && (
+                      <div style={{ position: "relative" }}>
+                        <img
+                          src={iconPreview}
+                          alt="Job icon preview"
+                          style={{
+                            width: "64px",
+                            height: "64px",
+                            objectFit: "cover",
+                            borderRadius: "0.375rem",
+                            border: "1px solid #e2e8f0",
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={handleRemoveIcon}
+                          style={{
+                            position: "absolute",
+                            top: "-8px",
+                            right: "-8px",
+                            background: "#ef4444",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "50%",
+                            width: "24px",
+                            height: "24px",
+                            cursor: "pointer",
+                            fontSize: "14px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleIconSelect}
+                      style={{ display: "none" }}
+                      id="icon-upload"
+                    />
+                    <label
+                      htmlFor="icon-upload"
+                      style={{
+                        padding: "0.5rem 1rem",
+                        background: "#3498db",
+                        color: "white",
+                        borderRadius: "0.375rem",
+                        cursor: "pointer",
+                        fontSize: "0.875rem",
+                      }}
+                    >
+                      {iconPreview ? "Change Icon" : "Upload Icon"}
+                    </label>
+                  </div>
+                  <p
+                    style={{
+                      fontSize: "0.75rem",
+                      color: "#64748b",
+                      marginTop: "0.5rem",
+                    }}
+                  >
+                    Upload a custom icon for this job posting. Square images
+                    work best.
+                  </p>
                 </div>
-                <p
-                  style={{
-                    fontSize: "0.75rem",
-                    color: "#64748b",
-                    marginTop: "0.5rem",
-                  }}
-                >
-                  Upload a custom icon for this job posting. Square images work
-                  best.
-                </p>
-              </div>
 
-              <Button variant="success" style={{ marginTop: "1rem" }}>
-                Post Job
-              </Button>
-            </form>
-          </div>
-          <div className={styles.exam}>
-            {/*Selected Exam Id is tied to a certain job*/}
-            {/*Need a post request that puts the job and the changes*/}
-            <h3>Exams</h3>
-            <ExamList
-              exams={exams}
-              selectedExamId={selectedExamId}
-              onSelect={(exam) => handleExamSelect(exam.id)}
-            />
+                <Button
+                  variant="success"
+                  style={{ gridColumn: "1 / -1", marginTop: "1rem" }}
+                >
+                  {isNewJob ? "Create Job" : "Save Changes"}
+                </Button>
+              </form>
+            </div>
+
+            <div className={styles.exam}>
+              <h3>Pre-Screening Exams</h3>
+              <ExamList
+                exams={exams}
+                selectedExamId={selectedExamId}
+                onSelect={(exam) => handleExamSelect(exam.id)}
+              />
+            </div>
           </div>
         </div>
-      </Modal>
+      </div>
 
       {/* Confirmation Modal */}
       {showConfirmClose && (
@@ -531,17 +530,29 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
 
       {/* Crop Modal */}
       {showCropModal && tempImageSrc && (
-        <Modal onClose={() => setShowCropModal(false)}>
-          <div style={{ padding: "1rem" }}>
-            <h3 style={{ marginBottom: "1rem" }}>Crop Job Icon</h3>
-            <div
+        <div className={styles.overlay} onClick={() => setShowCropModal(false)}>
+          <div
+            className={`${styles.modal} ${styles.cropModal}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className={styles.closeBtn}
+              onClick={() => setShowCropModal(false)}
+            >
+              ×
+            </button>
+
+            <h3
               style={{
-                position: "relative",
-                width: "100%",
-                height: "400px",
-                background: "#000",
+                marginBottom: "1.5rem",
+                fontSize: "1.5rem",
+                marginTop: 0,
               }}
             >
+              Crop Job Icon
+            </h3>
+
+            <div className={styles.cropContainer}>
               <Cropper
                 image={tempImageSrc}
                 crop={crop}
@@ -552,10 +563,9 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
                 onCropComplete={onCropComplete}
               />
             </div>
-            <div style={{ marginTop: "1rem" }}>
-              <label style={{ display: "block", marginBottom: "0.5rem" }}>
-                Zoom
-              </label>
+
+            <div className={styles.cropControls}>
+              <label>Zoom</label>
               <input
                 type="range"
                 min={1}
@@ -563,38 +573,32 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
                 step={0.1}
                 value={zoom}
                 onChange={(e) => setZoom(Number(e.target.value))}
-                style={{ width: "100%" }}
               />
             </div>
-            <div
-              style={{
-                display: "flex",
-                gap: "1rem",
-                marginTop: "1rem",
-                justifyContent: "flex-end",
-              }}
-            >
+
+            <div className={styles.cropButtons}>
+              <button type="button" onClick={() => setShowCropModal(false)}>
+                Cancel
+              </button>
               <button
                 type="button"
-                onClick={() => setShowCropModal(false)}
+                onClick={handleSaveCrop}
                 style={{
-                  padding: "0.5rem 1rem",
-                  background: "#64748b",
+                  background: "#10b981",
                   color: "white",
+                  padding: "0.75rem 1.5rem",
                   border: "none",
                   borderRadius: "0.375rem",
                   cursor: "pointer",
-                  fontSize: "0.875rem",
+                  fontSize: "0.95rem",
+                  fontWeight: "500",
                 }}
               >
-                Cancel
+                Save Crop
               </button>
-              <Button variant="success" onClick={handleSaveCrop}>
-                Save
-              </Button>
             </div>
           </div>
-        </Modal>
+        </div>
       )}
     </>
   );
