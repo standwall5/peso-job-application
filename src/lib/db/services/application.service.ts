@@ -57,7 +57,7 @@ export async function getUserApplications() {
         title,
         companies (name)
       )
-    `,
+    `
     )
     .eq("applicant_id", applicant.id)
     .order("applied_date", { ascending: false });
@@ -119,7 +119,7 @@ export async function submitApplication(jobId: number) {
 
 export async function updateApplicationStatus(
   applicationId: number,
-  status: string,
+  status: string
 ) {
   const supabase = await getSupabaseClient();
   await getCurrentUser(); // Ensure authenticated
@@ -138,7 +138,7 @@ export async function updateApplicationStatus(
         id,
         name
       )
-    `,
+    `
     )
     .eq("id", applicationId)
     .single();
@@ -172,15 +172,21 @@ export async function updateApplicationStatus(
   const statusMessages: Record<string, { title: string; message: string }> = {
     referred: {
       title: "Application Referred! 🎉",
-      message: `Your application for ${job?.title || "the position"} at ${company?.name || "the company"} has been referred. Good luck!`,
+      message: `Your application for ${job?.title || "the position"} at ${
+        company?.name || "the company"
+      } has been referred. Good luck!`,
     },
     rejected: {
       title: "Application Update",
-      message: `Your application for ${job?.title || "the position"} at ${company?.name || "the company"} has been updated to rejected.`,
+      message: `Your application for ${job?.title || "the position"} at ${
+        company?.name || "the company"
+      } has been updated to rejected.`,
     },
     pending: {
       title: "Application Status Changed",
-      message: `Your application for ${job?.title || "the position"} at ${company?.name || "the company"} is now pending review.`,
+      message: `Your application for ${job?.title || "the position"} at ${
+        company?.name || "the company"
+      } is now pending review.`,
     },
   };
 
@@ -268,22 +274,27 @@ export async function getApplicantAppliedJobs(applicantId: number) {
       .from("applications")
       .select(
         `
+    id,
+    job_id,
+    status,
+    applied_date,
+    jobs (
+      id,
+      title,
+      place_of_assignment,
+      company_id,
+      exam_id,
+      exams (
         id,
-        job_id,
-        status,
-        applied_date,
-        jobs (
-          id,
-          title,
-          place_of_assignment,
-          company_id,
-          companies (
-            id,
-            name,
-            logo
-          )
-        )
-      `,
+        title
+      ),
+      companies (
+        id,
+        name,
+        logo
+      )
+    )
+  `
       )
       .eq("applicant_id", applicantId)
       .order("applied_date", { ascending: false });
@@ -295,7 +306,7 @@ export async function getApplicantAppliedJobs(applicantId: number) {
 
     console.log(
       "Raw applications fetched:",
-      JSON.stringify(applications, null, 2),
+      JSON.stringify(applications, null, 2)
     );
 
     if (!applications || applications.length === 0) {
@@ -303,23 +314,19 @@ export async function getApplicantAppliedJobs(applicantId: number) {
     }
 
     // Transform the data to match our AppliedJob interface
-    const jobs: AppliedJob[] = (
-      applications as unknown as SupabaseApplicationData[]
-    )
-      .map((app) => {
-        console.log("Processing application:", JSON.stringify(app, null, 2));
-
+    const jobs = applications
+      .map((app: any) => {
         const job = app.jobs;
         const company = job?.companies;
+        const exam = job?.exams;
 
         if (!job) {
-          console.warn("No job data found for application:", app.id);
           return null;
         }
 
-        const transformedJob = {
+        return {
           id: app.id,
-          job_id: app.job_id,
+          job_id: job.id,
           company_id: job.company_id || 0,
           company_name: company?.name || "Unknown Company",
           company_logo: company?.logo || null,
@@ -327,10 +334,9 @@ export async function getApplicantAppliedJobs(applicantId: number) {
           place_of_assignment: job.place_of_assignment || "N/A",
           status: app.status || "pending",
           applied_date: app.applied_date,
-        };
-
-        console.log("Transformed job:", transformedJob);
-        return transformedJob;
+          exam_id: job.exam_id ?? exam?.id ?? null,
+          exam_title: exam?.title ?? null,
+        } as AppliedJob;
       })
       .filter((job): job is AppliedJob => job !== null);
 
@@ -367,7 +373,7 @@ export async function withdrawApplication(jobId: number) {
         title,
         companies (name)
       )
-    `,
+    `
     )
     .eq("applicant_id", applicant.id)
     .eq("job_id", jobId)
@@ -380,7 +386,7 @@ export async function withdrawApplication(jobId: number) {
   // Check if application can be withdrawn (only Pending applications)
   if (application.status !== "Pending" && application.status !== "pending") {
     throw new Error(
-      `Cannot withdraw application with status: ${application.status}. Only pending applications can be withdrawn.`,
+      `Cannot withdraw application with status: ${application.status}. Only pending applications can be withdrawn.`
     );
   }
 
@@ -480,7 +486,7 @@ export async function upsertApplicationProgress(
     resumeViewed?: boolean;
     examCompleted?: boolean;
     verifiedIdUploaded?: boolean;
-  },
+  }
 ) {
   const supabase = await getSupabaseClient();
   const user = await getCurrentUser();
@@ -509,7 +515,7 @@ export async function upsertApplicationProgress(
       },
       {
         onConflict: "job_id,applicant_id",
-      },
+      }
     )
     .select()
     .single();
@@ -554,7 +560,7 @@ export async function deleteApplicationProgress(jobId: number) {
  * Used for tracking ID changes on submitted applications
  */
 export async function getApplicationIdByJobId(
-  jobId: number,
+  jobId: number
 ): Promise<number | null> {
   const supabase = await getSupabaseClient();
   const user = await getCurrentUser();

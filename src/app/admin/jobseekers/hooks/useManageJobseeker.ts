@@ -17,18 +17,22 @@ export function useManageJobseeker() {
   const fetchExamAttempt = async (
     jobId: number,
     examId: number,
-    applicantId: number,
+    applicantId: number
   ) => {
     setLoadingAttempt(true);
     try {
-      const res = await fetch(
-        `/api/admin/exams/attempt?jobId=${jobId}&examId=${examId}&applicantId=${applicantId}`,
-      );
+      const url = `/api/admin/exams/attempt?jobId=${jobId}&examId=${examId}&applicantId=${applicantId}`;
+      console.log("Fetching exam attempt from:", url);
+
+      const res = await fetch(url);
       const data = await res.json();
+
+      console.log("Exam attempt response:", data);
 
       if (data.attempt) {
         setExamAttempt(data);
       } else {
+        console.log("No exam attempt found in response");
         setExamAttempt(null);
       }
     } catch (err) {

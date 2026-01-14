@@ -103,6 +103,7 @@ export interface JobApplication {
   id: number;
   applicant_id: number;
   job_id: number;
+  exam_id?: number | null;
   status: string;
   applied_date: string;
   company: {
@@ -110,7 +111,7 @@ export interface JobApplication {
     name: string;
     logo?: string | null;
     location: string;
-  };
+  } | null;
   job: {
     id: number;
     title: string;
@@ -119,8 +120,8 @@ export interface JobApplication {
     education: string;
     eligibility: string;
     posted_date: string;
-    exam_id: number;
-  };
+    exam_id?: number | null;
+  } | null;
 }
 
 export interface Jobseeker {

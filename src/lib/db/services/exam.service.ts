@@ -2,6 +2,7 @@
 "use server";
 
 import { getSupabaseClient, getCurrentUser } from "../client";
+import { createAdminClient } from "@/utils/supabase/server";
 
 export interface Choice {
   id?: number;
@@ -137,12 +138,12 @@ export async function getExams(): Promise<Exam[]> {
     const choicesWithCorrectFlag = questionChoices.map((choice) => ({
       ...choice,
       is_correct: questionCorrectAnswers.some(
-        (ca) => ca.choice_id === choice.id,
+        (ca) => ca.choice_id === choice.id
       ),
     }));
 
     const correctTextAnswer = questionCorrectAnswers.find(
-      (ca) => ca.correct_text,
+      (ca) => ca.correct_text
     );
 
     return {
@@ -215,12 +216,12 @@ export async function getExamById(id: number): Promise<Exam> {
     const choicesWithCorrectFlag = questionChoices.map((choice) => ({
       ...choice,
       is_correct: questionCorrectAnswers.some(
-        (ca) => ca.choice_id === choice.id,
+        (ca) => ca.choice_id === choice.id
       ),
     }));
 
     const correctTextAnswer = questionCorrectAnswers.find(
-      (ca) => ca.correct_text,
+      (ca) => ca.correct_text
     );
 
     return {
@@ -310,7 +311,7 @@ async function deleteExamQuestions(examId: number) {
 
 async function insertQuestionsAndChoices(
   examId: number,
-  questions: Question[],
+  questions: Question[]
 ) {
   const supabase = await getSupabaseClient();
 
@@ -393,7 +394,7 @@ async function insertQuestionsAndChoices(
           const insertedChoice = insertedChoices.find(
             (ic) =>
               ic.question_id === questionId &&
-              ic.position === (c.position ?? choicePosition),
+              ic.position === (c.position ?? choicePosition)
           );
           if (insertedChoice) {
             correctAnswersToInsert.push({
@@ -412,7 +413,7 @@ async function insertQuestionsAndChoices(
 }
 
 export async function submitExam(
-  submission: ExamSubmission,
+  submission: ExamSubmission
 ): Promise<ExamSubmissionResult> {
   const supabase = await getSupabaseClient();
   const user = await getCurrentUser();
@@ -522,7 +523,7 @@ export async function submitExam(
     .select("id, question_type")
     .in(
       "id",
-      Object.keys(answers).map((id) => parseInt(id)),
+      Object.keys(answers).map((id) => parseInt(id))
     );
 
   if (questionsError) {
@@ -663,7 +664,7 @@ export async function submitExam(
 async function autoGradeAnswers(
   supabase: Awaited<ReturnType<typeof getSupabaseClient>>,
   insertedAnswers: InsertedAnswer[],
-  submittedAnswers: Record<number, number | number[] | string>,
+  submittedAnswers: Record<number, number | number[] | string>
 ) {
   // Get question types
   const questionIds = [...new Set(insertedAnswers.map((a) => a.question_id))];
@@ -683,7 +684,7 @@ async function autoGradeAnswers(
 
   // Filter non-paragraph questions
   const nonParagraphQuestionIds = questionIds.filter(
-    (qId) => questionTypeMap[qId] !== "paragraph",
+    (qId) => questionTypeMap[qId] !== "paragraph"
   );
 
   if (nonParagraphQuestionIds.length === 0) return;
@@ -741,4 +742,170 @@ async function autoGradeAnswers(
     });
 
   await Promise.all(gradingUpdates);
+}
+
+/**
+ * Get exam attempt with full details (answers, questions, correct answers)
+ * Uses admin client to bypass RLS for admin viewing
+ */
+export async function getExamAttemptForAdmin(
+  jobId: number,
+  examId: number,
+  applicantId: number
+) {
+  // Use admin client to bypass RLS policies
+  const supabase = createAdminClient();
+
+  console.log("=== Service: Searching for exam attempt ===");
+  console.log("Parameters:", { jobId, examId, applicantId });
+
+  // Debug: Check all attempts for this applicant
+  const { data: allAttempts, error: debugError } = await supabase
+    .from("exam_attempts")
+    .select("*")
+    .eq("applicant_id", applicantId);
+
+  console.log("All attempts for applicant:", allAttempts);
+
+  // First, try to find with all three criteria
+  let { data: attempt, error: attemptError } = await supabase
+    .from("exam_attempts")
+    .select("*")
+    .eq("applicant_id", applicantId)
+    .eq("job_id", jobId)
+    .eq("exam_id", examId)
+    .maybeSingle();
+
+  console.log("Query with all criteria result:", attempt);
+
+  if (attemptError) {
+    console.error("Error with all criteria:", attemptError);
+    throw new Error(attemptError.message);
+  }
+
+  // If not found, try with just applicant_id and exam_id
+  if (!attempt) {
+    console.log("Trying fallback query (without job_id)...");
+    const { data: fallbackAttempt, error: fallbackError } = await supabase
+      .from("exam_attempts")
+      .select("*")
+      .eq("applicant_id", applicantId)
+      .eq("exam_id", examId)
+      .order("date_submitted", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    console.log("Fallback query result:", fallbackAttempt);
+
+    if (fallbackError) {
+      console.error("Fallback error:", fallbackError);
+      throw new Error(fallbackError.message);
+    }
+
+    attempt = fallbackAttempt;
+  }
+
+  if (!attempt) {
+    console.log("No exam attempt found");
+    return null;
+  }
+
+  console.log("Found attempt:", attempt);
+
+  // Fetch all answers for this attempt with question details
+  const { data: rawAnswers, error: answersError } = await supabase
+    .from("exam_answers")
+    .select(
+      "answer_id, attempt_id, question_id, choice_id, text_answer, is_correct"
+    )
+    .eq("attempt_id", attempt.attempt_id);
+
+  if (answersError) {
+    throw new Error(answersError.message);
+  }
+
+  if (!rawAnswers || rawAnswers.length === 0) {
+    // Return attempt without answers if no answers exist
+    return {
+      attempt,
+      answers: [],
+      correctAnswers: [],
+    };
+  }
+
+  // Get unique question IDs and choice IDs
+  const questionIds = [...new Set(rawAnswers.map((a) => a.question_id))];
+  const choiceIds = [
+    ...new Set(rawAnswers.map((a) => a.choice_id).filter((id) => id !== null)),
+  ];
+
+  // Fetch question details
+  const { data: questions, error: questionsError } = await supabase
+    .from("questions")
+    .select("id, question_text, question_type, position")
+    .in("id", questionIds);
+
+  if (questionsError) {
+    throw new Error(questionsError.message);
+  }
+
+  // Fetch choice details
+  const { data: choices, error: choicesError } = await supabase
+    .from("choices")
+    .select("id, question_id, choice_text")
+    .in("id", choiceIds);
+
+  if (choicesError) {
+    throw new Error(choicesError.message);
+  }
+
+  // Fetch all choices for each question
+  const { data: allChoices, error: allChoicesError } = await supabase
+    .from("choices")
+    .select("id, question_id, choice_text, position")
+    .in("question_id", questionIds)
+    .order("position", { ascending: true });
+
+  if (allChoicesError) {
+    throw new Error(allChoicesError.message);
+  }
+
+  // Fetch correct answers
+  const { data: correctAnswers, error: correctError } = await supabase
+    .from("correct_answers")
+    .select("question_id, choice_id, correct_text")
+    .in("question_id", questionIds);
+
+  if (correctError) {
+    throw new Error(correctError.message);
+  }
+
+  // Map everything together
+  const questionsMap = new Map(questions.map((q) => [q.id, q]));
+  const choicesMap = new Map(choices.map((c) => [c.id, c]));
+
+  // Group all choices by question
+  const choicesByQuestion = new Map<number, typeof allChoices>();
+  allChoices.forEach((choice) => {
+    if (!choicesByQuestion.has(choice.question_id)) {
+      choicesByQuestion.set(choice.question_id, []);
+    }
+    choicesByQuestion.get(choice.question_id)?.push(choice);
+  });
+
+  // Enrich answers
+  const enrichedAnswers = rawAnswers.map((answer) => ({
+    ...answer,
+    questions: {
+      ...questionsMap.get(answer.question_id),
+      choices: choicesByQuestion.get(answer.question_id) || [],
+    },
+    choices: answer.choice_id ? choicesMap.get(answer.choice_id) : null,
+  }));
+
+  return {
+    attempt,
+    answers: enrichedAnswers,
+    correctAnswers,
+  };
 }

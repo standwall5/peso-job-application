@@ -2,7 +2,19 @@
 
 import React, { useState } from "react";
 import styles from "../Jobseekers.module.css";
-import { JobApplication } from "../../types/jobseeker.types";
+import {
+  Jobseeker,
+  JobApplication,
+  ExamAttemptData,
+} from "../../types/jobseeker.types";
+
+import {
+  ExamAnswer,
+  CorrectAnswer,
+} from "@/app/(user)/job-opportunities/[companyId]/types/job.types";
+import ExamResultModal from "./ExamResultModal";
+import IDViewModal from "@/components/admin/IDViewModal";
+import { useManageJobseeker } from "../../hooks/useManageJobseeker";
 
 interface AppliedJobsTabProps {
   applications: JobApplication[];
@@ -12,6 +24,8 @@ interface AppliedJobsTabProps {
   onViewID: (app: JobApplication) => void;
   lastClickedApplicationId?: number | null;
   onApplicationClick?: (appId: number) => void;
+  jobseeker: Jobseeker;
+  examResult: ExamAttemptData;
 }
 
 export default function AppliedJobsTab({
@@ -22,6 +36,7 @@ export default function AppliedJobsTab({
   onViewID,
   lastClickedApplicationId,
   onApplicationClick,
+  jobseeker,
 }: AppliedJobsTabProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -30,6 +45,57 @@ export default function AppliedJobsTab({
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentApplications = applications.slice(startIndex, endIndex);
+  const [selectedJobSeeker, setSelectedJobSeeker] = useState<Jobseeker | null>(
+    jobseeker
+  );
+  const [selectedApplication, setSelectedApplication] =
+    useState<JobApplication | null>(null);
+  const [showExamModal, setShowExamModal] = useState(false);
+  const [showIDModal, setShowIDModal] = useState(false);
+  const [idModalApplicant, setIDModalApplicant] = useState<{
+    applicantId: number;
+    applicantName: string;
+    applicationId?: number;
+  } | null>(null);
+
+  const { fetchExamAttempt, examAttempt, loadingAttempt } =
+    useManageJobseeker();
+
+  // Handler to open modal and fetch exam attempt data
+  const handleOpenExamModal = async (app: JobApplication) => {
+    setSelectedApplication(app);
+    setSelectedJobSeeker(jobseeker);
+    setShowExamModal(true);
+
+    // Fetch exam attempt data for this application
+    // Use the exam_id from the job, not the application
+    const examId = app.job?.exam_id || app.exam_id;
+
+    if (app.job?.id && examId && jobseeker?.id) {
+      console.log("Fetching exam attempt with:", {
+        jobId: app.job.id,
+        examId: examId,
+        applicantId: jobseeker.id,
+      });
+      await fetchExamAttempt(app.job.id, examId, jobseeker.id);
+    } else {
+      console.log("Missing required data:", {
+        jobId: app.job?.id,
+        examId: examId,
+        applicantId: jobseeker?.id,
+      });
+    }
+  };
+
+  // Handler to open ID modal
+  const handleOpenIDModal = (app: Jobseeker, id: number) => {
+    setIDModalApplicant({
+      applicantId: app.id,
+      applicantName: app.applicant?.name,
+      applicationId: id,
+    });
+    setShowIDModal(true);
+  };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -125,7 +191,9 @@ export default function AppliedJobsTab({
         {currentApplications.map((app) => (
           <React.Fragment key={app.id}>
             <div
-              className={`${styles.tableRow} ${lastClickedApplicationId === app.id ? styles.highlightedRow : ""}`}
+              className={`${styles.tableRow} ${
+                lastClickedApplicationId === app.id ? styles.highlightedRow : ""
+              }`}
               style={
                 lastClickedApplicationId === app.id
                   ? {
@@ -140,15 +208,15 @@ export default function AppliedJobsTab({
                 <div className={styles.avatarCell}>
                   <img
                     src={
-                      app.company.logo ?? "/assets/images/default_profile.png"
+                      app.company?.logo ?? "/assets/images/default_profile.png"
                     }
-                    alt={app.company.name}
+                    alt={app.company?.name}
                     className={styles.avatar}
                   />
                 </div>
-                <div className={styles.applicantName}>{app.company.name}</div>
-                <div>{app.job.title}</div>
-                <div>{app.job.place_of_assignment}</div>
+                <div className={styles.applicantName}>{app.company?.name}</div>
+                <div>{app.job?.title}</div>
+                <div>{app.job?.place_of_assignment}</div>
                 <div>
                   <span
                     className={styles.statusBadge}
@@ -157,8 +225,8 @@ export default function AppliedJobsTab({
                         app.status.toLowerCase() === "pending"
                           ? "#e5e7eb"
                           : app.status.toLowerCase() === "referred"
-                            ? "#10b981"
-                            : "#3b82f6",
+                          ? "#10b981"
+                          : "#3b82f6",
                       color:
                         app.status.toLowerCase() === "pending"
                           ? "#64748b"
@@ -172,20 +240,20 @@ export default function AppliedJobsTab({
               <div className={styles.viewActions}>
                 <button
                   className={styles.examResultBtn}
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.stopPropagation();
                     if (onApplicationClick) onApplicationClick(app.id);
-                    onViewExam(app);
+                    await handleOpenExamModal(app);
                   }}
                 >
-                  EXAM RESULT
+                  PRE-SCREENING
                 </button>
                 <button
                   className={styles.validIdBtn}
                   onClick={(e) => {
                     e.stopPropagation();
                     if (onApplicationClick) onApplicationClick(app.id);
-                    onViewID(app);
+                    handleOpenIDModal(jobseeker, app.id);
                   }}
                 >
                   VALID ID
@@ -242,7 +310,7 @@ export default function AppliedJobsTab({
                     >
                       {page}
                     </button>
-                  ),
+                  )
                 )}
 
                 <button
@@ -257,6 +325,26 @@ export default function AppliedJobsTab({
           </div>
         )}
       </div>
+      {/* Place ExamResultModal here at the root of the main container */}
+      {showExamModal && selectedApplication && selectedJobSeeker && (
+        <ExamResultModal
+          jobseeker={selectedJobSeeker}
+          application={selectedApplication}
+          examAttempt={examAttempt}
+          loadingAttempt={loadingAttempt}
+          onClose={() => setShowExamModal(false)}
+          onGraded={() => {}}
+        />
+      )}
+      {/* Place IDViewModal here at the root of the main container */}
+      {showIDModal && idModalApplicant && (
+        <IDViewModal
+          applicantId={idModalApplicant.applicantId}
+          applicantName={idModalApplicant.applicantName}
+          applicationId={idModalApplicant.applicationId}
+          onClose={() => setShowIDModal(false)}
+        />
+      )}
     </div>
   );
 }

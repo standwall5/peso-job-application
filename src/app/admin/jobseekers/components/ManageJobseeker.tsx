@@ -10,7 +10,6 @@ import JobseekerHeader from "./manage/JobseekerHeader";
 import PreviewResumeTab from "./manage/PreviewResumeTab";
 import AppliedJobsTab from "./manage/AppliedJobsTab";
 import ReferralLetterModal from "./manage/ReferralLetterModal";
-import ExamResultModal from "./manage/ExamResultModal";
 
 const ManageJobseeker = ({
   jobseeker,
@@ -25,23 +24,17 @@ const ManageJobseeker = ({
   const [activeIndex, setActiveIndex] = useState(0);
   const tabRefs = useRef<(HTMLLIElement | null)[]>([]);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
-
+  const [selectedJobSeeker, setSelectedJobSeeker] = useState<Jobseeker | null>(
+    jobseeker
+  );
   const [showReferralModal, setShowReferralModal] = useState(false);
   const [selectedApplication, setSelectedApplication] =
     useState<JobApplication | null>(null);
-  const [showExamResult, setShowExamResult] = useState(false);
 
   // Custom hooks
   const { applications, loading, fetchApplications, updateApplicationStatus } =
     useApplications(jobseeker.id);
-  const {
-    examAttempt,
-    loadingAttempt,
-    fetchExamAttempt,
-    toast,
-    showToast,
-    setToast,
-  } = useManageJobseeker();
+  const { toast, showToast, setToast, examAttempt } = useManageJobseeker();
 
   useEffect(() => {
     const currentTab = tabRefs.current[activeIndex];
@@ -61,7 +54,7 @@ const ManageJobseeker = ({
 
   const handleDownloadReferral = async (
     applicationId: number,
-    downloadPDF: () => Promise<void>,
+    downloadPDF: () => Promise<void>
   ) => {
     try {
       // Trigger PDF download
@@ -79,22 +72,20 @@ const ManageJobseeker = ({
       // Show success toast
       showToast(
         "Referral Success! 🎉",
-        "Application marked as referred and letter downloaded.",
+        "Application marked as referred and letter downloaded."
       );
     } catch (error) {
       showToast(
         "Referral Failed",
         error instanceof Error
           ? error.message
-          : "Failed to download referral letter or update status.",
+          : "Failed to download referral letter or update status."
       );
     }
   };
 
   const handleViewExam = (app: JobApplication) => {
     setSelectedApplication(app);
-    setShowExamResult(true);
-    fetchExamAttempt(app.job_id, app.job.exam_id ?? null, app.applicant_id);
   };
 
   const handleViewReferral = (app: JobApplication) => {
@@ -103,11 +94,7 @@ const ManageJobseeker = ({
   };
 
   const handleViewID = (app: JobApplication) => {
-    // Navigate to applicant's profile to view their verified ID
-    // This could open a modal or navigate to a different page
-    showToast("View Valid ID", "Opening verified ID for this applicant...");
-    // You can implement the actual navigation or modal logic here
-    // For example: router.push(`/admin/jobseekers/${app.applicant_id}/verified-id`)
+    setSelectedApplication(app);
   };
 
   return (
@@ -157,6 +144,7 @@ const ManageJobseeker = ({
             onViewID={handleViewID}
             lastClickedApplicationId={lastClickedApplicationId}
             onApplicationClick={onApplicationClick}
+            jobseeker={jobseeker}
           />
         )}
       </div>
@@ -168,26 +156,6 @@ const ManageJobseeker = ({
           application={selectedApplication}
           onClose={() => setShowReferralModal(false)}
           onDownload={handleDownloadReferral}
-        />
-      )}
-
-      {showExamResult && selectedApplication && (
-        <ExamResultModal
-          jobseeker={jobseeker}
-          application={selectedApplication}
-          examAttempt={examAttempt}
-          loadingAttempt={loadingAttempt}
-          onClose={() => setShowExamResult(false)}
-          onGraded={() => {
-            // Refresh exam attempt data after grading
-            if (selectedApplication) {
-              fetchExamAttempt(
-                selectedApplication.job_id,
-                selectedApplication.job.exam_id,
-                selectedApplication.applicant_id,
-              );
-            }
-          }}
         />
       )}
 
