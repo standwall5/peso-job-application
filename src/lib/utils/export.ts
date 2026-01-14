@@ -3,6 +3,7 @@
 import ExcelJS from "exceljs";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import type { CellHookData } from "jspdf-autotable";
 
 // Extend jsPDF type to include autoTable
 interface AutoTableStyles {
@@ -23,13 +24,20 @@ interface AutoTableMargin {
 declare module "jspdf" {
   interface jsPDF {
     autoTable: (options: {
-      head?: (string | number)[][];
+      head?: (string | number | { [key: string]: any })[][];
       body?: (string | number)[][];
       startY?: number;
       styles?: AutoTableStyles;
       headStyles?: AutoTableStyles;
       alternateRowStyles?: AutoTableStyles;
       margin?: AutoTableMargin;
+      columnStyles?: {
+        [key: number]: AutoTableStyles & {
+          cellWidth?: number;
+          halign?: string;
+        };
+      };
+      didParseCell?: (data: CellHookData) => void;
     }) => jsPDF;
     lastAutoTable?: { finalY: number };
   }
@@ -706,7 +714,7 @@ export function exportSummaryTableToPDF(
     totals.grandTotal.total,
   ]);
 
-  (doc as any).autoTable({
+  doc.autoTable({
     startY: 25,
     head: [
       [
@@ -765,7 +773,7 @@ export function exportSummaryTableToPDF(
       8: { halign: "center", cellWidth: 20 },
       9: { halign: "center", cellWidth: 20, fontStyle: "bold" },
     },
-    didParseCell: function (data: any) {
+    didParseCell: function (data: CellHookData) {
       // Make the totals row bold
       if (data.row.index === tableData.length - 1) {
         data.cell.styles.fontStyle = "bold";
