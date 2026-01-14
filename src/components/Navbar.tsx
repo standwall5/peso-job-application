@@ -968,7 +968,7 @@ const Navbar = () => {
       const data = await res.json();
 
       // Only treat user as logged in if email is confirmed
-      if (data && !data.error && data.email_confirmed_at) {
+      if (data && !data.error) {
         setUser(data);
       } else {
         setUser(null);

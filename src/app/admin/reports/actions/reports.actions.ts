@@ -10,6 +10,7 @@ import {
   getApplicationTrendsByMonth,
   getCompanyPerformance,
   getAgeSexSummary,
+  getApplicantTypeSummary,
 } from "@/lib/db/services/analytics.service";
 
 export async function getDashboardStatsAction() {
@@ -47,7 +48,7 @@ export async function getPopularJobsAction(limit: number = 10) {
 }
 
 export async function getApplicantDemographicsAction(
-  filterByParanaque: boolean = false,
+  filterByParanaque: boolean = false
 ) {
   try {
     return await getApplicantDemographics(filterByParanaque);
@@ -58,7 +59,7 @@ export async function getApplicantDemographicsAction(
 }
 
 export async function getAgeSexSummaryAction(
-  filterByParanaque: boolean = false,
+  filterByParanaque: boolean = false
 ) {
   try {
     return await getAgeSexSummary(filterByParanaque);
@@ -101,5 +102,82 @@ export async function getCompanyPerformanceAction() {
   } catch (error) {
     console.error("Failed to get company performance:", error);
     return [];
+  }
+}
+
+export async function getApplicantTypeSummaryAction(
+  filterByParanaque: boolean = false
+) {
+  try {
+    return await getApplicantTypeSummary(filterByParanaque);
+  } catch (error) {
+    console.error("Failed to get applicant type summary:", error);
+    return [];
+  }
+}
+
+export async function getReportsDataAction(timeRange: number = 30) {
+  try {
+    const [
+      stats,
+      statusBreakdown,
+      popularJobs,
+      demographics,
+      examPerformance,
+      trends,
+      companyPerformance,
+      ageSexParanaque,
+      ageSexAll,
+      applicantTypeParanaque,
+      applicantTypeAll,
+    ] = await Promise.all([
+      getDashboardStats(),
+      getApplicationStatusBreakdown(),
+      getPopularJobs(10),
+      getApplicantDemographics(),
+      getExamPerformance(),
+      getApplicationTrends(timeRange),
+      getCompanyPerformance(),
+      getAgeSexSummary(true),
+      getAgeSexSummary(false),
+      getApplicantTypeSummary(true),
+      getApplicantTypeSummary(false),
+    ]);
+
+    return {
+      stats,
+      statusBreakdown,
+      popularJobs,
+      demographics,
+      examPerformance,
+      trends,
+      companyPerformance,
+      ageSexParanaque,
+      ageSexAll,
+      applicantTypeParanaque,
+      applicantTypeAll,
+    };
+  } catch (error) {
+    console.error("Failed to get reports data:", error);
+    return {
+      stats: {
+        totalApplicants: 0,
+        totalApplications: 0,
+        totalJobs: 0,
+        totalCompanies: 0,
+        pendingApplications: 0,
+        activeJobs: 0,
+      },
+      statusBreakdown: [],
+      popularJobs: [],
+      demographics: null,
+      examPerformance: [],
+      trends: [],
+      companyPerformance: [],
+      ageSexParanaque: [],
+      ageSexAll: [],
+      applicantTypeParanaque: [],
+      applicantTypeAll: [],
+    };
   }
 }

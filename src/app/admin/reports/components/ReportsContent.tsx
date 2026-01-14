@@ -2,15 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import styles from "./Reports.module.css";
-import {
-  getDashboardStatsAction,
-  getApplicationStatusBreakdownAction,
-  getPopularJobsAction,
-  getApplicantDemographicsAction,
-  getExamPerformanceAction,
-  getApplicationTrendsAction,
-  getCompanyPerformanceAction,
-} from "../actions/reports.actions";
+import { getReportsDataAction } from "../actions/reports.actions";
 import {
   DashboardStats,
   ApplicationStatusBreakdown,
@@ -19,8 +11,18 @@ import {
   ExamPerformance,
   ApplicationTrend,
   CompanyPerformance,
+  ApplicantTypeSummary,
+  AgeSexSummary,
 } from "@/lib/db/services/analytics.service";
 import StatsCard from "./StatsCard";
+import {
+  UsersIcon,
+  DocumentTextIcon,
+  BriefcaseIcon,
+  ClockIcon,
+  BuildingOffice2Icon,
+  ClipboardDocumentListIcon,
+} from "@heroicons/react/24/solid";
 import PieChart from "./PieChart";
 import BarChart from "./BarChart";
 import LineChart from "./LineChart";
@@ -28,12 +30,12 @@ import TableView from "./TableView";
 import OneEightyRing from "@/components/OneEightyRing";
 import ExportButton from "./ExportButton";
 import {
-  exportToXLSX,
   exportToCSV,
-  exportToPDF,
   exportComprehensiveReportToPDF,
   exportMultipleToXLSX,
 } from "@/lib/utils/export";
+
+import DemographicCharts from "./DemographicsCharts";
 
 export default function ReportsContent() {
   const [loading, setLoading] = useState(true);
@@ -49,36 +51,60 @@ export default function ReportsContent() {
   const [companyPerformance, setCompanyPerformance] = useState<
     CompanyPerformance[]
   >([]);
+  const [ageSexParanaque, setAgeSexParanaque] = useState<AgeSexSummary[]>([]);
+  const [ageSexNonParanaque, setAgeSexNonParanaque] = useState<
+    AgeSexSummary[]
+  >([]);
+  const [typeParanaque, setTypeParanaque] = useState<
+    ApplicantTypeSummary[]
+  >([]);
+  const [typeNonParanaque, setTypeNonParanaque] = useState<
+    ApplicantTypeSummary[]
+  >([]);
   const [timeRange, setTimeRange] = useState(30);
 
   const fetchAllData = useCallback(async () => {
     setLoading(true);
     try {
-      const [
-        statsData,
-        statusData,
-        jobsData,
-        demoData,
-        examData,
-        trendsData,
-        companyData,
-      ] = await Promise.all([
-        getDashboardStatsAction(),
-        getApplicationStatusBreakdownAction(),
-        getPopularJobsAction(10),
-        getApplicantDemographicsAction(),
-        getExamPerformanceAction(),
-        getApplicationTrendsAction(timeRange),
-        getCompanyPerformanceAction(),
-      ]);
+      const reportData = await getReportsDataAction(timeRange);
 
-      setStats(statsData);
-      setStatusBreakdown(statusData);
-      setPopularJobs(jobsData);
-      setDemographics(demoData);
-      setExamPerformance(examData);
-      setTrends(trendsData);
-      setCompanyPerformance(companyData);
+      setStats(reportData.stats);
+      setStatusBreakdown(reportData.statusBreakdown);
+      setPopularJobs(reportData.popularJobs);
+      setDemographics(reportData.demographics);
+      setExamPerformance(reportData.examPerformance);
+      setTrends(reportData.trends);
+      setCompanyPerformance(reportData.companyPerformance);
+
+      setAgeSexParanaque(reportData.ageSexParanaque);
+      const ageSexNonP = reportData.ageSexAll.map((all) => {
+        const p = reportData.ageSexParanaque.find(
+          (row) => row.ageGroup === all.ageGroup
+        );
+        return {
+          ageGroup: all.ageGroup,
+          male: all.male - (p?.male || 0),
+          female: all.female - (p?.female || 0),
+          other: all.other - (p?.other || 0),
+          total: all.total - (p?.total || 0),
+        };
+      });
+      setAgeSexNonParanaque(ageSexNonP);
+
+      setTypeParanaque(reportData.applicantTypeParanaque);
+      const typeNonP = reportData.applicantTypeAll.map((all) => {
+        const p = reportData.applicantTypeParanaque.find(
+          (row) => row.applicantType === all.applicantType
+        );
+        return {
+          applicantType: all.applicantType,
+          male: all.male - (p?.male || 0),
+          female: all.female - (p?.female || 0),
+          other: all.other - (p?.other || 0),
+          total: all.total - (p?.total || 0),
+        };
+      });
+      setTypeNonParanaque(typeNonP);
     } catch (error) {
       console.error("Failed to fetch analytics data:", error);
     } finally {
@@ -300,40 +326,48 @@ export default function ReportsContent() {
         <StatsCard
           title="Total Applicants"
           value={stats?.totalApplicants || 0}
-          icon="👥"
+          icon={<UsersIcon className="h-7 w-7 text-blue-500" />}
           color="blue"
         />
         <StatsCard
           title="Total Applications"
           value={stats?.totalApplications || 0}
-          icon="📄"
+          icon={<DocumentTextIcon className="h-7 w-7 text-green-500" />}
           color="green"
         />
         <StatsCard
           title="Active Jobs"
           value={stats?.activeJobs || 0}
-          icon="💼"
+          icon={<BriefcaseIcon className="h-7 w-7 text-purple-500" />}
           color="purple"
         />
         <StatsCard
           title="Pending Applications"
           value={stats?.pendingApplications || 0}
-          icon="⏳"
+          icon={<ClockIcon className="h-7 w-7 text-orange-500" />}
           color="orange"
         />
         <StatsCard
           title="Total Companies"
           value={stats?.totalCompanies || 0}
-          icon="🏢"
+          icon={<BuildingOffice2Icon className="h-7 w-7 text-red-500" />}
           color="red"
         />
         <StatsCard
           title="Total Jobs Posted"
           value={stats?.totalJobs || 0}
-          icon="📋"
+          icon={<ClipboardDocumentListIcon className="h-7 w-7 text-teal-500" />}
           color="teal"
         />
       </div>
+
+      {/* Demographics */}
+      <DemographicCharts
+        ageSexParanaque={ageSexParanaque}
+        ageSexNonParanaque={ageSexNonParanaque}
+        typeParanaque={typeParanaque}
+        typeNonParanaque={typeNonParanaque}
+      />
 
       {/* Application Status Breakdown */}
       <div className={styles.chartSection}>
@@ -402,7 +436,7 @@ export default function ReportsContent() {
                 ([range, count]) => ({
                   label: range,
                   value: count as number,
-                }),
+                })
               )}
             />
           </div>

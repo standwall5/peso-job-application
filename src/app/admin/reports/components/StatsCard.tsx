@@ -4,8 +4,8 @@ import styles from "./Reports.module.css";
 interface StatsCardProps {
   title: string;
   value: number;
-  icon: string;
   color: "blue" | "green" | "purple" | "orange" | "red" | "teal";
+  icon: React.ReactNode;
 }
 
 export default function StatsCard({
@@ -16,7 +16,9 @@ export default function StatsCard({
 }: StatsCardProps) {
   return (
     <div
-      className={`${styles.statsCard} ${styles[`statsCard${color.charAt(0).toUpperCase() + color.slice(1)}`]}`}
+      className={`${styles.statsCard} ${
+        styles[`statsCard${color.charAt(0).toUpperCase() + color.slice(1)}`]
+      }`}
     >
       <div className={styles.statsIcon}>{icon}</div>
       <div className={styles.statsContent}>

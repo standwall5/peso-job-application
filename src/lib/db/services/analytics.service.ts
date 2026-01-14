@@ -2,6 +2,7 @@
 "use server";
 
 import { getSupabaseClient } from "../client";
+import { APPLICANT_TYPES } from "@/app/(auth)/signup/constants/form.constants";
 
 export interface DashboardStats {
   totalApplicants: number;
@@ -78,6 +79,24 @@ export interface AgeSexSummary {
   other: number;
   total: number;
 }
+
+export interface ApplicantTypeSummary {
+  applicantType: string;
+  male: number;
+  female: number;
+  other: number;
+  total: number;
+}
+
+const AGE_SEX_GROUPS = [
+  "15-17",
+  "18-19",
+  "20-24",
+  "25-34",
+  "35-44",
+  "45-59",
+  "60 & above",
+];
 
 // Internal type definitions for Supabase responses
 // Internal type definitions for Supabase responses
@@ -184,7 +203,7 @@ export async function getApplicationStatusBreakdown(): Promise<
 }
 
 export async function getPopularJobs(
-  limit: number = 10,
+  limit: number = 10
 ): Promise<PopularJob[]> {
   const supabase = await getSupabaseClient();
 
@@ -195,7 +214,7 @@ export async function getPopularJobs(
         title,
         companies (name)
       )
-    `,
+    `
   );
 
   if (error) throw new Error(error.message);
@@ -230,7 +249,7 @@ export async function getPopularJobs(
 }
 
 export async function getApplicantDemographics(
-  filterByParanaque: boolean = false,
+  filterByParanaque: boolean = false
 ): Promise<ApplicantDemographics> {
   const supabase = await getSupabaseClient();
 
@@ -287,7 +306,7 @@ export async function getApplicantDemographics(
 }
 
 export async function getAgeSexSummary(
-  filterByParanaque: boolean = false,
+  filterByParanaque: boolean = false
 ): Promise<AgeSexSummary[]> {
   const supabase = await getSupabaseClient();
 
@@ -306,13 +325,11 @@ export async function getAgeSexSummary(
   const summary: Record<
     string,
     { male: number; female: number; other: number }
-  > = {
-    "18-25": { male: 0, female: 0, other: 0 },
-    "26-35": { male: 0, female: 0, other: 0 },
-    "36-45": { male: 0, female: 0, other: 0 },
-    "46-55": { male: 0, female: 0, other: 0 },
-    "56+": { male: 0, female: 0, other: 0 },
-  };
+  > = {};
+
+  AGE_SEX_GROUPS.forEach((group) => {
+    summary[group] = { male: 0, female: 0, other: 0 };
+  });
 
   (data as ApplicantData[]).forEach((applicant) => {
     const sex = (applicant.sex || "").toLowerCase();
@@ -320,11 +337,13 @@ export async function getAgeSexSummary(
 
     // Determine age group
     let ageGroup = "";
-    if (age >= 18 && age <= 25) ageGroup = "18-25";
-    else if (age >= 26 && age <= 35) ageGroup = "26-35";
-    else if (age >= 36 && age <= 45) ageGroup = "36-45";
-    else if (age >= 46 && age <= 55) ageGroup = "46-55";
-    else if (age >= 56) ageGroup = "56+";
+    if (age >= 15 && age <= 17) ageGroup = "15-17";
+    else if (age >= 18 && age <= 19) ageGroup = "18-19";
+    else if (age >= 20 && age <= 24) ageGroup = "20-24";
+    else if (age >= 25 && age <= 34) ageGroup = "25-34";
+    else if (age >= 35 && age <= 44) ageGroup = "35-44";
+    else if (age >= 45 && age <= 59) ageGroup = "45-59";
+    else if (age >= 60) ageGroup = "60 & above";
 
     if (ageGroup && summary[ageGroup]) {
       if (sex === "male") summary[ageGroup].male++;
@@ -353,7 +372,7 @@ export async function getExamPerformance(): Promise<ExamPerformance[]> {
       exams (
         title
       )
-    `,
+    `
   );
 
   if (error) throw new Error(error.message);
@@ -394,7 +413,7 @@ export async function getExamPerformance(): Promise<ExamPerformance[]> {
 }
 
 export async function getApplicationTrends(
-  days: number = 30,
+  days: number = 30
 ): Promise<ApplicationTrend[]> {
   const supabase = await getSupabaseClient();
 
@@ -421,7 +440,7 @@ export async function getApplicationTrends(
 }
 
 export async function getApplicationTrendsByMonth(
-  months: number = 12,
+  months: number = 12
 ): Promise<MonthlyApplicationTrend[]> {
   const supabase = await getSupabaseClient();
 
@@ -537,4 +556,99 @@ export async function getCompanyPerformance(): Promise<CompanyPerformance[]> {
         data.jobs > 0 ? Math.round((data.apps / data.jobs) * 10) / 10 : 0,
     }))
     .sort((a, b) => b.total_applications - a.total_applications);
+}
+
+export async function getApplicantTypeSummary(
+  filterByParanaque: boolean = false
+): Promise<ApplicantTypeSummary[]> {
+  const supabase = await getSupabaseClient();
+
+  let query = supabase
+    .from("applicants")
+    .select("sex, applicant_type, district");
+
+  // Filter by Parañaque residents if requested
+  if (filterByParanaque) {
+    query = query.neq("district", "");
+  }
+
+  const { data, error } = await query;
+
+  if (error) throw new Error(error.message);
+
+  // Initialize summary data structure
+  const summary: Record<
+    string,
+    { male: number; female: number; other: number }
+  > = {};
+
+  APPLICANT_TYPES.forEach((type) => {
+    summary[type] = { male: 0, female: 0, other: 0 };
+  });
+
+  const canonicalTypes = APPLICANT_TYPES.reduce<Record<string, string>>(
+    (acc, type) => {
+      acc[type.toLowerCase()] = type;
+      return acc;
+    },
+    {}
+  );
+
+  const applicantTypeAliases: Record<string, string> = {
+    pwd: "Person with Disability (PWD)",
+    "person with disability (pwd)": "Person with Disability (PWD)",
+    indigenous: "Indigenous Person (IP)",
+    "indigenous person": "Indigenous Person (IP)",
+    "indigenous person (ip)": "Indigenous Person (IP)",
+    ofw: "Returning Overseas Filipino Worker (OFW)",
+    "returning overseas filipino worker (ofw)":
+      "Returning Overseas Filipino Worker (OFW)",
+    "solo parent": "Solo Parent/Single Parent",
+    "single parent": "Solo Parent/Single Parent",
+    "solo parent/single parent": "Solo Parent/Single Parent",
+    student: "Student",
+    "out of school youth": "Out of School Youth",
+    "rehabilitation program graduate": "Rehabilitation Program Graduate",
+    "reintegrated individual (former detainee)":
+      "Reintegrated Individual (Former Detainee)",
+    "senior citizen": "Senior Citizen",
+    senior: "Senior Citizen",
+    others: "Others",
+    other: "Others",
+  };
+
+  (data as ApplicantData[]).forEach((applicant) => {
+    const sex = (applicant.sex || "").toLowerCase();
+    const rawTypes = (applicant.applicant_type || "")
+      .split(",")
+      .map((type) => type.trim())
+      .filter(Boolean);
+
+    const normalizedTypes = rawTypes.length > 0 ? rawTypes : ["Others"];
+
+    normalizedTypes.forEach((type) => {
+      const normalized = type.toLowerCase();
+      const mapped =
+        applicantTypeAliases[normalized] ||
+        canonicalTypes[normalized] ||
+        (normalized.startsWith("others") ? "Others" : undefined);
+
+      const applicantType = mapped || "Others";
+
+      if (summary[applicantType]) {
+        if (sex === "male") summary[applicantType].male++;
+        else if (sex === "female") summary[applicantType].female++;
+        else summary[applicantType].other++;
+      }
+    });
+  });
+
+  // Convert to array format
+  return Object.entries(summary).map(([applicantType, counts]) => ({
+    applicantType,
+    male: counts.male,
+    female: counts.female,
+    other: counts.other,
+    total: counts.male + counts.female + counts.other,
+  }));
 }

@@ -138,7 +138,7 @@ export const exportToCSV = (data: ExportData) => {
           }
           return cellStr;
         })
-        .join(","),
+        .join(",")
     ),
   ].join("\n");
 
@@ -224,7 +224,7 @@ export const exportChartToXLSX = async (chartData: ChartExportData) => {
  */
 export const exportMultipleToXLSX = async (
   sheets: { name: string; data: ExportData }[],
-  filename = "multi_sheet_export",
+  filename = "multi_sheet_export"
 ) => {
   const workbook = new ExcelJS.Workbook();
 
@@ -432,3 +432,347 @@ export const formatDateForExport = (date: string | Date): string => {
 export const formatNumberForExport = (num: number, decimals = 2): string => {
   return num.toFixed(decimals);
 };
+
+// Update your export utilities to handle the table format for summary tables
+
+// Add this new interface for summary table exports
+interface SummaryTableExportData {
+  title: string;
+  data: {
+    label: string;
+    paranaque: {
+      male: number;
+      female: number;
+      other: number;
+      total: number;
+    };
+    nonParanaque: {
+      male: number;
+      female: number;
+      other: number;
+      total: number;
+    };
+    grandTotal: {
+      male: number;
+      female: number;
+      other: number;
+      total: number;
+    };
+  }[];
+}
+
+// New function for summary table Excel export using ExcelJS only
+export async function exportSummaryTableToXLSX(
+  summaryData: SummaryTableExportData,
+  filename: string
+) {
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet("Summary");
+
+  // Prepare header
+  const headers = [
+    summaryData.title.includes("Age") ? "AGE" : "APPLICANT TYPE",
+    "PARAÑAQUE Male",
+    "PARAÑAQUE Female",
+    "PARAÑAQUE Total",
+    "NON-PARAÑAQUE Male",
+    "NON-PARAÑAQUE Female",
+    "NON-PARAÑAQUE Total",
+    "GRAND TOTAL Male",
+    "GRAND TOTAL Female",
+    "GRAND TOTAL Total",
+  ];
+  worksheet.addRow(headers);
+  const headerRow = worksheet.getRow(1);
+  headerRow.font = { bold: true, color: { argb: "FFFFFFFF" } };
+  headerRow.fill = {
+    type: "pattern",
+    pattern: "solid",
+    fgColor: { argb: "FF3498DB" },
+  };
+  headerRow.alignment = { vertical: "middle", horizontal: "center" };
+
+  // Add data rows
+  summaryData.data.forEach((row) => {
+    worksheet.addRow([
+      row.label,
+      row.paranaque.male,
+      row.paranaque.female,
+      row.paranaque.total,
+      row.nonParanaque.male,
+      row.nonParanaque.female,
+      row.nonParanaque.total,
+      row.grandTotal.male,
+      row.grandTotal.female,
+      row.grandTotal.total,
+    ]);
+  });
+  // Add totals row
+  worksheet.addRow([
+    "TOTAL",
+    summaryData.data.reduce((sum, row) => sum + row.paranaque.male, 0),
+    summaryData.data.reduce((sum, row) => sum + row.paranaque.female, 0),
+    summaryData.data.reduce((sum, row) => sum + row.paranaque.total, 0),
+    summaryData.data.reduce((sum, row) => sum + row.nonParanaque.male, 0),
+    summaryData.data.reduce((sum, row) => sum + row.nonParanaque.female, 0),
+    summaryData.data.reduce((sum, row) => sum + row.nonParanaque.total, 0),
+    summaryData.data.reduce((sum, row) => sum + row.grandTotal.male, 0),
+    summaryData.data.reduce((sum, row) => sum + row.grandTotal.female, 0),
+    summaryData.data.reduce((sum, row) => sum + row.grandTotal.total, 0),
+  ]);
+
+  // Auto-size columns
+  worksheet.columns.forEach((column, index) => {
+    let maxLength = headers[index]?.toString().length || 10;
+    worksheet.eachRow((row, rowNumber) => {
+      const cellLength = row.getCell(index + 1).value?.toString().length || 0;
+      if (cellLength > maxLength) {
+        maxLength = cellLength;
+      }
+    });
+    column.width = Math.min(maxLength + 2, 50);
+  });
+
+  // Add borders to all cells
+  worksheet.eachRow((row) => {
+    row.eachCell((cell) => {
+      cell.border = {
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" },
+      };
+    });
+  });
+
+  // Generate and download file
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${filename}.xlsx`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+// New function for summary table CSV export
+export function exportSummaryTableToCSV(
+  summaryData: SummaryTableExportData,
+  filename: string
+) {
+  const labelType = summaryData.title.includes("Age")
+    ? "AGE"
+    : "APPLICANT TYPE";
+
+  let csvContent = `${labelType},PARAÑAQUE Male,PARAÑAQUE Female,PARAÑAQUE Total,NON-PARAÑAQUE Male,NON-PARAÑAQUE Female,NON-PARAÑAQUE Total,GRAND TOTAL Male,GRAND TOTAL Female,GRAND TOTAL Total\n`;
+
+  // Calculate totals
+  const totals = {
+    paranaque: {
+      male: summaryData.data.reduce((sum, row) => sum + row.paranaque.male, 0),
+      female: summaryData.data.reduce(
+        (sum, row) => sum + row.paranaque.female,
+        0
+      ),
+      total: summaryData.data.reduce(
+        (sum, row) => sum + row.paranaque.total,
+        0
+      ),
+    },
+    nonParanaque: {
+      male: summaryData.data.reduce(
+        (sum, row) => sum + row.nonParanaque.male,
+        0
+      ),
+      female: summaryData.data.reduce(
+        (sum, row) => sum + row.nonParanaque.female,
+        0
+      ),
+      total: summaryData.data.reduce(
+        (sum, row) => sum + row.nonParanaque.total,
+        0
+      ),
+    },
+    grandTotal: {
+      male: summaryData.data.reduce((sum, row) => sum + row.grandTotal.male, 0),
+      female: summaryData.data.reduce(
+        (sum, row) => sum + row.grandTotal.female,
+        0
+      ),
+      total: summaryData.data.reduce(
+        (sum, row) => sum + row.grandTotal.total,
+        0
+      ),
+    },
+  };
+
+  summaryData.data.forEach((row) => {
+    csvContent += `${row.label},${row.paranaque.male},${row.paranaque.female},${row.paranaque.total},${row.nonParanaque.male},${row.nonParanaque.female},${row.nonParanaque.total},${row.grandTotal.male},${row.grandTotal.female},${row.grandTotal.total}\n`;
+  });
+
+  // Add totals
+  csvContent += `TOTAL,${totals.paranaque.male},${totals.paranaque.female},${totals.paranaque.total},${totals.nonParanaque.male},${totals.nonParanaque.female},${totals.nonParanaque.total},${totals.grandTotal.male},${totals.grandTotal.female},${totals.grandTotal.total}\n`;
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `${filename}.csv`;
+  link.click();
+}
+
+// New function for summary table PDF export
+export function exportSummaryTableToPDF(
+  summaryData: SummaryTableExportData,
+  filename: string
+) {
+  const doc = new jsPDF("landscape");
+
+  const labelType = summaryData.title.includes("Age")
+    ? "AGE"
+    : "APPLICANT TYPE";
+
+  // Add title
+  doc.setFontSize(16);
+  doc.text(summaryData.title, 14, 15);
+
+  // Calculate totals
+  const totals = {
+    paranaque: {
+      male: summaryData.data.reduce((sum, row) => sum + row.paranaque.male, 0),
+      female: summaryData.data.reduce(
+        (sum, row) => sum + row.paranaque.female,
+        0
+      ),
+      total: summaryData.data.reduce(
+        (sum, row) => sum + row.paranaque.total,
+        0
+      ),
+    },
+    nonParanaque: {
+      male: summaryData.data.reduce(
+        (sum, row) => sum + row.nonParanaque.male,
+        0
+      ),
+      female: summaryData.data.reduce(
+        (sum, row) => sum + row.nonParanaque.female,
+        0
+      ),
+      total: summaryData.data.reduce(
+        (sum, row) => sum + row.nonParanaque.total,
+        0
+      ),
+    },
+    grandTotal: {
+      male: summaryData.data.reduce((sum, row) => sum + row.grandTotal.male, 0),
+      female: summaryData.data.reduce(
+        (sum, row) => sum + row.grandTotal.female,
+        0
+      ),
+      total: summaryData.data.reduce(
+        (sum, row) => sum + row.grandTotal.total,
+        0
+      ),
+    },
+  };
+
+  // Prepare table data
+  const tableData = summaryData.data.map((row) => [
+    row.label,
+    row.paranaque.male,
+    row.paranaque.female,
+    row.paranaque.total,
+    row.nonParanaque.male,
+    row.nonParanaque.female,
+    row.nonParanaque.total,
+    row.grandTotal.male,
+    row.grandTotal.female,
+    row.grandTotal.total,
+  ]);
+
+  // Add totals row
+  tableData.push([
+    "TOTAL",
+    totals.paranaque.male,
+    totals.paranaque.female,
+    totals.paranaque.total,
+    totals.nonParanaque.male,
+    totals.nonParanaque.female,
+    totals.nonParanaque.total,
+    totals.grandTotal.male,
+    totals.grandTotal.female,
+    totals.grandTotal.total,
+  ]);
+
+  (doc as any).autoTable({
+    startY: 25,
+    head: [
+      [
+        {
+          content: labelType,
+          rowSpan: 2,
+          styles: { halign: "center", valign: "middle" },
+        },
+        {
+          content: "PARAÑAQUE",
+          colSpan: 3,
+          styles: { halign: "center", fillColor: [212, 237, 218] },
+        },
+        {
+          content: "NON-PARAÑAQUE",
+          colSpan: 3,
+          styles: { halign: "center", fillColor: [209, 236, 241] },
+        },
+        {
+          content: "GRAND TOTAL",
+          colSpan: 3,
+          styles: { halign: "center", fillColor: [248, 215, 218] },
+        },
+      ],
+      [
+        "Male",
+        "Female",
+        "Total",
+        "Male",
+        "Female",
+        "Total",
+        "Male",
+        "Female",
+        "Total",
+      ],
+    ],
+    body: tableData,
+    styles: {
+      fontSize: 9,
+      cellPadding: 3,
+    },
+    headStyles: {
+      fillColor: [233, 236, 239],
+      textColor: [0, 0, 0],
+      fontStyle: "bold",
+    },
+    columnStyles: {
+      0: { fontStyle: "bold", cellWidth: 30 },
+      1: { halign: "center", cellWidth: 20 },
+      2: { halign: "center", cellWidth: 20 },
+      3: { halign: "center", cellWidth: 20, fontStyle: "bold" },
+      4: { halign: "center", cellWidth: 20 },
+      5: { halign: "center", cellWidth: 20 },
+      6: { halign: "center", cellWidth: 20, fontStyle: "bold" },
+      7: { halign: "center", cellWidth: 20 },
+      8: { halign: "center", cellWidth: 20 },
+      9: { halign: "center", cellWidth: 20, fontStyle: "bold" },
+    },
+    didParseCell: function (data: any) {
+      // Make the totals row bold
+      if (data.row.index === tableData.length - 1) {
+        data.cell.styles.fontStyle = "bold";
+        data.cell.styles.fillColor = [248, 249, 250];
+      }
+    },
+  });
+
+  doc.save(`${filename}.pdf`);
+}
