@@ -10,6 +10,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+
+  // OR if you want to keep optimization, force sharp installation
+  experimental: {
+    serverComponentsExternalPackages: ["sharp"],
+  },
 };
 
 export default nextConfig;
