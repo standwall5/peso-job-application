@@ -768,7 +768,7 @@ export async function getExamAttemptForAdmin(
   console.log("All attempts for applicant:", allAttempts);
 
   // First, try to find with all three criteria
-  let { data: attempt, error: attemptError } = await supabase
+  const { data: attempt, error: attemptError } = await supabase
     .from("exam_attempts")
     .select("*")
     .eq("applicant_id", applicantId)

@@ -30,6 +30,8 @@ export interface AppliedJob {
   place_of_assignment: string;
   status: string;
   applied_date: string;
+  exam_id?: number | null;
+  exam_title?: string | null;
 }
 
 export async function getUserApplications() {
@@ -260,12 +262,17 @@ export async function getApplicantAppliedJobs(applicantId: number) {
       title: string;
       place_of_assignment: string;
       company_id: number;
+      exam_id?: number | null;
       companies: {
         id: number;
         name: string;
         logo: string | null;
-      } | null;
-    } | null;
+      }[];
+      exams: {
+        id: number;
+        title?: string;
+      }[];
+    }[];
   }
 
   try {
@@ -315,10 +322,10 @@ export async function getApplicantAppliedJobs(applicantId: number) {
 
     // Transform the data to match our AppliedJob interface
     const jobs = applications
-      .map((app: any) => {
-        const job = app.jobs;
-        const company = job?.companies;
-        const exam = job?.exams;
+      .map((app: SupabaseApplicationData) => {
+        const job = app.jobs?.[0];
+        const company = job?.companies?.[0];
+        const exam = job?.exams?.[0];
 
         if (!job) {
           return null;
