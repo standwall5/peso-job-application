@@ -25,7 +25,6 @@ interface AppliedJobsTabProps {
   lastClickedApplicationId?: number | null;
   onApplicationClick?: (appId: number) => void;
   jobseeker: Jobseeker;
-  examResult: ExamAttemptData;
 }
 
 export default function AppliedJobsTab({
