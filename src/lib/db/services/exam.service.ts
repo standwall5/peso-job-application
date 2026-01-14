@@ -768,13 +768,15 @@ export async function getExamAttemptForAdmin(
   console.log("All attempts for applicant:", allAttempts);
 
   // First, try to find with all three criteria
-  let { data: attempt, error: attemptError } = await supabase
+  const { data: attemptData, error: attemptError } = await supabase
     .from("exam_attempts")
     .select("*")
     .eq("applicant_id", applicantId)
     .eq("job_id", jobId)
     .eq("exam_id", examId)
     .maybeSingle();
+
+  let attempt = attemptData;
 
   console.log("Query with all criteria result:", attempt);
 
