@@ -24,7 +24,7 @@ interface AutoTableMargin {
 declare module "jspdf" {
   interface jsPDF {
     autoTable: (options: {
-      head?: (string | number | { [key: string]: any })[][];
+      head?: (string | number | object)[][];
       body?: (string | number)[][];
       startY?: number;
       styles?: AutoTableStyles;
