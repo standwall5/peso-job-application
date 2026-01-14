@@ -48,3 +48,4 @@ db.json
 diff.txt
 diff.log
 test-realtime.js
+.env
