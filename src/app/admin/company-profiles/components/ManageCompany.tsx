@@ -378,7 +378,7 @@ const ManageCompany = ({
                 fontSize: "1.1rem",
               }}
             >
-              No jobs posted yet. Click "Add New Job" to get started.
+              No jobs posted yet. Click &quot;Add New Job&quot; to get started.
             </div>
           ) : (
             jobs.map((job) => (
