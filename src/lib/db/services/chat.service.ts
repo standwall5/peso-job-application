@@ -24,19 +24,14 @@ export interface ChatMessage {
   read_by_user: boolean;
 }
 
-// Utility to convert UTC timestamp to GMT+8
-function toGMT8(utcDateString: string): Date {
-  const utcDate = new Date(utcDateString);
-  // Add 8 hours (28800000 milliseconds)
-  return new Date(utcDate.getTime() + 8 * 60 * 60 * 1000);
+// Utility to parse UTC timestamp to Date object (browser will handle timezone conversion)
+function parseUTCDate(utcDateString: string): Date {
+  return new Date(utcDateString);
 }
 
-// Utility to get current time in GMT+8
-function nowGMT8(): string {
-  const now = new Date();
-  // Add 8 hours for GMT+8
-  const gmt8 = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-  return gmt8.toISOString();
+// Utility to get current time in ISO format (UTC)
+function nowUTC(): string {
+  return new Date().toISOString();
 }
 
 // Get user's active chat session (if any)
@@ -93,7 +88,7 @@ export async function getActiveChatSession(): Promise<ChatSession | null> {
         .from("chat_sessions")
         .update({
           status: "closed",
-          closed_at: nowGMT8(),
+          closed_at: nowUTC(),
         })
         .eq("id", session.id);
 
@@ -200,7 +195,7 @@ export async function createChatRequest(concern: string): Promise<ChatSession> {
       user_id: applicant.id,
       status: "pending",
       concern: concern.trim(),
-      last_user_message_at: nowGMT8(),
+      last_user_message_at: nowUTC(),
     })
     .select()
     .single();
@@ -237,10 +232,8 @@ export async function getChatMessages(
   }
 
   // Convert timestamps to GMT+8
-  return (data || []).map((msg) => ({
-    ...msg,
-    created_at: toGMT8(msg.created_at).toISOString(),
-  })) as ChatMessage[];
+  // Return messages with UTC timestamps (browser will handle timezone conversion)
+  return (data || []) as ChatMessage[];
 }
 
 // Send a chat message
@@ -273,7 +266,7 @@ export async function sendChatMessage(
   // Update last_user_message_at timestamp to reset timeout
   await supabase
     .from("chat_sessions")
-    .update({ last_user_message_at: nowGMT8() })
+    .update({ last_user_message_at: nowUTC() })
     .eq("id", chatSessionId);
 
   // Insert message
@@ -292,10 +285,8 @@ export async function sendChatMessage(
   }
 
   // Convert timestamp to GMT+8
-  return {
-    ...data,
-    created_at: toGMT8(data.created_at).toISOString(),
-  } as ChatMessage;
+  // Return message with UTC timestamp (browser will handle timezone conversion)
+  return data as ChatMessage;
 }
 
 // Close a chat session
@@ -338,7 +329,7 @@ export async function closeChatSession(chatSessionId: string): Promise<void> {
     .from("chat_sessions")
     .update({
       status: "closed",
-      closed_at: nowGMT8(),
+      closed_at: nowUTC(),
     })
     .eq("id", chatSessionId);
 
@@ -373,14 +364,8 @@ export async function getUserChatSessions(): Promise<ChatSession[]> {
     throw new Error(error.message);
   }
 
-  return (data || []).map((session) => ({
-    ...session,
-    created_at: toGMT8(session.created_at).toISOString(),
-    updated_at: toGMT8(session.updated_at).toISOString(),
-    closed_at: session.closed_at
-      ? toGMT8(session.closed_at).toISOString()
-      : null,
-  })) as ChatSession[];
+  // Return sessions with UTC timestamps (browser will handle timezone conversion)
+  return (data || []) as ChatSession[];
 }
 
 // Get FAQs

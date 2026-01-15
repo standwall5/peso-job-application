@@ -68,7 +68,7 @@ export const useJobseekerData = () => {
             .includes(search.toLowerCase()) ||
           app.applicant.barangay.toLowerCase().includes(search.toLowerCase()) ||
           app.applicant.district.toLowerCase().includes(search.toLowerCase()) ||
-          app.status.toLowerCase().includes(search.toLowerCase()),
+          (app.status ?? "").toLowerCase().includes(search.toLowerCase()),
       );
     }
 

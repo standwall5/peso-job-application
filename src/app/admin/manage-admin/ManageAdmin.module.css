@@ -451,6 +451,32 @@
     color: var(--accent);
 }
 
+.onlineIndicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: #4caf50;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow:
+        0 0 0 1px #4caf50,
+        0 0 4px rgba(76, 175, 80, 0.5);
+    animation: pulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(0.95);
+    }
+}
+
 .adminEmail {
     font-size: 0.875rem;
     color: var(--text-secondary);

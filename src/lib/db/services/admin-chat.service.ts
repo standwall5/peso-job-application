@@ -23,19 +23,14 @@ export interface ChatMessage {
   created_at: string;
 }
 
-// Utility to convert UTC timestamp to GMT+8
-function toGMT8(utcDateString: string): Date {
-  const utcDate = new Date(utcDateString);
-  // Add 8 hours (28800000 milliseconds)
-  return new Date(utcDate.getTime() + 8 * 60 * 60 * 1000);
+// Utility to parse UTC timestamp to Date object (browser will handle timezone conversion)
+function parseUTCDate(utcDateString: string): Date {
+  return new Date(utcDateString);
 }
 
-// Utility to get current time in GMT+8
-function nowGMT8(): string {
-  const now = new Date();
-  // Add 8 hours for GMT+8
-  const gmt8 = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-  return gmt8.toISOString();
+// Utility to get current time in ISO format (UTC)
+function nowUTC(): string {
+  return new Date().toISOString();
 }
 
 // Get admin profile
@@ -63,40 +58,50 @@ export async function getAdminChatSessions(
   const supabase = await getSupabaseClient();
   await getAdminProfile(); // Verify admin access
 
-  // Use the database function that joins with applicants table
-  const { data: chatSessions, error: sessionsError } = await supabase.rpc(
-    "get_chat_sessions_for_admin",
-    { session_status: status },
-  );
+  // Query chat sessions and join with applicants table
+  const { data: chatSessions, error: sessionsError } = await supabase
+    .from("chat_sessions")
+    .select(
+      `
+      id,
+      user_id,
+      admin_id,
+      status,
+      concern,
+      created_at,
+      closed_at,
+      applicants!inner(
+        name,
+        phone
+      )
+    `,
+    )
+    .eq("status", status)
+    .order("created_at", { ascending: false });
 
   if (sessionsError) {
     console.error("Error fetching chat sessions:", sessionsError);
     throw new Error(sessionsError.message);
   }
 
-  // Format and convert timestamps to GMT+8
+  // Format timestamps (keep as Date objects, browser will handle timezone)
   const formattedSessions: AdminChatSession[] = (chatSessions || []).map(
-    (session: {
-      id: string;
-      user_id: number;
-      admin_id: number | null;
-      status: string;
-      concern: string | null;
-      created_at: string;
-      closed_at: string | null;
-      applicant_name: string | null;
-      applicant_email: string | null;
-    }) => ({
-      id: session.id,
-      userId: session.user_id,
-      userName: session.applicant_name || "Unknown User",
-      userEmail: session.applicant_email || "No email",
-      concern: session.concern || "",
-      timestamp: toGMT8(session.created_at), // Convert to GMT+8
-      status: session.status as "pending" | "active" | "closed",
-      adminId: session.admin_id,
-      closedAt: session.closed_at ? toGMT8(session.closed_at) : null, // Convert to GMT+8
-    }),
+    (session: any) => {
+      const applicant = session.applicants;
+      const userName = applicant?.name || "Unknown User";
+
+      return {
+        id: session.id,
+        userId: session.user_id,
+        userName: userName,
+        userEmail: applicant?.phone || "No contact",
+        concern: session.concern || "",
+        timestamp: parseUTCDate(session.created_at), // Parse UTC, browser handles timezone
+        status: session.status as "pending" | "active" | "closed",
+        adminId: session.admin_id,
+        closedAt: session.closed_at ? parseUTCDate(session.closed_at) : null, // Parse UTC
+      };
+    },
   );
 
   return formattedSessions;
@@ -180,11 +185,8 @@ export async function getChatSessionMessages(
     throw new Error(messagesError.message);
   }
 
-  // Convert timestamps to GMT+8
-  return (messages || []).map((msg) => ({
-    ...msg,
-    created_at: toGMT8(msg.created_at).toISOString(),
-  }));
+  // Return messages with UTC timestamps (browser will handle timezone conversion)
+  return messages || [];
 }
 
 // Send a message as admin
@@ -233,11 +235,8 @@ export async function sendAdminMessage(
     throw new Error(messageError.message);
   }
 
-  // Convert timestamp to GMT+8
-  return {
-    ...newMessage,
-    created_at: toGMT8(newMessage.created_at).toISOString(),
-  };
+  // Return message with UTC timestamp (browser will handle timezone conversion)
+  return newMessage;
 }
 
 // Close a chat session
@@ -264,12 +263,12 @@ export async function closeChatSession(chatId: string): Promise<void> {
   // Any admin can close a chat - removed admin_id check ✅
   // This allows for better collaboration and handoffs
 
-  // Update chat session to closed with GMT+8 timestamp
+  // Update chat session to closed with UTC timestamp
   const { error: updateError } = await supabase
     .from("chat_sessions")
     .update({
       status: "closed",
-      closed_at: nowGMT8(), // Use GMT+8 timestamp
+      closed_at: nowUTC(), // Use UTC timestamp
     })
     .eq("id", chatId);
 

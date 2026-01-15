@@ -1,0 +1,215 @@
+/* Alert Modal Styles */
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    position: relative;
+    max-width: 480px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+}
+
+.iconContainer {
+    margin-bottom: 0.5rem;
+}
+
+.iconContainer svg {
+    width: 48px;
+    height: 48px;
+}
+
+.title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.message {
+    margin: 0.5rem 0 1.5rem 0;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #555;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.buttonContainer {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.confirmButton,
+.cancelButton {
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    min-width: 100px;
+}
+
+.confirmButton {
+    color: white;
+}
+
+.confirmButton.success {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.confirmButton.success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.confirmButton.error {
+    background: linear-gradient(135deg, #F44336, #e53935);
+    box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
+}
+
+.confirmButton.error:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+}
+
+.confirmButton.warning {
+    background: linear-gradient(135deg, #FF9800, #fb8c00);
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+}
+
+.confirmButton.warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+}
+
+.confirmButton.info {
+    background: linear-gradient(135deg, #2196F3, #1e88e5);
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+}
+
+.confirmButton.info:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+}
+
+.confirmButton:active {
+    transform: translateY(0);
+}
+
+.cancelButton {
+    background: #f5f5f5;
+    color: #666;
+    border: 2px solid #ddd;
+}
+
+.cancelButton:hover {
+    background: #e8e8e8;
+    border-color: #ccc;
+    color: #333;
+}
+
+.cancelButton:active {
+    transform: scale(0.98);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .modal {
+        padding: 1.5rem;
+        max-width: 95%;
+    }
+
+    .title {
+        font-size: 1.25rem;
+    }
+
+    .message {
+        font-size: 0.95rem;
+    }
+
+    .buttonContainer {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .confirmButton,
+    .cancelButton {
+        width: 100%;
+        padding: 0.875rem 1rem;
+    }
+
+    .iconContainer svg {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Accessibility */
+.confirmButton:focus,
+.cancelButton:focus {
+    outline: 2px solid #2196F3;
+    outline-offset: 2px;
+}
+
+.confirmButton:focus:not(:focus-visible),
+.cancelButton:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Loading state (optional for future use) */
+.confirmButton:disabled,
+.cancelButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.confirmButton:disabled:hover,
+.cancelButton:disabled:hover {
+    transform: none;
+}

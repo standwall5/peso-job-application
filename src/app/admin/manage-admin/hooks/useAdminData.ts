@@ -1,8 +1,9 @@
 // src/app/admin/manage-admin/hooks/useAdminData.ts
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getAllAdminsAction } from "@/app/admin/actions/admin.actions";
 import { AdminWithEmail } from "../types/admin.types";
+import { createClient } from "@/utils/supabase/client";
 
 export const useAdminData = () => {
   const [admins, setAdmins] = useState<AdminWithEmail[]>([]);
@@ -10,10 +11,80 @@ export const useAdminData = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<string>("date-newest");
+  const [onlineAdminIds, setOnlineAdminIds] = useState<Set<string>>(new Set());
+
+  const fetchAdmins = useCallback(async () => {
+    try {
+      const data = await getAllAdminsAction();
+      setAdmins(data);
+    } catch (error) {
+      console.error("Error fetching admins:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     fetchAdmins();
+  }, [fetchAdmins]);
+
+  // Check online status via Supabase presence
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase.channel("admin-presence");
+
+    // Track current user as online
+    const trackPresence = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        await channel.subscribe(async (status) => {
+          if (status === "SUBSCRIBED") {
+            await channel.track({
+              user_id: user.id,
+              online_at: new Date().toISOString(),
+            });
+          }
+        });
+
+        // Listen for presence changes
+        channel.on("presence", { event: "sync" }, () => {
+          const state = channel.presenceState();
+          const onlineIds = new Set<string>();
+
+          Object.values(state).forEach((presences: unknown) => {
+            if (Array.isArray(presences)) {
+              presences.forEach((presence: { user_id?: string }) => {
+                if (presence.user_id) {
+                  onlineIds.add(presence.user_id);
+                }
+              });
+            }
+          });
+
+          setOnlineAdminIds(onlineIds);
+        });
+      }
+    };
+
+    trackPresence();
+
+    return () => {
+      channel.unsubscribe();
+    };
   }, []);
+
+  // Update admins with online status
+  useEffect(() => {
+    const adminsWithOnlineStatus = admins.map((admin) => ({
+      ...admin,
+      is_online: onlineAdminIds.has(admin.auth_id),
+    }));
+    setAdmins(adminsWithOnlineStatus);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onlineAdminIds]);
 
   useEffect(() => {
     let filtered = admins.filter(
@@ -55,18 +126,6 @@ export const useAdminData = () => {
         });
       default:
         return sorted;
-    }
-  };
-
-  const fetchAdmins = async () => {
-    try {
-      const data = await getAllAdminsAction();
-      setAdmins(data);
-      setFilteredAdmins(data);
-    } catch (error) {
-      console.error("Error fetching admins:", error);
-    } finally {
-      setLoading(false);
     }
   };
 

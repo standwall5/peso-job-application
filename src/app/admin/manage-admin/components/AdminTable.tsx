@@ -143,7 +143,17 @@ const AdminTable: React.FC<AdminTableProps> = ({
             style={{ cursor: "pointer" }}
           >
             <div className={styles.adminInfo}>
-              <span className={styles.adminName}>{admin.name}</span>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+              >
+                {admin.is_online && (
+                  <span
+                    className={styles.onlineIndicator}
+                    title="Currently online"
+                  />
+                )}
+                <span className={styles.adminName}>{admin.name}</span>
+              </div>
               {admin.is_superadmin && (
                 <span className={styles.adminRole}>Super Admin</span>
               )}

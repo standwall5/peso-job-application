@@ -15,9 +15,8 @@ export async function login(formData: FormData) {
     password: formData.get("password") as string,
   };
 
-  const { data: authData, error } = await supabase.auth.signInWithPassword(
-    data
-  );
+  const { data: authData, error } =
+    await supabase.auth.signInWithPassword(data);
 
   if (error) {
     console.log("Login error:", error);
@@ -67,7 +66,8 @@ export async function signup(formData: FormData) {
   const lastName = formData.get("lastName") as string;
   const middleName = formData.get("middleName") as string;
   const extNameRaw = formData.get("extName") as string;
-  const extName = extNameRaw === "" ? null : extNameRaw; // <-- Fix here
+  const extName =
+    !extNameRaw || extNameRaw.toLowerCase() === "none" ? null : extNameRaw;
   const birthDate = formData.get("birthDate") as string;
   const age = formData.get("age") as string;
   const gender = formData.get("gender") as string;
@@ -112,9 +112,8 @@ export async function signup(formData: FormData) {
     },
   };
 
-  const { data: supaSignUpData, error } = await supabase.auth.signUp(
-    signUpData
-  );
+  const { data: supaSignUpData, error } =
+    await supabase.auth.signUp(signUpData);
 
   if (error) {
     console.log("Sign error:", error);
@@ -156,6 +155,9 @@ export async function signup(formData: FormData) {
       console.log("Applicant insert error:", applicantError);
       return { error: "Signup failed, please try again." };
     }
+
+    // Sign out the user so they must verify email and log in properly
+    await supabase.auth.signOut();
 
     return {
       success:

@@ -137,8 +137,11 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
     return pages;
   };
 
-  const formatAppliedDate = (dateStr?: string) => {
-    if (!dateStr) return "";
+  const formatAppliedDate = (
+    dateStr?: string,
+    hasApplication: boolean = true,
+  ) => {
+    if (!dateStr) return hasApplication ? "" : "Not Applied";
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return dateStr;
     const day = date.toLocaleDateString("en-US", { weekday: "long" });
@@ -269,8 +272,8 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
               </div>
               <div className={styles.applicantName}>{app.applicant.name}</div>
               <div>{app.applicant.applicant_type}</div>
-              <div>{app.applicant.preferred_poa}</div>
-              <div>{formatAppliedDate(app.applied_date)}</div>
+              <div>{app.applicant.preferred_poa || "N/A"}</div>
+              <div>{formatAppliedDate(app.applied_date, !!app.status)}</div>
               <div className={styles.expandIcon}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

@@ -59,7 +59,7 @@ export async function getUserApplications() {
         title,
         companies (name)
       )
-    `
+    `,
     )
     .eq("applicant_id", applicant.id)
     .order("applied_date", { ascending: false });
@@ -121,7 +121,7 @@ export async function submitApplication(jobId: number) {
 
 export async function updateApplicationStatus(
   applicationId: number,
-  status: string
+  status: string,
 ) {
   const supabase = await getSupabaseClient();
   await getCurrentUser(); // Ensure authenticated
@@ -140,7 +140,7 @@ export async function updateApplicationStatus(
         id,
         name
       )
-    `
+    `,
     )
     .eq("id", applicationId)
     .single();
@@ -301,7 +301,7 @@ export async function getApplicantAppliedJobs(applicantId: number) {
         logo
       )
     )
-  `
+  `,
       )
       .eq("applicant_id", applicantId)
       .order("applied_date", { ascending: false });
@@ -313,7 +313,7 @@ export async function getApplicantAppliedJobs(applicantId: number) {
 
     console.log(
       "Raw applications fetched:",
-      JSON.stringify(applications, null, 2)
+      JSON.stringify(applications, null, 2),
     );
 
     if (!applications || applications.length === 0) {
@@ -380,7 +380,7 @@ export async function withdrawApplication(jobId: number) {
         title,
         companies (name)
       )
-    `
+    `,
     )
     .eq("applicant_id", applicant.id)
     .eq("job_id", jobId)
@@ -393,7 +393,7 @@ export async function withdrawApplication(jobId: number) {
   // Check if application can be withdrawn (only Pending applications)
   if (application.status !== "Pending" && application.status !== "pending") {
     throw new Error(
-      `Cannot withdraw application with status: ${application.status}. Only pending applications can be withdrawn.`
+      `Cannot withdraw application with status: ${application.status}. Only pending applications can be withdrawn.`,
     );
   }
 
@@ -493,7 +493,7 @@ export async function upsertApplicationProgress(
     resumeViewed?: boolean;
     examCompleted?: boolean;
     verifiedIdUploaded?: boolean;
-  }
+  },
 ) {
   const supabase = await getSupabaseClient();
   const user = await getCurrentUser();
@@ -522,7 +522,7 @@ export async function upsertApplicationProgress(
       },
       {
         onConflict: "job_id,applicant_id",
-      }
+      },
     )
     .select()
     .single();
@@ -567,7 +567,7 @@ export async function deleteApplicationProgress(jobId: number) {
  * Used for tracking ID changes on submitted applications
  */
 export async function getApplicationIdByJobId(
-  jobId: number
+  jobId: number,
 ): Promise<number | null> {
   const supabase = await getSupabaseClient();
   const user = await getCurrentUser();
@@ -592,4 +592,149 @@ export async function getApplicationIdByJobId(
     .single();
 
   return application?.id || null;
+}
+
+/**
+ * Get all jobseekers (all applicants with their most recent application if any)
+ * Uses optimized queries to fetch all applicants, even those without applications
+ * @param isArchived - Filter by archived status (default: false)
+ */
+export async function getAllJobseekers(isArchived: boolean = false) {
+  const supabase = await getSupabaseClient();
+
+  // First, fetch all applicants filtered by archive status
+  const { data: applicants, error: applicantsError } = await supabase
+    .from("applicants")
+    .select("*")
+    .eq("is_archived", isArchived)
+    .order("created_at", { ascending: false });
+
+  if (applicantsError) {
+    console.error("Error fetching applicants:", applicantsError);
+    throw new Error(applicantsError.message);
+  }
+
+  if (!applicants || applicants.length === 0) {
+    return [];
+  }
+
+  const applicantIds = applicants.map((a) => a.id);
+
+  // Fetch all applications for these applicants with job and company details
+  const { data: applications, error: appsError } = await supabase
+    .from("applications")
+    .select(
+      `
+      id,
+      job_id,
+      applicant_id,
+      applied_date,
+      status,
+      jobs (
+        id,
+        title,
+        place_of_assignment,
+        company_id,
+        companies (
+          id,
+          name,
+          logo
+        )
+      )
+    `,
+    )
+    .in("applicant_id", applicantIds)
+    .order("applied_date", { ascending: false });
+
+  if (appsError) {
+    console.error("Error fetching applications:", appsError);
+  }
+
+  // Fetch all resumes for these applicants
+  const { data: resumes, error: resumeError } = await supabase
+    .from("resume")
+    .select("*")
+    .in("applicant_id", applicantIds);
+
+  if (resumeError) {
+    console.error("Error fetching resumes:", resumeError);
+  }
+
+  // Create maps for quick lookup
+  const resumeMap = new Map();
+  (resumes || []).forEach((resume) => {
+    resumeMap.set(resume.applicant_id, resume);
+  });
+
+  // Group applications by applicant_id and get the most recent one
+  const applicantApplicationMap = new Map();
+  (applications || []).forEach((app) => {
+    const existing = applicantApplicationMap.get(app.applicant_id);
+    if (
+      !existing ||
+      new Date(app.applied_date) > new Date(existing.applied_date)
+    ) {
+      applicantApplicationMap.set(app.applicant_id, app);
+    }
+  });
+
+  // Build results - one entry per applicant with their most recent application (if any)
+  const results = applicants.map((applicant) => {
+    const app = applicantApplicationMap.get(applicant.id);
+    const resume = resumeMap.get(applicant.id);
+
+    if (app) {
+      // Applicant has applications - return with application data
+      const job = Array.isArray(app.jobs) ? app.jobs[0] : app.jobs;
+      const company =
+        job && Array.isArray(job.companies) ? job.companies[0] : job?.companies;
+
+      const resumeWithDetails = resume
+        ? {
+            ...resume,
+            profile_pic_url: applicant.profile_pic_url ?? null,
+            job: job ?? null,
+            company: company ?? null,
+            applicant: applicant,
+          }
+        : null;
+
+      return {
+        id: app.id,
+        job_id: app.job_id,
+        applicant_id: applicant.id,
+        applied_date: app.applied_date,
+        status: app.status,
+        applicant,
+        job,
+        company,
+        resume: resumeWithDetails,
+      };
+    } else {
+      // Applicant has no applications - return with null application data
+      const resumeWithDetails = resume
+        ? {
+            ...resume,
+            profile_pic_url: applicant.profile_pic_url ?? null,
+            job: null,
+            company: null,
+            applicant: applicant,
+          }
+        : null;
+
+      return {
+        id: null,
+        job_id: null,
+        applicant_id: applicant.id,
+        applied_date: applicant.created_at, // Use registration date
+        status: null,
+        applicant,
+        job: null,
+        company: null,
+        resume: resumeWithDetails,
+      };
+    }
+  });
+
+  return results;
 }

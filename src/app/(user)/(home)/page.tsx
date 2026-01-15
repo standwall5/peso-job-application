@@ -1,12 +1,13 @@
 import React from "react";
 import { createClient } from "@/utils/supabase/server";
 import LoginPage from "@/app/(auth)/login/page";
-import PrivateCompanyListWithRecommendations from "../job-opportunities/components/PrivateCompanyListWithRecommendations";
+import HomePageClient from "./components/HomePageClient";
 import {
   getCompanies,
   Company as ServiceCompany,
 } from "@/lib/db/services/company.service";
 import { getJobs, Job as ServiceJob } from "@/lib/db/services/job.service";
+import { getResume } from "@/lib/db/services/resume.service";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -19,9 +20,10 @@ export default async function Home() {
   }
 
   // Fetch data on the server
-  const [companiesData, jobsData] = await Promise.all([
+  const [companiesData, jobsData, resumeData] = await Promise.all([
     getCompanies().catch(() => [] as ServiceCompany[]),
     getJobs().catch(() => [] as ServiceJob[]),
+    getResume().catch(() => null),
   ]);
 
   // Transform to match component types
@@ -37,11 +39,14 @@ export default async function Home() {
     company_id: j.company_id,
   }));
 
+  // Check if user has a resume
+  const hasResume = resumeData !== null;
+
   return (
-    <PrivateCompanyListWithRecommendations
+    <HomePageClient
       initialCompanies={companies}
       initialJobs={jobs}
-      searchParent=""
+      hasResume={hasResume}
     />
   );
 }

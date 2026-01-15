@@ -20,6 +20,18 @@ interface FAQ {
   answer: string;
 }
 
+interface ChatSession {
+  id: string;
+  user_id: number;
+  status: "pending" | "active" | "closed";
+  concern?: string;
+  created_at: string;
+  updated_at: string;
+  closed_at: string | null;
+  admin_id: number | null;
+  last_user_message_at: string | null;
+}
+
 interface ChatWidgetProps {
   isOpen: boolean;
   onClose: () => void;
@@ -27,7 +39,9 @@ interface ChatWidgetProps {
 
 export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   const [user, setUser] = useState<User | null>(null);
-  const [mode, setMode] = useState<"menu" | "faq" | "concern" | "live">("menu");
+  const [mode, setMode] = useState<
+    "menu" | "faq" | "concern" | "live" | "history"
+  >("menu");
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [concernValue, setConcernValue] = useState("");
@@ -38,6 +52,13 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   >("waiting");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [adminTyping, setAdminTyping] = useState(false);
+  const [hasActiveSession, setHasActiveSession] = useState(false);
+  const [hasChatHistory, setHasChatHistory] = useState(false);
+  const [sessionExpiryTime, setSessionExpiryTime] = useState<number | null>(
+    null,
+  );
+  const [showExpiryWarning, setShowExpiryWarning] = useState(false);
+  const [chatHistory, setChatHistory] = useState<ChatSession[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
   const messageSubscriptionRef = useRef<ReturnType<
@@ -47,6 +68,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(
     null,
   );
+  const expiryCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     async function fetchUser() {
@@ -56,67 +78,171 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     }
 
     fetchUser();
-
-    // Optionally, you can set up a polling interval or use a custom event to refetch on auth changes
   }, []);
 
-  // Handle closing the chat widget
-  const handleCloseChat = async () => {
-    console.log("[ChatWidget] handleCloseChat called", {
-      sessionId,
-      mode,
-      chatStatus,
-      hasSession: !!sessionId,
-    });
+  // Load active session and chat history when widget opens
+  useEffect(() => {
+    if (isOpen && user) {
+      loadActiveSession();
+      loadChatHistory();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, user]);
 
-    // If user is in an active chat session, close it
-    if (sessionId && mode === "live" && chatStatus !== "closed") {
-      try {
-        console.log(
-          "[ChatWidget] User closing chat, ending session:",
-          sessionId,
-        );
-        const response = await fetch("/api/chat/close", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sessionId }),
-        });
+  // Check for session expiry every second
+  useEffect(() => {
+    if (sessionExpiryTime && hasActiveSession) {
+      expiryCheckIntervalRef.current = setInterval(() => {
+        const now = Date.now();
+        const timeRemaining = sessionExpiryTime - now;
 
-        console.log("[ChatWidget] Close API response status:", response.status);
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log("[ChatWidget] Chat session closed successfully:", data);
+        // Show warning when 30 seconds remain
+        if (timeRemaining <= 30000 && timeRemaining > 0) {
+          setShowExpiryWarning(true);
         } else {
-          const errorData = await response.json();
-          console.error(
-            "[ChatWidget] Failed to close chat session:",
-            errorData,
-          );
+          setShowExpiryWarning(false);
         }
 
-        // Wait a bit for realtime to propagate
-        console.log("[ChatWidget] Waiting 300ms for realtime propagation...");
-        await new Promise((resolve) => setTimeout(resolve, 300));
-        console.log("[ChatWidget] Realtime propagation wait complete");
-      } catch (error) {
-        console.error("[ChatWidget] Error closing chat session:", error);
-        // Don't block closing the widget if API fails
+        // Session expired
+        if (timeRemaining <= 0) {
+          handleSessionExpired();
+        }
+      }, 1000);
+
+      return () => {
+        if (expiryCheckIntervalRef.current) {
+          clearInterval(expiryCheckIntervalRef.current);
+        }
+      };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionExpiryTime, hasActiveSession]);
+
+  // Load messages for a session
+  const loadMessages = async (chatSessionId: string) => {
+    try {
+      const response = await fetch(
+        `/api/chat/messages?sessionId=${chatSessionId}`,
+      );
+      const data = await response.json();
+
+      if (response.ok && data.messages) {
+        const loadedMessages: Message[] = data.messages.map(
+          (msg: {
+            id: number | string;
+            message: string;
+            sender: string;
+            created_at: string;
+          }) => {
+            const parsed = parseMessage(msg.message);
+            return {
+              id: msg.id,
+              text: parsed.text,
+              sender: msg.sender as "user" | "admin" | "bot",
+              timestamp: new Date(msg.created_at),
+              buttons: parsed.buttons,
+            };
+          },
+        );
+        setMessages(loadedMessages);
       }
-    } else {
-      console.log("[ChatWidget] Skipping close API call - conditions not met");
+    } catch (error) {
+      console.error("[ChatWidget] Error loading messages:", error);
+    }
+  };
+
+  // Load active chat session
+  const loadActiveSession = async () => {
+    try {
+      const response = await fetch("/api/chat/active-session");
+      const data = await response.json();
+
+      if (response.ok && data.session) {
+        setSessionId(data.session.id);
+        setHasActiveSession(true);
+        setMode("live");
+        setChatStatus(
+          data.session.status === "active" ? "connected" : "waiting",
+        );
+
+        // Calculate expiry time (2 minutes from last user message)
+        if (data.session.last_user_message_at) {
+          const lastMessageTime = new Date(
+            data.session.last_user_message_at,
+          ).getTime();
+          const expiryTime = lastMessageTime + 2 * 60 * 1000; // 2 minutes
+          setSessionExpiryTime(expiryTime);
+        }
+
+        // Load messages for this session
+        await loadMessages(data.session.id);
+      } else {
+        setHasActiveSession(false);
+      }
+    } catch (error) {
+      console.error("[ChatWidget] Error loading active session:", error);
+    }
+  };
+
+  // Load chat history
+  const loadChatHistory = async () => {
+    try {
+      const response = await fetch("/api/chat/history");
+      const data = await response.json();
+
+      if (response.ok && data.sessions && data.sessions.length > 0) {
+        setChatHistory(data.sessions);
+        setHasChatHistory(true);
+      } else {
+        setHasChatHistory(false);
+      }
+    } catch (error) {
+      console.error("[ChatWidget] Error loading chat history:", error);
+    }
+  };
+
+  // Handle session expiry
+  const handleSessionExpired = () => {
+    if (expiryCheckIntervalRef.current) {
+      clearInterval(expiryCheckIntervalRef.current);
     }
 
-    // Reset widget state
-    setMode("menu");
-    setMessages([]);
-    setSessionId(null);
-    setChatStatus("waiting");
-    setConcernValue("");
-    setInputValue("");
-    setSelectedCategory(null);
+    // Clear active session state
+    setHasActiveSession(false);
+    setSessionExpiryTime(null);
+    setShowExpiryWarning(false);
+    setChatStatus("closed");
 
-    // Close the widget
+    // Unsubscribe from real-time channels
+    if (messageSubscriptionRef.current) {
+      supabase.removeChannel(messageSubscriptionRef.current);
+      messageSubscriptionRef.current = null;
+    }
+    if (typingChannelRef.current) {
+      supabase.removeChannel(typingChannelRef.current);
+      typingChannelRef.current = null;
+    }
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: "system-timeout",
+        text: "This chat has been closed due to inactivity (2 minutes without response).",
+        sender: "bot",
+        timestamp: new Date(),
+      },
+    ]);
+
+    // Reload chat history to include this session
+    loadChatHistory();
+  };
+
+  // Handle closing the chat widget (don't close session, just hide widget)
+  const handleCloseChat = () => {
+    console.log("[ChatWidget] Closing widget without ending session");
+
+    // Don't reset state - session persists for 2 minutes
+    // Just close the widget
     onClose();
   };
 
@@ -133,7 +259,27 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       });
 
       if (response.ok) {
+        // Clear active session state
+        setHasActiveSession(false);
+        setSessionExpiryTime(null);
+        setShowExpiryWarning(false);
         setChatStatus("closed");
+
+        // Clear interval
+        if (expiryCheckIntervalRef.current) {
+          clearInterval(expiryCheckIntervalRef.current);
+        }
+
+        // Unsubscribe from real-time channels
+        if (messageSubscriptionRef.current) {
+          supabase.removeChannel(messageSubscriptionRef.current);
+          messageSubscriptionRef.current = null;
+        }
+        if (typingChannelRef.current) {
+          supabase.removeChannel(typingChannelRef.current);
+          typingChannelRef.current = null;
+        }
+
         setMessages((prev) => [
           ...prev,
           {
@@ -143,6 +289,9 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
             timestamp: new Date(),
           },
         ]);
+
+        // Reload chat history
+        loadChatHistory();
       } else {
         console.error("[ChatWidget] Failed to end chat");
       }
@@ -260,7 +409,17 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
               },
             ]);
           } else if (updatedSession.status === "closed") {
+            // Clear active session state
+            setHasActiveSession(false);
+            setSessionExpiryTime(null);
+            setShowExpiryWarning(false);
             setChatStatus("closed");
+
+            // Clear interval
+            if (expiryCheckIntervalRef.current) {
+              clearInterval(expiryCheckIntervalRef.current);
+            }
+
             setMessages((prev) => [
               ...prev,
               {
@@ -270,6 +429,9 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                 timestamp: new Date(),
               },
             ]);
+
+            // Reload chat history
+            loadChatHistory();
           }
         },
       )
@@ -421,6 +583,12 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
             message: messageText,
           }),
         });
+
+        // Reset session expiry time (2 minutes from now)
+        const newExpiryTime = Date.now() + 2 * 60 * 1000;
+        setSessionExpiryTime(newExpiryTime);
+        setShowExpiryWarning(false);
+
         // Message will appear via real-time subscription
       } catch (error) {
         console.error("Error sending message:", error);
@@ -460,6 +628,12 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
 
       if (response.ok && data.id) {
         setSessionId(data.id);
+        setHasActiveSession(true);
+
+        // Set expiry time (2 minutes from now)
+        const expiryTime = Date.now() + 2 * 60 * 1000;
+        setSessionExpiryTime(expiryTime);
+
         setMessages([
           {
             id: "user-concern",
@@ -578,7 +752,19 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
             )}
           </h3>
         </div>
-        <button className={styles.closeButton} onClick={handleCloseChat}>
+        <button
+          className={styles.closeButton}
+          onClick={() => {
+            // If chat is closed, go back to menu
+            if (chatStatus === "closed" && mode === "live") {
+              setMode("menu");
+              setMessages([]);
+              setChatStatus("waiting");
+            } else {
+              handleCloseChat();
+            }
+          }}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -622,7 +808,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
               </div>
             </button>
 
-            {user && (
+            {user && !hasActiveSession && (
               <button
                 className={styles.menuOption}
                 onClick={() => setMode("concern")}
@@ -643,6 +829,61 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                 <div className={styles.menuText}>
                   <strong>Chat with Admin</strong>
                   <span>Talk to a real person</span>
+                </div>
+              </button>
+            )}
+
+            {user && hasActiveSession && (
+              <button
+                className={styles.menuOption}
+                onClick={() => {
+                  setMode("live");
+                }}
+              >
+                <div className={styles.menuIcon}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4.848 2.771A49.144 49.144 0 0 1 12 2.25c2.43 0 4.817.178 7.152.52 1.978.292 3.348 2.024 3.348 3.97v6.02c0 1.946-1.37 3.678-3.348 3.97a48.901 48.901 0 0 1-3.476.383.39.39 0 0 0-.297.17l-2.755 4.133a.75.75 0 0 1-1.248 0l-2.755-4.133a.39.39 0 0 0-.297-.17 48.9 48.9 0 0 1-3.476-.384c-1.978-.29-3.348-2.024-3.348-3.97V6.741c0-1.946 1.37-3.68 3.348-3.97Z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {showExpiryWarning && (
+                    <span className={styles.expiryBadge}>!</span>
+                  )}
+                </div>
+                <div className={styles.menuText}>
+                  <strong>Active Chat</strong>
+                  <span>Continue your conversation</span>
+                </div>
+              </button>
+            )}
+
+            {user && hasChatHistory && (
+              <button
+                className={styles.menuOption}
+                onClick={() => setMode("history")}
+              >
+                <div className={styles.menuIcon}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 0 0 0-1.5h-3.75V6Z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div className={styles.menuText}>
+                  <strong>Chat History</strong>
+                  <span>View past conversations</span>
                 </div>
               </button>
             )}
@@ -752,9 +993,80 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
           </div>
         )}
 
+        {/* Chat History View */}
+        {mode === "history" && (
+          <div className={styles.historyContent}>
+            <p className={styles.historyTitle}>Past Conversations</p>
+            <div className={styles.historyList}>
+              {chatHistory.map((session) => (
+                <div
+                  key={session.id}
+                  className={styles.historyItem}
+                  onClick={async () => {
+                    setSessionId(session.id);
+                    setMode("live");
+                    setChatStatus("closed");
+                    setHasActiveSession(false);
+                    await loadMessages(session.id);
+                  }}
+                >
+                  <div className={styles.historyItemHeader}>
+                    <strong>{session.concern || "Chat Session"}</strong>
+                    <span className={styles.historyDate}>
+                      {new Date(session.created_at).toLocaleDateString(
+                        "en-PH",
+                        {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        },
+                      )}
+                    </span>
+                  </div>
+                  <div className={styles.historyItemFooter}>
+                    <span className={styles.historyStatus}>Closed</span>
+                    {session.closed_at && (
+                      <span className={styles.historyTime}>
+                        {new Date(session.closed_at).toLocaleTimeString(
+                          "en-PH",
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          },
+                        )}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Live Chat View */}
         {mode === "live" && (
           <div className={styles.chatContent}>
+            {/* Session Expiry Warning */}
+            {showExpiryWarning && chatStatus !== "closed" && (
+              <div className={styles.timeoutWarning}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span>
+                  ⚠️ Your session will expire in 30 seconds due to inactivity.
+                  Send a message to keep it active.
+                </span>
+              </div>
+            )}
+
             <div className={styles.messages}>
               {messages.map((msg) => (
                 <div
@@ -841,7 +1153,19 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       {/* Show message when chat is closed */}
       {mode === "live" && chatStatus === "closed" && (
         <div className={styles.closedChatInfo}>
-          <p>This chat has ended. Close this window or start a new chat.</p>
+          <p>
+            This chat has ended. Click the back button to return to the menu.
+          </p>
+          <button
+            className={styles.backToMenuButton}
+            onClick={() => {
+              setMode("menu");
+              setMessages([]);
+              setChatStatus("waiting");
+            }}
+          >
+            Back to Menu
+          </button>
         </div>
       )}
 

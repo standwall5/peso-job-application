@@ -12,6 +12,7 @@ export interface AdminWithEmail {
   account_locked?: boolean;
   is_archived?: boolean;
   archived_at?: string;
+  is_online?: boolean;
 }
 
 export type AdminStatus = "active" | "suspended" | "deactivated";

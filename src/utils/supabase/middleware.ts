@@ -82,7 +82,7 @@ export async function updateSession(request: NextRequest) {
 
     // Redirect to login for protected pages
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    url.pathname = "/job-opportunities";
     url.searchParams.set("redirect", pathname); // Save where they wanted to go
     return NextResponse.redirect(url);
   }
