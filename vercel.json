@@ -1,9 +1,3 @@
 {
-  "installCommand": "npm install --include=optional",
-  "crons": [
-    {
-      "path": "/api/cron/check-chat-timeouts",
-      "schedule": "* * * * *"
-    }
-  ]
+  "installCommand": "npm install --include=optional"
 }
