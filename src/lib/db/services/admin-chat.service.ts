@@ -53,7 +53,7 @@ async function getAdminProfile() {
 
 // Get chat sessions by status
 export async function getAdminChatSessions(
-  status: "pending" | "active" | "closed",
+  status: "pending" | "active" | "closed"
 ): Promise<AdminChatSession[]> {
   const supabase = await getSupabaseClient();
   await getAdminProfile(); // Verify admin access
@@ -74,7 +74,7 @@ export async function getAdminChatSessions(
         name,
         phone
       )
-    `,
+    `
     )
     .eq("status", status)
     .order("created_at", { ascending: false });
@@ -86,7 +86,15 @@ export async function getAdminChatSessions(
 
   // Format timestamps (keep as Date objects, browser will handle timezone)
   const formattedSessions: AdminChatSession[] = (chatSessions || []).map(
-    (session: { id: string; user_id: string; status: string; created_at: string; updated_at: string; last_user_message_at: string | null; applicants: { name: string } | null }) => {
+    (session: {
+      id: string;
+      user_id: string;
+      status: string;
+      created_at: string;
+      updated_at: string;
+      last_user_message_at: string | null;
+      applicants: { name: string } | null;
+    }) => {
       const applicant = session.applicants;
       const userName = applicant?.name || "Unknown User";
 
@@ -101,7 +109,7 @@ export async function getAdminChatSessions(
         adminId: session.admin_id,
         closedAt: session.closed_at ? parseUTCDate(session.closed_at) : null, // Parse UTC
       };
-    },
+    }
   );
 
   return formattedSessions;
@@ -109,7 +117,7 @@ export async function getAdminChatSessions(
 
 // Accept/join a chat session
 export async function acceptChatSession(
-  chatId: string,
+  chatId: string
 ): Promise<{ success: boolean; isJoiningBotSession: boolean }> {
   const supabase = await getSupabaseClient();
   const adminData = await getAdminProfile();
@@ -158,7 +166,7 @@ export async function acceptChatSession(
 
 // Get messages for a chat session
 export async function getChatSessionMessages(
-  chatId: string,
+  chatId: string
 ): Promise<ChatMessage[]> {
   const supabase = await getSupabaseClient();
   await getAdminProfile(); // Verify admin access
@@ -192,7 +200,7 @@ export async function getChatSessionMessages(
 // Send a message as admin
 export async function sendAdminMessage(
   chatId: string,
-  message: string,
+  message: string
 ): Promise<ChatMessage> {
   const supabase = await getSupabaseClient();
   const adminData = await getAdminProfile();

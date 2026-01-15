@@ -24,7 +24,7 @@ export async function GET(request: Request) {
     console.error("Admin lookup error:", adminError);
     return NextResponse.json(
       { error: "Unauthorized - Admin access required" },
-      { status: 403 },
+      { status: 403 }
     );
   }
 
@@ -53,7 +53,7 @@ export async function GET(request: Request) {
         name,
         phone
       )
-    `,
+    `
     )
     .eq("status", status)
     .order("created_at", { ascending: false });
@@ -67,7 +67,7 @@ export async function GET(request: Request) {
         id: s.id,
         status: s.status,
         concern: s.concern?.substring(0, 30),
-      }),
+      })
     ),
   });
 
@@ -77,22 +77,32 @@ export async function GET(request: Request) {
   }
 
   // Format response with user details
-  const formattedSessions = (chatSessions || []).map((session: { id: string; user_id: string; status: string; created_at: string; updated_at: string; last_user_message_at: string | null; applicants: { name: string } | null }) => {
-    const applicant = session.applicants;
-    const userName = applicant?.name || "Unknown User";
+  const formattedSessions = (chatSessions || []).map(
+    (session: {
+      id: string;
+      user_id: string;
+      status: string;
+      created_at: string;
+      updated_at: string;
+      last_user_message_at: string | null;
+      applicants: { name: string } | null;
+    }) => {
+      const applicant = session.applicants;
+      const userName = applicant?.name || "Unknown User";
 
-    return {
-      id: session.id,
-      userId: session.user_id,
-      userName: userName,
-      userEmail: applicant?.phone || "No contact",
-      concern: session.concern || "",
-      timestamp: new Date(session.created_at),
-      status: session.status,
-      adminId: session.admin_id,
-      closedAt: session.closed_at ? new Date(session.closed_at) : null,
-    };
-  });
+      return {
+        id: session.id,
+        userId: session.user_id,
+        userName: userName,
+        userEmail: applicant?.phone || "No contact",
+        concern: session.concern || "",
+        timestamp: new Date(session.created_at),
+        status: session.status,
+        adminId: session.admin_id,
+        closedAt: session.closed_at ? new Date(session.closed_at) : null,
+      };
+    }
+  );
 
   return NextResponse.json(formattedSessions);
 }

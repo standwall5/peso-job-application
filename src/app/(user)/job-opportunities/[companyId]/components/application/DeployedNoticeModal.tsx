@@ -38,7 +38,8 @@ const DeployedNoticeModal: React.FC<DeployedNoticeModalProps> = ({
         </div>
         <h2 className={styles.title}>Access Restricted</h2>
         <p className={styles.message}>
-          You don&apos;t have access to apply for jobs as you are currently deployed.
+          You don&apos;t have access to apply for jobs as you are currently
+          deployed.
         </p>
         <p className={styles.submessage}>
           If you wish to re-apply, please contact the admin for assistance.
