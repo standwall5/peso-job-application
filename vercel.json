@@ -1,5 +1,4 @@
 {
-  "buildCommand": "npm install --include=optional && next build",
   "installCommand": "npm install --include=optional",
   "crons": [
     {
