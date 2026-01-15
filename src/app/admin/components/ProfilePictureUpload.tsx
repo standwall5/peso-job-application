@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
+import Cropper from "react-easy-crop";
+import type { Point, Area } from "react-easy-crop";
 import styles from "./ProfilePictureUpload.module.css";
 
 interface ProfilePictureUploadProps {
@@ -20,7 +22,67 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const onCropComplete = useCallback(
+    (croppedArea: Area, croppedAreaPixels: Area) => {
+      setCroppedAreaPixels(croppedAreaPixels);
+    },
+    []
+  );
+
+  const createImage = (url: string): Promise<HTMLImageElement> =>
+    new Promise((resolve, reject) => {
+      const image = new Image();
+      image.addEventListener("load", () => resolve(image));
+      image.addEventListener("error", (error) => reject(error));
+      image.src = url;
+    });
+
+  const getCroppedImg = async (
+    imageSrc: string,
+    pixelCrop: Area
+  ): Promise<Blob> => {
+    const image = await createImage(imageSrc);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    if (!ctx) {
+      throw new Error("No 2d context");
+    }
+
+    canvas.width = pixelCrop.width;
+    canvas.height = pixelCrop.height;
+
+    ctx.drawImage(
+      image,
+      pixelCrop.x,
+      pixelCrop.y,
+      pixelCrop.width,
+      pixelCrop.height,
+      0,
+      0,
+      pixelCrop.width,
+      pixelCrop.height
+    );
+
+    return new Promise((resolve) => {
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            resolve(blob);
+          }
+        },
+        "image/jpeg",
+        0.95
+      );
+    });
+  };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -42,14 +104,48 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
       return;
     }
 
-    // Show preview
+    // Show cropper
     const reader = new FileReader();
     reader.onloadend = () => {
-      setPreview(reader.result as string);
+      setImageSrc(reader.result as string);
       setError("");
       setSelectedFile(file);
+      setShowCropper(true);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleCropConfirm = async () => {
+    if (!imageSrc || !croppedAreaPixels) return;
+
+    try {
+      const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
+      const croppedUrl = URL.createObjectURL(croppedBlob);
+      setPreview(croppedUrl);
+      setShowCropper(false);
+
+      // Convert blob to file for upload
+      const croppedFile = new File(
+        [croppedBlob],
+        selectedFile?.name || "profile.jpg",
+        { type: "image/jpeg" }
+      );
+      setSelectedFile(croppedFile);
+    } catch (error) {
+      console.error("Error cropping image:", error);
+      setError("Failed to crop image");
+    }
+  };
+
+  const handleCropCancel = () => {
+    setShowCropper(false);
+    setImageSrc(null);
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const handleUpload = async () => {
@@ -71,24 +167,27 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
         body: formData,
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
+        const data = await response.json();
         throw new Error(data.error || "Failed to upload");
       }
 
+      const data = await response.json();
+
+      if (onUploadSuccess) {
+        onUploadSuccess(data.url);
+      }
+
+      // Update preview with the server URL
       setPreview(data.url);
       setSelectedFile(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
 
-      if (onUploadSuccess) {
-        onUploadSuccess(data.url);
-      }
-
       alert("Profile picture updated successfully!");
     } catch (err) {
+      console.error("Upload error:", err);
       setError(err instanceof Error ? err.message : "Failed to upload");
     } finally {
       setUploading(false);
@@ -141,88 +240,140 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.preview}>
-        {preview ? (
-          <img
-            src={preview}
-            alt="Profile preview"
-            className={styles.previewImage}
-          />
-        ) : (
-          <div className={styles.placeholder}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className={styles.placeholderIcon}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+    <>
+      {/* Image Cropper Modal */}
+      {showCropper && imageSrc && (
+        <div className={styles.cropperModal}>
+          <div className={styles.cropperContainer}>
+            <h3 className={styles.cropperTitle}>Crop Profile Picture</h3>
+            <div className={styles.cropperWrapper}>
+              <Cropper
+                image={imageSrc}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                cropShape="round"
+                showGrid={false}
+                onCropChange={setCrop}
+                onCropComplete={onCropComplete}
+                onZoomChange={setZoom}
               />
-            </svg>
+            </div>
+            <div className={styles.cropperControls}>
+              <label className={styles.zoomLabel}>
+                Zoom
+                <input
+                  type="range"
+                  min={1}
+                  max={3}
+                  step={0.1}
+                  value={zoom}
+                  onChange={(e) => setZoom(Number(e.target.value))}
+                  className={styles.zoomSlider}
+                />
+              </label>
+            </div>
+            <div className={styles.cropperActions}>
+              <button
+                onClick={handleCropCancel}
+                className={`${styles.button} ${styles.buttonSecondary}`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCropConfirm}
+                className={`${styles.button} ${styles.buttonPrimary}`}
+              >
+                Crop & Continue
+              </button>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      <div className={styles.controls}>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/jpeg,image/jpg,image/png,image/webp"
-          onChange={handleFileSelect}
-          className={styles.fileInput}
-          disabled={uploading}
-        />
+      <div className={styles.container}>
+        <div className={styles.preview}>
+          {preview ? (
+            <img
+              src={preview}
+              alt="Profile preview"
+              className={styles.previewImage}
+            />
+          ) : (
+            <div className={styles.placeholder}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className={styles.placeholderIcon}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+                />
+              </svg>
+            </div>
+          )}
+        </div>
 
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          className={styles.button}
-          disabled={uploading}
-        >
-          {preview ? "Change Picture" : "Upload Picture"}
-        </button>
+        <div className={styles.controls}>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/jpg,image/png,image/webp"
+            onChange={handleFileSelect}
+            className={styles.fileInput}
+            disabled={uploading}
+          />
 
-        {selectedFile && (
-          <>
-            <button
-              onClick={handleUpload}
-              className={`${styles.button} ${styles.buttonPrimary}`}
-              disabled={uploading}
-            >
-              {uploading ? "Uploading..." : "Save"}
-            </button>
-
-            <button
-              onClick={handleCancel}
-              className={`${styles.button} ${styles.buttonSecondary}`}
-              disabled={uploading}
-            >
-              Cancel
-            </button>
-          </>
-        )}
-
-        {preview && !selectedFile && (
           <button
-            onClick={handleRemove}
-            className={`${styles.button} ${styles.buttonDanger}`}
+            onClick={() => fileInputRef.current?.click()}
+            className={styles.button}
             disabled={uploading}
           >
-            Remove
+            {preview ? "Change Picture" : "Choose Picture"}
           </button>
-        )}
+
+          {selectedFile && (
+            <>
+              <button
+                onClick={handleUpload}
+                className={`${styles.button} ${styles.buttonPrimary}`}
+                disabled={uploading}
+              >
+                {uploading ? "Uploading..." : "Upload"}
+              </button>
+
+              <button
+                onClick={handleCancel}
+                className={`${styles.button} ${styles.buttonSecondary}`}
+                disabled={uploading}
+              >
+                Cancel
+              </button>
+            </>
+          )}
+
+          {preview && !selectedFile && (
+            <button
+              onClick={handleRemove}
+              className={`${styles.button} ${styles.buttonDanger}`}
+              disabled={uploading}
+            >
+              Remove Picture
+            </button>
+          )}
+        </div>
+
+        {error && <p className={styles.error}>{error}</p>}
+
+        <p className={styles.hint}>
+          Accepted formats: JPG, PNG, WebP. Max size: 5MB.
+        </p>
       </div>
-
-      {error && <p className={styles.error}>{error}</p>}
-
-      <p className={styles.hint}>
-        Accepted formats: JPG, PNG, WebP. Max size: 5MB.
-      </p>
-    </div>
+    </>
   );
 };

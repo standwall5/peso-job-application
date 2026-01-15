@@ -16,7 +16,7 @@ const Sidebar = () => {
     setOpenMenus((openMenus) =>
       openMenus.includes(key)
         ? openMenus.filter((k) => k !== key)
-        : [...openMenus, key],
+        : [...openMenus, key]
     );
   };
 
@@ -136,6 +136,16 @@ const Sidebar = () => {
                   onClick={() => router.push("/admin/jobseekers")}
                 >
                   Jobseekers
+                </li>
+                <li
+                  className={`${
+                    pathname === "/admin/deployed-jobseekers"
+                      ? styles.active
+                      : ""
+                  }`}
+                  onClick={() => router.push("/admin/deployed-jobseekers")}
+                >
+                  Deployed Jobseekers
                 </li>
                 <li
                   className={`${

@@ -6,20 +6,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signout } from "@/lib/auth-actions";
 import { useSuperAdmin } from "@/app/admin/hooks/useSuperAdmin";
-import ActionButton from "@/components/ActionButton";
-import { ChangePasswordModal } from "./ChangePasswordModal";
-import { ProfilePictureUpload } from "./ProfilePictureUpload";
+import { AdminProfileModal } from "./AdminProfileModal";
 import { createClient } from "@/utils/supabase/client";
 
 const Header = () => {
   const { isSuperAdmin } = useSuperAdmin();
   const pathname = usePathname();
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
-  const [passwordError, setPasswordError] = useState("");
+  const [adminName, setAdminName] = useState<string>("");
+  const [profileTimestamp, setProfileTimestamp] = useState(Date.now());
 
-  // Load admin profile picture
+  // Load admin profile picture and name
   useEffect(() => {
     const loadProfilePicture = async () => {
       const supabase = createClient();
@@ -30,12 +29,15 @@ const Header = () => {
       if (user) {
         const { data: admin } = await supabase
           .from("peso")
-          .select("profile_picture_url")
+          .select("profile_picture_url, name")
           .eq("auth_id", user.id)
           .single();
 
         if (admin?.profile_picture_url) {
           setProfilePicture(admin.profile_picture_url);
+        }
+        if (admin?.name) {
+          setAdminName(admin.name);
         }
       }
     };
@@ -43,20 +45,48 @@ const Header = () => {
     loadProfilePicture();
   }, []);
 
-  const handleChangePassword = async (
-    currentPassword: string,
-    newPassword: string,
-  ) => {
-    const supabase = createClient();
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest(`.${styles.profileDropdownContainer}`)) {
+        setShowProfileDropdown(false);
+      }
+    };
 
-    // Update password
-    const { error } = await supabase.auth.updateUser({
-      password: newPassword,
-    });
-
-    if (error) {
-      throw new Error(error.message);
+    if (showProfileDropdown) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
     }
+  }, [showProfileDropdown]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest(`.${styles.profileDropdownContainer}`)) {
+        setShowProfileDropdown(false);
+      }
+    };
+
+    if (showProfileDropdown) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [showProfileDropdown]);
+
+  const handleProfileClick = () => {
+    setShowProfileDropdown(!showProfileDropdown);
+  };
+
+  const handleOpenProfileModal = () => {
+    setShowProfileDropdown(false);
+    setShowProfileModal(true);
+  };
+
+  const handleLogout = async () => {
+    setShowProfileDropdown(false);
+    await signout();
   };
 
   return (
@@ -89,115 +119,102 @@ const Header = () => {
 
       {/* Header Actions */}
       <div className={styles.headerActions}>
-        <ActionButton
-          onClick={() => setShowProfileModal(true)}
-          icon={
-            profilePicture ? (
+        {/* Profile Icon with Dropdown */}
+        <div className={`${styles.profileDropdownContainer}`}>
+          <button
+            onClick={handleProfileClick}
+            className={styles.profileIconButton}
+            title={adminName || "Profile"}
+          >
+            {profilePicture ? (
               <img
-                src={profilePicture}
+                src={`${profilePicture}?t=${profileTimestamp}`}
                 alt="Profile"
-                style={{
-                  width: "2rem",
-                  height: "2rem",
-                  borderRadius: "50%",
-                  objectFit: "cover",
-                }}
+                className={styles.profileImage}
               />
             ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
-                />
-              </svg>
-            )
-          }
-          variant="outline"
-        >
-          Profile Picture
-        </ActionButton>
-        <ActionButton
-          onClick={() => setShowPasswordModal(true)}
-          icon={
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M15.75 1.5a6.75 6.75 0 0 0-6.651 7.906c.067.39-.032.717-.221.906l-6.5 6.499a3 3 0 0 0-.878 2.121v2.818c0 .414.336.75.75.75H6a.75.75 0 0 0 .75-.75v-1.5h1.5A.75.75 0 0 0 9 19.5V18h1.5a.75.75 0 0 0 .53-.22l2.658-2.658c.19-.189.517-.288.906-.22A6.75 6.75 0 1 0 15.75 1.5Zm0 3a.75.75 0 0 0 0 1.5A2.25 2.25 0 0 1 18 8.25a.75.75 0 0 0 1.5 0 3.75 3.75 0 0 0-3.75-3.75Z"
-                clipRule="evenodd"
-              />
-            </svg>
-          }
-          variant="outline"
-        >
-          Change Password
-        </ActionButton>
-        <ActionButton
-          onClick={signout}
-          icon={
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M7.5 3.75A1.5 1.5 0 0 0 6 5.25v13.5a1.5 1.5 0 0 0 1.5 1.5h6a1.5 1.5 0 0 0 1.5-1.5V15a.75.75 0 0 1 1.5 0v3.75a3 3 0 0 1-3 3h-6a3 3 0 0 1-3-3V5.25a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3V9A.75.75 0 0 1 15 9V5.25a1.5 1.5 0 0 0-1.5-1.5h-6Zm10.72 4.72a.75.75 0 0 1 1.06 0l3 3a.75.75 0 0 1 0 1.06l-3 3a.75.75 0 1 1-1.06-1.06l1.72-1.72H9a.75.75 0 0 1 0-1.5h10.94l-1.72-1.72a.75.75 0 0 1 0-1.06Z"
-                clipRule="evenodd"
-              />
-            </svg>
-          }
-          variant="outline"
-        >
-          Logout
-        </ActionButton>
-      </div>
+              <div className={styles.profilePlaceholder}>
+                {adminName ? adminName.charAt(0).toUpperCase() : "A"}
+              </div>
+            )}
+          </button>
 
-      {/* Profile Picture Modal */}
-      {showProfileModal && (
-        <div
-          className={styles.modalOverlay}
-          onClick={() => setShowProfileModal(false)}
-        >
-          <div
-            className={styles.modalContent}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className={styles.modalHeader}>
-              <h3>Profile Picture</h3>
+          {/* Dropdown Menu */}
+          {showProfileDropdown && (
+            <div className={styles.profileDropdown}>
+              <div className={styles.dropdownHeader}>
+                <div className={styles.dropdownProfileImage}>
+                  {profilePicture ? (
+                    <img
+                      src={`${profilePicture}?t=${profileTimestamp}`}
+                      alt="Profile"
+                    />
+                  ) : (
+                    <div className={styles.dropdownProfilePlaceholder}>
+                      {adminName ? adminName.charAt(0).toUpperCase() : "A"}
+                    </div>
+                  )}
+                </div>
+                <div className={styles.dropdownUserInfo}>
+                  <p className={styles.dropdownName}>{adminName || "Admin"}</p>
+                  <p className={styles.dropdownRole}>
+                    {isSuperAdmin ? "Super Admin" : "Admin"}
+                  </p>
+                </div>
+              </div>
+              <div className={styles.dropdownDivider} />
               <button
-                className={styles.modalClose}
-                onClick={() => setShowProfileModal(false)}
+                onClick={handleOpenProfileModal}
+                className={styles.dropdownItem}
               >
-                ×
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className={styles.dropdownIcon}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+                  />
+                </svg>
+                Profile
+              </button>
+              <div className={styles.dropdownDivider} />
+              <button onClick={handleLogout} className={styles.dropdownItem}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className={styles.dropdownIcon}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
+                  />
+                </svg>
+                Logout
               </button>
             </div>
-            <ProfilePictureUpload
-              currentPictureUrl={profilePicture}
-              onUploadSuccess={(url) => {
-                setProfilePicture(url);
-                setTimeout(() => setShowProfileModal(false), 500);
-              }}
-            />
-          </div>
+          )}
         </div>
-      )}
+      </div>
 
-      {/* Change Password Modal */}
-      <ChangePasswordModal
-        isOpen={showPasswordModal}
-        onClose={() => setShowPasswordModal(false)}
-        onSubmit={handleChangePassword}
+      {/* Profile Modal (AD01) */}
+      <AdminProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        currentPictureUrl={profilePicture}
+        onProfileUpdate={(url) => {
+          setProfilePicture(url);
+          setProfileTimestamp(Date.now()); // Update timestamp to force refresh
+        }}
       />
     </div>
   );

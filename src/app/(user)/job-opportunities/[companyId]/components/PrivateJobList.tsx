@@ -23,6 +23,7 @@ import { useJobs } from "../hooks/useJobs";
 import JobListCard from "@/components/jobs/JobListCard";
 import ApplicationModal from "./application/ApplicationModal";
 import ApplicationSuccessModal from "./application/ApplicationSuccessModal";
+import DeployedNoticeModal from "./application/DeployedNoticeModal";
 
 // Types
 import { Job } from "../types/job.types";
@@ -42,6 +43,8 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
   const [companyLogo, setCompanyLogo] = useState<string | null>(null);
   const [userSkills, setUserSkills] = useState<string[]>([]);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showDeployedModal, setShowDeployedModal] = useState(false);
+  const [isDeployed, setIsDeployed] = useState(false);
 
   // Custom Hooks
   const { toast, showToast, hideToast } = useToast();
@@ -129,11 +132,39 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
   useEffect(() => {
     fetchUserApplications();
     fetchProgress();
+
+    // Check if user is deployed
+    async function checkDeployedStatus() {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        const { data: applicant } = await supabase
+          .from("applicants")
+          .select("deployed")
+          .eq("auth_id", user.id)
+          .single();
+
+        if (applicant?.deployed) {
+          setIsDeployed(true);
+        }
+      }
+    }
+
+    checkDeployedStatus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handlers
   const handleJobClick = (job: Job) => {
+    // Check if user is deployed
+    if (isDeployed) {
+      setShowDeployedModal(true);
+      return;
+    }
+
     setSelectedJob(job);
     resetExamData();
 
@@ -155,7 +186,7 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
   };
 
   const handleExamSubmitWrapper = async (
-    answers: Record<number, number | number[] | string>,
+    answers: Record<number, number | number[] | string>
   ) => {
     if (!selectedJob?.exam_id || !selectedJob?.id) {
       showToast("Error", "Job or exam information is missing");
@@ -166,7 +197,7 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
       const result = await handleExamSubmit(
         selectedJob.exam_id,
         selectedJob.id,
-        answers,
+        answers
       );
 
       if (result.success) {
@@ -193,7 +224,7 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
       console.error("Error submitting pre-screening:", error);
       showToast(
         "Pre-Screening Submission Failed",
-        error instanceof Error ? error.message : "Unknown error",
+        error instanceof Error ? error.message : "Unknown error"
       );
     }
   };
@@ -201,7 +232,7 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
   const handleContinueToExam = () => {
     showToast(
       "Resume Reviewed ✓",
-      "Please proceed to answer the pre-screening questions.",
+      "Please proceed to answer the pre-screening questions."
     );
   };
 
@@ -210,7 +241,7 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
       updateProgress(selectedJob.id, { verified_id_uploaded: true });
       showToast(
         "Verified ID Uploaded! ✓",
-        "All steps complete. You can now submit your application.",
+        "All steps complete. You can now submit your application."
       );
     }
   };
@@ -229,7 +260,7 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
       console.error("Error submitting application:", error);
       showToast(
         "Submission Failed",
-        error instanceof Error ? error.message : "Unknown error",
+        error instanceof Error ? error.message : "Unknown error"
       );
     }
   };
@@ -237,6 +268,17 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
   const handleFetchExamAttempt = () => {
     if (selectedJob?.id && selectedJob?.exam_id) {
       fetchExamAttempt(selectedJob.id, selectedJob.exam_id);
+    }
+  };
+
+  const handleChatWithAdmin = () => {
+    setShowDeployedModal(false);
+    // Open chat widget
+    const chatButton = document.querySelector(
+      "[data-chat-widget]"
+    ) as HTMLElement;
+    if (chatButton) {
+      chatButton.click();
     }
   };
 
@@ -330,6 +372,13 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
       {showSuccessModal && (
         <ApplicationSuccessModal onClose={() => setShowSuccessModal(false)} />
       )}
+
+      {/* Deployed Notice Modal */}
+      <DeployedNoticeModal
+        isOpen={showDeployedModal}
+        onClose={() => setShowDeployedModal(false)}
+        onChatWithAdmin={handleChatWithAdmin}
+      />
     </section>
   );
 };

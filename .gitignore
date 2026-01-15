@@ -42,7 +42,7 @@ next-env.d.ts
 
 # test files
 supabase
-sql
+# sql
 docs
 db.json
 diff.txt

@@ -1,306 +1,373 @@
 .container {
-    padding: 2rem;
-    max-width: 800px;
-    margin: 0 auto;
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    align-self: center;
-    justify-self: center;
-    padding: 3rem;
-    font-size: 1rem;
-    color: #64748b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-self: center;
+  justify-self: center;
+  padding: 3rem;
+  font-size: 1rem;
+  color: #64748b;
 }
 
 /* Dropdown Section */
 .dropdownSection {
-    margin-bottom: 2rem;
+  margin-bottom: 2rem;
 }
 
 .label {
-    display: block;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #64748b;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.5rem;
-    text-transform: uppercase;
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
 }
 
 .dropdown {
-    width: 100%;
-    padding: 0.875rem 1rem;
-    font-size: 1rem;
-    border: 2px solid #e2e8f0;
-    border-radius: 0.5rem;
-    background-color: white;
-    color: #1e293b;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 1rem center;
-    background-size: 1.25rem;
-    padding-right: 3rem;
+  width: 100%;
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background-color: white;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.25rem;
+  padding-right: 3rem;
 }
 
 .dropdown:hover {
-    border-color: #cbd5e1;
+  border-color: #cbd5e1;
 }
 
 .dropdown:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
 .dropdown:disabled {
-    background-color: #f8fafc;
-    cursor: not-allowed;
-    opacity: 0.6;
+  background-color: #f8fafc;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* Upload Grid */
 .uploadGrid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .uploadSingle {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
 }
 
 .uploadSingle .uploadSection {
-    width: calc(50% - 0.75rem);
+  width: calc(50% - 0.75rem);
 }
 
 .uploadSection {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .uploadLabel {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #64748b;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.75rem;
-    text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
 }
 
 .uploadBox {
-    position: relative;
-    border: 2px dashed #cbd5e1;
-    border-radius: 0.75rem;
-    background-color: #f8fafc;
-    overflow: hidden;
-    transition: all 0.2s ease;
-    aspect-ratio: 16/10;
+  position: relative;
+  border: 2px dashed #cbd5e1;
+  border-radius: 0.75rem;
+  background-color: #f8fafc;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  aspect-ratio: 16/10;
 }
 
 .uploadBox:hover {
-    border-color: var(--accent);
-    background-color: #f1f5f9;
+  border-color: var(--accent);
+  background-color: #f1f5f9;
 }
 
 /* Upload Placeholder */
 .uploadPlaceholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    cursor: pointer;
-    padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  cursor: pointer;
+  padding: 1.5rem;
 }
 
 .uploadIcon {
-    width: 3rem;
-    height: 3rem;
-    color: #7adaef;
-    margin-bottom: 1rem;
+  width: 3rem;
+  height: 3rem;
+  color: #7adaef;
+  margin-bottom: 1rem;
 }
 
 .placeholderIcon {
-    margin-top: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .idCardIcon {
-    width: 5rem;
-    height: auto;
-    opacity: 0.7;
+  width: 5rem;
+  height: auto;
+  opacity: 0.7;
 }
 
 .selfieIcon {
-    width: 3rem;
-    height: 3rem;
-    color: #9e9e9e;
+  width: 3rem;
+  height: 3rem;
+  color: #9e9e9e;
 }
 
 /* Preview Image */
 .previewImage {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Verified Badge */
+.verifiedBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: white;
+  border-radius: 50%;
+  padding: 2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+/* Modal Overlay */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.defaultModal {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.modalTitle {
+  margin: 0 0 1rem 0;
+  color: #1e293b;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.modalMessage {
+  margin: 0 0 1.5rem 0;
+  color: #64748b;
+  font-size: 1rem;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.modalButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.modalButtons button {
+  flex: 1;
+  max-width: 200px;
 }
 
 .actionLinks {
-    display: flex !important;
-    visibility: visible !important;
-    justify-content: center;
-    align-items: center;
-    gap: 2rem;
-    padding: 0.5rem 0;
-    margin-top: 0.75rem;
-    background-color: transparent;
+  display: flex !important;
+  visibility: visible !important;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  padding: 0.5rem 0;
+  margin-top: 0.75rem;
+  background-color: transparent;
 }
 
 .changeLink,
 .removeLink {
-    background: none;
-    border: none;
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 0;
-    transition: all 0.2s ease;
-    letter-spacing: 0.3px;
-    display: inline-block;
+  background: none;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+  letter-spacing: 0.3px;
+  display: inline-block;
 }
 
 .changeLink {
-    color: #7adaef !important;
+  color: #7adaef !important;
 }
 
 .changeLink:hover {
-    color: #5bc4dc !important;
-    text-decoration: underline;
+  color: #5bc4dc !important;
+  text-decoration: underline;
 }
 
 .removeLink {
-    color: #ef4444 !important;
+  color: #ef4444 !important;
 }
 
 .removeLink:hover {
-    color: #dc2626 !important;
-    text-decoration: underline;
+  color: #dc2626 !important;
+  text-decoration: underline;
 }
 
 .fileInput {
-    display: none;
+  display: none;
 }
 
 /* Button Container */
 .buttonContainer {
-    display: flex;
-    justify-content: flex-end;
-    padding-top: 1rem;
-    border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
 }
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
-    .container {
-        padding: 1.5rem 1rem;
-    }
+  .container {
+    padding: 1.5rem 1rem;
+  }
 
-    .uploadGrid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
+  .uploadGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
 
-    .uploadSingle .uploadSection {
-        width: 100%;
-    }
+  .uploadSingle .uploadSection {
+    width: 100%;
+  }
 
-    .uploadBox {
-        aspect-ratio: 16/9;
-    }
+  .uploadBox {
+    aspect-ratio: 16/9;
+  }
 
-    .uploadIcon {
-        width: 2.5rem;
-        height: 2.5rem;
-    }
+  .uploadIcon {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
 
-    .idCardIcon {
-        width: 4rem;
-    }
+  .idCardIcon {
+    width: 4rem;
+  }
 
-    .selfieIcon {
-        width: 2.5rem;
-        height: 2.5rem;
-    }
+  .selfieIcon {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
 
-    .actionLinks {
-        gap: 1.5rem;
-        padding: 0.625rem;
-    }
+  .actionLinks {
+    gap: 1.5rem;
+    padding: 0.625rem;
+  }
 
-    .changeLink,
-    .removeLink {
-        font-size: 0.8rem;
-    }
+  .changeLink,
+  .removeLink {
+    font-size: 0.8rem;
+  }
 
-    .buttonContainer {
-        justify-content: stretch;
-    }
+  .buttonContainer {
+    justify-content: stretch;
+  }
 
-    .buttonContainer button {
-        width: 100% !important;
-    }
+  .buttonContainer button {
+    width: 100% !important;
+  }
 }
 
 @media (max-width: 480px) {
-    .container {
-        padding: 1rem 0.75rem;
-    }
+  .container {
+    padding: 1rem 0.75rem;
+  }
 
-    .dropdown {
-        padding: 0.75rem 0.875rem;
-        font-size: 0.9rem;
-        padding-right: 2.5rem;
-    }
+  .dropdown {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.9rem;
+    padding-right: 2.5rem;
+  }
 
-    .uploadLabel {
-        font-size: 0.7rem;
-        margin-bottom: 0.5rem;
-    }
+  .uploadLabel {
+    font-size: 0.7rem;
+    margin-bottom: 0.5rem;
+  }
 
-    .uploadBox {
-        aspect-ratio: 4/3;
-    }
+  .uploadBox {
+    aspect-ratio: 4/3;
+  }
 
-    .uploadIcon {
-        width: 2rem;
-        height: 2rem;
-    }
+  .uploadIcon {
+    width: 2rem;
+    height: 2rem;
+  }
 
-    .idCardIcon {
-        width: 3rem;
-    }
+  .idCardIcon {
+    width: 3rem;
+  }
 
-    .selfieIcon {
-        width: 2rem;
-        height: 2rem;
-    }
+  .selfieIcon {
+    width: 2rem;
+    height: 2rem;
+  }
 
-    .actionLinks {
-        gap: 1rem;
-        padding: 0.5rem;
-    }
+  .actionLinks {
+    gap: 1rem;
+    padding: 0.5rem;
+  }
 
-    .changeLink,
-    .removeLink {
-        font-size: 0.75rem;
-    }
+  .changeLink,
+  .removeLink {
+    font-size: 0.75rem;
+  }
 }

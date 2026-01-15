@@ -16,6 +16,7 @@ interface VerifiedIdManagerProps {
   applicationId?: number;
   jobId?: number;
   hasApplied?: boolean;
+  isVerified?: boolean;
 }
 
 const ID_TYPES = [
@@ -41,6 +42,7 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
   applicationId,
   jobId, // Reserved for future use (e.g., fetching job-specific ID requirements)
   hasApplied = false,
+  isVerified = false,
 }) => {
   const [selectedIdType, setSelectedIdType] = useState<string>("NATIONAL ID");
   const [frontPreview, setFrontPreview] = useState<string | null>(null);
@@ -52,6 +54,9 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [existingId, setExistingId] = useState<ApplicantIDData | null>(null);
+  const [showDefaultModal, setShowDefaultModal] = useState(false);
+  const [pendingUploadData, setPendingUploadData] =
+    useState<ApplicantIDData | null>(null);
 
   const frontInputRef = useRef<HTMLInputElement | null>(null);
   const backInputRef = useRef<HTMLInputElement | null>(null);
@@ -198,7 +203,8 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
       const result = await uploadApplicantID(formData);
 
       if (result.success) {
-        setExistingId(result.data || null);
+        const uploadedData = result.data || null;
+        setExistingId(uploadedData);
         // Clear file states but keep previews
         setFrontFile(null);
         setBackFile(null);
@@ -209,6 +215,10 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
           alert(
             "ID updated successfully. Admins have been notified to review your changes."
           );
+        } else if (!hasApplied && uploadedData) {
+          // Show modal asking if user wants to set this as default
+          setPendingUploadData(uploadedData);
+          setShowDefaultModal(true);
         } else if (onIdUploaded) {
           onIdUploaded();
         } else {
@@ -225,6 +235,37 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
     }
   };
 
+  const handleSetAsDefault = async (setAsDefault: boolean) => {
+    setShowDefaultModal(false);
+
+    if (setAsDefault && pendingUploadData) {
+      try {
+        const response = await fetch("/api/user/set-default-id", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idType: selectedIdType }),
+        });
+
+        if (response.ok) {
+          alert("ID saved and set as default for future applications!");
+        } else {
+          alert("ID saved successfully!");
+        }
+      } catch (error) {
+        console.error("Error setting default ID:", error);
+        alert("ID saved successfully!");
+      }
+    } else {
+      alert("ID saved successfully!");
+    }
+
+    if (onIdUploaded) {
+      onIdUploaded();
+    }
+
+    setPendingUploadData(null);
+  };
+
   const renderUploadArea = (
     type: "front" | "back" | "selfie",
     preview: string | null,
@@ -236,7 +277,29 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
         <label className={styles.uploadLabel}>{label}</label>
         <div className={styles.uploadBox}>
           {preview ? (
-            <img src={preview} alt={label} className={styles.previewImage} />
+            <div style={{ position: "relative" }}>
+              <img src={preview} alt={label} className={styles.previewImage} />
+              {isVerified && (
+                <div className={styles.verifiedBadge}>
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle cx="12" cy="12" r="12" fill="#10b981" />
+                    <path
+                      d="M7 12l4 4 6-7"
+                      stroke="white"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+              )}
+            </div>
           ) : (
             <div
               className={styles.uploadPlaceholder}
@@ -461,6 +524,33 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
                 : "SAVE ID"}
             </Button>
           )}
+        </div>
+      )}
+
+      {/* Default ID Modal */}
+      {showDefaultModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.defaultModal}>
+            <h3 className={styles.modalTitle}>ID Successfully Saved!</h3>
+            <p className={styles.modalMessage}>
+              Would you like to use this {selectedIdType} for future
+              applications?
+            </p>
+            <div className={styles.modalButtons}>
+              <Button
+                variant="primary"
+                onClick={() => handleSetAsDefault(true)}
+              >
+                Yes, Use as Default
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => handleSetAsDefault(false)}
+              >
+                No, Thanks
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>

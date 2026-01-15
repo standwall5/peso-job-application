@@ -11,82 +11,18 @@ interface IDViewModalProps {
   onClose: () => void;
 }
 
-const ID_TYPES = [
-  "NATIONAL ID",
-  "POSTAL ID",
-  "DRIVER'S LICENSE",
-  "PASSPORT",
-  "SSS ID",
-  "UMID",
-  "PhilHealth ID",
-  "TIN ID",
-  "VOTER'S ID",
-  "PRC ID",
-  "PWD ID",
-  "SENIOR CITIZEN ID",
-];
-
 export default function IDViewModal({
   applicantId,
   applicantName,
   applicationId,
   onClose,
 }: IDViewModalProps) {
-  const [selectedIdType, setSelectedIdType] = useState<string>("NATIONAL ID");
   const [currentView, setCurrentView] = useState<"front" | "back" | "selfie">(
-    "front"
+    "front",
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [imageKey, setImageKey] = useState(0);
-  const [isVerified, setIsVerified] = useState(false);
-  const [verifying, setVerifying] = useState(false);
-
-  useEffect(() => {
-    fetchVerificationStatus();
-  }, [applicantId]);
-
-  const fetchVerificationStatus = async () => {
-    try {
-      const response = await fetch(
-        `/api/admin/applicant-verification-status?applicantId=${applicantId}`
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setIsVerified(data.id_verified || false);
-      }
-    } catch (error) {
-      console.error("Error fetching verification status:", error);
-    }
-  };
-
-  const handleVerificationToggle = async () => {
-    try {
-      setVerifying(true);
-      const response = await fetch("/api/admin/verify-id", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          applicantId,
-          verified: !isVerified,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setIsVerified(data.applicant.id_verified);
-        alert(data.message);
-      } else {
-        const error = await response.json();
-        alert(error.error || "Failed to update verification status");
-      }
-    } catch (error) {
-      console.error("Error updating verification:", error);
-      alert("An error occurred while updating verification status");
-    } finally {
-      setVerifying(false);
-    }
-  };
 
   // Prevent right-click and keyboard shortcuts
   useEffect(() => {
@@ -142,16 +78,14 @@ export default function IDViewModal({
     };
   }, [onClose]);
 
-  // Reset loading state when switching tabs or ID type
+  // Reset loading state when switching tabs
   useEffect(() => {
     setLoading(true);
     setError(null);
     setImageKey((prev) => prev + 1);
-  }, [currentView, selectedIdType]);
+  }, [currentView]);
 
-  const imageUrl = `/api/admin/view-id?applicantId=${applicantId}&imageType=${currentView}&idType=${encodeURIComponent(
-    selectedIdType
-  )}${applicationId ? `&applicationId=${applicationId}` : ""}&t=${imageKey}`;
+  const imageUrl = `/api/admin/view-id?applicantId=${applicantId}&imageType=${currentView}${applicationId ? `&applicationId=${applicationId}` : ""}&t=${imageKey}`;
 
   const getTabLabel = (type: "front" | "back" | "selfie") => {
     switch (type) {
@@ -181,30 +115,13 @@ export default function IDViewModal({
             This document is confidential and watermarked. Unauthorized
             distribution is prohibited.
           </p>
-          <div className={styles.idTypeSelector}>
-            <label htmlFor="idTypeSelect">ID Type:</label>
-            <select
-              id="idTypeSelect"
-              value={selectedIdType}
-              onChange={(e) => setSelectedIdType(e.target.value)}
-              className={styles.idTypeDropdown}
-            >
-              {ID_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </div>
         </div>
 
         <div className={styles.tabs}>
           {(["front", "back", "selfie"] as const).map((type) => (
             <button
               key={type}
-              className={`${styles.tab} ${
-                currentView === type ? styles.activeTab : ""
-              }`}
+              className={`${styles.tab} ${currentView === type ? styles.activeTab : ""}`}
               onClick={() => setCurrentView(type)}
               aria-label={`View ${type} ID`}
             >
@@ -248,22 +165,6 @@ export default function IDViewModal({
         </div>
 
         <div className={styles.footer}>
-          <div className={styles.verificationControls}>
-            <Button
-              variant={isVerified ? "danger" : "success"}
-              onClick={handleVerificationToggle}
-              disabled={verifying}
-            >
-              {verifying
-                ? "Updating..."
-                : isVerified
-                ? "Mark as Not Verified"
-                : "Mark as Verified"}
-            </Button>
-            {isVerified && (
-              <span className={styles.verifiedStatus}>✓ ID Verified</span>
-            )}
-          </div>
           <p className={styles.disclaimer}>
             This view is logged for security and audit purposes. Access
             timestamp and administrator details are recorded.
