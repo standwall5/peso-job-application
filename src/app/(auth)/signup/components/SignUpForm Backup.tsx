@@ -1202,7 +1202,7 @@ const SignUpForm = () => {
                 id="email"
                 name="email"
                 type="email"
-                placeholder="@gmail.com"
+                placeholder="juandelacruz@gmail.com"
                 value={emailValue} // Corrected value prop binding
                 onChange={handleEmailChange}
                 className={errors["email"] ? styles.errorInput : ""}
