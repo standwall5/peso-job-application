@@ -86,7 +86,7 @@ export async function getAdminChatSessions(
 
   // Format timestamps (keep as Date objects, browser will handle timezone)
   const formattedSessions: AdminChatSession[] = (chatSessions || []).map(
-    (session: any) => {
+    (session: { id: string; user_id: string; status: string; created_at: string; updated_at: string; last_user_message_at: string | null; applicants: { name: string } | null }) => {
       const applicant = session.applicants;
       const userName = applicant?.name || "Unknown User";
 

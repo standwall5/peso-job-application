@@ -77,7 +77,7 @@ export async function GET(request: Request) {
   }
 
   // Format response with user details
-  const formattedSessions = (chatSessions || []).map((session: any) => {
+  const formattedSessions = (chatSessions || []).map((session: { id: string; user_id: string; status: string; created_at: string; updated_at: string; last_user_message_at: string | null; applicants: { name: string } | null }) => {
     const applicant = session.applicants;
     const userName = applicant?.name || "Unknown User";
 
