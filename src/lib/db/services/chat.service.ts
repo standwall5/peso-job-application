@@ -110,7 +110,15 @@ export async function getActiveChatSession(): Promise<ChatSession | null> {
 // Get unread message count for active session
 export async function getUnreadMessageCount(): Promise<number> {
   const supabase = await getSupabaseClient();
-  const user = await getCurrentUser();
+
+  // Check if user is authenticated
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return 0; // Not authenticated, no unread messages
+  }
 
   // Get applicant ID
   const { data: applicant } = await supabase
@@ -216,7 +224,7 @@ export async function createChatRequest(concern: string): Promise<ChatSession> {
 
 // Get messages for a chat session
 export async function getChatMessages(
-  chatSessionId: string,
+  chatSessionId: string
 ): Promise<ChatMessage[]> {
   const supabase = await getSupabaseClient();
   await getCurrentUser();
@@ -239,7 +247,7 @@ export async function getChatMessages(
 // Send a chat message
 export async function sendChatMessage(
   chatSessionId: string,
-  message: string,
+  message: string
 ): Promise<ChatMessage> {
   const supabase = await getSupabaseClient();
   await getCurrentUser();
