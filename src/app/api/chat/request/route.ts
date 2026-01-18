@@ -5,18 +5,9 @@ import { isAdminAvailable, getBotGreeting } from "@/utils/chatbot";
 export async function POST(request: Request) {
   const supabase = await createClient();
 
-  // Get authenticated user
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
-
   // Get request body
   const body = await request.json();
-  const { concern } = body;
+  const { concern, anonymousId, anonymousName } = body;
 
   if (!concern || !concern.trim()) {
     return NextResponse.json(
@@ -25,16 +16,43 @@ export async function POST(request: Request) {
     );
   }
 
-  // Get applicant ID from auth_id
-  const { data: applicantData, error: applicantError } = await supabase
-    .from("applicants")
-    .select("id, name")
-    .eq("auth_id", user.id)
-    .single();
+  // Get authenticated user (may be null for anonymous users)
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (applicantError || !applicantData) {
-    console.error("Applicant lookup error:", applicantError);
-    return NextResponse.json({ error: "Applicant not found" }, { status: 404 });
+  let isAnonymous = false;
+  let userId: number | null = null;
+  let userName = "User";
+
+  if (user) {
+    // Authenticated user
+    const { data: applicantData, error: applicantError } = await supabase
+      .from("applicants")
+      .select("id, name")
+      .eq("auth_id", user.id)
+      .single();
+
+    if (applicantError || !applicantData) {
+      console.error("Applicant lookup error:", applicantError);
+      return NextResponse.json(
+        { error: "Applicant not found" },
+        { status: 404 },
+      );
+    }
+
+    userId = applicantData.id;
+    userName = applicantData.name;
+  } else {
+    // Anonymous user
+    if (!anonymousId || !anonymousId.trim()) {
+      return NextResponse.json(
+        { error: "Anonymous ID is required for unauthenticated users" },
+        { status: 400 },
+      );
+    }
+    isAnonymous = true;
+    userName = anonymousName?.trim() || "Anonymous User";
   }
 
   // Check if admins are available
@@ -42,9 +60,10 @@ export async function POST(request: Request) {
   const initialStatus = adminAvailable ? "pending" : "active";
 
   console.log("[Chat Request] Creating session:", {
-    userId: applicantData.id,
-    userName: applicantData.name,
-    authId: user.id,
+    isAnonymous,
+    userId,
+    anonymousId: isAnonymous ? anonymousId : null,
+    userName,
     adminAvailable,
     initialStatus,
     willSendBotGreeting: !adminAvailable,
@@ -52,13 +71,24 @@ export async function POST(request: Request) {
   });
 
   // Create chat session with concern
+  const sessionData: any = {
+    status: initialStatus,
+    concern: concern.trim(),
+    last_user_message_at: new Date().toISOString(),
+  };
+
+  if (isAnonymous) {
+    sessionData.is_anonymous = true;
+    sessionData.anonymous_id = anonymousId.trim();
+    sessionData.anonymous_name = userName;
+  } else {
+    sessionData.user_id = userId;
+    sessionData.is_anonymous = false;
+  }
+
   const { data: chatSession, error: chatError } = await supabase
     .from("chat_sessions")
-    .insert({
-      user_id: applicantData.id,
-      status: initialStatus,
-      concern: concern.trim(),
-    })
+    .insert(sessionData)
     .select()
     .single();
 
@@ -70,7 +100,7 @@ export async function POST(request: Request) {
   console.log("[Chat Request] Session created successfully:", {
     sessionId: chatSession.id,
     status: chatSession.status,
-    userId: chatSession.user_id,
+    isAnonymous: chatSession.is_anonymous,
     concern: chatSession.concern?.substring(0, 50),
     timestamp: new Date().toISOString(),
   });

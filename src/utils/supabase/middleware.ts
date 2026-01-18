@@ -96,6 +96,14 @@ export async function updateSession(request: NextRequest) {
 
   // If user is a PESO admin
   if (pesoUser) {
+    // Redirect admins away from auth pages (login, signup, etc.)
+    const authPages = ["/login", "/signup", "/auth"];
+    if (publicPaths.some((p) => pathname.startsWith(p))) {
+      const url = request.nextUrl.clone();
+      url.pathname = pesoUser.is_superadmin ? "/admin/manage-admin" : "/admin";
+      return NextResponse.redirect(url);
+    }
+
     const isSuperAdmin = pesoUser.is_superadmin;
 
     // Super admin specific paths
@@ -151,11 +159,17 @@ export async function updateSession(request: NextRequest) {
   }
 
   // If user is a regular applicant (NOT a PESO user)
+  // Redirect from auth pages to home/job-opportunities
+  const authPages = ["/login", "/signup", "/auth"];
+  if (authPages.some((p) => pathname.startsWith(p))) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/job-opportunities";
+    return NextResponse.redirect(url);
+  }
+
   // Block access to admin pages
   if (
     pathname.startsWith("/admin") ||
-    pathname.startsWith("/login") ||
-    pathname.startsWith("/signup") ||
     pathname.startsWith("/about") ||
     pathname.startsWith("/how-it-works") ||
     pathname.startsWith("/forgot-password")

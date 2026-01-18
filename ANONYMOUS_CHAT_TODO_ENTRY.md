@@ -1,0 +1,30 @@
+#### 11. Anonymous Chat Support
+- **Status:** ✅ COMPLETE  
+- **Files Created:**
+  - `/migrations/002_add_anonymous_chat_support.sql` - Database migration
+  - `/src/lib/db/services/anonymous-chat.service.ts` - Server service
+  - `/src/utils/anonymous-chat.ts` - Client utilities
+  - `/src/app/api/chat/anonymous-active-session/route.ts` - API route
+  - `/ANONYMOUS_CHAT_GUIDE.md` - Full documentation
+  - `/ANONYMOUS_CHAT_SUMMARY.md` - Quick reference
+- **Files Modified:**
+  - `/src/app/api/chat/request/route.ts` - Support anonymous users
+- **Features:**
+  - Unauthenticated users can use chat without logging in
+  - Unique anonymous ID stored in localStorage (30-day expiry)
+  - Random display names (e.g., "Curious Visitor #123")
+  - Session persistence across page reloads
+  - Same chat experience as authenticated users
+  - Admins see anonymous users with clear badge
+  - Auto-cleanup of old anonymous sessions (7 days)
+  - Full privacy - no PII stored
+  - Can migrate to authenticated account later
+- **Database Changes:**
+  - Added `is_anonymous`, `anonymous_id`, `anonymous_name` columns to `chat_sessions`
+  - Made `user_id` nullable for anonymous users
+  - Updated RLS policies for anonymous access
+  - Created cleanup function for old sessions
+- **Setup Required:**
+  - Run migration: `migrations/002_add_anonymous_chat_support.sql`
+  - Test anonymous chat flow
+  - Optional: Set up cleanup cron job

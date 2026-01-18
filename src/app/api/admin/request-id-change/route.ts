@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
-import { createIdVerificationNotification } from "@/lib/db/services/notification.service";
+import { createIdChangeNotification } from "@/lib/db/services/notification.service";
 
-// POST /api/admin/verify-id
+// POST /api/admin/request-id-change
 export async function POST(req: Request) {
   try {
     const supabase = await createClient();
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
 
     // Get request body
     const body = await req.json();
-    const { applicantId, applicationId } = body;
+    const { applicantId, reason } = body;
 
     if (!applicantId) {
       return NextResponse.json(
@@ -40,52 +40,53 @@ export async function POST(req: Request) {
       );
     }
 
-    // Update applicant_ids table to mark as verified
+    // Mark current ID as rejected/needs update
     const { error: updateError } = await supabase
       .from("applicant_ids")
       .update({
-        is_verified: true,
-        verified_by: admin.id,
-        verified_at: new Date().toISOString(),
-        status: "approved",
+        status: "rejected",
+        rejection_reason: reason || "Please update your identification document",
+        rejected_by: admin.id,
+        rejected_at: new Date().toISOString(),
+        is_verified: false,
       })
       .eq("applicant_id", applicantId);
 
     if (updateError) {
-      console.error("Error updating verification status:", updateError);
+      console.error("Error updating ID status:", updateError);
       return NextResponse.json(
-        { error: "Failed to update verification status" },
+        { error: "Failed to update ID status" },
         { status: 500 },
       );
     }
 
-    // Create notification for applicant
+    // Send notification to applicant
     try {
-      await createIdVerificationNotification(applicantId);
+      await createIdChangeNotification(applicantId, reason);
     } catch (notifError) {
       console.error("Error creating notification:", notifError);
       // Continue even if notification fails
     }
 
-    // Log the verification action
+    // Log the action
     await supabase.from("id_verification_logs").insert({
       applicant_id: applicantId,
       admin_id: admin.id,
-      action: "verified",
-      application_id: applicationId || null,
+      action: "rejected",
+      reason: reason || "ID update requested",
       timestamp: new Date().toISOString(),
     });
 
     console.log(
-      `Admin ${admin.name} (ID: ${admin.id}) verified ID for applicant ${applicantId}`,
+      `Admin ${admin.name} (ID: ${admin.id}) requested ID change for applicant ${applicantId}`,
     );
 
     return NextResponse.json({
       success: true,
-      message: "ID verified successfully",
+      message: "ID update request sent to applicant",
     });
   } catch (error) {
-    console.error("Error in verify-id route:", error);
+    console.error("Error in request-id-change route:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

@@ -24,12 +24,12 @@ export const FORCE_BOT_MODE = false;
 /**
  * TESTING: Set to true to always skip bot (admins "available")
  * Set to false to use normal business hours logic
+ * PRODUCTION: Set to false to use actual business hours
  */
-export const FORCE_ADMIN_MODE = true;
+export const FORCE_ADMIN_MODE = false;
 
 /**
- * Check if current time is within business hours
- * NOTE: Uses server timezone - may need adjustment for Philippine Time
+ * Check if current time is within business hours (Philippine Time)
  */
 export function isAdminAvailable(): boolean {
   // Testing overrides
@@ -42,9 +42,14 @@ export function isAdminAvailable(): boolean {
     return true;
   }
 
+  // Get current time in Philippine Time (UTC+8)
   const now = new Date();
-  const currentHour = now.getHours();
-  const currentDay = now.getDay();
+  const phTime = new Date(
+    now.toLocaleString("en-US", { timeZone: "Asia/Manila" }),
+  );
+
+  const currentHour = phTime.getHours();
+  const currentDay = phTime.getDay();
 
   const isBusinessDay = BUSINESS_HOURS.days.includes(currentDay);
   const isBusinessHour =
@@ -55,8 +60,9 @@ export function isAdminAvailable(): boolean {
   // Debug logging
   console.log("[Chatbot] Admin availability check:", {
     serverTime: now.toISOString(),
-    serverHour: currentHour,
-    serverDay: currentDay,
+    philippineTime: phTime.toLocaleString("en-PH", { timeZone: "Asia/Manila" }),
+    currentHour: currentHour,
+    currentDay: currentDay,
     dayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
     currentDayName: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][
       currentDay

@@ -5,6 +5,7 @@ import "@/app/globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import LanguageSelector from "@/components/LanguageSelector";
+import AuthRedirect from "@/components/AuthRedirect";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -31,6 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <LanguageProvider>
+      <AuthRedirect />
       <div className="page-container">
         <div className="overlay">
           <Navbar />

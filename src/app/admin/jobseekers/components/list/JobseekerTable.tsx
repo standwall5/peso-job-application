@@ -3,11 +3,11 @@
 import React, { useState } from "react";
 import styles from "../Jobseekers.module.css";
 import { Application, AppliedJob } from "../../types/jobseeker.types";
-import AppliedJobsRow from "./AppliedJobsRow";
-import {
-  getApplicantAppliedJobs,
-  updateApplicationStatus,
-} from "@/lib/db/services/application.service";
+// import AppliedJobsRow from "./AppliedJobsRow";
+// import {
+//   getApplicantAppliedJobs,
+//   updateApplicationStatus,
+// } from "@/lib/db/services/application.service";
 
 interface JobseekerTableProps {
   applications: Application[];
@@ -27,11 +27,11 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
   onToggleSelect,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [expandedApplicantId, setExpandedApplicantId] = useState<number | null>(
-    null,
-  );
-  const [appliedJobs, setAppliedJobs] = useState<AppliedJob[]>([]);
-  const [loadingJobs, setLoadingJobs] = useState(false);
+  // const [expandedApplicantId, setExpandedApplicantId] = useState<number | null>(
+  //   null,
+  // );
+  // const [appliedJobs, setAppliedJobs] = useState<AppliedJob[]>([]);
+  // const [loadingJobs, setLoadingJobs] = useState(false);
 
   const itemsPerPage = 5;
 
@@ -43,7 +43,7 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    setExpandedApplicantId(null); // Close expanded row on page change
+    // setExpandedApplicantId(null); // Close expanded row on page change
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -59,52 +59,52 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
     }
   };
 
-  const handleRowClick = async (applicantId: number) => {
-    // Toggle: if clicking the same row, collapse it
-    if (expandedApplicantId === applicantId) {
-      setExpandedApplicantId(null);
-      setAppliedJobs([]);
-      return;
-    }
+  // const handleRowClick = async (applicantId: number) => {
+  //   // Toggle: if clicking the same row, collapse it
+  //   if (expandedApplicantId === applicantId) {
+  //     setExpandedApplicantId(null);
+  //     setAppliedJobs([]);
+  //     return;
+  //   }
 
-    // Expand the new row
-    setExpandedApplicantId(applicantId);
-    setLoadingJobs(true);
+  //   // Expand the new row
+  //   setExpandedApplicantId(applicantId);
+  //   setLoadingJobs(true);
 
-    try {
-      // Fetch applied jobs for this applicant using the service
-      const jobs = await getApplicantAppliedJobs(applicantId);
-      setAppliedJobs(jobs);
-    } catch (error) {
-      console.error("Error fetching applied jobs:", error);
-      setAppliedJobs([]);
-    } finally {
-      setLoadingJobs(false);
-    }
-  };
+  //   try {
+  //     // Fetch applied jobs for this applicant using the service
+  //     const jobs = await getApplicantAppliedJobs(applicantId);
+  //     setAppliedJobs(jobs);
+  //   } catch (error) {
+  //     console.error("Error fetching applied jobs:", error);
+  //     setAppliedJobs([]);
+  //   } finally {
+  //     setLoadingJobs(false);
+  //   }
+  // };
 
-  const handleStatusChange = async (
-    applicationId: number,
-    newStatus: string,
-  ) => {
-    try {
-      await updateApplicationStatus(applicationId, newStatus);
+  // const handleStatusChange = async (
+  //   applicationId: number,
+  //   newStatus: string,
+  // ) => {
+  //   try {
+  //     await updateApplicationStatus(applicationId, newStatus);
 
-      // Refresh the applied jobs list for the expanded row
-      if (expandedApplicantId) {
-        const jobs = await getApplicantAppliedJobs(expandedApplicantId);
-        setAppliedJobs(jobs);
-      }
+  //     // Refresh the applied jobs list for the expanded row
+  //     if (expandedApplicantId) {
+  //       const jobs = await getApplicantAppliedJobs(expandedApplicantId);
+  //       setAppliedJobs(jobs);
+  //     }
 
-      // TODO: Send notification to user about status change
-      console.log(
-        `Status changed to ${newStatus} for application ${applicationId}`,
-      );
-    } catch (error) {
-      console.error("Error updating application status:", error);
-      throw error;
-    }
-  };
+  //     // TODO: Send notification to user about status change
+  //     console.log(
+  //       `Status updated to ${newStatus} for application ${applicationId}`,
+  //     );
+  //   } catch (error) {
+  //     console.error("Error updating status:", error);
+  //     alert("Failed to update application status. Please try again.");
+  //   }
+  // };
 
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
@@ -253,12 +253,8 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
         <React.Fragment key={app.applicant.id}>
           <div className={styles.tableRow}>
             <div
-              className={`${styles.jobseekersDetails} ${
-                expandedApplicantId === app.applicant.id
-                  ? styles.expandedActive
-                  : ""
-              }`}
-              onClick={() => handleRowClick(app.applicant.id)}
+              className={`${styles.jobseekersDetails}`}
+              // onClick={() => handleRowClick(app.applicant.id)}
             >
               <div className={styles.avatarCell}>
                 <img
@@ -284,10 +280,11 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
                   style={{
                     width: "20px",
                     height: "20px",
-                    transform:
-                      expandedApplicantId === app.applicant.id
-                        ? "rotate(180deg)"
-                        : "rotate(0deg)",
+                    transform: "rotate(0deg)",
+                    // transform:
+                    //   expandedApplicantId === app.applicant.id
+                    //     ? "rotate(180deg)"
+                    //     : "rotate(0deg)",
                     transition: "transform 0.3s ease",
                   }}
                 >
@@ -338,14 +335,14 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
             </div>
           </div>
 
-          {/* Expanded row showing applied jobs */}
-          {expandedApplicantId === app.applicant.id && (
+          {/* Expanded row showing applied jobs - COMMENTED OUT AS NOT NEEDED */}
+          {/* {expandedApplicantId === app.applicant.id && (
             <AppliedJobsRow
               jobs={appliedJobs}
               loading={loadingJobs}
               onStatusChange={handleStatusChange}
             />
-          )}
+          )} */}
         </React.Fragment>
       ))}
 

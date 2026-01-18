@@ -160,12 +160,6 @@ CREATE TABLE public.choices (
   CONSTRAINT choices_pkey PRIMARY KEY (id),
   CONSTRAINT choices_question_id_fkey FOREIGN KEY (question_id) REFERENCES public.questions(id)
 );
-CREATE TABLE public.choices_backup (
-  id integer,
-  question_id integer,
-  choice_text text,
-  position integer
-);
 CREATE TABLE public.companies (
   id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
   name text NOT NULL,
@@ -185,12 +179,6 @@ CREATE TABLE public.correct_answers (
   CONSTRAINT correct_answers_pkey PRIMARY KEY (correct_answer_id),
   CONSTRAINT correct_answers_question_id_fkey FOREIGN KEY (question_id) REFERENCES public.questions(id),
   CONSTRAINT correct_answers_choice_id_fkey FOREIGN KEY (choice_id) REFERENCES public.choices(id)
-);
-CREATE TABLE public.correct_answers_backup (
-  correct_answer_id integer,
-  question_id integer,
-  choice_id integer,
-  correct_text text
 );
 CREATE TABLE public.email_change_tokens (
   id bigint NOT NULL DEFAULT nextval('email_change_tokens_id_seq'::regclass),
@@ -236,12 +224,6 @@ CREATE TABLE public.exams (
   description text,
   date_created timestamp without time zone DEFAULT now(),
   CONSTRAINT exams_pkey PRIMARY KEY (id)
-);
-CREATE TABLE public.exams_backup (
-  id integer,
-  title text,
-  description text,
-  date_created timestamp without time zone
 );
 CREATE TABLE public.faqs (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
@@ -364,13 +346,6 @@ CREATE TABLE public.questions (
   position integer DEFAULT 1,
   CONSTRAINT questions_pkey PRIMARY KEY (id),
   CONSTRAINT questions_exam_id_fkey FOREIGN KEY (exam_id) REFERENCES public.exams(id)
-);
-CREATE TABLE public.questions_backup (
-  id integer,
-  exam_id integer,
-  question_text text,
-  question_type text,
-  position integer
 );
 CREATE TABLE public.resume (
   id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,

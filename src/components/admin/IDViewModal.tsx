@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Button from "@/components/Button";
 import styles from "./IDViewModal.module.css";
+import { createIdChangeNotification } from "@/lib/db/services/notification.service";
 
 interface IDViewModalProps {
   applicantId: number;
@@ -34,13 +35,16 @@ export default function IDViewModal({
 }: IDViewModalProps) {
   const [selectedIdType, setSelectedIdType] = useState<string>("NATIONAL ID");
   const [currentView, setCurrentView] = useState<"front" | "back" | "selfie">(
-    "front"
+    "front",
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [imageKey, setImageKey] = useState(0);
   const [isVerified, setIsVerified] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const [showRejectForm, setShowRejectForm] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [rejecting, setRejecting] = useState(false);
 
   useEffect(() => {
     fetchVerificationStatus();
@@ -49,7 +53,7 @@ export default function IDViewModal({
   const fetchVerificationStatus = async () => {
     try {
       const response = await fetch(
-        `/api/admin/applicant-verification-status?applicantId=${applicantId}`
+        `/api/admin/applicant-verification-status?applicantId=${applicantId}`,
       );
       if (response.ok) {
         const data = await response.json();
@@ -60,7 +64,7 @@ export default function IDViewModal({
     }
   };
 
-  const handleVerificationToggle = async () => {
+  const handleVerifyID = async () => {
     try {
       setVerifying(true);
       const response = await fetch("/api/admin/verify-id", {
@@ -68,23 +72,60 @@ export default function IDViewModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           applicantId,
-          verified: !isVerified,
+          applicationId,
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        setIsVerified(data.applicant.id_verified);
-        alert(data.message);
+        setIsVerified(true);
+        alert(data.message || "ID verified successfully!");
+        await fetchVerificationStatus();
       } else {
         const error = await response.json();
-        alert(error.error || "Failed to update verification status");
+        alert(error.error || "Failed to verify ID");
       }
     } catch (error) {
-      console.error("Error updating verification:", error);
-      alert("An error occurred while updating verification status");
+      console.error("Error verifying ID:", error);
+      alert("An error occurred while verifying ID");
     } finally {
       setVerifying(false);
+    }
+  };
+
+  const handleRequestIDChange = async () => {
+    if (!rejectionReason.trim()) {
+      alert("Please provide a reason for ID update request");
+      return;
+    }
+
+    try {
+      setRejecting(true);
+      const response = await fetch("/api/admin/request-id-change", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          applicantId,
+          reason: rejectionReason,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(data.message || "ID update request sent to applicant");
+        setShowRejectForm(false);
+        setRejectionReason("");
+        setIsVerified(false);
+        await fetchVerificationStatus();
+      } else {
+        const error = await response.json();
+        alert(error.error || "Failed to send ID update request");
+      }
+    } catch (error) {
+      console.error("Error requesting ID change:", error);
+      alert("An error occurred while sending ID update request");
+    } finally {
+      setRejecting(false);
     }
   };
 
@@ -150,7 +191,7 @@ export default function IDViewModal({
   }, [currentView, selectedIdType]);
 
   const imageUrl = `/api/admin/view-id?applicantId=${applicantId}&imageType=${currentView}&idType=${encodeURIComponent(
-    selectedIdType
+    selectedIdType,
   )}${applicationId ? `&applicationId=${applicationId}` : ""}&t=${imageKey}`;
 
   const getTabLabel = (type: "front" | "back" | "selfie") => {
@@ -248,22 +289,70 @@ export default function IDViewModal({
         </div>
 
         <div className={styles.footer}>
-          <div className={styles.verificationControls}>
-            <Button
-              variant={isVerified ? "danger" : "success"}
-              onClick={handleVerificationToggle}
-              disabled={verifying}
-            >
-              {verifying
-                ? "Updating..."
-                : isVerified
-                ? "Mark as Not Verified"
-                : "Mark as Verified"}
-            </Button>
-            {isVerified && (
-              <span className={styles.verifiedStatus}>✓ ID Verified</span>
-            )}
-          </div>
+          {showRejectForm ? (
+            <div className={styles.rejectForm}>
+              <h3>Request ID Update</h3>
+              <textarea
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                placeholder="Enter reason for ID update request (e.g., 'Photo is blurry', 'ID appears expired', etc.)..."
+                className={styles.reasonTextarea}
+                rows={4}
+              />
+              <div className={styles.rejectActions}>
+                <Button
+                  variant="danger"
+                  onClick={handleRequestIDChange}
+                  disabled={rejecting || !rejectionReason.trim()}
+                >
+                  {rejecting ? "Sending..." : "Send Request"}
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setShowRejectForm(false);
+                    setRejectionReason("");
+                  }}
+                  disabled={rejecting}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className={styles.verificationControls}>
+              {!isVerified && (
+                <>
+                  <Button
+                    variant="success"
+                    onClick={handleVerifyID}
+                    disabled={verifying}
+                  >
+                    {verifying ? "Verifying..." : "✓ Mark ID as Verified"}
+                  </Button>
+                  <Button
+                    variant="danger"
+                    onClick={() => setShowRejectForm(true)}
+                    disabled={verifying}
+                  >
+                    ⚠️ Request ID Update
+                  </Button>
+                </>
+              )}
+              {isVerified && (
+                <div className={styles.verifiedBadge}>
+                  <span className={styles.verifiedStatus}>✓ ID Verified</span>
+                  <Button
+                    variant="danger"
+                    onClick={() => setShowRejectForm(true)}
+                    size="small"
+                  >
+                    Request Update
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
           <p className={styles.disclaimer}>
             This view is logged for security and audit purposes. Access
             timestamp and administrator details are recorded.
