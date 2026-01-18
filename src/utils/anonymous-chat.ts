@@ -47,7 +47,7 @@ export function getOrCreateAnonymousId(): string {
     expiryDate.setDate(expiryDate.getDate() + SESSION_EXPIRY_DAYS);
     localStorage.setItem(
       `${ANONYMOUS_ID_KEY}_expiry`,
-      expiryDate.getTime().toString()
+      expiryDate.getTime().toString(),
     );
 
     return newId;
@@ -230,7 +230,7 @@ export function isLocalStorageAvailable(): boolean {
  * Call this after user logs in to preserve their chat history
  */
 export async function migrateAnonymousChatToUser(
-  userId: number
+  userId: number,
 ): Promise<boolean> {
   const anonymousId = getExistingAnonymousId();
 

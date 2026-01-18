@@ -11,10 +11,8 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  // OR if you want to keep optimization, force sharp installation
-  experimental: {
-    serverComponentsExternalPackages: ["sharp"],
-  },
+  // Force sharp installation for image optimization
+  serverExternalPackages: ["sharp"],
 };
 
 export default nextConfig;

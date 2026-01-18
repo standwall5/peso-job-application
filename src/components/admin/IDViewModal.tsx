@@ -308,7 +308,7 @@ export default function IDViewModal({
                   {rejecting ? "Sending..." : "Send Request"}
                 </Button>
                 <Button
-                  variant="secondary"
+                  variant="warning"
                   onClick={() => {
                     setShowRejectForm(false);
                     setRejectionReason("");
@@ -345,7 +345,6 @@ export default function IDViewModal({
                   <Button
                     variant="danger"
                     onClick={() => setShowRejectForm(true)}
-                    size="small"
                   >
                     Request Update
                   </Button>

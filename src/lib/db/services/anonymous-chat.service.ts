@@ -36,7 +36,7 @@ function nowUTC(): string {
  * Get active chat session for an anonymous user
  */
 export async function getAnonymousActiveSession(
-  anonymousId: string
+  anonymousId: string,
 ): Promise<AnonymousChatSession | null> {
   if (!anonymousId || anonymousId.trim() === "") {
     throw new Error("Anonymous ID is required");
@@ -109,7 +109,7 @@ export async function getAnonymousActiveSession(
 export async function createAnonymousChatRequest(
   anonymousId: string,
   concern: string,
-  anonymousName?: string
+  anonymousName?: string,
 ): Promise<AnonymousChatSession> {
   if (!anonymousId || anonymousId.trim() === "") {
     throw new Error("Anonymous ID is required");
@@ -163,7 +163,7 @@ export async function createAnonymousChatRequest(
  */
 export async function getAnonymousChatMessages(
   chatSessionId: string,
-  anonymousId: string
+  anonymousId: string,
 ): Promise<AnonymousChatMessage[]> {
   if (!anonymousId || anonymousId.trim() === "") {
     throw new Error("Anonymous ID is required");
@@ -204,7 +204,7 @@ export async function getAnonymousChatMessages(
 export async function sendAnonymousChatMessage(
   chatSessionId: string,
   anonymousId: string,
-  message: string
+  message: string,
 ): Promise<AnonymousChatMessage> {
   if (!anonymousId || anonymousId.trim() === "") {
     throw new Error("Anonymous ID is required");
@@ -262,7 +262,7 @@ export async function sendAnonymousChatMessage(
  */
 export async function closeAnonymousChatSession(
   chatSessionId: string,
-  anonymousId: string
+  anonymousId: string,
 ): Promise<void> {
   if (!anonymousId || anonymousId.trim() === "") {
     throw new Error("Anonymous ID is required");
@@ -305,7 +305,7 @@ export async function closeAnonymousChatSession(
  * Get all chat sessions for an anonymous user
  */
 export async function getAnonymousChatSessions(
-  anonymousId: string
+  anonymousId: string,
 ): Promise<AnonymousChatSession[]> {
   if (!anonymousId || anonymousId.trim() === "") {
     throw new Error("Anonymous ID is required");
@@ -332,7 +332,7 @@ export async function getAnonymousChatSessions(
  */
 export async function markAnonymousMessagesAsRead(
   chatSessionId: string,
-  anonymousId: string
+  anonymousId: string,
 ): Promise<void> {
   if (!anonymousId || anonymousId.trim() === "") {
     throw new Error("Anonymous ID is required");
@@ -369,7 +369,7 @@ export async function markAnonymousMessagesAsRead(
  * Get unread message count for anonymous user
  */
 export async function getAnonymousUnreadCount(
-  anonymousId: string
+  anonymousId: string,
 ): Promise<number> {
   if (!anonymousId || anonymousId.trim() === "") {
     return 0;
@@ -397,12 +397,4 @@ export async function getAnonymousUnreadCount(
   }
 
   return count || 0;
-}
-
-/**
- * Generate a unique anonymous ID (UUID v4)
- * This should be called client-side and stored in localStorage
- */
-export function generateAnonymousId(): string {
-  return `anon-${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
 }

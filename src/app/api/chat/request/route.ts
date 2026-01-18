@@ -71,7 +71,7 @@ export async function POST(request: Request) {
   });
 
   // Create chat session with concern
-  const sessionData: any = {
+  const sessionData: Record<string, string | number | boolean | null> = {
     status: initialStatus,
     concern: concern.trim(),
     last_user_message_at: new Date().toISOString(),
