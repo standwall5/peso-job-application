@@ -9,4 +9,5 @@ export interface AdminProfile {
   last_login?: string;
   account_locked?: boolean;
   profile_picture_url?: string;
+  is_first_login?: boolean;
 }

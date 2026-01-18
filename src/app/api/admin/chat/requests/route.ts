@@ -24,7 +24,7 @@ export async function GET(request: Request) {
     console.error("Admin lookup error:", adminError);
     return NextResponse.json(
       { error: "Unauthorized - Admin access required" },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
@@ -53,7 +53,7 @@ export async function GET(request: Request) {
         name,
         phone
       )
-    `
+    `,
     )
     .eq("status", status)
     .order("created_at", { ascending: false });
@@ -67,7 +67,7 @@ export async function GET(request: Request) {
         id: s.id,
         status: s.status,
         concern: s.concern?.substring(0, 30),
-      })
+      }),
     ),
   });
 
@@ -81,13 +81,16 @@ export async function GET(request: Request) {
     (session: {
       id: string;
       user_id: string;
+      admin_id: string | null;
       status: string;
+      concern: string | null;
       created_at: string;
-      updated_at: string;
-      last_user_message_at: string | null;
-      applicants: { name: string } | null;
+      closed_at: string | null;
+      applicants: { name: string; phone: string | null }[];
     }) => {
-      const applicant = session.applicants;
+      const applicant = Array.isArray(session.applicants)
+        ? session.applicants[0]
+        : session.applicants;
       const userName = applicant?.name || "Unknown User";
 
       return {
@@ -101,7 +104,7 @@ export async function GET(request: Request) {
         adminId: session.admin_id,
         closedAt: session.closed_at ? new Date(session.closed_at) : null,
       };
-    }
+    },
   );
 
   return NextResponse.json(formattedSessions);

@@ -24,6 +24,11 @@ export default function AdminLayout({
         const profile = await getAdminProfileAction();
         setIsSuperAdmin(profile.is_superadmin);
 
+        // Check if this is first login
+        if (profile.is_first_login) {
+          setShowFirstLoginModal(true);
+        }
+
         if (profile.profile_picture_url) {
           setProfilePicture(profile.profile_picture_url);
         }
