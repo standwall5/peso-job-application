@@ -6,13 +6,9 @@ import styles from "@/app/(auth)/AuthForms.module.css";
 
 async function resetAction(formData: FormData) {
   "use server";
-  const res = await requestPasswordReset(formData);
-
-  if (res?.success) {
-    redirect("/auth/forgot-password?status=success");
-  } else {
-    redirect("/auth/forgot-password?status=error");
-  }
+  await requestPasswordReset(formData);
+  // Always show success message for security (don't reveal if email exists)
+  redirect("/auth/forgot-password?status=success");
 }
 
 export default function ForgotPasswordPage({
@@ -25,26 +21,20 @@ export default function ForgotPasswordPage({
   return (
     <div className={styles.authContainer}>
       <div className={styles.authContent}>
-        <h1 className={styles.authTitle}>Forgot your password?</h1>
+        <h1 className={styles.authTitle}>Reset Your Password</h1>
         <p className={styles.authSubtitle}>
-          Enter the email associated with your account. If it exists, we’ll send
-          a link to reset your password.
+          Enter your email address and we'll send you instructions to reset your
+          password.
         </p>
-
-        {status === "error" && (
-          <div className={`${styles.alert} ${styles.alertError}`} role="alert">
-            We couldn&apos;t send the reset email right now. Please try again in
-            a moment.
-          </div>
-        )}
 
         {status === "success" && (
           <div
             className={`${styles.alert} ${styles.alertSuccess}`}
             role="status"
           >
-            If an account exists for that email, a password reset link has been
-            sent.
+            If an account exists with that email address, you will receive
+            password reset instructions. Please check your inbox and spam
+            folder.
           </div>
         )}
 
@@ -66,7 +56,7 @@ export default function ForgotPasswordPage({
 
           <div className={styles.buttonRow}>
             <button type="submit" className={styles.blueButton}>
-              Send reset link
+              Send Reset Link
             </button>
           </div>
         </form>

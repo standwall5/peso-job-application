@@ -4,7 +4,7 @@ import React, { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import styles from "./ResetPassword.module.css";
+import styles from "@/app/(auth)/AuthForms.module.css";
 
 type ActionResult = {
   error?: string;
@@ -74,6 +74,9 @@ export default function ResetPasswordPage() {
         return;
       }
 
+      // Sign out the user to prevent auto-login
+      await supabase.auth.signOut();
+
       setResult({
         success: "Password updated successfully. Redirecting to login...",
       });
@@ -92,11 +95,11 @@ export default function ResetPasswordPage() {
   return (
     <div className={styles.authContainer}>
       <div className={styles.authContent}>
-        <h1 className={styles.authTitle}>Reset your password</h1>
+        <h1 className={styles.authTitle}>Reset Your Password</h1>
 
         <p className={styles.authSubtitle}>
-          Enter a new password for your account. After updating, you can log in
-          with your new password.
+          Enter a new password for your account. Make sure it's at least 8
+          characters long.
         </p>
 
         {!hasAnyToken && (
@@ -128,10 +131,10 @@ export default function ResetPasswordPage() {
 
         <form onSubmit={handleSubmit} noValidate>
           <div className={styles.field}>
-            <label htmlFor="password" className={styles.label}>
-              New password <span className={styles.redAsterisk}>*</span>
+            <label htmlFor="password" className={styles.fieldLabel}>
+              New Password <span className={styles.redAsterisk}>*</span>
             </label>
-            <div className={styles.inputWrapper}>
+            <div className={styles.passwordWrapper}>
               <input
                 id="password"
                 name="password"
@@ -149,19 +152,19 @@ export default function ResetPasswordPage() {
                 type="button"
                 onClick={() => setShowPwd((s) => !s)}
                 aria-label={showPwd ? "Hide password" : "Show password"}
-                className={styles.toggle}
+                className={styles.togglePassword}
                 disabled={isPending}
               >
-                {showPwd ? "Hide" : "Show"}
+                {showPwd ? "👁️" : "👁️‍🗨️"}
               </button>
             </div>
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="confirm" className={styles.label}>
-              Confirm new password <span className={styles.redAsterisk}>*</span>
+            <label htmlFor="confirm" className={styles.fieldLabel}>
+              Confirm New Password <span className={styles.redAsterisk}>*</span>
             </label>
-            <div className={styles.inputWrapper}>
+            <div className={styles.passwordWrapper}>
               <input
                 id="confirm"
                 name="confirm"
@@ -179,22 +182,28 @@ export default function ResetPasswordPage() {
                 type="button"
                 onClick={() => setShowConfirm((s) => !s)}
                 aria-label={showConfirm ? "Hide password" : "Show password"}
-                className={styles.toggle}
+                className={styles.togglePassword}
                 disabled={isPending}
               >
-                {showConfirm ? "Hide" : "Show"}
+                {showConfirm ? "👁️" : "👁️‍🗨️"}
               </button>
             </div>
           </div>
 
-          <button type="submit" disabled={isPending} className={styles.submit}>
-            {isPending ? "Updating..." : "Update password"}
-          </button>
+          <div className={styles.buttonRow}>
+            <button
+              type="submit"
+              disabled={isPending}
+              className={styles.blueButton}
+            >
+              {isPending ? "Updating..." : "Update Password"}
+            </button>
+          </div>
         </form>
 
         <div className={styles.centerLink}>
           <Link href="/login" className={styles.link}>
-            Back to login
+            Back to Login
           </Link>
         </div>
       </div>
