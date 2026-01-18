@@ -99,7 +99,21 @@ export const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
       }
 
       alert("Password changed successfully!");
-      handleClose();
+
+      // Reset form fields
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setError("");
+
+      // Close modal and reload page if first login
+      if (isFirstLogin) {
+        onClose();
+        // Reload page to refresh admin profile (is_first_login flag)
+        window.location.reload();
+      } else {
+        onClose();
+      }
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -112,10 +126,7 @@ export const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
   };
 
   const handleClose = () => {
-    if (isFirstLogin) {
-      // Don't allow closing on first login until setup is complete
-      return;
-    }
+    // Allow closing even on first login (user might close after setting password)
     setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");

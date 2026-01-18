@@ -24,8 +24,8 @@ export default function AdminLayout({
         const profile = await getAdminProfileAction();
         setIsSuperAdmin(profile.is_superadmin);
 
-        // Check if this is first login
-        if (profile.is_first_login) {
+        // Check if this is first login (but exclude super admins)
+        if (profile.is_first_login && !profile.is_superadmin) {
           setShowFirstLoginModal(true);
         }
 

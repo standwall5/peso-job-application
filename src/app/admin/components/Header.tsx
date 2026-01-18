@@ -43,7 +43,7 @@ const Header = () => {
     };
 
     loadProfilePicture();
-  }, []);
+  }, [profileTimestamp]); // Re-fetch when timestamp changes
 
   // Close dropdown when clicking outside
   useEffect(() => {
