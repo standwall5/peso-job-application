@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server";
+import { createClient, createAdminClient } from "@/utils/supabase/server";
 
 export async function POST(request: Request) {
   try {
@@ -72,60 +72,93 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create the auth user with Supabase
-    const { data: authData, error: authError } =
-      await supabase.auth.admin.createUser({
+    // Check if email already exists in auth users
+    try {
+      const adminClient = createAdminClient();
+      const { data: existingUsers, error: listError } =
+        await adminClient.auth.admin.listUsers();
+
+      if (!listError && existingUsers?.users) {
+        const emailExists = existingUsers.users.some(
+          (u) => u.email?.toLowerCase() === invitation.email.toLowerCase(),
+        );
+
+        if (emailExists) {
+          return NextResponse.json(
+            { error: "An admin with this email already exists" },
+            { status: 400 },
+          );
+        }
+      }
+
+      // Create the auth user with password using admin client
+      const { data: authData, error: authError } =
+        await adminClient.auth.admin.createUser({
+          email: invitation.email,
+          password: password,
+          email_confirm: true, // Auto-confirm email
+          user_metadata: {
+            name: invitation.admin_name,
+            is_superadmin: invitation.is_superadmin,
+            role: "peso_admin",
+          },
+        });
+
+      if (authError || !authData.user) {
+        console.error("Auth creation error:", authError);
+        return NextResponse.json(
+          { error: "Failed to create admin account" },
+          { status: 500 },
+        );
+      }
+
+      // Create peso (admin) record
+      const { error: adminError } = await supabase.from("peso").insert({
+        auth_id: authData.user.id,
+        name: invitation.admin_name,
         email: invitation.email,
-        password: password,
-        email_confirm: true, // Auto-confirm email
-        user_metadata: {
-          name: invitation.admin_name,
-          is_superadmin: invitation.is_superadmin,
-        },
+        is_superadmin: invitation.is_superadmin,
+        status: "active",
+        is_first_login: false, // They've just set up their account, not a first login anymore
       });
 
-    if (authError || !authData.user) {
-      console.error("Auth creation error:", authError);
+      if (adminError) {
+        console.error("Admin record creation error:", adminError);
+
+        // Rollback: delete the auth user
+        await adminClient.auth.admin.deleteUser(authData.user.id);
+
+        return NextResponse.json(
+          { error: "Failed to create admin record" },
+          { status: 500 },
+        );
+      }
+
+      // Mark invitation as used
+      await supabase
+        .from("admin_invitation_tokens")
+        .update({
+          used: true,
+          used_at: new Date().toISOString(),
+        })
+        .eq("token", token);
+
+      return NextResponse.json({
+        success: true,
+        message: "Admin account created successfully",
+        email: invitation.email,
+        auth_id: authData.user.id,
+      });
+    } catch (adminError) {
+      console.error("Error creating admin client:", adminError);
       return NextResponse.json(
-        { error: "Failed to create admin account" },
+        {
+          error:
+            "Failed to create admin account. Please ensure SUPABASE_SERVICE_ROLE_KEY is configured.",
+        },
         { status: 500 },
       );
     }
-
-    // Create peso (admin) record
-    const { error: adminError } = await supabase.from("peso").insert({
-      auth_id: authData.user.id,
-      name: invitation.admin_name,
-      is_superadmin: invitation.is_superadmin,
-      status: "active",
-    });
-
-    if (adminError) {
-      console.error("Admin record creation error:", adminError);
-
-      // Rollback: delete the auth user
-      await supabase.auth.admin.deleteUser(authData.user.id);
-
-      return NextResponse.json(
-        { error: "Failed to create admin record" },
-        { status: 500 },
-      );
-    }
-
-    // Mark invitation as used
-    await supabase
-      .from("admin_invitation_tokens")
-      .update({
-        used: true,
-        used_at: new Date().toISOString(),
-      })
-      .eq("token", token);
-
-    return NextResponse.json({
-      success: true,
-      message: "Admin account created successfully",
-      email: invitation.email,
-    });
   } catch (error) {
     console.error("Error setting up password:", error);
     return NextResponse.json(
