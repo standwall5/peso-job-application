@@ -12,15 +12,40 @@ export async function POST(request: Request) {
     if (!token || !password) {
       return NextResponse.json(
         { error: "Token and password are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    // Validate password strength
-    if (password.length < 8) {
+    // Validate password strength - must meet all requirements
+    const passwordRequirements = {
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /\d/.test(password),
+      special: /[^A-Za-z0-9]/.test(password),
+    };
+
+    const allRequirementsMet =
+      Object.values(passwordRequirements).every(Boolean);
+
+    if (!allRequirementsMet) {
+      const missingRequirements = [];
+      if (!passwordRequirements.length)
+        missingRequirements.push("at least 8 characters");
+      if (!passwordRequirements.uppercase)
+        missingRequirements.push("one uppercase letter");
+      if (!passwordRequirements.lowercase)
+        missingRequirements.push("one lowercase letter");
+      if (!passwordRequirements.number) missingRequirements.push("one number");
+      if (!passwordRequirements.special)
+        missingRequirements.push("one special character");
+
       return NextResponse.json(
-        { error: "Password must be at least 8 characters" },
-        { status: 400 }
+        {
+          error: `Password must contain: ${missingRequirements.join(", ")}`,
+          requirements: passwordRequirements,
+        },
+        { status: 400 },
       );
     }
 
@@ -35,7 +60,7 @@ export async function POST(request: Request) {
     if (inviteError || !invitation) {
       return NextResponse.json(
         { error: "Invalid or expired invitation" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -43,7 +68,7 @@ export async function POST(request: Request) {
     if (new Date(invitation.expires_at) < new Date()) {
       return NextResponse.json(
         { error: "Invitation has expired" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -63,7 +88,7 @@ export async function POST(request: Request) {
       console.error("Auth creation error:", authError);
       return NextResponse.json(
         { error: "Failed to create admin account" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -83,7 +108,7 @@ export async function POST(request: Request) {
 
       return NextResponse.json(
         { error: "Failed to create admin record" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -105,7 +130,7 @@ export async function POST(request: Request) {
     console.error("Error setting up password:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

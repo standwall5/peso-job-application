@@ -11,7 +11,7 @@ import {
 interface PersonalInfoSectionProps {
   // Name fields
   onInputChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => void;
 
   // Extension name
@@ -23,7 +23,7 @@ interface PersonalInfoSectionProps {
   calculatedAge: number | null;
   onBirthDateChange: (
     date: string,
-    setError?: (error: string | null) => void
+    setError?: (error: string | null) => void,
   ) => void;
   parseBirthDateString: (s: string) => Date | null;
   formatDateYYYYMMDD: (d: Date) => string;
@@ -136,8 +136,8 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
                 d == null
                   ? ""
                   : typeof d === "string"
-                  ? d
-                  : formatDateYYYYMMDD(d);
+                    ? d
+                    : formatDateYYYYMMDD(d);
               onBirthDateChange(newDate, (error) => {
                 if (error) {
                   onSetError("birthDate", error);

@@ -3,6 +3,15 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./SetupPassword.module.css";
+import { createClient } from "@/utils/supabase/client";
+
+type PasswordRequirements = {
+  length: boolean;
+  uppercase: boolean;
+  lowercase: boolean;
+  number: boolean;
+  special: boolean;
+};
 
 function SetupPasswordContent() {
   const router = useRouter();
@@ -20,6 +29,22 @@ function SetupPasswordContent() {
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [passwordRequirements, setPasswordRequirements] =
+    useState<PasswordRequirements>({
+      length: false,
+      uppercase: false,
+      lowercase: false,
+      number: false,
+      special: false,
+    });
+
+  const [profilePicture, setProfilePicture] = useState<File | null>(null);
+  const [profilePicturePreview, setProfilePicturePreview] = useState<
+    string | null
+  >(null);
+  const [uploadError, setUploadError] = useState("");
 
   useEffect(() => {
     if (!token) {
@@ -46,13 +71,79 @@ function SetupPasswordContent() {
       });
   }, [token]);
 
+  // Update password requirements as user types
+  useEffect(() => {
+    if (password.length === 0) {
+      setPasswordRequirements({
+        length: false,
+        uppercase: false,
+        lowercase: false,
+        number: false,
+        special: false,
+      });
+      return;
+    }
+
+    setPasswordRequirements({
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /\d/.test(password),
+      special: /[^A-Za-z0-9]/.test(password),
+    });
+  }, [password]);
+
+  const validatePassword = (): boolean => {
+    return Object.values(passwordRequirements).every(Boolean);
+  };
+
+  const handleProfilePictureChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setUploadError("");
+    const file = e.target.files?.[0];
+
+    if (!file) {
+      setProfilePicture(null);
+      setProfilePicturePreview(null);
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      setUploadError("Please select a valid image file");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError("Image size must be less than 5MB");
+      return;
+    }
+
+    setProfilePicture(file);
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setProfilePicturePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setUploadError("");
 
     // Validation
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters");
+    if (!profilePicture) {
+      setUploadError("Profile picture is required");
+      return;
+    }
+
+    if (!validatePassword()) {
+      setError("Password does not meet all requirements");
       return;
     }
 
@@ -64,6 +155,7 @@ function SetupPasswordContent() {
     setSubmitting(true);
 
     try {
+      // First, create the account with password
       const response = await fetch("/api/admin/setup-password", {
         method: "POST",
         headers: {
@@ -81,8 +173,70 @@ function SetupPasswordContent() {
         throw new Error(data.error || "Failed to setup password");
       }
 
+      // Now upload the profile picture
+      const supabase = createClient();
+
+      // Sign in the newly created user to upload their profile picture
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: invitation!.email,
+        password: password,
+      });
+
+      if (signInError) {
+        throw new Error(
+          "Account created but failed to sign in for profile upload",
+        );
+      }
+
+      // Get the user's auth_id to use in the file path
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        throw new Error("Failed to get user information");
+      }
+
+      // Upload profile picture to Supabase Storage
+      const fileExt = profilePicture.name.split(".").pop();
+      const fileName = `${user.id}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("admin-profiles")
+        .upload(filePath, profilePicture, {
+          cacheControl: "3600",
+          upsert: true,
+        });
+
+      if (uploadError) {
+        console.error("Profile picture upload error:", uploadError);
+        throw new Error("Account created but failed to upload profile picture");
+      }
+
+      // Get the public URL
+      const { data: urlData } = supabase.storage
+        .from("admin-profiles")
+        .getPublicUrl(filePath);
+
+      // Update the peso table with profile picture URL
+      const { error: updateError } = await supabase
+        .from("peso")
+        .update({ profile_picture_url: urlData.publicUrl })
+        .eq("auth_id", user.id);
+
+      if (updateError) {
+        console.error("Failed to update profile picture URL:", updateError);
+        // Don't fail the whole process if this fails
+      }
+
+      // Sign out after setup
+      await supabase.auth.signOut();
+
       // Success! Redirect to login
-      alert("Account created successfully! Please login with your credentials.");
+      alert(
+        "Account created successfully! Please login with your credentials.",
+      );
       router.push("/admin/login");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to setup account");
@@ -157,46 +311,190 @@ function SetupPasswordContent() {
             <div className={styles.infoRow}>
               <span className={styles.label}>Role:</span>
               <span className={styles.value}>
-                {invitation.is_superadmin ? "Super Administrator" : "Administrator"}
+                {invitation.is_superadmin
+                  ? "Super Administrator"
+                  : "Administrator"}
               </span>
             </div>
             <p className={styles.notice}>
-              <strong>Note:</strong> Your name cannot be changed after account creation.
-              This ensures accountability for all administrative actions.
+              <strong>Note:</strong> Your name cannot be changed after account
+              creation. This ensures accountability for all administrative
+              actions.
             </p>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className={styles.form}>
+          {/* Profile Picture Upload */}
           <div className={styles.formGroup}>
-            <label htmlFor="password">Password *</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Minimum 8 characters"
-              required
-              minLength={8}
-              disabled={submitting}
-            />
+            <label htmlFor="profilePicture">
+              Profile Picture <span style={{ color: "red" }}>*</span>
+            </label>
+            <div className={styles.profilePictureSection}>
+              {profilePicturePreview ? (
+                <div className={styles.previewContainer}>
+                  <img
+                    src={profilePicturePreview}
+                    alt="Profile preview"
+                    className={styles.profilePreview}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProfilePicture(null);
+                      setProfilePicturePreview(null);
+                      setUploadError("");
+                    }}
+                    className={styles.removeButton}
+                    disabled={submitting}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <div className={styles.uploadPlaceholder}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                  <p>Upload Profile Picture</p>
+                </div>
+              )}
+              <input
+                type="file"
+                id="profilePicture"
+                accept="image/*"
+                onChange={handleProfilePictureChange}
+                className={styles.fileInput}
+                disabled={submitting}
+              />
+            </div>
+            {uploadError && (
+              <span className={styles.errorText}>{uploadError}</span>
+            )}
             <span className={styles.hint}>
-              Use a strong password with letters, numbers, and symbols
+              Accepted formats: JPG, PNG, GIF (Max 5MB)
             </span>
           </div>
 
+          {/* Password Field */}
           <div className={styles.formGroup}>
-            <label htmlFor="confirmPassword">Confirm Password *</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Re-enter your password"
-              required
-              minLength={8}
-              disabled={submitting}
-            />
+            <label htmlFor="password">
+              Password <span style={{ color: "red" }}>*</span>
+            </label>
+            <div className={styles.passwordWrapper}>
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                required
+                minLength={8}
+                disabled={submitting}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className={styles.togglePassword}
+                disabled={submitting}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? "👁️" : "👁️‍🗨️"}
+              </button>
+            </div>
+
+            {/* Password Requirements */}
+            {password.length > 0 && (
+              <div className={styles.requirements}>
+                <div
+                  className={
+                    passwordRequirements.length
+                      ? styles.requirementMet
+                      : styles.requirementNotMet
+                  }
+                >
+                  {passwordRequirements.length ? "✓" : "✗"} At least 8
+                  characters
+                </div>
+                <div
+                  className={
+                    passwordRequirements.uppercase
+                      ? styles.requirementMet
+                      : styles.requirementNotMet
+                  }
+                >
+                  {passwordRequirements.uppercase ? "✓" : "✗"} At least one
+                  uppercase letter
+                </div>
+                <div
+                  className={
+                    passwordRequirements.lowercase
+                      ? styles.requirementMet
+                      : styles.requirementNotMet
+                  }
+                >
+                  {passwordRequirements.lowercase ? "✓" : "✗"} At least one
+                  lowercase letter
+                </div>
+                <div
+                  className={
+                    passwordRequirements.number
+                      ? styles.requirementMet
+                      : styles.requirementNotMet
+                  }
+                >
+                  {passwordRequirements.number ? "✓" : "✗"} At least one number
+                </div>
+                <div
+                  className={
+                    passwordRequirements.special
+                      ? styles.requirementMet
+                      : styles.requirementNotMet
+                  }
+                >
+                  {passwordRequirements.special ? "✓" : "✗"} At least one
+                  special character
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Confirm Password Field */}
+          <div className={styles.formGroup}>
+            <label htmlFor="confirmPassword">
+              Confirm Password <span style={{ color: "red" }}>*</span>
+            </label>
+            <div className={styles.passwordWrapper}>
+              <input
+                type={showConfirm ? "text" : "password"}
+                id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Re-enter your password"
+                required
+                minLength={8}
+                disabled={submitting}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirm(!showConfirm)}
+                className={styles.togglePassword}
+                disabled={submitting}
+                aria-label={showConfirm ? "Hide password" : "Show password"}
+              >
+                {showConfirm ? "👁️" : "👁️‍🗨️"}
+              </button>
+            </div>
           </div>
 
           {error && (
@@ -244,7 +542,14 @@ export default function SetupPasswordPage() {
   return (
     <Suspense
       fallback={
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "100vh",
+          }}
+        >
           <div>Loading...</div>
         </div>
       }
