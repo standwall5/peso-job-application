@@ -113,13 +113,15 @@ export async function POST(request: Request) {
       }
 
       // Create peso (admin) record
+      // NOTE: We intentionally keep is_first_login=true so that after the invited admin
+      // lands on /admin authenticated, the unclosable first-login modal is shown.
       const { error: adminError } = await supabase.from("peso").insert({
         auth_id: authData.user.id,
         name: invitation.admin_name,
         email: invitation.email,
         is_superadmin: invitation.is_superadmin,
         status: "active",
-        is_first_login: false, // They've just set up their account, not a first login anymore
+        is_first_login: true,
       });
 
       if (adminError) {

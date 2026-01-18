@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     if (!token || !password) {
       return NextResponse.json(
         { error: "Token and password are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -17,35 +17,35 @@ export async function POST(request: Request) {
     if (password.length < 8) {
       return NextResponse.json(
         { error: "Password must be at least 8 characters" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!/[A-Z]/.test(password)) {
       return NextResponse.json(
         { error: "Password must contain at least one uppercase letter" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!/[a-z]/.test(password)) {
       return NextResponse.json(
         { error: "Password must contain at least one lowercase letter" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!/\d/.test(password)) {
       return NextResponse.json(
         { error: "Password must contain at least one number" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!/[^A-Za-z0-9]/.test(password)) {
       return NextResponse.json(
         { error: "Password must contain at least one special character" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     if (inviteError || !invitation) {
       return NextResponse.json(
         { error: "Invalid or expired invitation" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -69,7 +69,7 @@ export async function POST(request: Request) {
     if (new Date(invitation.expires_at) < new Date()) {
       return NextResponse.json(
         { error: "Invitation has expired" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
     if (existingUsers?.users?.some((u) => u.email === invitation.email)) {
       return NextResponse.json(
         { error: "An account with this email already exists" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -101,17 +101,19 @@ export async function POST(request: Request) {
       console.error("Auth creation error:", authError);
       return NextResponse.json(
         { error: "Failed to create admin account" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     // Create peso record
+    // IMPORTANT: keep is_first_login=true so when the invited admin is authenticated
+    // and lands on /admin, the unclosable first-login modal forces profile pic + password setup.
     const { error: pesoError } = await supabase.from("peso").insert({
       auth_id: authData.user.id,
       name: invitation.admin_name,
       is_superadmin: invitation.is_superadmin,
       status: "active",
-      is_first_login: false,
+      is_first_login: true,
     });
 
     if (pesoError) {
@@ -122,7 +124,7 @@ export async function POST(request: Request) {
 
       return NextResponse.json(
         { error: "Failed to create admin record" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -145,7 +147,7 @@ export async function POST(request: Request) {
     console.error("Error creating admin account:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

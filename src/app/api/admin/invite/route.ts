@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server";
+import { createClient, createAdminClient } from "@/utils/supabase/server";
 
 export async function POST(request: Request) {
   try {
@@ -108,21 +108,49 @@ export async function POST(request: Request) {
       );
     }
 
-    // Generate setup URL
+    // Generate setup URL (admin will set password/profile after arriving in app)
+    // IMPORTANT: we redirect through /auth/callback so Supabase can exchange the code for a session.
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const setupUrl = `${appUrl}/admin/setup?token=${token}`;
+    const setupUrl = `${appUrl}/auth/callback?next=/admin&token=${token}`;
 
-    console.log("Invitation created for:", email);
-    console.log("Setup URL:", setupUrl);
+    // Send invitation email via Supabase Auth (delivered using Supabase SMTP which you configured to AWS SES)
+    // This requires the service role client (createAdminClient).
+    let emailSent = false;
+    let emailError: string | null = null;
 
-    // TODO: Send email with setupUrl
-    // For now, just return the URL in the response
-    // In production, integrate with email service (Resend, SendGrid, etc.)
+    try {
+      const adminClient = createAdminClient();
+
+      const { error: inviteError } =
+        await adminClient.auth.admin.inviteUserByEmail(email, {
+          data: {
+            name,
+            is_superadmin,
+            invitation_token: token,
+            role: "peso_admin",
+          },
+          redirectTo: setupUrl,
+        });
+
+      if (inviteError) {
+        emailError = inviteError.message;
+        console.error("Supabase inviteUserByEmail error:", inviteError);
+      } else {
+        emailSent = true;
+      }
+    } catch (e) {
+      emailError = e instanceof Error ? e.message : "Unknown error";
+      console.error("Admin client error (service role missing?):", e);
+    }
 
     return NextResponse.json({
       success: true,
-      message: "Invitation created successfully",
-      setupUrl, // Include this so super admin can manually send the link if needed
+      message: emailSent
+        ? "Invitation created and email sent successfully"
+        : "Invitation created but email could not be sent automatically",
+      inviteUrl: setupUrl, // for manual sending fallback
+      emailSent,
+      emailError,
       email,
       name,
       is_superadmin,
