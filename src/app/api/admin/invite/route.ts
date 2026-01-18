@@ -12,6 +12,7 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
+      console.error("Auth error in invite route:", authError);
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -22,6 +23,11 @@ export async function POST(request: Request) {
       .single();
 
     if (!admin?.is_superadmin) {
+      console.error(
+        "Non-superadmin attempted to invite:",
+        user.id,
+        admin?.is_superadmin,
+      );
       return NextResponse.json(
         { error: "Only superadmins can invite new admins" },
         { status: 403 },
@@ -33,6 +39,10 @@ export async function POST(request: Request) {
 
     // Validate inputs
     if (!email || !name) {
+      console.error("Missing required fields:", {
+        email: !!email,
+        name: !!name,
+      });
       return NextResponse.json(
         { error: "Email and name are required" },
         { status: 400 },
@@ -42,31 +52,40 @@ export async function POST(request: Request) {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
+      console.error("Invalid email format provided:", email);
       return NextResponse.json(
         { error: "Invalid email format" },
         { status: 400 },
       );
     }
 
-    // Check if email already exists
-    const { data: existingAdmin } = await supabase
-      .from("peso")
-      .select("id")
-      .eq(
-        "auth_id",
-        (
-          await supabase
-            .from("peso")
-            .select("auth_id")
-            .eq("name", name)
-            .single()
-        ).data?.auth_id,
-      )
-      .single();
+    // Check if email already exists in auth users
+    const { data: existingUsers } = await supabase.auth.admin.listUsers();
+    const emailExists = existingUsers?.users?.some(
+      (u) => u.email?.toLowerCase() === email.toLowerCase(),
+    );
 
-    if (existingAdmin) {
+    if (emailExists) {
+      console.error("Email already exists:", email);
       return NextResponse.json(
         { error: "An admin with this email already exists" },
+        { status: 400 },
+      );
+    }
+
+    // Check if an invitation with this email is already pending
+    const { data: existingInvitation } = await supabase
+      .from("admin_invitation_tokens")
+      .select("id")
+      .eq("email", email)
+      .eq("used", false)
+      .gte("expires_at", new Date().toISOString())
+      .maybeSingle();
+
+    if (existingInvitation) {
+      console.error("Pending invitation already exists for:", email);
+      return NextResponse.json(
+        { error: "An invitation for this email is already pending" },
         { status: 400 },
       );
     }
@@ -84,11 +103,19 @@ export async function POST(request: Request) {
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 48);
 
-    const { data: currentAdmin } = await supabase
+    const { data: currentAdmin, error: currentAdminError } = await supabase
       .from("peso")
       .select("id")
       .eq("auth_id", user.id)
       .single();
+
+    if (currentAdminError) {
+      console.error("Error fetching current admin:", currentAdminError);
+      return NextResponse.json(
+        { error: "Failed to verify admin account" },
+        { status: 500 },
+      );
+    }
 
     const { error: tokenError } = await supabase
       .from("admin_invitation_tokens")
@@ -103,8 +130,30 @@ export async function POST(request: Request) {
 
     if (tokenError) {
       console.error("Token creation error:", tokenError);
+      console.error("Token error details:", {
+        code: tokenError.code,
+        message: tokenError.message,
+        details: tokenError.details,
+        hint: tokenError.hint,
+      });
+
+      // Check if table doesn't exist
+      if (tokenError.code === "42P01") {
+        return NextResponse.json(
+          {
+            error:
+              "Database not configured. Please run the admin setup SQL script.",
+            hint: "The admin_invitation_tokens table does not exist.",
+          },
+          { status: 500 },
+        );
+      }
+
       return NextResponse.json(
-        { error: "Failed to create invitation" },
+        {
+          error: "Failed to create invitation",
+          details: tokenError.message,
+        },
         { status: 500 },
       );
     }
@@ -124,7 +173,7 @@ export async function POST(request: Request) {
           role: "admin",
         },
         redirectTo: inviteUrl,
-      }
+      },
     );
 
     if (inviteError) {
@@ -136,14 +185,17 @@ export async function POST(request: Request) {
         email,
         {
           redirectTo: inviteUrl,
-        }
+        },
       );
 
       if (emailError) {
         console.error("Email send error:", emailError);
         return NextResponse.json(
-          { error: "Failed to send invitation email. Token created but email not sent." },
-          { status: 500 }
+          {
+            error:
+              "Failed to send invitation email. Token created but email not sent.",
+          },
+          { status: 500 },
         );
       }
     }
@@ -156,8 +208,15 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Error inviting admin:", error);
+    console.error("Error details:", {
+      message: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     return NextResponse.json(
-      { error: "Internal server error" },
+      {
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 },
     );
   }
