@@ -80,15 +80,15 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
         setSelectedIdType(data.id_type);
         // Load existing images
         setFrontPreview(
-          `/api/verified-id/view?path=${encodeURIComponent(data.id_front_url)}`
+          `/api/verified-id/view?path=${encodeURIComponent(data.id_front_url)}`,
         );
         setBackPreview(
-          `/api/verified-id/view?path=${encodeURIComponent(data.id_back_url)}`
+          `/api/verified-id/view?path=${encodeURIComponent(data.id_back_url)}`,
         );
         setSelfiePreview(
           `/api/verified-id/view?path=${encodeURIComponent(
-            data.selfie_with_id_url
-          )}`
+            data.selfie_with_id_url,
+          )}`,
         );
       }
     } catch (error) {
@@ -105,15 +105,15 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
         setExistingId(data);
         // Load existing images
         setFrontPreview(
-          `/api/verified-id/view?path=${encodeURIComponent(data.id_front_url)}`
+          `/api/verified-id/view?path=${encodeURIComponent(data.id_front_url)}`,
         );
         setBackPreview(
-          `/api/verified-id/view?path=${encodeURIComponent(data.id_back_url)}`
+          `/api/verified-id/view?path=${encodeURIComponent(data.id_back_url)}`,
         );
         setSelfiePreview(
           `/api/verified-id/view?path=${encodeURIComponent(
-            data.selfie_with_id_url
-          )}`
+            data.selfie_with_id_url,
+          )}`,
         );
       } else {
         // No ID of this type exists yet
@@ -135,7 +135,7 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
 
   const handleFileSelect = (
     type: "front" | "back" | "selfie",
-    file: File | null
+    file: File | null,
   ) => {
     if (!file) return;
 
@@ -182,7 +182,7 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
     // Validate all files are present for new upload
     if (!frontFile || !backFile || !selfieFile) {
       alert(
-        "Please upload all required images (Front, Back, and Selfie with ID)"
+        "Please upload all required images (Front, Back, and Selfie with ID)",
       );
       return;
     }
@@ -213,7 +213,7 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
         // Show appropriate message
         if (hasApplied && result.changeLogged) {
           alert(
-            "ID updated successfully. Admins have been notified to review your changes."
+            "ID updated successfully. Admins have been notified to review your changes.",
           );
         } else if (!hasApplied && uploadedData) {
           // Show modal asking if user wants to set this as default
@@ -270,7 +270,7 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
     type: "front" | "back" | "selfie",
     preview: string | null,
     inputRef: React.RefObject<HTMLInputElement | null>,
-    label: string
+    label: string,
   ) => {
     return (
       <div className={styles.uploadSection}>
@@ -492,7 +492,7 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
           "selfie",
           selfiePreview,
           selfieInputRef,
-          "UPLOAD SELFIE WITH ID"
+          "UPLOAD SELFIE WITH ID",
         )}
       </div>
 
@@ -520,8 +520,8 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
               {uploading
                 ? "Uploading..."
                 : existingId
-                ? "UPDATE ID"
-                : "SAVE ID"}
+                  ? "UPDATE ID"
+                  : "SAVE ID"}
             </Button>
           )}
         </div>
@@ -544,7 +544,7 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
                 Yes, Use as Default
               </Button>
               <Button
-                variant="secondary"
+                variant="warning"
                 onClick={() => handleSetAsDefault(false)}
               >
                 No, Thanks
