@@ -18,6 +18,8 @@ const CreateAdmin = () => {
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [inviteUrl, setInviteUrl] = useState<string>("");
+  const [emailSent, setEmailSent] = useState<boolean>(true);
 
   const updateField = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -76,9 +78,20 @@ const CreateAdmin = () => {
       }
 
       setSuccess(true);
-      alert(
-        `Invitation sent successfully to ${formData.email}!\n\nThe new admin will receive an email with a link to set up their account. The link expires in 48 hours.`,
-      );
+      setEmailSent(data.emailSent !== false);
+      setInviteUrl(data.inviteUrl || "");
+
+      // Show appropriate message based on email status
+      let alertMessage = "";
+      if (data.emailSent === false && data.inviteUrl) {
+        alertMessage = `⚠️ Invitation created for ${formData.email}\n\nEmail could not be sent automatically. You'll see the setup link on the next screen.\n\nThe link expires in 48 hours.`;
+      } else if (data.emailSent === true) {
+        alertMessage = `✅ Invitation sent successfully to ${formData.email}!\n\nThe new admin will receive an email with a link to set up their account. The link expires in 48 hours.`;
+      } else {
+        alertMessage = `Invitation processed for ${formData.email}.\n\nThe link expires in 48 hours.`;
+      }
+
+      alert(alertMessage);
 
       // Reset form
       setFormData({
@@ -119,14 +132,66 @@ const CreateAdmin = () => {
               />
             </svg>
           </div>
-          <h2>Invitation Sent!</h2>
-          <p>
-            An email has been sent to <strong>{formData.email}</strong> with
-            instructions to set up their admin account.
-          </p>
-          <p className={styles.successNote}>
-            The invitation link will expire in 48 hours.
-          </p>
+          <h2>{emailSent ? "Invitation Sent!" : "Invitation Created!"}</h2>
+          {emailSent ? (
+            <>
+              <p>
+                An email has been sent to <strong>{formData.email}</strong> with
+                instructions to set up their admin account.
+              </p>
+              <p className={styles.successNote}>
+                The invitation link will expire in 48 hours.
+              </p>
+            </>
+          ) : (
+            <>
+              <p>
+                ⚠️ Invitation created for <strong>{formData.email}</strong>, but
+                the email could not be sent automatically.
+              </p>
+              {inviteUrl && (
+                <div style={{ marginTop: "1rem" }}>
+                  <p style={{ fontWeight: 600, marginBottom: "0.5rem" }}>
+                    Please manually share this setup link:
+                  </p>
+                  <div
+                    style={{
+                      background: "#f3f4f6",
+                      padding: "1rem",
+                      borderRadius: "6px",
+                      wordBreak: "break-all",
+                      fontSize: "0.875rem",
+                      fontFamily: "monospace",
+                      marginBottom: "1rem",
+                    }}
+                  >
+                    {inviteUrl}
+                  </div>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(inviteUrl);
+                      alert("Link copied to clipboard!");
+                    }}
+                    style={{
+                      padding: "0.5rem 1rem",
+                      background: "#10b981",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                      fontSize: "0.875rem",
+                      fontWeight: 600,
+                    }}
+                  >
+                    📋 Copy Link
+                  </button>
+                </div>
+              )}
+              <p className={styles.successNote}>
+                The invitation link will expire in 48 hours.
+              </p>
+            </>
+          )}
           <button
             onClick={() => router.push("/admin/manage-admin")}
             className={styles.submitButton}

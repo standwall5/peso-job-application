@@ -249,12 +249,13 @@ export const useAdminActions = (fetchAdmins: () => Promise<void>) => {
       await fetchAdmins();
       setShowAddModal(false);
 
-      // Check if email was sent successfully or if manual link is needed
-      let successMsg = `Invitation sent successfully to ${addEmail}!\n\nThe new admin will receive an email with a link to set up their account. The link expires in 48 hours.`;
+      // Show success message
+      let successMsg = "";
 
-      if (data.inviteUrl && data.hint) {
-        // Email sending had issues, show the link
-        successMsg = `Invitation created for ${addEmail}!\n\n⚠️ Email may not have been sent automatically.\n\nPlease manually send this setup link:\n${data.inviteUrl}\n\nThe link expires in 48 hours.`;
+      if (data.emailSent) {
+        successMsg = `✅ Invitation sent successfully!\n\n📧 Email sent to: ${data.email || addEmail}\n👤 Name: ${data.name || addName}\n🔑 Role: ${data.is_superadmin ? "Super Admin" : "Admin"}\n\nThe admin will receive an email with instructions to set their password.\n\nOn first login, they will be prompted to:\n• Upload a profile picture\n• Complete their profile setup`;
+      } else {
+        successMsg = `⚠️ Invitation created but email failed to send\n\n📧 Email: ${data.email || addEmail}\n👤 Name: ${data.name || addName}\n\nError: ${data.emailError || "Unknown error"}\n\nPlease contact the admin directly to set up their account.`;
       }
 
       alert(successMsg);

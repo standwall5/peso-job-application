@@ -1,6 +1,6 @@
 // Admin Invitation API - Sends invitation emails to new admin users
 import { NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server";
+import { createClient, createAdminClient } from "@/utils/supabase/server";
 
 export async function POST(request: Request) {
   try {
@@ -61,16 +61,36 @@ export async function POST(request: Request) {
     }
 
     // Check if email already exists in auth users
-    const { data: existingUsers } = await supabase.auth.admin.listUsers();
-    const emailExists = existingUsers?.users?.some(
-      (u) => u.email?.toLowerCase() === email.toLowerCase(),
-    );
+    // Use admin client to check (requires service role key)
+    try {
+      const adminClient = createAdminClient();
+      const { data: existingUsers, error: listError } =
+        await adminClient.auth.admin.listUsers();
 
-    if (emailExists) {
-      console.error("Email already exists:", email);
+      if (listError) {
+        console.error("Error listing users:", listError);
+        // Continue anyway - duplicate will be caught during account creation
+      } else {
+        const emailExists = existingUsers?.users?.some(
+          (u) => u.email?.toLowerCase() === email.toLowerCase(),
+        );
+
+        if (emailExists) {
+          console.error("Email already exists:", email);
+          return NextResponse.json(
+            { error: "An admin with this email already exists" },
+            { status: 400 },
+          );
+        }
+      }
+    } catch (adminError) {
+      console.error("Error creating admin client:", adminError);
       return NextResponse.json(
-        { error: "An admin with this email already exists" },
-        { status: 400 },
+        {
+          error:
+            "Failed to verify email availability. Please ensure SUPABASE_SERVICE_ROLE_KEY is configured.",
+        },
+        { status: 500 },
       );
     }
 
@@ -159,107 +179,94 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create the invitation link
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const inviteUrl = `${appUrl}/admin/setup-password?token=${token}`;
+    console.log("Sending invitation email to:", email);
 
-    console.log("Attempting to send invitation email to:", email);
-    console.log("Invitation URL:", inviteUrl);
+    // Send invitation email using Supabase's built-in invite method
+    // The admin will receive an email to set their password
+    // On first login (is_first_login = true), they'll be redirected to complete their profile
+    let emailSent = false;
+    let emailError = null;
+    let authUserId = null;
 
-    // Try to send invitation email using Supabase's admin invite
-    // This requires SUPABASE_SERVICE_ROLE_KEY to be set
     try {
-      const { data: inviteData, error: inviteError } =
-        await supabase.auth.admin.inviteUserByEmail(email, {
-          data: {
+      const adminClient = createAdminClient();
+
+      // Create the auth user first
+      const { data: authData, error: authError } =
+        await adminClient.auth.admin.createUser({
+          email,
+          email_confirm: false, // User needs to confirm via invite email
+          user_metadata: {
             name,
             is_superadmin,
-            invitation_token: token,
-            role: "admin",
-            invite_url: inviteUrl,
+            role: "peso_admin", // Mark this user as a PESO admin
           },
-          redirectTo: inviteUrl,
+        });
+
+      if (authError || !authData.user) {
+        console.error("Auth creation error:", authError);
+        throw new Error("Failed to create auth user");
+      }
+
+      authUserId = authData.user.id;
+
+      // Create peso record immediately
+      const { error: pesoError } = await supabase.from("peso").insert({
+        auth_id: authUserId,
+        name,
+        is_superadmin,
+        status: "active",
+        is_first_login: true,
+      });
+
+      if (pesoError) {
+        console.error("Peso record creation error:", pesoError);
+        // Rollback: delete the auth user
+        await adminClient.auth.admin.deleteUser(authUserId);
+        throw new Error("Failed to create admin record");
+      }
+
+      // Now send the invitation email
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+      const { error: inviteError } =
+        await adminClient.auth.admin.inviteUserByEmail(email, {
+          redirectTo: `${appUrl}/auth/callback`,
         });
 
       if (inviteError) {
-        console.error("Supabase admin.inviteUserByEmail error:", inviteError);
-        console.error("Error details:", {
-          code: inviteError.code,
-          message: inviteError.message,
-          status: inviteError.status,
-        });
-
-        // Check if it's a service role key issue
-        if (
-          inviteError.message?.includes("service_role") ||
-          inviteError.message?.includes("JWT") ||
-          inviteError.status === 403
-        ) {
-          console.warn(
-            "Service role key issue - falling back to password reset email",
-          );
-
-          // Fallback: Use password reset email as invitation
-          const { error: resetError } =
-            await supabase.auth.resetPasswordForEmail(email, {
-              redirectTo: inviteUrl,
-            });
-
-          if (resetError) {
-            console.error("Password reset email also failed:", resetError);
-            return NextResponse.json(
-              {
-                error:
-                  "Invitation token created, but failed to send email. Please ensure SUPABASE_SERVICE_ROLE_KEY is configured correctly.",
-                hint: "The invitation link is: " + inviteUrl,
-                token: token,
-              },
-              { status: 500 },
-            );
-          }
-
-          console.log(
-            "Successfully sent invitation via password reset email fallback",
-          );
-        } else {
-          // Other email error
-          return NextResponse.json(
-            {
-              error: "Failed to send invitation email",
-              details: inviteError.message,
-              inviteUrl: inviteUrl,
-              token: token,
-            },
-            { status: 500 },
-          );
-        }
+        console.error("Invitation email error:", inviteError);
+        emailError = inviteError.message;
+        emailSent = false;
+        // Don't rollback - account is created, just email failed
       } else {
-        console.log(
-          "Successfully sent invitation email via admin.inviteUserByEmail",
-        );
+        console.log("Invitation sent successfully");
+        emailSent = true;
       }
-    } catch (emailException) {
-      console.error(
-        "Exception while sending invitation email:",
-        emailException,
-      );
+    } catch (error) {
+      console.error("Exception sending invitation:", error);
+      emailError = error instanceof Error ? error.message : "Unknown error";
+      emailSent = false;
+
       return NextResponse.json(
         {
-          error: "Unexpected error while sending invitation email",
-          details:
-            emailException instanceof Error
-              ? emailException.message
-              : "Unknown error",
+          error: emailError,
         },
         { status: 500 },
       );
     }
 
+    // Return success with invitation details
     return NextResponse.json({
       success: true,
-      message: "Invitation sent successfully",
+      message: emailSent
+        ? "Invitation email sent successfully"
+        : `Invitation created but email failed to send: ${emailError}`,
       email,
+      name,
+      is_superadmin,
       expiresAt: expiresAt.toISOString(),
+      emailSent,
+      emailError,
     });
   } catch (error) {
     console.error("Error inviting admin:", error);

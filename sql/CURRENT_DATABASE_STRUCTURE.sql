@@ -53,6 +53,14 @@ CREATE TABLE public.admin_login_attempts (
   CONSTRAINT admin_login_attempts_pkey PRIMARY KEY (id),
   CONSTRAINT admin_login_attempts_admin_id_fkey FOREIGN KEY (admin_id) REFERENCES public.peso(id)
 );
+CREATE TABLE public.admin_presence (
+  id integer NOT NULL DEFAULT nextval('admin_presence_id_seq'::regclass),
+  admin_id integer NOT NULL UNIQUE,
+  is_online boolean DEFAULT false,
+  last_seen timestamp with time zone DEFAULT now(),
+  CONSTRAINT admin_presence_pkey PRIMARY KEY (id),
+  CONSTRAINT admin_presence_admin_id_fkey FOREIGN KEY (admin_id) REFERENCES public.peso(id)
+);
 CREATE TABLE public.applicant_ids (
   id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
   applicant_id bigint NOT NULL,
@@ -63,8 +71,18 @@ CREATE TABLE public.applicant_ids (
   uploaded_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
   version integer DEFAULT 1,
+  is_verified boolean DEFAULT false,
+  verified_by integer,
+  verified_at timestamp with time zone,
+  status text DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'approved'::text, 'rejected'::text])),
+  rejection_reason text,
+  rejected_by integer,
+  rejected_at timestamp with time zone,
+  is_preferred boolean DEFAULT false,
   CONSTRAINT applicant_ids_pkey PRIMARY KEY (id),
-  CONSTRAINT applicant_ids_applicant_id_fkey FOREIGN KEY (applicant_id) REFERENCES public.applicants(id)
+  CONSTRAINT applicant_ids_applicant_id_fkey FOREIGN KEY (applicant_id) REFERENCES public.applicants(id),
+  CONSTRAINT applicant_ids_verified_by_fkey FOREIGN KEY (verified_by) REFERENCES public.peso(id),
+  CONSTRAINT applicant_ids_rejected_by_fkey FOREIGN KEY (rejected_by) REFERENCES public.peso(id)
 );
 CREATE TABLE public.applicants (
   id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
@@ -169,6 +187,7 @@ CREATE TABLE public.companies (
   logo text,
   contact_email text,
   description text,
+  is_archived boolean DEFAULT false,
   CONSTRAINT companies_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.correct_answers (
@@ -253,6 +272,18 @@ CREATE TABLE public.id_change_logs (
   CONSTRAINT id_change_logs_pkey PRIMARY KEY (id),
   CONSTRAINT id_change_logs_applicant_id_fkey FOREIGN KEY (applicant_id) REFERENCES public.applicants(id),
   CONSTRAINT id_change_logs_application_id_fkey FOREIGN KEY (application_id) REFERENCES public.applications(id)
+);
+CREATE TABLE public.id_verification_logs (
+  id integer NOT NULL DEFAULT nextval('id_verification_logs_id_seq'::regclass),
+  applicant_id integer NOT NULL,
+  admin_id integer NOT NULL,
+  application_id integer,
+  action text NOT NULL CHECK (action = ANY (ARRAY['verified'::text, 'rejected'::text, 'updated'::text])),
+  reason text,
+  timestamp timestamp with time zone DEFAULT now(),
+  CONSTRAINT id_verification_logs_pkey PRIMARY KEY (id),
+  CONSTRAINT id_verification_logs_applicant_id_fkey FOREIGN KEY (applicant_id) REFERENCES public.applicants(id),
+  CONSTRAINT id_verification_logs_admin_id_fkey FOREIGN KEY (admin_id) REFERENCES public.peso(id)
 );
 CREATE TABLE public.id_view_logs (
   id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
