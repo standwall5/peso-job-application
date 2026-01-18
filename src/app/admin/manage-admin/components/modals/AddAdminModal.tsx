@@ -10,10 +10,6 @@ interface AddAdminModalProps {
   setName: (name: string) => void;
   email: string;
   setEmail: (email: string) => void;
-  password: string;
-  setPassword: (password: string) => void;
-  confirmPassword: string;
-  setConfirmPassword: (password: string) => void;
   isSuperAdmin: boolean;
   setIsSuperAdmin: (isSuperAdmin: boolean) => void;
   actionLoading: boolean;
@@ -27,10 +23,6 @@ const AddAdminModal: React.FC<AddAdminModalProps> = ({
   setName,
   email,
   setEmail,
-  password,
-  setPassword,
-  confirmPassword,
-  setConfirmPassword,
   isSuperAdmin,
   setIsSuperAdmin,
   actionLoading,
@@ -43,7 +35,7 @@ const AddAdminModal: React.FC<AddAdminModalProps> = ({
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2>Add Admin</h2>
+          <h2>Invite New Admin</h2>
           <button
             className={styles.closeButton}
             onClick={onClose}
@@ -66,9 +58,76 @@ const AddAdminModal: React.FC<AddAdminModalProps> = ({
         </div>
 
         <div className={styles.modalBody}>
+          {/* Info Box */}
+          <div
+            style={{
+              backgroundColor: "#f0f9ff",
+              border: "1px solid #0ea5e9",
+              borderRadius: "8px",
+              padding: "1rem",
+              marginBottom: "1.5rem",
+              display: "flex",
+              gap: "0.75rem",
+            }}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="#0ea5e9"
+              style={{ width: "24px", height: "24px", flexShrink: 0 }}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+              />
+            </svg>
+            <div>
+              <p
+                style={{
+                  margin: "0 0 0.5rem 0",
+                  fontWeight: 600,
+                  color: "#0c4a6e",
+                }}
+              >
+                How it works:
+              </p>
+              <ul
+                style={{
+                  margin: 0,
+                  paddingLeft: "1.25rem",
+                  color: "#0c4a6e",
+                  fontSize: "0.875rem",
+                  lineHeight: "1.5",
+                }}
+              >
+                <li>Enter the admin&apos;s name and email address</li>
+                <li>An invitation email will be sent automatically</li>
+                <li>
+                  The new admin will upload a profile picture and set their
+                  password
+                </li>
+                <li>The invitation link expires in 48 hours</li>
+              </ul>
+            </div>
+          </div>
+
           {/* Name Field */}
           <div className={styles.formGroup}>
-            <label>Full Name *</label>
+            <label>
+              Full Name *{" "}
+              <span
+                style={{
+                  fontSize: "0.875rem",
+                  color: "var(--text-secondary)",
+                  fontWeight: "normal",
+                }}
+              >
+                (Cannot be changed later)
+              </span>
+            </label>
             <input
               type="text"
               className={styles.formInput}
@@ -77,6 +136,17 @@ const AddAdminModal: React.FC<AddAdminModalProps> = ({
               placeholder="Enter admin name"
               disabled={actionLoading}
             />
+            <p
+              style={{
+                fontSize: "0.875rem",
+                color: "var(--text-secondary)",
+                marginTop: "0.5rem",
+                marginBottom: 0,
+              }}
+            >
+              This name will appear on all verified ID watermarks and cannot be
+              modified.
+            </p>
           </div>
 
           {/* Email Field */}
@@ -90,32 +160,16 @@ const AddAdminModal: React.FC<AddAdminModalProps> = ({
               placeholder="admin@peso.gov.ph"
               disabled={actionLoading}
             />
-          </div>
-
-          {/* Password Field */}
-          <div className={styles.formGroup}>
-            <label>Password *</label>
-            <input
-              type="password"
-              className={styles.formInput}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Minimum 8 characters"
-              disabled={actionLoading}
-            />
-          </div>
-
-          {/* Confirm Password Field */}
-          <div className={styles.formGroup}>
-            <label>Confirm Password *</label>
-            <input
-              type="password"
-              className={styles.formInput}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Re-enter password"
-              disabled={actionLoading}
-            />
+            <p
+              style={{
+                fontSize: "0.875rem",
+                color: "var(--text-secondary)",
+                marginTop: "0.5rem",
+                marginBottom: 0,
+              }}
+            >
+              An invitation link will be sent to this email address.
+            </p>
           </div>
 
           {/* Super Admin Checkbox */}
@@ -138,8 +192,8 @@ const AddAdminModal: React.FC<AddAdminModalProps> = ({
                 marginLeft: "1.5rem",
               }}
             >
-              Super admins can manage other admin accounts and have full system
-              access.
+              Super admins can manage other admin accounts, invite new admins,
+              and have full system access.
             </p>
           </div>
         </div>
@@ -157,7 +211,7 @@ const AddAdminModal: React.FC<AddAdminModalProps> = ({
             onClick={onSave}
             isLoading={actionLoading}
           >
-            Create Admin
+            Send Invitation
           </ActionButton>
         </div>
       </div>

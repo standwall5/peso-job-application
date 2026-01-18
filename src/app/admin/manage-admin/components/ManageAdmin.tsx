@@ -48,10 +48,6 @@ const ManageAdminList = () => {
     setAddName,
     addEmail,
     setAddEmail,
-    addPassword,
-    setAddPassword,
-    addConfirmPassword,
-    setAddConfirmPassword,
     addIsSuperAdmin,
     setAddIsSuperAdmin,
     handleAddAdminClick,
@@ -171,10 +167,6 @@ const ManageAdminList = () => {
         setName={setAddName}
         email={addEmail}
         setEmail={setAddEmail}
-        password={addPassword}
-        setPassword={setAddPassword}
-        confirmPassword={addConfirmPassword}
-        setConfirmPassword={setAddConfirmPassword}
         isSuperAdmin={addIsSuperAdmin}
         setIsSuperAdmin={setAddIsSuperAdmin}
         actionLoading={actionLoading}

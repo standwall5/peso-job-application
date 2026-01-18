@@ -127,6 +127,28 @@ Updated the admin/staff account creation flow and enhanced password security req
 
 ---
 
+### 7. Manage Admin Modal - Invitation Flow
+**Files**: 
+- `src/app/admin/manage-admin/components/modals/AddAdminModal.tsx`
+- `src/app/admin/manage-admin/hooks/useAdminActions.ts`
+- `src/app/admin/manage-admin/components/ManageAdmin.tsx`
+
+**Changes**:
+- Removed password and confirm password fields from the "Add Admin" modal
+- Modal now titled "Invite New Admin" instead of "Add Admin"
+- Button text changed from "Create Admin" to "Send Invitation"
+- Added informational box explaining the invitation process
+- Updated to use `/api/admin/invite` endpoint instead of direct account creation
+- Shows helpful text about name immutability and 48-hour expiration
+- Success message now explains invitation email was sent
+
+**Previous Behavior**: Super admin could directly create admin accounts with password in modal
+**New Behavior**: Super admin sends invitation email, new admin sets own password during setup
+
+**Impact**: Consistent invitation flow across all admin creation methods (both standalone page and modal)
+
+---
+
 ## Required Supabase Configuration
 
 ### Storage Bucket
@@ -240,6 +262,9 @@ For existing admin accounts created before this update:
 3. `src/app/admin/setup-password/page.tsx`
 4. `src/app/api/admin/setup-password/route.ts`
 5. `src/app/admin/setup-password/SetupPassword.module.css`
+6. `src/app/admin/manage-admin/components/modals/AddAdminModal.tsx`
+7. `src/app/admin/manage-admin/hooks/useAdminActions.ts`
+8. `src/app/admin/manage-admin/components/ManageAdmin.tsx`
 
 ## Files Created
 

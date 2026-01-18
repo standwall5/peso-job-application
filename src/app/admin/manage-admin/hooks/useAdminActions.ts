@@ -29,11 +29,9 @@ export const useAdminActions = (fetchAdmins: () => Promise<void>) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
 
-  // Add Admin states
+  // Add Admin states (Invitation flow - no password needed)
   const [addName, setAddName] = useState("");
   const [addEmail, setAddEmail] = useState("");
-  const [addPassword, setAddPassword] = useState("");
-  const [addConfirmPassword, setAddConfirmPassword] = useState("");
   const [addIsSuperAdmin, setAddIsSuperAdmin] = useState(false);
 
   const handleEditClick = (admin: AdminWithEmail) => {
@@ -188,8 +186,6 @@ export const useAdminActions = (fetchAdmins: () => Promise<void>) => {
   const handleAddAdminClick = () => {
     setAddName("");
     setAddEmail("");
-    setAddPassword("");
-    setAddConfirmPassword("");
     setAddIsSuperAdmin(false);
     setShowAddModal(true);
   };
@@ -211,33 +207,43 @@ export const useAdminActions = (fetchAdmins: () => Promise<void>) => {
       return;
     }
 
-    if (!addPassword) {
-      alert("Password is required!");
-      return;
-    }
-
-    if (addPassword.length < 8) {
-      alert("Password must be at least 8 characters long!");
-      return;
-    }
-
-    if (addPassword !== addConfirmPassword) {
-      alert("Passwords do not match!");
+    if (addName.trim().length < 3) {
+      alert("Name must be at least 3 characters!");
       return;
     }
 
     setActionLoading(true);
     try {
-      await createAdminAction(addEmail, addPassword, addName, addIsSuperAdmin);
+      // Send invitation instead of creating account directly
+      const response = await fetch("/api/admin/invite", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: addEmail,
+          name: addName,
+          is_superadmin: addIsSuperAdmin,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send invitation");
+      }
+
       await fetchAdmins();
       setShowAddModal(false);
-      alert("Admin created successfully!");
+      alert(
+        `Invitation sent successfully to ${addEmail}!\n\nThe new admin will receive an email with a link to set up their account. The link expires in 48 hours.`,
+      );
     } catch (error) {
-      console.error("Error creating admin:", error);
+      console.error("Error sending invitation:", error);
       const errorMessage =
         error instanceof Error
           ? error.message
-          : "Failed to create admin. Please try again.";
+          : "Failed to send invitation. Please try again.";
       alert(errorMessage);
     } finally {
       setActionLoading(false);
@@ -272,10 +278,6 @@ export const useAdminActions = (fetchAdmins: () => Promise<void>) => {
     setAddName,
     addEmail,
     setAddEmail,
-    addPassword,
-    setAddPassword,
-    addConfirmPassword,
-    setAddConfirmPassword,
     addIsSuperAdmin,
     setAddIsSuperAdmin,
     actionLoading,
