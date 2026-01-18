@@ -11,11 +11,11 @@ interface Education {
 }
 
 interface WorkExperience {
-  company: string;
-  position: string;
-  location: string;
-  start_date: string;
-  end_date: string;
+  company?: string;
+  position?: string;
+  location?: string;
+  start_date?: string;
+  end_date?: string;
 }
 
 interface ResumeProps {
@@ -117,27 +117,42 @@ const Resume = forwardRef<HTMLDivElement, ResumeProps>(
           </ul>
         </section>
 
-        {workExperiences && (
-          <section className={styles.section}>
-            <h6 className={styles.sectionTitle}>Work Experiences</h6>
-            {(Array.isArray(workExperiences) ? workExperiences : []).map(
-              (work: WorkExperience, idx: number) => (
-                <div className={styles.workExpRow} key={idx}>
-                  <div className={styles.workExpLeft}>
-                    <strong>{work.company}</strong>
-                    <div>{work.position}</div>
-                  </div>
-                  <div className={styles.workExpRight}>
-                    <div>{work.location}</div>
-                    <div>
-                      {work.start_date} - {work.end_date}
+        {workExperiences &&
+          workExperiences.filter(
+            (work) =>
+              work.company?.trim() ||
+              work.position?.trim() ||
+              work.location?.trim() ||
+              work.start_date?.trim() ||
+              work.end_date?.trim(),
+          ).length > 0 && (
+            <section className={styles.section}>
+              <h6 className={styles.sectionTitle}>Work Experiences</h6>
+              {workExperiences
+                .filter(
+                  (work) =>
+                    work.company?.trim() ||
+                    work.position?.trim() ||
+                    work.location?.trim() ||
+                    work.start_date?.trim() ||
+                    work.end_date?.trim(),
+                )
+                .map((work: WorkExperience, idx: number) => (
+                  <div className={styles.workExpRow} key={idx}>
+                    <div className={styles.workExpLeft}>
+                      <strong>{work.company}</strong>
+                      <div>{work.position}</div>
+                    </div>
+                    <div className={styles.workExpRight}>
+                      <div>{work.location}</div>
+                      <div>
+                        {work.start_date} - {work.end_date}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ),
-            )}
-          </section>
-        )}
+                ))}
+            </section>
+          )}
 
         {/* Certification Statement */}
         {/*<section
