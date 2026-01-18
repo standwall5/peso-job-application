@@ -1,6 +1,12 @@
 import React from "react";
 import styles from "./How.module.css";
-import { DocumentTextIcon, BriefcaseIcon, ChartBarIcon, EnvelopeIcon, AcademicCapIcon } from "@heroicons/react/24/outline";
+import {
+  DocumentTextIcon,
+  BriefcaseIcon,
+  ChartBarIcon,
+  EnvelopeIcon,
+  AcademicCapIcon,
+} from "@heroicons/react/24/outline";
 
 const HowItWorks = () => {
   return (
@@ -10,11 +16,12 @@ const HowItWorks = () => {
         <div className={styles.coachingContent}>
           <div className={styles.contentWrapper}>
             <p className={styles.intro}>
-              Follow these simple steps to apply for jobs in our system and maximize your chances of success.
+              Follow these simple steps to apply for jobs in our system and
+              maximize your chances of success.
             </p>
-            
+
             <h3 className={styles.subheading}>How to Apply:</h3>
-            
+
             <div className={styles.offeringsGrid}>
               <div className={styles.offeringItem}>
                 <div className={styles.iconBox}>
@@ -22,68 +29,84 @@ const HowItWorks = () => {
                 </div>
                 <div>
                   <h4>Upload Your Resume</h4>
-                  <p>Start by uploading your updated resume to your profile. Make sure it's current and highlights your skills.</p>
+                  <p>
+                    Start by uploading your updated resume to your profile. Make
+                    sure it&apos;s current and highlights your skills.
+                  </p>
                 </div>
               </div>
-              
+
               <div className={styles.offeringItem}>
                 <div className={styles.iconBox}>
                   <BriefcaseIcon className={styles.icon} />
                 </div>
                 <div>
                   <h4>Browse Job Opportunities</h4>
-                  <p>Explore available positions in the Job Opportunities section and find roles that match your qualifications.</p>
+                  <p>
+                    Explore available positions in the Job Opportunities section
+                    and find roles that match your qualifications.
+                  </p>
                 </div>
               </div>
-              
+
               <div className={styles.offeringItem}>
                 <div className={styles.iconBox}>
                   <ChartBarIcon className={styles.icon} />
                 </div>
                 <div>
                   <h4>Complete Your Application</h4>
-                  <p>Fill out the application form with accurate information and attach your resume.</p>
+                  <p>
+                    Fill out the application form with accurate information and
+                    attach your resume.
+                  </p>
                 </div>
               </div>
-              
+
               <div className={styles.offeringItem}>
                 <div className={styles.iconBox}>
                   <EnvelopeIcon className={styles.icon} />
                 </div>
                 <div>
                   <h4>Submit & Track</h4>
-                  <p>Submit your application and track its status in your dashboard.</p>
+                  <p>
+                    Submit your application and track its status in your
+                    dashboard.
+                  </p>
                 </div>
               </div>
-              
+
               <div className={styles.offeringItem}>
                 <div className={styles.iconBox}>
                   <AcademicCapIcon className={styles.icon} />
                 </div>
                 <div>
                   <h4>Prepare for Interview</h4>
-                  <p>If selected, you'll be contacted for an interview. Review the job details and prepare accordingly.</p>
+                  <p>
+                    If selected, you&apos;ll be contacted for an interview.
+                    Review the job details and prepare accordingly.
+                  </p>
                 </div>
               </div>
             </div>
-            
+
             <p className={styles.callToAction}>
-              Ready to start your job search? Browse available opportunities and submit your application today!
+              Ready to start your job search? Browse available opportunities and
+              submit your application today!
             </p>
           </div>
         </div>
-        
+
         {/* OLD COACHING CONTENT - COMMENTED OUT */}
-        {/* 
+        {/*
         <div className={styles.coachingContent}>
           <div className={styles.contentWrapper}>
             <p className={styles.intro}>
-              Our employment coaching services are designed to help you succeed in your job search journey. 
+              Our employment coaching services are designed to help you succeed in your job search journey.
               We provide personalized guidance and support throughout the entire application process.
             </p>
-            
+
             <h3 className={styles.subheading}>What We Offer:</h3>
-            
+
             <div className={styles.offeringsGrid}>
               <div className={styles.offeringItem}>
                 <div className={styles.iconBox}>
@@ -94,7 +117,7 @@ const HowItWorks = () => {
                   <p>Get expert feedback on your resume to make it stand out to employers</p>
                 </div>
               </div>
-              
+
               <div className={styles.offeringItem}>
                 <div className={styles.iconBox}>
                   <BriefcaseIcon className={styles.icon} />
@@ -104,7 +127,7 @@ const HowItWorks = () => {
                   <p>Practice common interview questions and learn effective strategies</p>
                 </div>
               </div>
-              
+
               <div className={styles.offeringItem}>
                 <div className={styles.iconBox}>
                   <ChartBarIcon className={styles.icon} />
@@ -114,7 +137,7 @@ const HowItWorks = () => {
                   <p>Develop a targeted approach to finding opportunities that match your skills</p>
                 </div>
               </div>
-              
+
               <div className={styles.offeringItem}>
                 <div className={styles.iconBox}>
                   <EnvelopeIcon className={styles.icon} />
@@ -124,7 +147,7 @@ const HowItWorks = () => {
                   <p>Guidance on completing applications and writing compelling cover letters</p>
                 </div>
               </div>
-              
+
               <div className={styles.offeringItem}>
                 <div className={styles.iconBox}>
                   <AcademicCapIcon className={styles.icon} />
@@ -135,16 +158,16 @@ const HowItWorks = () => {
                 </div>
               </div>
             </div>
-            
+
             <p className={styles.callToAction}>
-              Our experienced coaches are here to support you every step of the way. Schedule a session today 
+              Our experienced coaches are here to support you every step of the way. Schedule a session today
               to start maximizing your employment opportunities.
             </p>
           </div>
         </div>
         */}
       </div>
-      
+
       <div className={styles.tutorialContainer}>
         <h2 className={styles.sectionTitle}>Video Tutorial</h2>
         <div className={styles.tutorialContent}>

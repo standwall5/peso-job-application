@@ -42,7 +42,10 @@ next-env.d.ts
 
 # test files
 supabase
-# sql
+sql
+migrations
+prisma
+scripts
 docs
 db.json
 diff.txt
