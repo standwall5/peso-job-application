@@ -14,6 +14,7 @@ export interface AdminProfile {
   created_at?: string;
   last_login?: string;
   account_locked?: boolean;
+  profile_picture_url?: string;
 }
 
 export interface AdminWithEmail extends AdminProfile {
@@ -27,7 +28,7 @@ export async function getAdminProfile(): Promise<AdminProfile> {
   const { data, error } = await supabase
     .from("peso")
     .select(
-      "id, name, is_superadmin, auth_id, status, created_at, last_login, account_locked",
+      "id, name, is_superadmin, auth_id, status, created_at, last_login, account_locked, profile_picture_url",
     )
     .eq("auth_id", user.id)
     .single();
