@@ -160,45 +160,99 @@ export async function POST(request: Request) {
     }
 
     // Create the invitation link
-    const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/admin/setup-password?token=${token}`;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const inviteUrl = `${appUrl}/admin/setup-password?token=${token}`;
 
-    // Use Supabase Admin API to invite user
-    // This sends an email with a magic link
-    const { error: inviteError } = await supabase.auth.admin.inviteUserByEmail(
-      email,
-      {
-        data: {
-          name,
-          is_superadmin,
-          invitation_token: token,
-          role: "admin",
-        },
-        redirectTo: inviteUrl,
-      },
-    );
+    console.log("Attempting to send invitation email to:", email);
+    console.log("Invitation URL:", inviteUrl);
 
-    if (inviteError) {
-      console.error("Supabase invite error:", inviteError);
-
-      // If admin invite fails, try regular email
-      // Create a custom email using Supabase Auth
-      const { error: emailError } = await supabase.auth.resetPasswordForEmail(
-        email,
-        {
-          redirectTo: inviteUrl,
-        },
-      );
-
-      if (emailError) {
-        console.error("Email send error:", emailError);
-        return NextResponse.json(
-          {
-            error:
-              "Failed to send invitation email. Token created but email not sent.",
+    // Try to send invitation email using Supabase's admin invite
+    // This requires SUPABASE_SERVICE_ROLE_KEY to be set
+    try {
+      const { data: inviteData, error: inviteError } =
+        await supabase.auth.admin.inviteUserByEmail(email, {
+          data: {
+            name,
+            is_superadmin,
+            invitation_token: token,
+            role: "admin",
+            invite_url: inviteUrl,
           },
-          { status: 500 },
+          redirectTo: inviteUrl,
+        });
+
+      if (inviteError) {
+        console.error("Supabase admin.inviteUserByEmail error:", inviteError);
+        console.error("Error details:", {
+          code: inviteError.code,
+          message: inviteError.message,
+          status: inviteError.status,
+        });
+
+        // Check if it's a service role key issue
+        if (
+          inviteError.message?.includes("service_role") ||
+          inviteError.message?.includes("JWT") ||
+          inviteError.status === 403
+        ) {
+          console.warn(
+            "Service role key issue - falling back to password reset email",
+          );
+
+          // Fallback: Use password reset email as invitation
+          const { error: resetError } =
+            await supabase.auth.resetPasswordForEmail(email, {
+              redirectTo: inviteUrl,
+            });
+
+          if (resetError) {
+            console.error("Password reset email also failed:", resetError);
+            return NextResponse.json(
+              {
+                error:
+                  "Invitation token created, but failed to send email. Please ensure SUPABASE_SERVICE_ROLE_KEY is configured correctly.",
+                hint: "The invitation link is: " + inviteUrl,
+                token: token,
+              },
+              { status: 500 },
+            );
+          }
+
+          console.log(
+            "Successfully sent invitation via password reset email fallback",
+          );
+        } else {
+          // Other email error
+          return NextResponse.json(
+            {
+              error: "Failed to send invitation email",
+              details: inviteError.message,
+              inviteUrl: inviteUrl,
+              token: token,
+            },
+            { status: 500 },
+          );
+        }
+      } else {
+        console.log(
+          "Successfully sent invitation email via admin.inviteUserByEmail",
         );
       }
+    } catch (emailException) {
+      console.error(
+        "Exception while sending invitation email:",
+        emailException,
+      );
+      return NextResponse.json(
+        {
+          error: "Unexpected error while sending invitation email",
+          details:
+            emailException instanceof Error
+              ? emailException.message
+              : "Unknown error",
+        },
+        { status: 500 },
+      );
     }
 
     return NextResponse.json({

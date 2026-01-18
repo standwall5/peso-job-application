@@ -230,14 +230,34 @@ export const useAdminActions = (fetchAdmins: () => Promise<void>) => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to send invitation");
+        // Show error with invitation link if available
+        let errorMsg = data.error || "Failed to send invitation";
+
+        if (data.inviteUrl || data.token) {
+          errorMsg += `\n\n⚠️ Email sending failed, but invitation was created.`;
+          if (data.inviteUrl) {
+            errorMsg += `\n\nManually send this link to ${addEmail}:\n${data.inviteUrl}`;
+          }
+          if (data.hint) {
+            errorMsg += `\n\n${data.hint}`;
+          }
+        }
+
+        throw new Error(errorMsg);
       }
 
       await fetchAdmins();
       setShowAddModal(false);
-      alert(
-        `Invitation sent successfully to ${addEmail}!\n\nThe new admin will receive an email with a link to set up their account. The link expires in 48 hours.`,
-      );
+
+      // Check if email was sent successfully or if manual link is needed
+      let successMsg = `Invitation sent successfully to ${addEmail}!\n\nThe new admin will receive an email with a link to set up their account. The link expires in 48 hours.`;
+
+      if (data.inviteUrl && data.hint) {
+        // Email sending had issues, show the link
+        successMsg = `Invitation created for ${addEmail}!\n\n⚠️ Email may not have been sent automatically.\n\nPlease manually send this setup link:\n${data.inviteUrl}\n\nThe link expires in 48 hours.`;
+      }
+
+      alert(successMsg);
     } catch (error) {
       console.error("Error sending invitation:", error);
       const errorMessage =
