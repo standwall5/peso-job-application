@@ -98,7 +98,7 @@ export default function ResetPasswordPage() {
         <h1 className={styles.authTitle}>Reset Your Password</h1>
 
         <p className={styles.authSubtitle}>
-          Enter a new password for your account. Make sure it's at least 8
+          Enter a new password for your account. Make sure it&apos;s at least 8
           characters long.
         </p>
 

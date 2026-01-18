@@ -23,8 +23,8 @@ export default function ForgotPasswordPage({
       <div className={styles.authContent}>
         <h1 className={styles.authTitle}>Reset Your Password</h1>
         <p className={styles.authSubtitle}>
-          Enter your email address and we'll send you instructions to reset your
-          password.
+          Enter your email address and we&apos;ll send you instructions to reset
+          your password.
         </p>
 
         {status === "success" && (
