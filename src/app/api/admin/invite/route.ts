@@ -1,3 +1,4 @@
+// Admin Invitation API - Sends invitation emails to new admin users
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
