@@ -126,12 +126,12 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
           <DatePickerInput
             label={
               <>
-                Pick a date <span className={styles.redAsterisk}>*</span>
+                Pick a birthdate <span className={styles.redAsterisk}>*</span>
               </>
             }
             placeholder="Pick date"
             value={parseBirthDateString(birthDate)}
-            onChange={(d) => {
+            onChange={(d: string | null) => {
               const newDate =
                 d == null
                   ? ""
