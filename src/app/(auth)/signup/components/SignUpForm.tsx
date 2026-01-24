@@ -185,6 +185,7 @@ const SignUpForm = () => {
               type="button"
               className={styles.redButton}
               onClick={handleReset}
+              variant="outline"
             >
               Reset
             </Button>

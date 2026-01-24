@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import styles from "./AdminProfileModal.module.css";
 import Button from "@/components/Button";
 import { ProfilePictureUpload } from "./ProfilePictureUpload";
+import AlertModal from "@/components/AlertModal";
 
 interface AdminProfileModalProps {
   isOpen: boolean;
@@ -231,9 +232,11 @@ export const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
                     onProfileUpdate(url);
                   }
                   if (isFirstLogin && hasSetPassword) {
-                    alert("Setup complete! Your account is now ready.");
-                    onClose();
-                    window.location.reload();
+                    // alert("Setup complete! Your account is now ready.");
+                    // <AlertModal
+                    //   title="Setup Complete"
+                    //   message="Your account is now ready."
+                    // />;
                   } else if (isFirstLogin) {
                     alert(
                       "Profile picture uploaded! Please set your password to complete setup.",
@@ -242,18 +245,6 @@ export const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
                   }
                 }}
               />
-              {isFirstLogin && (
-                <div className={styles.firstLoginNote}>
-                  <p>
-                    <strong>✓</strong> Profile Picture:{" "}
-                    {hasUploadedPicture ? "✅ Uploaded" : "❌ Required"}
-                  </p>
-                  <p>
-                    <strong>✓</strong> Password:{" "}
-                    {hasSetPassword ? "✅ Set" : "❌ Required"}
-                  </p>
-                </div>
-              )}
             </div>
           )}
 
