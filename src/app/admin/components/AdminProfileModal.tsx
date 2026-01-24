@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import styles from "./AdminProfileModal.module.css";
 import Button from "@/components/Button";
 import { ProfilePictureUpload } from "./ProfilePictureUpload";
-import AlertModal from "@/components/AlertModal";
 
 interface AdminProfileModalProps {
   isOpen: boolean;
@@ -29,11 +28,20 @@ export const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [hasUploadedPicture, setHasUploadedPicture] =
     useState(!!currentPictureUrl);
+  const [hasSelectedPicture, setHasSelectedPicture] = useState(false);
+  const [profileUploadHandler, setProfileUploadHandler] = useState<
+    (() => Promise<{ success: boolean; url?: string }>) | null
+  >(null);
   const [hasSetPassword, setHasSetPassword] = useState(false);
 
-  const handlePasswordSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (isFirstLogin && !hasUploadedPicture && !hasSelectedPicture) {
+      setError("Please select a profile picture to continue.");
+      return;
+    }
 
     // Validation
     if (!isFirstLogin && !currentPassword) {
@@ -84,6 +92,18 @@ export const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
 
     setLoading(true);
     try {
+      if (isFirstLogin && hasSelectedPicture) {
+        if (!profileUploadHandler) {
+          throw new Error("Profile picture uploader is not ready");
+        }
+        const uploadResult = await profileUploadHandler();
+        if (!uploadResult.success) {
+          throw new Error("Failed to upload profile picture");
+        }
+        setHasUploadedPicture(true);
+        setHasSelectedPicture(false);
+      }
+
       const response = await fetch("/api/admin/change-password", {
         method: "POST",
         headers: {
@@ -112,18 +132,10 @@ export const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
       setError("");
 
       if (isFirstLogin) {
-        // Check if profile picture is also uploaded
-        if (hasUploadedPicture) {
-          alert("Setup complete! Your account is now ready.");
-          onClose();
-          // Reload page to refresh admin profile (is_first_login flag)
-          window.location.reload();
-        } else {
-          alert(
-            "Password set successfully! Please upload a profile picture to complete setup.",
-          );
-          setActiveTab("profile");
-        }
+        alert("Setup complete! Your account is now ready.");
+        onClose();
+        // Reload page to refresh admin profile (is_first_login flag)
+        window.location.reload();
       } else {
         alert("Password changed successfully!");
         onClose();
@@ -174,100 +186,81 @@ export const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
           )}
         </div>
 
-        <div className={styles.tabs}>
-          <button
-            className={`${styles.tab} ${
-              activeTab === "profile" ? styles.active : ""
-            }`}
-            onClick={() => setActiveTab("profile")}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className={styles.tabIcon}
+        {!isFirstLogin && (
+          <div className={styles.tabs}>
+            <button
+              className={`${styles.tab} ${
+                activeTab === "profile" ? styles.active : ""
+              }`}
+              onClick={() => setActiveTab("profile")}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
-              />
-            </svg>
-            Profile
-          </button>
-          <button
-            className={`${styles.tab} ${
-              activeTab === "password" ? styles.active : ""
-            }`}
-            onClick={() => setActiveTab("password")}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className={styles.tabIcon}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className={styles.tabIcon}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+                />
+              </svg>
+              Profile
+            </button>
+            <button
+              className={`${styles.tab} ${
+                activeTab === "password" ? styles.active : ""
+              }`}
+              onClick={() => setActiveTab("password")}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
-              />
-            </svg>
-            Password
-          </button>
-        </div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className={styles.tabIcon}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
+                />
+              </svg>
+              Password
+            </button>
+          </div>
+        )}
 
         <div className={styles.content}>
-          {activeTab === "profile" && (
-            <div className={styles.profileTab}>
-              <ProfilePictureUpload
-                currentPictureUrl={currentPictureUrl}
-                onUploadSuccess={(url) => {
-                  setHasUploadedPicture(true);
-                  if (onProfileUpdate) {
-                    onProfileUpdate(url);
-                  }
-                  if (isFirstLogin && hasSetPassword) {
-                    // alert("Setup complete! Your account is now ready.");
-                    // <AlertModal
-                    //   title="Setup Complete"
-                    //   message="Your account is now ready."
-                    // />;
-                  } else if (isFirstLogin) {
-                    alert(
-                      "Profile picture uploaded! Please set your password to complete setup.",
-                    );
-                    setActiveTab("password");
-                  }
-                }}
-              />
-            </div>
-          )}
-
-          {activeTab === "password" && (
-            <form
-              onSubmit={handlePasswordSubmit}
-              className={styles.passwordForm}
-            >
+          {isFirstLogin ? (
+            <form onSubmit={handleSubmit} className={styles.passwordForm}>
               {error && <div className={styles.error}>{error}</div>}
 
-              {!isFirstLogin && (
-                <div className={styles.formGroup}>
-                  <label htmlFor="currentPassword">Current Password</label>
-                  <input
-                    type="password"
-                    id="currentPassword"
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    className={styles.input}
-                    required
-                  />
-                </div>
-              )}
+              <div className={styles.profileTab}>
+                <ProfilePictureUpload
+                  currentPictureUrl={currentPictureUrl}
+                  onUploadSuccess={(url) => {
+                    setHasUploadedPicture(!!url);
+                    setHasSelectedPicture(false);
+                    if (onProfileUpdate) {
+                      onProfileUpdate(url);
+                    }
+                  }}
+                  onFileSelected={(file) => {
+                    setHasSelectedPicture(!!file);
+                  }}
+                  onUploadHandlerReady={(handler) => {
+                    setProfileUploadHandler(() => handler);
+                  }}
+                  showUploadButton={false}
+                  showRemoveButton={false}
+                  showSuccessAlerts={false}
+                />
+              </div>
 
               <div className={styles.formGroup}>
                 <label htmlFor="newPassword">New Password</label>
@@ -305,9 +298,94 @@ export const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
               </div>
 
               <Button type="submit" disabled={loading}>
-                {loading ? "Changing..." : "Change Password"}
+                {loading ? "Submitting..." : "Complete Setup"}
               </Button>
             </form>
+          ) : (
+            <>
+              {activeTab === "profile" && (
+                <div className={styles.profileTab}>
+                  <ProfilePictureUpload
+                    currentPictureUrl={currentPictureUrl}
+                    onUploadSuccess={(url) => {
+                      setHasUploadedPicture(!!url);
+                      setHasSelectedPicture(false);
+                      if (onProfileUpdate) {
+                        onProfileUpdate(url);
+                      }
+                    }}
+                    onFileSelected={(file) => {
+                      setHasSelectedPicture(!!file);
+                    }}
+                    onUploadHandlerReady={(handler) => {
+                      setProfileUploadHandler(() => handler);
+                    }}
+                    showUploadButton={!isFirstLogin}
+                    showRemoveButton={!isFirstLogin}
+                    showSuccessAlerts={!isFirstLogin}
+                  />
+                </div>
+              )}
+
+              {activeTab === "password" && (
+                <form onSubmit={handleSubmit} className={styles.passwordForm}>
+                  {error && <div className={styles.error}>{error}</div>}
+
+                  {!isFirstLogin && (
+                    <div className={styles.formGroup}>
+                      <label htmlFor="currentPassword">Current Password</label>
+                      <input
+                        type="password"
+                        id="currentPassword"
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        className={styles.input}
+                        required
+                      />
+                    </div>
+                  )}
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="newPassword">New Password</label>
+                    <input
+                      type="password"
+                      id="newPassword"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className={styles.input}
+                      required
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="confirmPassword">Confirm Password</label>
+                    <input
+                      type="password"
+                      id="confirmPassword"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className={styles.input}
+                      required
+                    />
+                  </div>
+
+                  <div className={styles.passwordRequirements}>
+                    <p>Password must contain:</p>
+                    <ul>
+                      <li>At least 8 characters</li>
+                      <li>One uppercase letter</li>
+                      <li>One lowercase letter</li>
+                      <li>One number</li>
+                      <li>One special character</li>
+                    </ul>
+                  </div>
+
+                  <Button type="submit" disabled={loading}>
+                    {loading ? "Changing..." : "Change Password"}
+                  </Button>
+                </form>
+              )}
+            </>
           )}
         </div>
       </div>

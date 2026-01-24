@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import Cropper from "react-easy-crop";
 import type { Point, Area } from "react-easy-crop";
 import styles from "./ProfilePictureUpload.module.css";
@@ -9,15 +9,33 @@ interface ProfilePictureUploadProps {
   currentPictureUrl?: string | null;
   onUploadSuccess?: (url: string) => void;
   onUploadStart?: () => void;
+  onFileSelected?: (file: File | null) => void;
+  onUploadHandlerReady?: (
+    handler: () => Promise<{ success: boolean; url?: string }>,
+  ) => void;
+  showSelectButton?: boolean;
+  showUploadButton?: boolean;
+  showRemoveButton?: boolean;
+  showHint?: boolean;
+  showPreview?: boolean;
+  showSuccessAlerts?: boolean;
 }
 
 export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
   currentPictureUrl,
   onUploadSuccess,
   onUploadStart,
+  onFileSelected,
+  onUploadHandlerReady,
+  showSelectButton = true,
+  showUploadButton = true,
+  showRemoveButton = true,
+  showHint = true,
+  showPreview = true,
+  showSuccessAlerts = true,
 }) => {
   const [preview, setPreview] = useState<string | null>(
-    currentPictureUrl || null
+    currentPictureUrl || null,
   );
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -33,7 +51,7 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
     (croppedArea: Area, croppedAreaPixels: Area) => {
       setCroppedAreaPixels(croppedAreaPixels);
     },
-    []
+    [],
   );
 
   const createImage = (url: string): Promise<HTMLImageElement> =>
@@ -46,7 +64,7 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
 
   const getCroppedImg = async (
     imageSrc: string,
-    pixelCrop: Area
+    pixelCrop: Area,
   ): Promise<Blob> => {
     const image = await createImage(imageSrc);
     const canvas = document.createElement("canvas");
@@ -68,7 +86,7 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
       0,
       0,
       pixelCrop.width,
-      pixelCrop.height
+      pixelCrop.height,
     );
 
     return new Promise((resolve) => {
@@ -79,7 +97,7 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
           }
         },
         "image/jpeg",
-        0.95
+        0.95,
       );
     });
   };
@@ -110,6 +128,9 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
       setImageSrc(reader.result as string);
       setError("");
       setSelectedFile(file);
+      if (onFileSelected) {
+        onFileSelected(file);
+      }
       setShowCropper(true);
       setCrop({ x: 0, y: 0 });
       setZoom(1);
@@ -130,9 +151,12 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
       const croppedFile = new File(
         [croppedBlob],
         selectedFile?.name || "profile.jpg",
-        { type: "image/jpeg" }
+        { type: "image/jpeg" },
       );
       setSelectedFile(croppedFile);
+      if (onFileSelected) {
+        onFileSelected(croppedFile);
+      }
     } catch (error) {
       console.error("Error cropping image:", error);
       setError("Failed to crop image");
@@ -143,13 +167,21 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
     setShowCropper(false);
     setImageSrc(null);
     setSelectedFile(null);
+    if (onFileSelected) {
+      onFileSelected(null);
+    }
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
-  const handleUpload = async () => {
-    if (!selectedFile) return;
+  const handleUpload = async (): Promise<{
+    success: boolean;
+    url?: string;
+  }> => {
+    if (!selectedFile) {
+      return { success: false };
+    }
 
     setUploading(true);
     setError("");
@@ -185,14 +217,25 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
         fileInputRef.current.value = "";
       }
 
-      alert("Profile picture updated successfully!");
+      if (showSuccessAlerts) {
+        alert("Profile picture updated successfully!");
+      }
+
+      return { success: true, url: data.url };
     } catch (err) {
       console.error("Upload error:", err);
       setError(err instanceof Error ? err.message : "Failed to upload");
+      return { success: false };
     } finally {
       setUploading(false);
     }
   };
+
+  useEffect(() => {
+    if (onUploadHandlerReady) {
+      onUploadHandlerReady(handleUpload);
+    }
+  }, [onUploadHandlerReady, handleUpload]);
 
   const handleRemove = async () => {
     if (!confirm("Are you sure you want to remove your profile picture?")) {
@@ -214,6 +257,9 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
 
       setPreview(null);
       setSelectedFile(null);
+      if (onFileSelected) {
+        onFileSelected(null);
+      }
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -222,7 +268,9 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
         onUploadSuccess("");
       }
 
-      alert("Profile picture removed successfully!");
+      if (showSuccessAlerts) {
+        alert("Profile picture removed successfully!");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to remove");
     } finally {
@@ -233,6 +281,9 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
   const handleCancel = () => {
     setPreview(currentPictureUrl || null);
     setSelectedFile(null);
+    if (onFileSelected) {
+      onFileSelected(null);
+    }
     setError("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -275,12 +326,14 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
             </div>
             <div className={styles.cropperActions}>
               <button
+                type="button"
                 onClick={handleCropCancel}
                 className={`${styles.button} ${styles.buttonSecondary}`}
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleCropConfirm}
                 className={`${styles.button} ${styles.buttonPrimary}`}
               >
@@ -292,32 +345,34 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
       )}
 
       <div className={styles.container}>
-        <div className={styles.preview}>
-          {preview ? (
-            <img
-              src={preview}
-              alt="Profile preview"
-              className={styles.previewImage}
-            />
-          ) : (
-            <div className={styles.placeholder}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className={styles.placeholderIcon}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
-                />
-              </svg>
-            </div>
-          )}
-        </div>
+        {showPreview && (
+          <div className={styles.preview}>
+            {preview ? (
+              <img
+                src={preview}
+                alt="Profile preview"
+                className={styles.previewImage}
+              />
+            ) : (
+              <div className={styles.placeholder}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className={styles.placeholderIcon}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+                  />
+                </svg>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className={styles.controls}>
           <input
@@ -329,25 +384,32 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
             disabled={uploading}
           />
 
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className={styles.button}
-            disabled={uploading}
-          >
-            {preview ? "Change Picture" : "Choose Picture"}
-          </button>
+          {showSelectButton && (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className={styles.button}
+              disabled={uploading}
+            >
+              {preview ? "Change Picture" : "Choose Picture"}
+            </button>
+          )}
 
           {selectedFile && (
             <>
-              <button
-                onClick={handleUpload}
-                className={`${styles.button} ${styles.buttonPrimary}`}
-                disabled={uploading}
-              >
-                {uploading ? "Uploading..." : "Upload"}
-              </button>
+              {showUploadButton && (
+                <button
+                  type="button"
+                  onClick={handleUpload}
+                  className={`${styles.button} ${styles.buttonPrimary}`}
+                  disabled={uploading}
+                >
+                  {uploading ? "Uploading..." : "Upload"}
+                </button>
+              )}
 
               <button
+                type="button"
                 onClick={handleCancel}
                 className={`${styles.button} ${styles.buttonSecondary}`}
                 disabled={uploading}
@@ -357,8 +419,9 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
             </>
           )}
 
-          {preview && !selectedFile && (
+          {showRemoveButton && preview && !selectedFile && (
             <button
+              type="button"
               onClick={handleRemove}
               className={`${styles.button} ${styles.buttonDanger}`}
               disabled={uploading}
@@ -370,9 +433,11 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
 
         {error && <p className={styles.error}>{error}</p>}
 
-        <p className={styles.hint}>
-          Accepted formats: JPG, PNG, WebP. Max size: 5MB.
-        </p>
+        {showHint && (
+          <p className={styles.hint}>
+            Accepted formats: JPG, PNG, WebP. Max size: 5MB.
+          </p>
+        )}
       </div>
     </>
   );
