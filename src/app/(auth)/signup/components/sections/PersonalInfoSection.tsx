@@ -129,7 +129,7 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
                 Birthdate <span className={styles.redAsterisk}>*</span>
               </>
             }
-            placeholder="Pick date"
+            placeholder="Birthdate"
             value={parseBirthDateString(birthDate)}
             onChange={(d: string | null) => {
               const newDate =
