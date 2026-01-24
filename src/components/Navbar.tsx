@@ -274,6 +274,9 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
     props.pathname === "/job-opportunities" ||
     props.pathname.startsWith("/job-opportunities/");
 
+  const isPrivateHomePage =
+    props.pathname === "/" || props.pathname.startsWith("/");
+
   // Close menu when route changes
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -335,14 +338,14 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
   const searchResults = jobs.filter(
     (job) =>
       job.title.toLowerCase().includes(search.toLowerCase()) ||
-      job.description.toLowerCase().includes(search.toLowerCase())
+      job.description.toLowerCase().includes(search.toLowerCase()),
   );
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (search.trim()) {
       router.push(
-        `/job-opportunities?search=${encodeURIComponent(search.trim())}`
+        `/job-opportunities?search=${encodeURIComponent(search.trim())}`,
       );
       setShowDropdown(false);
     }
@@ -357,7 +360,7 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
               <Image src={PesoLogo} alt="PESO Logo" className="peso-logo" />
             </Link>
           </li>
-          {!isJobOpportunitiesPage && (
+          {!isJobOpportunitiesPage && !isPrivateHomePage && (
             <li className={styles.searchLi}>
               <form
                 onSubmit={handleSearch}
@@ -379,13 +382,13 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
                               .includes(value.toLowerCase()) ||
                             job.description
                               .toLowerCase()
-                              .includes(value.toLowerCase())
-                        )
+                              .includes(value.toLowerCase()),
+                        ),
                     );
                   }}
                   onFocus={(e) => {
                     setShowDropdown(
-                      e.target.value !== "" && searchResults.length > 0
+                      e.target.value !== "" && searchResults.length > 0,
                     );
                   }}
                   placeholder="Search jobs and companies..."
@@ -417,7 +420,7 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
                       <DropdownItem
                         key={job.id}
                         href={`/job-opportunities?search=${encodeURIComponent(
-                          job.title
+                          job.title,
                         )}`}
                         icon={
                           job.companies?.logo ? (
@@ -449,7 +452,8 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
 
           {/* Desktop Icons */}
           <li className={styles.desktopOnly}>
-            <Link href="/">
+            <Link className={styles.navItem} href="/">
+              <span>Home</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -468,36 +472,41 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
           </li>
           <li className={styles.desktopOnly}>
             {/* Dropdown for notifications */}
-            <div
-              className={styles.notificationIcon}
-              onClick={() => {
-                setShowNotificationsDropdown(true);
-                setShowProfileDropdown(false);
-              }}
-              ref={notifRef}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="size-6"
+            <div className={styles.navItem}>
+              <span>Notifications</span>
+              <div
+                className={styles.notificationIcon}
+                onClick={() => {
+                  setShowNotificationsDropdown(true);
+                  setShowProfileDropdown(false);
+                }}
+                ref={notifRef}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="size-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
+                  />
+                </svg>
+                {unreadCount > 0 && (
+                  <span className={styles.notificationBadge}>
+                    {unreadCount}
+                  </span>
+                )}
+                <NotificationDropdown
+                  isOpen={showNotificationsDropdown}
+                  onClose={() => setShowNotificationsDropdown(false)}
+                  onUnreadCountChange={setUnreadCount}
                 />
-              </svg>
-              {unreadCount > 0 && (
-                <span className={styles.notificationBadge}>{unreadCount}</span>
-              )}
-              <NotificationDropdown
-                isOpen={showNotificationsDropdown}
-                onClose={() => setShowNotificationsDropdown(false)}
-                onUnreadCountChange={setUnreadCount}
-              />
+              </div>
             </div>
           </li>
           <li
@@ -708,7 +717,7 @@ const PesoNavbar = (props: { pathname: string }) => {
   const searchResults = jobs.filter(
     (job) =>
       job.title.toLowerCase().includes(search.toLowerCase()) ||
-      job.description.toLowerCase().includes(search.toLowerCase())
+      job.description.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -737,13 +746,13 @@ const PesoNavbar = (props: { pathname: string }) => {
                             .includes(value.toLowerCase()) ||
                           job.description
                             .toLowerCase()
-                            .includes(value.toLowerCase())
-                      )
+                            .includes(value.toLowerCase()),
+                      ),
                   );
                 }}
                 onFocus={(e) => {
                   setShowDropdown(
-                    e.target.value !== "" && searchResults.length > 0
+                    e.target.value !== "" && searchResults.length > 0,
                   );
                 }}
                 placeholder="location, company, job-title, category of job"
@@ -989,7 +998,7 @@ const Navbar = () => {
           setUser(null);
           setLoading(false);
         }
-      }
+      },
     );
 
     return () => {
