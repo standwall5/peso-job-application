@@ -5,6 +5,7 @@ import Image from "next/image";
 const About = () => {
   return (
     <>
+      {/*<div className={styles.aboutWrapper}>*/}
       <div className={styles.aboutContainer}>
         <header className={styles.header}>
           <Image
@@ -80,6 +81,7 @@ const About = () => {
           </p>
         </div>
       </div>
+      {/*</div>*/}
     </>
   );
 };

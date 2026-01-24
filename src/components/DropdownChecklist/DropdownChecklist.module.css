@@ -1,0 +1,321 @@
+/* src/components/DropdownChecklist/DropdownChecklist.module.css */
+
+.dropdownContainer {
+    position: relative;
+    width: 100% !important;
+}
+
+.label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.required {
+    color: #dc2626;
+}
+
+.tagsWrapper {
+    position: relative;
+    min-width: 100%;
+    min-height: 44px;
+    /*padding: 0.5rem;*/
+    background-color: white;
+    border-radius: 0.375rem;
+    cursor: text;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.tagsWrapper.errorBorder {
+    border-color: #dc2626;
+}
+
+.tagsWrapper.errorBorder:hover,
+.tagsWrapper.errorBorder.focused {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.tagsList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    width: auto;
+    max-width: 100%;
+}
+
+.tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.625rem;
+    background-color: var(--accent, #4f46e5);
+    color: white;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    line-height: 1.25;
+    transition: background-color 0.15s ease;
+}
+
+.tag:hover {
+    background-color: color-mix(in srgb, var(--accent, #4f46e5) 85%, black);
+}
+
+.removeButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    padding: 0;
+    margin: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 1rem;
+    line-height: 0;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.removeButton:hover {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.input {
+    flex: 1;
+    min-width: 120px;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 1rem;
+    padding: 0.25rem;
+    color: #333;
+}
+
+.input::placeholder {
+    color: #9ca3af;
+}
+
+.dropdownList {
+    position: absolute;
+    top: calc(100% + 0.25rem);
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    box-shadow:
+        0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    max-height: 300px;
+    overflow: hidden;
+    z-index: 1000;
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdownHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    background: #f9fafb;
+}
+
+.dropdownTitle {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #6b7280;
+    letter-spacing: 0.05em;
+}
+
+.dropdownHint {
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+.optionsList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.optionItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.optionItem:last-child {
+    border-bottom: none;
+}
+
+.optionItem:hover,
+.optionItem.highlighted {
+    background-color: #f3f4f6;
+}
+
+.itemIcon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--accent, #4f46e5);
+    flex-shrink: 0;
+}
+
+.optionItem span {
+    font-size: 0.95rem;
+    color: #374151;
+    line-height: 1.5;
+}
+
+.errorMessage {
+    margin-top: 0.375rem;
+    font-size: 0.875rem;
+    color: #dc2626;
+}
+
+/* Scrollbar styling for dropdown list */
+.optionsList::-webkit-scrollbar {
+    width: 8px;
+}
+
+.optionsList::-webkit-scrollbar-track {
+    background: #f3f4f6;
+}
+
+.optionsList::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+}
+
+.optionsList::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .tagsWrapper {
+        min-height: 40px;
+        padding: 0.375rem;
+    }
+
+    .tag {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8125rem;
+    }
+
+    .removeButton {
+        width: 1rem;
+        height: 1rem;
+        font-size: 0.875rem;
+    }
+
+    .input {
+        font-size: 0.9375rem;
+    }
+
+    .dropdownHeader {
+        padding: 0.625rem 0.875rem;
+    }
+
+    .dropdownTitle,
+    .dropdownHint {
+        font-size: 0.6875rem;
+    }
+
+    .optionItem {
+        padding: 0.625rem 0.875rem;
+    }
+
+    .optionItem span {
+        font-size: 0.875rem;
+    }
+
+    .dropdownList {
+        max-height: 250px;
+    }
+
+    .optionsList {
+        max-height: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .tagsWrapper {
+        min-height: 38px;
+        padding: 0.25rem;
+        gap: 0.375rem;
+    }
+
+    .tag {
+        padding: 0.1875rem 0.4375rem;
+        font-size: 0.75rem;
+        gap: 0.375rem;
+    }
+
+    .removeButton {
+        width: 0.875rem;
+        height: 0.875rem;
+        font-size: 0.8125rem;
+    }
+
+    .input {
+        font-size: 0.875rem;
+        min-width: 100px;
+    }
+
+    .dropdownHeader {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .dropdownTitle {
+        font-size: 0.625rem;
+    }
+
+    .dropdownHint {
+        display: none;
+    }
+
+    .optionItem {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .optionItem span {
+        font-size: 0.8125rem;
+    }
+
+    .itemIcon {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    .optionsList {
+        max-height: 180px;
+    }
+}

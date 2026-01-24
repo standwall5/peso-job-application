@@ -1,7 +1,7 @@
 .languageSelector {
     position: fixed;
     bottom: 1rem;
-    right: 2rem;
+    right: 1rem;
     z-index: 999;
 }
 
@@ -12,8 +12,9 @@
     font-size: 0.875rem;
     border: none;
     cursor: pointer;
-    background: #80e7b1;
-    color: white;
+    /*background: #80e7b1;*/
+    /*color: white;*/
+    color: black;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -22,15 +23,15 @@
 }
 
 .languageButton:hover {
-    background: #6dd19d;
+    /*background: #6dd19d;*/
 }
 
 .languageButton:active {
-    background: #5ab889;
+    /*background: #5ab889;*/
 }
 
 .arrow {
-    font-size: 0.75rem;
+    /*font-size: 5rem;*/
     transition: transform 0.2s ease;
     display: inline-block;
     transform: rotate(0deg);
@@ -38,6 +39,7 @@
 
 .arrow.open {
     transform: rotate(180deg);
+    color: var(--text-accent);
 }
 
 .dropdown {
@@ -72,7 +74,7 @@
     border: 2px solid #e5e7eb;
     border-radius: 0.5rem;
     cursor: pointer;
-    font-size: 0.875rem;
+    font-size: 0.6rem;
     font-weight: 500;
     color: #111827;
     transition: all 0.2s ease;
@@ -80,13 +82,14 @@
 }
 
 .languageOption:hover {
-    border-color: #80e7b1;
+    border-color: var(--accent);
     background: #f0fdf4;
 }
 
 .languageOption.active {
-    border-color: #80e7b1;
-    background: #80e7b1;
+    border-color: var(--accent);
+
+    background: var(--accent);
     color: white;
 }
 

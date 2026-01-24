@@ -3,15 +3,16 @@
     width: 80vw;
     max-width: 1200px;
     height: 80vh;
-    background-color: var(--highlight);
-    box-shadow:
+    background-color: var(--primary-bg);
+    /*box-shadow:
         rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
-        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;*/
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     margin: 2rem auto;
     display: flex;
     flex-direction: column;
     align-items: center;
-    border-radius: 0.25rem;
+    border-radius: 1rem;
     overflow-y: auto;
     overflow-x: hidden;
     position: relative;
@@ -71,7 +72,8 @@
 .signUpForm input,
 .signUpForm select,
 .mantineDateInput button {
-    background-color: #fff;
+    background-color: #fefffe;
+
     /* Retain original box-shadow for unfocused state */
     box-shadow:
         rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,

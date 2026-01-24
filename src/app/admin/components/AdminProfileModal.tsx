@@ -26,6 +26,9 @@ export const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [hasUploadedPicture, setHasUploadedPicture] =
+    useState(!!currentPictureUrl);
+  const [hasSetPassword, setHasSetPassword] = useState(false);
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,7 +101,8 @@ export const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
         throw new Error(data.error || "Failed to change password");
       }
 
-      alert("Password changed successfully!");
+      // Mark password as set
+      setHasSetPassword(true);
 
       // Reset form fields
       setCurrentPassword("");
@@ -106,12 +110,21 @@ export const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
       setConfirmPassword("");
       setError("");
 
-      // Close modal and reload page if first login
       if (isFirstLogin) {
-        onClose();
-        // Reload page to refresh admin profile (is_first_login flag)
-        window.location.reload();
+        // Check if profile picture is also uploaded
+        if (hasUploadedPicture) {
+          alert("Setup complete! Your account is now ready.");
+          onClose();
+          // Reload page to refresh admin profile (is_first_login flag)
+          window.location.reload();
+        } else {
+          alert(
+            "Password set successfully! Please upload a profile picture to complete setup.",
+          );
+          setActiveTab("profile");
+        }
       } else {
+        alert("Password changed successfully!");
         onClose();
       }
     } catch (err: unknown) {
@@ -126,7 +139,14 @@ export const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
   };
 
   const handleClose = () => {
-    // Allow closing even on first login (user might close after setting password)
+    // Don't allow closing on first login until both password and profile picture are set
+    if (isFirstLogin && (!hasSetPassword || !hasUploadedPicture)) {
+      alert(
+        "Please set your password and upload a profile picture to continue.",
+      );
+      return;
+    }
+
     setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
@@ -145,6 +165,11 @@ export const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
             <button className={styles.closeButton} onClick={handleClose}>
               ×
             </button>
+          )}
+          {isFirstLogin && (
+            <p className={styles.requiredNote}>
+              Both password and profile picture are required to continue.
+            </p>
           )}
         </div>
 
@@ -201,15 +226,33 @@ export const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
               <ProfilePictureUpload
                 currentPictureUrl={currentPictureUrl}
                 onUploadSuccess={(url) => {
+                  setHasUploadedPicture(true);
                   if (onProfileUpdate) {
                     onProfileUpdate(url);
+                  }
+                  if (isFirstLogin && hasSetPassword) {
+                    alert("Setup complete! Your account is now ready.");
+                    onClose();
+                    window.location.reload();
+                  } else if (isFirstLogin) {
+                    alert(
+                      "Profile picture uploaded! Please set your password to complete setup.",
+                    );
+                    setActiveTab("password");
                   }
                 }}
               />
               {isFirstLogin && (
-                <p className={styles.firstLoginNote}>
-                  Please set up your profile picture and password to continue.
-                </p>
+                <div className={styles.firstLoginNote}>
+                  <p>
+                    <strong>✓</strong> Profile Picture:{" "}
+                    {hasUploadedPicture ? "✅ Uploaded" : "❌ Required"}
+                  </p>
+                  <p>
+                    <strong>✓</strong> Password:{" "}
+                    {hasSetPassword ? "✅ Set" : "❌ Required"}
+                  </p>
+                </div>
               )}
             </div>
           )}

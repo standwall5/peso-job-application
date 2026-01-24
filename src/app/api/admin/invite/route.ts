@@ -1,4 +1,3 @@
-// Admin Invitation API - Sends invitation emails to new admin users
 import { NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/utils/supabase/server";
 
@@ -13,7 +12,6 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      console.error("Auth error in invite route:", authError);
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -24,11 +22,6 @@ export async function POST(request: Request) {
       .single();
 
     if (!admin?.is_superadmin) {
-      console.error(
-        "Non-superadmin attempted to invite:",
-        user.id,
-        admin?.is_superadmin,
-      );
       return NextResponse.json(
         { error: "Only superadmins can invite new admins" },
         { status: 403 },
@@ -40,10 +33,6 @@ export async function POST(request: Request) {
 
     // Validate inputs
     if (!email || !name) {
-      console.error("Missing required fields:", {
-        email: !!email,
-        name: !!name,
-      });
       return NextResponse.json(
         { error: "Email and name are required" },
         { status: 400 },
@@ -53,65 +42,32 @@ export async function POST(request: Request) {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      console.error("Invalid email format provided:", email);
       return NextResponse.json(
         { error: "Invalid email format" },
         { status: 400 },
       );
     }
 
-    // Check if email already exists in auth users
-    // Use admin client to check (requires service role key)
-    try {
-      const adminClient = createAdminClient();
-      const { data: existingUsers, error: listError } =
-        await adminClient.auth.admin.listUsers();
-
-      if (listError) {
-        console.error("Error listing users:", listError);
-        // Continue anyway - duplicate will be caught during account creation
-      } else {
-        const emailExists = existingUsers?.users?.some(
-          (u) => u.email?.toLowerCase() === email.toLowerCase(),
-        );
-
-        if (emailExists) {
-          console.error("Email already exists:", email);
-          return NextResponse.json(
-            { error: "An admin with this email already exists" },
-            { status: 400 },
-          );
-        }
-      }
-    } catch (adminError) {
-      console.error("Error creating admin client:", adminError);
-      return NextResponse.json(
-        {
-          error:
-            "Failed to verify email availability. Please ensure SUPABASE_SERVICE_ROLE_KEY is configured.",
-        },
-        { status: 500 },
-      );
-    }
-
-    // Check if an invitation with this email is already pending
-    const { data: existingInvitation } = await supabase
+    // Check if invitation already exists for this email
+    const { data: existingInvite } = await supabase
       .from("admin_invitation_tokens")
-      .select("id")
+      .select("id, used, expires_at")
       .eq("email", email)
-      .eq("used", false)
-      .gte("expires_at", new Date().toISOString())
-      .maybeSingle();
+      .single();
 
-    if (existingInvitation) {
-      console.error("Pending invitation already exists for:", email);
-      return NextResponse.json(
-        { error: "An invitation for this email is already pending" },
-        { status: 400 },
-      );
+    if (existingInvite) {
+      if (
+        !existingInvite.used &&
+        new Date(existingInvite.expires_at) > new Date()
+      ) {
+        return NextResponse.json(
+          { error: "An active invitation already exists for this email" },
+          { status: 400 },
+        );
+      }
     }
 
-    // Generate secure token
+    // Generate secure random token (32 characters)
     const token = Array.from(
       { length: 32 },
       () =>
@@ -120,24 +76,18 @@ export async function POST(request: Request) {
         ],
     ).join("");
 
-    // Store invitation token (expires in 48 hours)
+    // Token expires in 48 hours
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 48);
 
-    const { data: currentAdmin, error: currentAdminError } = await supabase
+    // Get current admin's ID
+    const { data: currentAdmin } = await supabase
       .from("peso")
       .select("id")
       .eq("auth_id", user.id)
       .single();
 
-    if (currentAdminError) {
-      console.error("Error fetching current admin:", currentAdminError);
-      return NextResponse.json(
-        { error: "Failed to verify admin account" },
-        { status: 500 },
-      );
-    }
-
+    // Store invitation token
     const { error: tokenError } = await supabase
       .from("admin_invitation_tokens")
       .insert({
@@ -147,144 +97,75 @@ export async function POST(request: Request) {
         is_superadmin,
         created_by: currentAdmin?.id,
         expires_at: expiresAt.toISOString(),
+        used: false,
       });
 
     if (tokenError) {
       console.error("Token creation error:", tokenError);
-      console.error("Token error details:", {
-        code: tokenError.code,
-        message: tokenError.message,
-        details: tokenError.details,
-        hint: tokenError.hint,
-      });
-
-      // Check if table doesn't exist
-      if (tokenError.code === "42P01") {
-        return NextResponse.json(
-          {
-            error:
-              "Database not configured. Please run the admin setup SQL script.",
-            hint: "The admin_invitation_tokens table does not exist.",
-          },
-          { status: 500 },
-        );
-      }
-
       return NextResponse.json(
-        {
-          error: "Failed to create invitation",
-          details: tokenError.message,
-        },
+        { error: "Failed to create invitation" },
         { status: 500 },
       );
     }
 
-    console.log("Sending invitation email to:", email);
+    // Generate setup URL (admin will set password/profile after arriving in app)
+    // IMPORTANT: we redirect through /auth/callback so Supabase can exchange the code for a session.
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const setupUrl = `${appUrl}/auth/callback?next=/admin&token=${token}`;
 
-    // Send invitation email using Supabase's built-in invite method
-    // The admin will receive an email to set their password
-    // On first login (is_first_login = true), they'll be redirected to complete their profile
+    // Send invitation email via Supabase Auth (delivered using Supabase SMTP which you configured to AWS SES)
+    // This requires the service role client (createAdminClient).
     let emailSent = false;
-    let emailError = null;
-    let authUserId = null;
+    let emailError: string | null = null;
 
     try {
       const adminClient = createAdminClient();
 
-      // Create the auth user first
-      const { data: authData, error: authError } =
-        await adminClient.auth.admin.createUser({
-          email,
-          email_confirm: false, // User needs to confirm via invite email
-          user_metadata: {
-            name,
-            is_superadmin,
-            role: "peso_admin", // Mark this user as a PESO admin
-          },
-        });
-
-      if (authError || !authData.user) {
-        console.error("Auth creation error:", authError);
-        throw new Error("Failed to create auth user");
-      }
-
-      authUserId = authData.user.id;
-
-      // Create peso record immediately
-      const { error: pesoError } = await supabase.from("peso").insert({
-        auth_id: authUserId,
-        name,
-        is_superadmin,
-        status: "active",
-        is_first_login: true,
-      });
-
-      if (pesoError) {
-        console.error("Peso record creation error:", pesoError);
-        // Rollback: delete the auth user
-        await adminClient.auth.admin.deleteUser(authUserId);
-        throw new Error("Failed to create admin record");
-      }
-
-      // Now send the invitation email
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
       const { error: inviteError } =
         await adminClient.auth.admin.inviteUserByEmail(email, {
-          redirectTo: `${appUrl}/auth/callback`,
+          data: {
+            name,
+            is_superadmin,
+            invitation_token: token,
+            role: "peso_admin",
+          },
+          redirectTo: setupUrl,
         });
 
       if (inviteError) {
-        console.error("Invitation email error:", inviteError);
         emailError = inviteError.message;
-        emailSent = false;
-        // Don't rollback - account is created, just email failed
+        console.error("Supabase inviteUserByEmail error:", inviteError);
       } else {
-        console.log("Invitation sent successfully");
         emailSent = true;
       }
-    } catch (error) {
-      console.error("Exception sending invitation:", error);
-      emailError = error instanceof Error ? error.message : "Unknown error";
-      emailSent = false;
-
-      return NextResponse.json(
-        {
-          error: emailError,
-        },
-        { status: 500 },
-      );
+    } catch (e) {
+      emailError = e instanceof Error ? e.message : "Unknown error";
+      console.error("Admin client error (service role missing?):", e);
     }
 
-    // Return success with invitation details
     return NextResponse.json({
       success: true,
       message: emailSent
-        ? "Invitation email sent successfully"
-        : `Invitation created but email failed to send: ${emailError}`,
+        ? "Invitation created and email sent successfully"
+        : "Invitation created but email could not be sent automatically",
+      inviteUrl: setupUrl, // for manual sending fallback
+      emailSent,
+      emailError,
       email,
       name,
       is_superadmin,
       expiresAt: expiresAt.toISOString(),
-      emailSent,
-      emailError,
     });
   } catch (error) {
-    console.error("Error inviting admin:", error);
-    console.error("Error details:", {
-      message: error instanceof Error ? error.message : "Unknown error",
-      stack: error instanceof Error ? error.stack : undefined,
-    });
+    console.error("Error creating invitation:", error);
     return NextResponse.json(
-      {
-        error: "Internal server error",
-        details: error instanceof Error ? error.message : "Unknown error",
-      },
+      { error: "Internal server error" },
       { status: 500 },
     );
   }
 }
 
-// GET: Check if invitation token is valid
+// GET: Validate invitation token
 export async function GET(request: Request) {
   try {
     const supabase = await createClient();
