@@ -8,24 +8,32 @@ import ParanaqueLogo from "../../public/assets/paranaqueLogo.png";
 const Footer = () => {
   return (
     <footer>
-      <ul>
-        <li>
-          <Image src={PesoLogo} alt="Public Employment Service Office"></Image>
-        </li>
-        <li>
-          <Image src={DoleLogo} alt="Public Employment Service Office"></Image>
-        </li>
-        <li>
-          <Image
-            src={ParanaqueLogo}
-            alt="Public Employment Service Office"
-          ></Image>
-        </li>
-        <li>
+      <div>
+        <ul>
+          <li>
+            <Image
+              src={PesoLogo}
+              alt="Public Employment Service Office"
+            ></Image>
+          </li>
+          <li>
+            <Image
+              src={DoleLogo}
+              alt="Public Employment Service Office"
+            ></Image>
+          </li>
+          <li>
+            <Image
+              src={ParanaqueLogo}
+              alt="Public Employment Service Office"
+            ></Image>
+          </li>
+        </ul>
+        <span>
           A system dedicated to conneting job seekers with opportunities,
-          developed in partnership with DOLE and PESO Paranaque
-        </li>
-      </ul>
+          developed in partnership with DOLE and PESO Parañaque
+        </span>
+      </div>
     </footer>
   );
 };

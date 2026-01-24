@@ -5,6 +5,7 @@ import React, { useCallback } from "react";
 import styles from "./SignUp.module.css";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
+import Button from "@/components/Button";
 
 // Import custom hooks
 import {
@@ -180,14 +181,14 @@ const SignUpForm = () => {
           />
 
           <div className={styles.signUpButtonContainer}>
-            <button
+            <Button
               type="button"
               className={styles.redButton}
               onClick={handleReset}
             >
               Reset
-            </button>
-            <button className={styles.greenButton}>Submit</button>
+            </Button>
+            <Button className={styles.greenButton}>Submit</Button>
           </div>
         </form>
       </div>

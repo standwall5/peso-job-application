@@ -43,7 +43,7 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
       </h3>
 
       {/* Residency Radio Buttons */}
-      <div
+      {/*<div
         className={
           errors["residency"]
             ? `${styles.residencyOptions} ${styles.radioError}`
@@ -71,7 +71,7 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
           />
           Non-Resident of Parañaque
         </label>
-      </div>
+      </div>*/}
 
       <FieldError error={errors["residency"]} />
 
