@@ -9,7 +9,7 @@ interface AlertOptions {
   message: string;
   confirmText?: string;
   cancelText?: string;
-  showCancel?: boolean;
+  showCancel?: boolean; // nugagawin
   onConfirm?: () => void;
   onCancel?: () => void;
 }
@@ -72,28 +72,28 @@ export function useAlert() {
     (message: string, onConfirm?: () => void) => {
       showAlert({ type: "success", message, onConfirm });
     },
-    [showAlert]
+    [showAlert],
   );
 
   const showError = useCallback(
     (message: string, onConfirm?: () => void) => {
       showAlert({ type: "error", message, onConfirm });
     },
-    [showAlert]
+    [showAlert],
   );
 
   const showWarning = useCallback(
     (message: string, onConfirm?: () => void) => {
       showAlert({ type: "warning", message, onConfirm });
     },
-    [showAlert]
+    [showAlert],
   );
 
   const showInfo = useCallback(
     (message: string, onConfirm?: () => void) => {
       showAlert({ type: "info", message, onConfirm });
     },
-    [showAlert]
+    [showAlert],
   );
 
   const showConfirm = useCallback(
@@ -101,7 +101,7 @@ export function useAlert() {
       message: string,
       onConfirm: () => void,
       onCancel?: () => void,
-      options?: Partial<AlertOptions>
+      options?: Partial<AlertOptions>,
     ) => {
       showAlert({
         type: "warning",
@@ -114,7 +114,7 @@ export function useAlert() {
         ...options,
       });
     },
-    [showAlert]
+    [showAlert],
   );
 
   return {

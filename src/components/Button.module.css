@@ -42,6 +42,21 @@
     box-shadow: 0 1px 4px rgba(122, 218, 239, 0.3);
 }
 
+.outline {
+    background: white;
+    border: 2px solid #86aa84;
+    color: #86aa84;
+}
+
+.outline:hover {
+    background: #86aa84;
+    color: white;
+}
+
+.outline:active {
+    box-shadow: 0 1px 4px rgba(122, 218, 239, 0.3);
+}
+
 .danger {
     background: #e53e3e;
     box-shadow: 0 2px 8px rgba(229, 62, 62, 0.3);

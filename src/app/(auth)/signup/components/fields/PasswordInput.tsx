@@ -39,6 +39,7 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
           className={error ? styles.errorInput : ""}
           onChange={(e) => onChange(e.target.value)}
           value={value}
+          placeholder="Enter your password"
         />
         <button
           type="button"
