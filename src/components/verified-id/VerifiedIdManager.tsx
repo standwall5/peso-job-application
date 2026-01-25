@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import Cropper from "react-easy-crop";
 import styles from "./VerifiedIdManager.module.css";
 import Button from "@/components/Button";
 import {
@@ -8,6 +9,13 @@ import {
   uploadApplicantID,
   ApplicantIDData,
 } from "@/lib/db/services/applicant-id.service";
+
+interface PixelCrop {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
 
 interface VerifiedIdManagerProps {
   showSubmitButton?: boolean;
@@ -66,6 +74,19 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
   const [idTypes, setIdTypes] = useState<string[]>([]);
   const uploadedCount = allIds.length;
   const hasRequiredIds = uploadedCount >= REQUIRED_ID_COUNT;
+
+  // Cropping state
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [cropType, setCropType] = useState<"front" | "back" | "selfie" | null>(
+    null,
+  );
+  const [cropImage, setCropImage] = useState<string | null>(null);
+  const [tempFile, setTempFile] = useState<File | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<PixelCrop | null>(
+    null,
+  );
 
   const frontInputRef = useRef<HTMLInputElement | null>(null);
   const backInputRef = useRef<HTMLInputElement | null>(null);
@@ -165,18 +186,93 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
     const reader = new FileReader();
     reader.onloadend = () => {
       const result = reader.result as string;
-      if (type === "front") {
-        setFrontPreview(result);
-        setFrontFile(file);
-      } else if (type === "back") {
-        setBackPreview(result);
-        setBackFile(file);
-      } else {
-        setSelfiePreview(result);
-        setSelfieFile(file);
-      }
+      // Open crop modal instead of directly setting preview
+      setCropImage(result);
+      setTempFile(file);
+      setCropType(type);
+      setShowCropModal(true);
     };
     reader.readAsDataURL(file);
+  };
+
+  const onCropComplete = (
+    _croppedArea: unknown,
+    croppedAreaPixels: PixelCrop,
+  ) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  };
+
+  const getCroppedImg = (
+    imageSrc: string,
+    pixelCrop: PixelCrop,
+  ): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const image = new window.Image();
+      image.src = imageSrc;
+      image.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = pixelCrop.width;
+        canvas.height = pixelCrop.height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return reject();
+        ctx.drawImage(
+          image,
+          pixelCrop.x,
+          pixelCrop.y,
+          pixelCrop.width,
+          pixelCrop.height,
+          0,
+          0,
+          pixelCrop.width,
+          pixelCrop.height,
+        );
+        canvas.toBlob((blob) => {
+          if (!blob) return reject();
+          resolve(blob);
+        }, "image/jpeg");
+      };
+      image.onerror = reject;
+    });
+  };
+
+  const handleCropConfirm = async () => {
+    if (!cropImage || !croppedAreaPixels || !tempFile || !cropType) return;
+
+    try {
+      const croppedBlob = await getCroppedImg(cropImage, croppedAreaPixels);
+      const croppedFile = new File([croppedBlob], tempFile.name, {
+        type: "image/jpeg",
+      });
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        if (cropType === "front") {
+          setFrontPreview(result);
+          setFrontFile(croppedFile);
+        } else if (cropType === "back") {
+          setBackPreview(result);
+          setBackFile(croppedFile);
+        } else {
+          setSelfiePreview(result);
+          setSelfieFile(croppedFile);
+        }
+        handleCropCancel();
+      };
+      reader.readAsDataURL(croppedFile);
+    } catch (error) {
+      console.error("Error cropping image:", error);
+    }
+  };
+
+  const handleCropCancel = () => {
+    setShowCropModal(false);
+    setCropImage(null);
+    setTempFile(null);
+    setCropType(null);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setCroppedAreaPixels(null);
   };
 
   const handleRemove = (type: "front" | "back" | "selfie") => {
@@ -692,6 +788,60 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
                   : "SAVE ID"}
             </Button>
           )}
+        </div>
+      )}
+
+      {/* Crop Modal */}
+      {showCropModal && cropImage && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.cropModal}>
+            <h3 className={styles.modalTitle}>
+              Crop{" "}
+              {cropType === "front"
+                ? "Front Side"
+                : cropType === "back"
+                  ? "Back Side"
+                  : "Selfie with ID"}
+            </h3>
+            <div className={styles.cropContainer}>
+              <Cropper
+                image={cropImage}
+                crop={crop}
+                zoom={zoom}
+                aspect={cropType === "selfie" ? 1 : 16 / 10}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+              />
+            </div>
+            <div className={styles.cropControls}>
+              <label className={styles.zoomLabel}>
+                Zoom
+                <input
+                  type="range"
+                  min={1}
+                  max={3}
+                  step={0.1}
+                  value={zoom}
+                  onChange={(e) => setZoom(Number(e.target.value))}
+                  className={styles.zoomSlider}
+                />
+              </label>
+            </div>
+            <div className={styles.cropHint}>
+              {cropType === "selfie"
+                ? "Recommended: Square aspect ratio (1:1)"
+                : "Recommended: ID card aspect ratio (16:10)"}
+            </div>
+            <div className={styles.modalButtons}>
+              <Button variant="primary" onClick={handleCropConfirm}>
+                Crop & Continue
+              </Button>
+              <Button variant="warning" onClick={handleCropCancel}>
+                Cancel
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 

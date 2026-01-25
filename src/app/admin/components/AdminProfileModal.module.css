@@ -9,16 +9,30 @@
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    backdrop-filter: blur(2px);
+}
+
+.overlay.forced {
+    background-color: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    z-index: 10000;
 }
 
 .modal {
     background: white;
     border-radius: 0.5rem;
-    width: 90%;
-    max-width: 500px;
-    max-height: 90vh;
+    width: 95%;
+    max-width: 1200px;
+    max-height: 85vh;
     overflow-y: auto;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modal.forced {
+    border: 3px solid var(--accent);
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.4),
+        0 0 0 3px rgba(134, 170, 132, 0.3);
 }
 
 .header {
@@ -39,9 +53,16 @@
 
 .requiredNote {
     margin: 0.5rem 0 0 0;
-    font-size: 0.875rem;
-    font-weight: 500;
+    font-size: 0.9rem;
+    font-weight: 600;
     color: #dc2626;
+    background-color: #fef2f2;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    border-left: 4px solid #dc2626;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .closeButton {
@@ -93,14 +114,55 @@
 }
 
 .tab.active {
-    color: #33b499;
-    border-bottom-color: #33b499;
+    color: var(--accent);
+    border-bottom-color: var(--accent);
     background-color: white;
 }
 
 .tabIcon {
     width: 1.25rem;
     height: 1.25rem;
+}
+
+.twoColumnContent {
+    display: grid;
+    grid-template-columns: 40% 60%;
+    gap: 3rem;
+    padding: 2.5rem 3rem;
+}
+
+.leftColumn,
+.rightColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.leftColumn {
+    border-right: 2px solid #e5e7eb;
+    padding-right: 2.5rem;
+}
+
+.columnTitle {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-accent);
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--accent);
+}
+
+.columnTitle.required::after {
+    content: " *";
+    color: #dc2626;
+    font-size: 1.25rem;
+}
+
+.profileSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
 }
 
 .content {
@@ -110,7 +172,168 @@
 .profileTab {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 1rem;
+}
+
+/* Responsive - Stack columns on smaller screens */
+@media (max-width: 1024px) {
+    .modal {
+        max-width: 95%;
+    }
+
+    .twoColumnContent {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 2rem;
+    }
+
+    .leftColumn {
+        border-right: none;
+        border-bottom: 2px solid #e5e7eb;
+        padding-right: 0;
+        padding-bottom: 1.5rem;
+    }
+}
+
+.passwordForm {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.formGroup label {
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.875rem;
+}
+
+.passwordInputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input {
+    width: 100%;
+    padding: 0.75rem;
+    padding-right: 3rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(134, 170, 132, 0.1);
+}
+
+.input:disabled {
+    background-color: #f3f4f6;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.passwordToggle {
+    position: absolute;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.25rem;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s;
+}
+
+.passwordToggle:hover {
+    opacity: 0.7;
+}
+
+.error {
+    padding: 0.75rem;
+    background-color: #fee2e2;
+    border: 1px solid #fecaca;
+    border-radius: 0.375rem;
+    color: #dc2626;
+    font-size: 0.875rem;
+}
+
+.passwordRequirements {
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin-top: 0.5rem;
+}
+
+.passwordRequirements p {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.passwordRequirements ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.passwordRequirements li {
+    font-size: 0.875rem;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.2s;
+}
+
+.passwordRequirements li::before {
+    content: "○";
+    font-size: 1rem;
+    color: #d1d5db;
+    transition: all 0.2s;
+}
+
+.passwordRequirements li.met {
+    color: var(--accent);
+    font-weight: 500;
+}
+
+.passwordRequirements li.met::before {
+    content: "✓";
+    color: var(--accent);
+    font-weight: bold;
+}
+
+.buttonHelper {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.875rem;
+    color: #dc2626;
+    text-align: center;
+}
+
+.tabIcon {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.content {
+    padding: 1.5rem;
 }
 
 .firstLoginNote {

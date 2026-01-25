@@ -23,19 +23,7 @@ export default function ForgotPasswordPage({
       <div className={styles.authContent}>
         {/* Lock Icon */}
         <div style={{ textAlign: "center", marginBottom: "24px" }}>
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: "80px",
-              height: "80px",
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-              borderRadius: "50%",
-              boxShadow: "0 8px 24px rgba(102, 126, 234, 0.3)",
-              animation: "bounce 2s ease-in-out infinite",
-            }}
-          >
+          <div className={styles.iconBounce}>
             <svg
               width="40"
               height="40"
@@ -97,18 +85,6 @@ export default function ForgotPasswordPage({
             ← Back to login
           </Link>
         </div>
-
-        <style jsx>{`
-          @keyframes bounce {
-            0%,
-            100% {
-              transform: translateY(0);
-            }
-            50% {
-              transform: translateY(-10px);
-            }
-          }
-        `}</style>
       </div>
     </div>
   );

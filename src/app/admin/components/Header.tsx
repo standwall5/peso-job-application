@@ -8,17 +8,20 @@ import { signout } from "@/lib/auth-actions";
 import { useSuperAdmin } from "@/app/admin/hooks/useSuperAdmin";
 import { AdminProfileModal } from "./AdminProfileModal";
 import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 const Header = () => {
   const { isSuperAdmin } = useSuperAdmin();
   const pathname = usePathname();
+  const router = useRouter();
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [isProfileIncomplete, setIsProfileIncomplete] = useState(false);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [adminName, setAdminName] = useState<string>("");
   const [profileTimestamp, setProfileTimestamp] = useState(Date.now());
 
-  // Load admin profile picture and name
+  // Load admin profile picture and name, check for incomplete profile
   useEffect(() => {
     const loadProfilePicture = async () => {
       const supabase = createClient();
@@ -29,21 +32,44 @@ const Header = () => {
       if (user) {
         const { data: admin } = await supabase
           .from("peso")
-          .select("profile_picture_url, name")
+          .select("profile_picture_url, name, is_first_login")
           .eq("auth_id", user.id)
           .single();
 
-        if (admin?.profile_picture_url) {
-          setProfilePicture(admin.profile_picture_url);
-        }
-        if (admin?.name) {
-          setAdminName(admin.name);
+        if (admin) {
+          // Check if this is first login - should redirect to setup page
+          if (admin.is_first_login) {
+            console.log(
+              "⚠️ [Header] First login detected, redirecting to setup",
+            );
+            router.push("/admin/setup-initial");
+            return;
+          }
+
+          // Check if profile is incomplete (no profile picture)
+          // This can happen if admin was invited but never completed setup
+          const incomplete = !admin.profile_picture_url;
+          setIsProfileIncomplete(incomplete);
+
+          if (incomplete) {
+            console.log(
+              "⚠️ [Header] Incomplete profile detected - forcing modal",
+            );
+            setShowProfileModal(true);
+          }
+
+          if (admin.profile_picture_url) {
+            setProfilePicture(admin.profile_picture_url);
+          }
+          if (admin.name) {
+            setAdminName(admin.name);
+          }
         }
       }
     };
 
     loadProfilePicture();
-  }, [profileTimestamp]); // Re-fetch when timestamp changes
+  }, [profileTimestamp, router]); // Re-fetch when timestamp changes
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -82,6 +108,7 @@ const Header = () => {
   const handleOpenProfileModal = () => {
     setShowProfileDropdown(false);
     setShowProfileModal(true);
+    console.log("📝 [Header] Opening profile modal");
   };
 
   const handleLogout = async () => {
@@ -209,12 +236,22 @@ const Header = () => {
       {/* Profile Modal (AD01) */}
       <AdminProfileModal
         isOpen={showProfileModal}
-        onClose={() => setShowProfileModal(false)}
+        onClose={() => {
+          // Only allow closing if profile is complete
+          if (!isProfileIncomplete) {
+            setShowProfileModal(false);
+          } else {
+            console.log("⚠️ [Header] Cannot close modal - profile incomplete");
+          }
+        }}
         currentPictureUrl={profilePicture}
         onProfileUpdate={(url) => {
+          console.log("✅ [Header] Profile updated with new picture:", url);
           setProfilePicture(url);
           setProfileTimestamp(Date.now()); // Update timestamp to force refresh
+          setIsProfileIncomplete(false); // Profile is now complete
         }}
+        isForced={isProfileIncomplete}
       />
     </div>
   );

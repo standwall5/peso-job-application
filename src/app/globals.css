@@ -71,7 +71,6 @@
 }
 
 body {
-    min-height: 100svh;
     display: flex;
     margin: 0;
     color: var(--text);
@@ -229,12 +228,14 @@ nav {
 /* Test fix for page-container, content, overly, body and nav: 01/04/2026*/
 /*##########################################################################*/
 .page-container {
-    flex: 1;
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
     min-width: 0;
+    width: 100%;
     max-width: 100%;
     overflow-x: hidden;
+    height: auto;
 }
 
 .overlay {
@@ -253,9 +254,14 @@ nav {
 }
 
 .content {
-    flex: 1;
     margin: 0 2rem 2rem;
     min-width: 0;
+    padding: 5rem;
+    height: auto;
+    width: 100%;
+    flex: 1;
+    justify-self: flex-start;
+    align-self: flex-start;
 }
 
 /*##########################################################################*/

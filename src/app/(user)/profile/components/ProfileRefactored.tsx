@@ -156,13 +156,17 @@ const Profile = () => {
     if (resumeRef.current) {
       html2pdf()
         .set({
-          margin: 0.5,
+          margin: [0.5, 0.5, 0.5, 0.5], // top, right, bottom, left in inches
           filename: `${user?.name} Resume.pdf`,
           html2canvas: {
-            scale: 2,
+            scale: 3, // Increased scale for better quality
             useCORS: true,
             letterRendering: true,
             allowTaint: true,
+            logging: false,
+            removeContainer: true,
+            backgroundColor: "#ffffff",
+            windowWidth: 1024, // Fixed width for consistent rendering
           },
           jsPDF: {
             unit: "in",

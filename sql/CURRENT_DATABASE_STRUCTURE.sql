@@ -113,6 +113,7 @@ CREATE TABLE public.applicants (
   deployed_at timestamp with time zone,
   deployed_by bigint,
   default_id_type text CHECK (default_id_type = ANY (ARRAY['NATIONAL ID'::text, 'DRIVER''S LICENSE'::text, 'PASSPORT'::text, 'SSS ID'::text, 'UMID'::text, 'PhilHealth ID'::text, 'TIN ID'::text, 'POSTAL ID'::text, 'VOTER''S ID'::text, 'PRC ID'::text, 'PWD ID'::text, 'SENIOR CITIZEN ID'::text, 'BARANGAY ID'::text])),
+  resume_uploaded_at timestamp with time zone,
   CONSTRAINT applicants_pkey PRIMARY KEY (id),
   CONSTRAINT applicants_id_verified_by_fkey FOREIGN KEY (id_verified_by) REFERENCES public.peso(id),
   CONSTRAINT applicants_auth_id_fkey FOREIGN KEY (auth_id) REFERENCES auth.users(id),

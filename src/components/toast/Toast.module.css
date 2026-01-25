@@ -44,6 +44,39 @@
     overflow: hidden;
 }
 
+/* Type-specific styles */
+.toast.success .progressBar {
+    background-color: #10b981;
+}
+
+.toast.error .progressBar {
+    background-color: #ef4444;
+}
+
+.toast.warning .progressBar {
+    background-color: #f59e0b;
+}
+
+.toast.info .progressBar {
+    background-color: #3b82f6;
+}
+
+.toast.success {
+    border-left: 4px solid #10b981;
+}
+
+.toast.error {
+    border-left: 4px solid #ef4444;
+}
+
+.toast.warning {
+    border-left: 4px solid #f59e0b;
+}
+
+.toast.info {
+    border-left: 4px solid #3b82f6;
+}
+
 .message {
     display: flex;
     flex-direction: column;

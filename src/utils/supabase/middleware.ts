@@ -161,7 +161,7 @@ export async function updateSession(request: NextRequest) {
   // If user is a regular applicant (NOT a PESO user)
   // Redirect from auth pages to home/job-opportunities
   const authPages = ["/login", "/signup", "/auth"];
-  if (authPages.some((p) => pathname.startsWith(p))) {
+  if (authPages.some((p) => pathname.startsWith(p)) || pathname === "/") {
     const url = request.nextUrl.clone();
     url.pathname = "/job-opportunities";
     return NextResponse.redirect(url);

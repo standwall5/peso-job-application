@@ -104,11 +104,21 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      console.log("📁 [Upload Component] No file selected");
+      return;
+    }
+
+    console.log("📁 [Upload Component] File selected:", {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+    });
 
     // Validate file type
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
+      console.error("❌ [Upload Component] Invalid file type:", file.type);
       setError("Invalid file type. Only JPG, PNG, and WebP are allowed.");
       setSelectedFile(null);
       return;
@@ -117,11 +127,15 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
     // Validate file size (5MB)
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
+      console.error("❌ [Upload Component] File too large:", file.size);
       setError("File too large. Maximum size is 5MB.");
       setSelectedFile(null);
       return;
     }
 
+    console.log(
+      "✅ [Upload Component] File validation passed, opening cropper",
+    );
     // Show cropper
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -134,18 +148,28 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
       setShowCropper(true);
       setCrop({ x: 0, y: 0 });
       setZoom(1);
+      console.log("✅ [Upload Component] Cropper initialized");
     };
     reader.readAsDataURL(file);
   };
 
   const handleCropConfirm = async () => {
-    if (!imageSrc || !croppedAreaPixels) return;
+    if (!imageSrc || !croppedAreaPixels) {
+      console.log("⚠️ [Upload Component] Cannot confirm crop - missing data");
+      return;
+    }
 
+    console.log("✂️ [Upload Component] Cropping image...", croppedAreaPixels);
     try {
       const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
       const croppedUrl = URL.createObjectURL(croppedBlob);
       setPreview(croppedUrl);
       setShowCropper(false);
+
+      console.log(
+        "✅ [Upload Component] Image cropped successfully, size:",
+        croppedBlob.size,
+      );
 
       // Convert blob to file for upload
       const croppedFile = new File(
@@ -157,13 +181,15 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
       if (onFileSelected) {
         onFileSelected(croppedFile);
       }
+      console.log("✅ [Upload Component] Cropped file ready for upload");
     } catch (error) {
-      console.error("Error cropping image:", error);
+      console.error("❌ [Upload Component] Error cropping image:", error);
       setError("Failed to crop image");
     }
   };
 
   const handleCropCancel = () => {
+    console.log("❌ [Upload Component] Crop cancelled");
     setShowCropper(false);
     setImageSrc(null);
     setSelectedFile(null);
@@ -180,9 +206,11 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
     url?: string;
   }> => {
     if (!selectedFile) {
+      console.log("⚠️ [Upload Component] No file selected for upload");
       return { success: false };
     }
 
+    console.log("⬆️ [Upload Component] Starting upload process...");
     setUploading(true);
     setError("");
 
@@ -193,18 +221,32 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
     try {
       const formData = new FormData();
       formData.append("file", selectedFile);
+      console.log(
+        "📦 [Upload Component] FormData prepared with file:",
+        selectedFile.name,
+      );
 
+      console.log(
+        "🌐 [Upload Component] Sending POST request to /api/admin/profile-picture",
+      );
       const response = await fetch("/api/admin/profile-picture", {
         method: "POST",
         body: formData,
       });
 
+      console.log(
+        "📡 [Upload Component] Response received, status:",
+        response.status,
+      );
+
       if (!response.ok) {
         const data = await response.json();
+        console.error("❌ [Upload Component] Upload failed:", data.error);
         throw new Error(data.error || "Failed to upload");
       }
 
       const data = await response.json();
+      console.log("✅ [Upload Component] Upload successful! Response:", data);
 
       if (onUploadSuccess) {
         onUploadSuccess(data.url);
@@ -221,9 +263,10 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
         alert("Profile picture updated successfully!");
       }
 
+      console.log("🎉 [Upload Component] Upload complete, URL:", data.url);
       return { success: true, url: data.url };
     } catch (err) {
-      console.error("Upload error:", err);
+      console.error("❌ [Upload Component] Upload error:", err);
       setError(err instanceof Error ? err.message : "Failed to upload");
       return { success: false };
     } finally {
@@ -239,19 +282,30 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
 
   const handleRemove = async () => {
     if (!confirm("Are you sure you want to remove your profile picture?")) {
+      console.log("❌ [Upload Component] Remove cancelled by user");
       return;
     }
 
+    console.log("🗑️ [Upload Component] Starting remove process...");
     setUploading(true);
     setError("");
 
     try {
+      console.log(
+        "🌐 [Upload Component] Sending DELETE request to /api/admin/profile-picture",
+      );
       const response = await fetch("/api/admin/profile-picture", {
         method: "DELETE",
       });
 
+      console.log(
+        "📡 [Upload Component] Delete response received, status:",
+        response.status,
+      );
+
       if (!response.ok) {
         const data = await response.json();
+        console.error("❌ [Upload Component] Remove failed:", data.error);
         throw new Error(data.error || "Failed to remove picture");
       }
 
@@ -271,7 +325,10 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
       if (showSuccessAlerts) {
         alert("Profile picture removed successfully!");
       }
+
+      console.log("🎉 [Upload Component] Profile picture removed successfully");
     } catch (err) {
+      console.error("❌ [Upload Component] Remove error:", err);
       setError(err instanceof Error ? err.message : "Failed to remove");
     } finally {
       setUploading(false);
@@ -279,6 +336,9 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
   };
 
   const handleCancel = () => {
+    console.log(
+      "❌ [Upload Component] Upload cancelled, reverting to original",
+    );
     setPreview(currentPictureUrl || null);
     setSelectedFile(null);
     if (onFileSelected) {

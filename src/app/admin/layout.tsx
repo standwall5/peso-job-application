@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import "@/app/globals.css";
 import "./adminLayout.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
+import Footer from "@/components/Footer";
 import AdminChatWidget from "@/components/chat/AdminChatWidget";
-import { AdminProfileModal } from "./components/AdminProfileModal";
 import { getAdminProfileAction } from "@/app/admin/actions/admin.actions";
 
 export default function AdminLayout({
@@ -15,8 +16,8 @@ export default function AdminLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const router = useRouter();
   const [isSuperAdmin, setIsSuperAdmin] = useState<boolean | null>(null);
-  const [showFirstLoginModal, setShowFirstLoginModal] = useState(false);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
 
   useEffect(() => {
@@ -25,9 +26,10 @@ export default function AdminLayout({
         const profile = await getAdminProfileAction();
         setIsSuperAdmin(profile.is_superadmin);
 
-        // Check if this is first login (for ALL admins including super admins)
+        // If this is first login, redirect to setup page
         if (profile.is_first_login) {
-          setShowFirstLoginModal(true);
+          router.push("/admin/setup-initial");
+          return;
         }
 
         if (profile.profile_picture_url) {
@@ -40,7 +42,7 @@ export default function AdminLayout({
     };
 
     checkAdminRole();
-  }, []);
+  }, [router]);
 
   return (
     <div className="admin-layout">
@@ -48,19 +50,11 @@ export default function AdminLayout({
       <div className="main-content">
         <Header />
         <main className="admin-content">{children}</main>
+        <Footer />
       </div>
 
       {/* Floating Admin Chat Widget - Only for regular admins */}
       {isSuperAdmin === false && <AdminChatWidget />}
-
-      {/* First Login Modal */}
-      <AdminProfileModal
-        isOpen={showFirstLoginModal}
-        onClose={() => setShowFirstLoginModal(false)}
-        currentPictureUrl={profilePicture}
-        onProfileUpdate={(url) => setProfilePicture(url)}
-        isFirstLogin={false}
-      />
     </div>
   );
 }

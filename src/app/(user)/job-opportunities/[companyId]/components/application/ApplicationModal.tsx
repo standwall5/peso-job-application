@@ -46,6 +46,12 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [showEditResume, setShowEditResume] = useState(false);
   const [showEditSuccess, setShowEditSuccess] = useState(false);
+  const [toast, setToast] = useState({
+    show: false,
+    title: "",
+    message: "",
+    type: "success" as "success" | "error" | "warning" | "info",
+  });
 
   // Resume editing hooks
   const { user, resume, refreshResume, refreshUser } = useProfileData();
@@ -88,11 +94,15 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({
       }
     } catch (error) {
       console.error("Error withdrawing application:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Failed to withdraw application",
-      );
+      setToast({
+        show: true,
+        title: "Withdrawal Failed",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to withdraw application",
+        type: "error",
+      });
     } finally {
       setIsWithdrawing(false);
     }
@@ -141,30 +151,6 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({
 
   return (
     <>
-      {/* Success Toast */}
-      <Toast
-        show={showEditSuccess}
-        onClose={() => setShowEditSuccess(false)}
-        title="Success"
-        message="Resume updated!"
-        icon={
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-            stroke="currentColor"
-            className="size-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m4.5 12.75 6 6 9-13.5"
-            />
-          </svg>
-        }
-      />
-
       <div className={jobStyle.modalOverlay} onClick={onClose}>
         <div
           className={`${jobStyle.modal} ${jobStyle.applicationModal}`}
@@ -424,6 +410,38 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({
           isLoading={isWithdrawing}
         />
       )}
+
+      {/* Toast Notifications */}
+      <Toast
+        show={showEditSuccess}
+        onClose={() => setShowEditSuccess(false)}
+        title="Success"
+        message="Resume updated!"
+        type="success"
+        icon={
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="m4.5 12.75 6 6 9-13.5"
+            />
+          </svg>
+        }
+      />
+      <Toast
+        show={toast.show}
+        onClose={() => setToast((prev) => ({ ...prev, show: false }))}
+        title={toast.title}
+        message={toast.message}
+        type={toast.type}
+      />
     </>
   );
 };

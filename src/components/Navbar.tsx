@@ -274,8 +274,7 @@ const PrivateNavBar = (props: { pathname: string; user: ApplicantUser }) => {
     props.pathname === "/job-opportunities" ||
     props.pathname.startsWith("/job-opportunities/");
 
-  const isPrivateHomePage =
-    props.pathname === "/" || props.pathname.startsWith("/");
+  const isPrivateHomePage = props.pathname === "/";
 
   // Close menu when route changes
   useEffect(() => {

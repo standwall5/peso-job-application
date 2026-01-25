@@ -289,6 +289,10 @@ const PrivateCompanyListWithRecommendations = ({
           onClose={handleCloseModal}
           onIdUploaded={handleIdUploaded}
           onSubmitFinalApplication={handleSubmitFinalApplication}
+          onContinueToExam={() => {
+            // Handle continue to exam - can add navigation logic here if needed
+            console.log("Continue to exam clicked");
+          }}
         />
       )}
 
