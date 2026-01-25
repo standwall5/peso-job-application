@@ -4,23 +4,35 @@ import React, { useState, useRef, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import Button from "@/components/Button";
 import styles from "./CreateCompany.module.css";
+import { Company } from "../types/company.types";
 
-const CreateCompany = () => {
+interface CreateCompanyProps {
+  company?: Company | null;
+  onSuccess?: () => void;
+}
+
+const CreateCompany: React.FC<CreateCompanyProps> = ({
+  company = null,
+  onSuccess,
+}) => {
+  const isEditMode = !!company;
   const [nav, setNav] = useState("createCompany");
   const [activeIndex, setActiveIndex] = useState(0);
   const tabRefs = useRef<(HTMLLIElement | null)[]>([]);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
   const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(
+    company?.logo || null,
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Form state
+  // Form state - initialize with company data if editing
   const [formData, setFormData] = useState({
-    name: "",
-    contact_email: "",
-    location: "",
-    industry: "",
-    description: "",
+    name: company?.name || "",
+    contact_email: company?.contact_email || "",
+    location: company?.location || "",
+    industry: company?.industry || "",
+    description: company?.description || "",
   });
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -76,66 +88,123 @@ const CreateCompany = () => {
     setIsSubmitting(true);
 
     try {
-      // Step 1: Create the company
-      const createResponse = await fetch("/api/createCompany", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const createResult = await createResponse.json();
-
-      if (!createResponse.ok) {
-        throw new Error(createResult.error || "Failed to create company");
-      }
-
-      const newCompany = createResult.data;
-
-      // Step 2: Upload logo if provided
-      if (logoFile && newCompany.id) {
-        const logoFormData = new FormData();
-        logoFormData.append("logo", logoFile);
-        logoFormData.append("company_id", newCompany.id.toString());
-
-        const logoResponse = await fetch("/api/uploadCompanyLogo", {
-          method: "POST",
-          body: logoFormData,
+      if (isEditMode && company) {
+        // Edit mode - update existing company
+        const updateResponse = await fetch(`/api/updateCompany`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: company.id,
+            ...formData,
+          }),
         });
 
-        const logoResult = await logoResponse.json();
+        const updateResult = await updateResponse.json();
 
-        if (!logoResponse.ok) {
-          console.error("Logo upload failed:", logoResult.error);
-          // Don't throw error, company is already created
-          alert(
-            `Company created successfully, but logo upload failed: ${logoResult.error}`,
-          );
+        if (!updateResponse.ok) {
+          throw new Error(updateResult.error || "Failed to update company");
+        }
+
+        // Upload new logo if provided
+        if (logoFile) {
+          const logoFormData = new FormData();
+          logoFormData.append("logo", logoFile);
+          logoFormData.append("company_id", company.id.toString());
+
+          const logoResponse = await fetch("/api/uploadCompanyLogo", {
+            method: "POST",
+            body: logoFormData,
+          });
+
+          const logoResult = await logoResponse.json();
+
+          if (!logoResponse.ok) {
+            console.error("Logo upload failed:", logoResult.error);
+            alert(
+              `Company updated successfully, but logo upload failed: ${logoResult.error}`,
+            );
+          } else {
+            alert("Company profile updated successfully with new logo!");
+          }
         } else {
-          alert("Company profile created successfully with logo!");
+          alert("Company profile updated successfully!");
+        }
+
+        if (onSuccess) {
+          onSuccess();
         }
       } else {
-        alert("Company profile created successfully!");
+        // Create mode - create new company
+        const createResponse = await fetch("/api/createCompany", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+
+        const createResult = await createResponse.json();
+
+        if (!createResponse.ok) {
+          throw new Error(createResult.error || "Failed to create company");
+        }
+
+        const newCompany = createResult.data;
+
+        // Upload logo if provided
+        if (logoFile && newCompany.id) {
+          const logoFormData = new FormData();
+          logoFormData.append("logo", logoFile);
+          logoFormData.append("company_id", newCompany.id.toString());
+
+          const logoResponse = await fetch("/api/uploadCompanyLogo", {
+            method: "POST",
+            body: logoFormData,
+          });
+
+          const logoResult = await logoResponse.json();
+
+          if (!logoResponse.ok) {
+            console.error("Logo upload failed:", logoResult.error);
+            alert(
+              `Company created successfully, but logo upload failed: ${logoResult.error}`,
+            );
+          } else {
+            alert("Company profile created successfully with logo!");
+          }
+        } else {
+          alert("Company profile created successfully!");
+        }
+
+        // Reset form
+        setFormData({
+          name: "",
+          contact_email: "",
+          location: "",
+          industry: "",
+          description: "",
+        });
+        setLogoFile(null);
+        setLogoPreview(null);
+
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          // Optionally reload the page if no callback
+          window.location.reload();
+        }
       }
-
-      // Reset form
-      setFormData({
-        name: "",
-        contact_email: "",
-        location: "",
-        industry: "",
-        description: "",
-      });
-      setLogoFile(null);
-      setLogoPreview(null);
-
-      // Optionally reload the page or redirect
-      window.location.reload();
     } catch (error) {
-      console.error("Error creating company:", error);
+      console.error(
+        `Error ${isEditMode ? "updating" : "creating"} company:`,
+        error,
+      );
       alert(
-        error instanceof Error ? error.message : "Failed to create company",
+        error instanceof Error
+          ? error.message
+          : `Failed to ${isEditMode ? "update" : "create"} company`,
       );
     } finally {
       setIsSubmitting(false);
@@ -159,7 +228,9 @@ const CreateCompany = () => {
           <div className={styles.uploadText}>
             {isDragActive
               ? "Drop the logo here..."
-              : "Click or drag to upload company logo"}
+              : isEditMode
+                ? "Click or drag to change company logo"
+                : "Click or drag to upload company logo"}
           </div>
         </div>
         <div className={styles.companyDetails}>
@@ -214,30 +285,32 @@ const CreateCompany = () => {
               <option value="" disabled>
                 Select industry
               </option>
-            <option value="Agriculture">Agriculture</option>
-            <option value="Automotive">Automotive</option>
-            <option value="Banking & Finance">Banking & Finance</option>
-            <option value="Construction">Construction</option>
-            <option value="Education">Education</option>
-            <option value="Energy">Energy</option>
-            <option value="Healthcare">Healthcare</option>
-            <option value="Hospitality">Hospitality</option>
-            <option value="Information Technology">
-              Information Technology
-            </option>
-            <option value="Manufacturing">Manufacturing</option>
-            <option value="Media & Entertainment">Media & Entertainment</option>
-            <option value="Mining">Mining</option>
-            <option value="Pharmaceuticals">Pharmaceuticals</option>
-            <option value="Real Estate">Real Estate</option>
-            <option value="Retail">Retail</option>
-            <option value="Telecommunications">Telecommunications</option>
-            <option value="Transportation & Logistics">
-              Transportation & Logistics
-            </option>
-            <option value="Utilities">Utilities</option>
-            <option value="Other">Other</option>
-          </select>
+              <option value="Agriculture">Agriculture</option>
+              <option value="Automotive">Automotive</option>
+              <option value="Banking & Finance">Banking & Finance</option>
+              <option value="Construction">Construction</option>
+              <option value="Education">Education</option>
+              <option value="Energy">Energy</option>
+              <option value="Healthcare">Healthcare</option>
+              <option value="Hospitality">Hospitality</option>
+              <option value="Information Technology">
+                Information Technology
+              </option>
+              <option value="Manufacturing">Manufacturing</option>
+              <option value="Media & Entertainment">
+                Media & Entertainment
+              </option>
+              <option value="Mining">Mining</option>
+              <option value="Pharmaceuticals">Pharmaceuticals</option>
+              <option value="Real Estate">Real Estate</option>
+              <option value="Retail">Retail</option>
+              <option value="Telecommunications">Telecommunications</option>
+              <option value="Transportation & Logistics">
+                Transportation & Logistics
+              </option>
+              <option value="Utilities">Utilities</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
 
           <div className={styles.formField}>
@@ -253,7 +326,13 @@ const CreateCompany = () => {
           </div>
 
           <Button type="submit" variant="primary" disabled={isSubmitting}>
-            {isSubmitting ? "CREATING..." : "CREATE COMPANY"}
+            {isSubmitting
+              ? isEditMode
+                ? "UPDATING..."
+                : "CREATING..."
+              : isEditMode
+                ? "UPDATE COMPANY"
+                : "CREATE COMPANY"}
           </Button>
         </div>
       </form>
@@ -280,7 +359,10 @@ const CreateCompany = () => {
                 setActiveIndex(idx);
               }}
             >
-              {tab === "createCompany" && "CREATE COMPANY PROFILE"}
+              {tab === "createCompany" &&
+                (isEditMode
+                  ? "EDIT COMPANY PROFILE"
+                  : "CREATE COMPANY PROFILE")}
             </li>
           ))}
           <div

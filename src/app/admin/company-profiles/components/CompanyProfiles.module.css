@@ -1,8 +1,9 @@
 .companyProfiles {
     display: flex;
     align-items: center;
+    justify-content: center;
+
     flex-direction: column;
-    justify-content: flex-start;
     gap: 2rem;
     height: 100%;
     width: 100%;
@@ -186,7 +187,7 @@
 .tableHeader,
 .tableRow {
     display: grid;
-    grid-template-columns: 7fr 1.5fr 0.7fr;
+    grid-template-columns: 7fr 0.7fr;
     align-items: center;
     width: 100%;
     text-align: center;

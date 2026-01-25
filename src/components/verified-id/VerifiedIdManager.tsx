@@ -301,7 +301,7 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
           {preview ? (
             <div style={{ position: "relative" }}>
               <img src={preview} alt={label} className={styles.previewImage} />
-              {isVerified && (
+              {existingId?.is_verified && (
                 <div className={styles.verifiedBadge}>
                   <svg
                     width="24"

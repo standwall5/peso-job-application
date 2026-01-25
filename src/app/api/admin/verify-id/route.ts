@@ -59,6 +59,23 @@ export async function POST(req: Request) {
       );
     }
 
+    // Also update applicants table to mark ID as verified
+    const { error: applicantUpdateError } = await supabase
+      .from("applicants")
+      .update({
+        id_verified: true,
+        id_verified_at: new Date().toISOString(),
+      })
+      .eq("id", applicantId);
+
+    if (applicantUpdateError) {
+      console.error(
+        "Error updating applicant verification status:",
+        applicantUpdateError,
+      );
+      // Don't fail the request if this update fails, as the main verification already succeeded
+    }
+
     // Create notification for applicant
     try {
       await createIdVerificationNotification(applicantId);

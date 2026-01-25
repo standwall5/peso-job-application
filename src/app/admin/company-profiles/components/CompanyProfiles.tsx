@@ -8,7 +8,6 @@ import { useCompanyActions } from "../hooks/useCompanyActions";
 import CompanyStatsHeader from "./list/CompanyStatsHeader";
 import CompanySearchBar from "./list/CompanySearchBar";
 import CompanyTable from "./list/CompanyTable";
-import CompanyDetailsView from "./details/CompanyDetailsView";
 import CreateCompany from "./CreateCompany";
 import ManageCompany from "./ManageCompany";
 import BackButton from "./shared/BackButton";
@@ -29,12 +28,11 @@ const CompanyProfiles = () => {
     setShowCreateCompany,
     showManageCompany,
     setShowManageCompany,
-    showCompanyDetails,
     selectedCompany,
-    handleViewCompany,
+    handleEditCompany,
     handleManageCompany,
     handleCloseAll,
-  } = useCompanyActions(fetchCompanies);
+  } = useCompanyActions();
 
   const [exams, setExams] = useState<Exam | null>(null);
 
@@ -71,20 +69,19 @@ const CompanyProfiles = () => {
     );
   }
 
-  // Create Company View
+  // Create/Edit Company View
   if (showCreateCompany) {
     return (
       <section className={styles.createCompany}>
-        <BackButton onClick={() => setShowCreateCompany(false)} />
-        <CreateCompany />
+        <BackButton onClick={handleCloseAll} />
+        <CreateCompany
+          company={selectedCompany}
+          onSuccess={() => {
+            handleCloseAll();
+            fetchCompanies();
+          }}
+        />
       </section>
-    );
-  }
-
-  // Company Details View
-  if (showCompanyDetails && selectedCompany) {
-    return (
-      <CompanyDetailsView company={selectedCompany} onBack={handleCloseAll} />
     );
   }
 
@@ -106,7 +103,7 @@ const CompanyProfiles = () => {
 
       <CompanyTable
         companies={filteredCompanies}
-        onViewCompany={handleViewCompany}
+        onEditCompany={handleEditCompany}
         onManageCompany={handleManageCompany}
       />
     </section>

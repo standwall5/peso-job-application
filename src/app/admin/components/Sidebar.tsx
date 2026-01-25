@@ -8,7 +8,7 @@ import { useSuperAdmin } from "@/app/admin/hooks/useSuperAdmin";
 
 const Sidebar = () => {
   const [openMenus, setOpenMenus] = useState<string[]>([]);
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -77,7 +77,7 @@ const Sidebar = () => {
 
           {/* Desktop Hamburger Toggle */}
           <button
-            className={styles.toggleButton}
+            className={`${styles.toggleButton} ${isExpanded ? styles.expanded : styles.collapsed}`}
             onClick={() => setIsExpanded(!isExpanded)}
             aria-label="Toggle sidebar"
             title={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
@@ -129,15 +129,16 @@ const Sidebar = () => {
                 <>
                   <span>Dashboard</span>
                   {/* Heroicon: ChevronDown */}
+                  {/*className={`${styles.dropdownIcon} ${openMenus.includes("dashboard") ? styles.rotated : ""}`}*/}
                   <svg
                     className={`${styles.dropdownIcon} ${openMenus.includes("dashboard") ? styles.rotated : ""}`}
                     xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
+                    viewBox="0 0 24 24"
                     fill="currentColor"
                   >
                     <path
                       fillRule="evenodd"
-                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z"
                       clipRule="evenodd"
                     />
                   </svg>

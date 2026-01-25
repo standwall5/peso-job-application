@@ -6,13 +6,13 @@ import { Company } from "../../types/company.types";
 
 interface CompanyTableProps {
   companies: Company[];
-  onViewCompany: (company: Company) => void;
+  onEditCompany: (company: Company) => void;
   onManageCompany: (company: Company) => void;
 }
 
 const CompanyTable: React.FC<CompanyTableProps> = ({
   companies,
-  onViewCompany,
+  onEditCompany,
   onManageCompany,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -105,7 +105,6 @@ const CompanyTable: React.FC<CompanyTableProps> = ({
           <div>MANPOWER NEEDED</div>
           <div>STATUS</div>
         </div>
-        <div>ABOUT COMPANY</div>
         <div>SELECT</div>
       </div>
 
@@ -113,7 +112,7 @@ const CompanyTable: React.FC<CompanyTableProps> = ({
         <div className={styles.tableRow} key={company.id}>
           <div
             className={styles.jobseekersDetails}
-            onClick={() => onViewCompany(company)}
+            onClick={() => onManageCompany(company)}
           >
             <div className={styles.avatarCell}>
               <img
@@ -132,15 +131,6 @@ const CompanyTable: React.FC<CompanyTableProps> = ({
                 ACTIVE
               </span>
             </div>
-          </div>
-
-          <div>
-            <button
-              className={styles.detailsBtn}
-              onClick={() => onManageCompany(company)}
-            >
-              Manage Details
-            </button>
           </div>
 
           <div className={styles.checkbox}>

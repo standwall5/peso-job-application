@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import "@/app/globals.css";
+import "./adminLayout.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";

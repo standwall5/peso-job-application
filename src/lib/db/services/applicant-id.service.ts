@@ -12,6 +12,10 @@ export interface ApplicantIDData {
   uploaded_at?: string;
   updated_at?: string;
   version?: number;
+  is_verified?: boolean;
+  verified_by?: number;
+  verified_at?: string;
+  status?: string;
 }
 
 export interface UploadIDResult {

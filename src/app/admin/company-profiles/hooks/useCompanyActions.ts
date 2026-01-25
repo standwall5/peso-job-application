@@ -3,27 +3,26 @@
 import { useState } from "react";
 import { Company } from "../types/company.types";
 
-export const useCompanyActions = (onRefresh: () => Promise<void>) => {
+export const useCompanyActions = () => {
   const [showCreateCompany, setShowCreateCompany] = useState(false);
   const [showManageCompany, setShowManageCompany] = useState(false);
-  const [showCompanyDetails, setShowCompanyDetails] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
-  const handleViewCompany = (company: Company) => {
+  const handleEditCompany = (company: Company) => {
     setSelectedCompany(company);
-    setShowCompanyDetails(true);
+    setShowCreateCompany(true);
+    setShowManageCompany(false);
   };
 
   const handleManageCompany = (company: Company) => {
     setSelectedCompany(company);
     setShowManageCompany(true);
-    setShowCompanyDetails(false);
+    setShowCreateCompany(false);
   };
 
   const handleCloseAll = () => {
     setShowCreateCompany(false);
     setShowManageCompany(false);
-    setShowCompanyDetails(false);
     setSelectedCompany(null);
   };
 
@@ -32,9 +31,8 @@ export const useCompanyActions = (onRefresh: () => Promise<void>) => {
     setShowCreateCompany,
     showManageCompany,
     setShowManageCompany,
-    showCompanyDetails,
     selectedCompany,
-    handleViewCompany,
+    handleEditCompany,
     handleManageCompany,
     handleCloseAll,
   };
