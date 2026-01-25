@@ -15,6 +15,12 @@ export const ProfileNavigation: React.FC<ProfileNavigationProps> = ({
   return (
     <ul className={styles.profileOptionsNav}>
       <li
+        className={activeTab === "profileDetails" ? styles.active : ""}
+        onClick={() => onTabChange("profileDetails")}
+      >
+        My Profile
+      </li>
+      <li
         className={activeTab === "viewResume" ? styles.active : ""}
         onClick={() => onTabChange("viewResume")}
       >

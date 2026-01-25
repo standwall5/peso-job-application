@@ -70,6 +70,7 @@ export interface UserApplication {
 }
 
 export type ProfileTab =
+  | "profileDetails"
   | "viewResume"
   | "editResume"
   | "applications"

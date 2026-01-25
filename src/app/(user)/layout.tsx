@@ -9,7 +9,6 @@ import ChatWidget from "@/components/chat/ChatWidget";
 import LanguageSelector from "@/components/LanguageSelector";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export default function RootLayout({
   children,
@@ -25,9 +24,7 @@ export default function RootLayout({
           <Navbar />
           <main className="content">
             {children}
-            <SpeedInsights />
           </main>
-          <Footer />
         </div>
 
         {/* Chat System - Available on all applicant pages */}

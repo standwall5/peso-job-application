@@ -297,102 +297,35 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             </form>
           ) : (
             <div className={styles.profileDetailsInfo}>
-              <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"
-                    />
-                  </svg>
-                  PHONE
-                </span>
-                <p>{user?.phone || "Not set"}</p>
+              <div className={styles.infoRowText}>
+                <span className={styles.infoLabelText}>PHONE :</span>
+                <span className={styles.infoValueText}>{user?.phone || "Not set"}</span>
               </div>
 
-              <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
-                    />
-                  </svg>
-                  EMAIL
-                </span>
-                <p>{user?.email || "Not set"}</p>
+              <div className={styles.infoRowText}>
+                <span className={styles.infoLabelText}>EMAIL :</span>
+                <span className={styles.infoValueText}>{user?.email || "Not set"}</span>
               </div>
 
-              <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
-                    />
-                  </svg>
-                  PREFERRED PLACE
-                </span>
-                <p>{user?.preferred_poa || "Not set"}</p>
+              <div className={styles.infoRowText}>
+                <span className={styles.infoLabelText}>PREFERRED PLACE OF ASSIGNMENT:</span>
+                <span className={styles.infoValueText}>{user?.preferred_poa || "Not set"}</span>
               </div>
 
-              <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
-                    />
-                  </svg>
-                  APPLICANT TYPE
-                </span>
-                <p>{user?.applicant_type || "Not set"}</p>
+              <div className={styles.infoRowText}>
+                <span className={styles.infoLabelText}>APPLICANT TYPE:</span>
+                <span className={styles.infoValueText}>{user?.applicant_type || "Not set"}</span>
               </div>
-            </div>
-          )}
 
-          {!showEdit && (
             <Button
-              className="grey-button"
+              className={styles.greyButton}
               onClick={onShowEditToggle}
               type="button"
-              variant="warning"
+              variant="outline"
             >
-              Edit Details
+              EDIT
             </Button>
+            </div>
           )}
         </div>
       </div>

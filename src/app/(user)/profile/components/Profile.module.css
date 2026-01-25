@@ -1,12 +1,877 @@
+/* Main Container */
 .profileContainer {
-    width: 80vw;
-    height: 80vh;
-    margin: 0 2rem;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    background-color: #f8fcff; /* Light bluish background like image */
+    padding-top: 0;
+    justify-content: center; /* Center vertically if possible */
+    overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+/* Ensure box-sizing is handled globally for these if not already */
+.profileContainer * {
+    box-sizing: border-box;
+}
+
+/* Hamburger Button - Top Left Fixed */
+.hamburgerButton {
+    position: fixed;
+    top: 1.5rem;
+    left: 1.5rem;
+    z-index: 1000;
+    background: transparent;
+    border: none;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 2rem;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    transition: background-color 0.2s;
+}
+
+.hamburgerButton:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.hamburgerButton svg {
+    width: 2rem; /* Slightly larger like image */
+    height: 2rem;
+    color: #64748b; /* Greyish color */
+}
+
+/* Sidebar / Drawer */
+.sidebarOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.sidebarOverlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    background: white;
+    z-index: 2001;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.1);
+    padding-top: 5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar.open {
+    transform: translateX(0);
+}
+
+/* Profile Details - Centered Card Style */
+.profileDetailsContainer {
+    width: 100vw !important; /* Force full width of viewport */
+    max-width: none !important;
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 100vh;
+}
+
+.profileDetailsContent {
+    background: white;
+    width: 98% !important; /* Force 98% width */
+    max-width: none !important; /* Remove ANY max-width limit */
+    min-height: 90vh; /* Fill height */
+    padding: 2rem;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
+    margin: 1rem auto !important;
+}
+
+/* Profile Picture */
+.profilePicWrapper {
+    position: relative;
+    display: inline-block;
+    width: 160px !important;
+    height: 160px !important;
+    min-width: 160px !important; /* Prevent squashing */
+    min-height: 160px !important; /* Prevent squashing */
+    border-radius: 50% !important;
+    overflow: hidden;
+    border: 1px solid #e2e8f0; /* Thin border */
+    padding: 0; /* No white gap */
+    aspect-ratio: 1/1 !important; /* Force square aspect ratio */
+    flex-shrink: 0 !important; /* Prevent shrinking */
+    margin: 0 auto;
+}
+
+.profilePic {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: filter 0.3s;
+}
+
+.nameContainer {
+    margin-top: 0.5rem;
+}
+
+.nameContainer h4 {
+    font-size: 1.25rem;
+    font-weight: 900; /* Extra bold */
+    text-transform: uppercase;
+    color: #0f172a;
+    letter-spacing: 0.5px;
+    text-align: center;
+    margin: 0;
+}
+
+/* Profile Info Rows (Phone, Email, etc) */
+.profileDetailsInfo {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start; 
+    max-width: 500px; 
+}
+
+
+.profileDetailsInfo {
+    align-items: center; 
+}
+
+
+.infoRowText {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #334155;
+    line-height: 1.6;
+}
+
+
+.infoRow {
+    background: transparent;
+    border: none;
+    padding: 0;
+    display: flex;
+    flex-direction: row; 
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.5rem;
+    width: auto; 
+}
+
+.infoLabel {
+    font-weight: 800; /* Bold label */
+    color: #0f172a;
+    font-size: 0.8rem;
+    min-width: auto;
+    display: inline-block;
+    margin: 0;
+}
+
+/* Hide Icons in the centered view text to match image 2 exactly? Image 2 has text "PHONE: 09..." */
+.infoLabel svg {
+    display: none; /* Hide icons if matching image 2 strict text style */
+}
+
+.infoRow p {
+    font-size: 0.85rem;
+    color: #475569;
+    font-weight: 500;
+}
+
+/* Navigation List in Sidebar */
+.profileOptionsNav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.profileOptionsNav li {
+    padding: 1rem 2rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center content */
+    text-align: center; /* Center text */
+}
+
+.profileOptionsNav li:hover {
+    background: #f8fcff;
+    color: var(--nav, #16a34a);
+}
+
+.profileOptionsNav li.active {
+    color: #15803d; 
+    background: transparent;
+    border-left: none;
+    border-bottom: 3px solid #15803d; 
+    font-weight: 700;
+}
+
+
+.grey-button {
+    background-color: #888;
+    color: white;
+    padding: 0.5rem 2rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-top: 1rem;
+}
+
+
+.sectionContainer {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+    padding-top: 5rem; 
+}
+
+
+.editIcon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 2rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    z-index: 2;
+}
+
+.profilePicWrapper:hover .profilePic {
+    filter: brightness(0.5);
+}
+
+.profilePicWrapper:hover .editIcon {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.fileInput {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    left: 0;
+    top: 0;
+    cursor: pointer;
+    z-index: 3;
+}
+
+.editNameButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+    color: #64748b;
+}
+
+.editNameButton svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.editNameButton:hover {
+    background: rgba(52, 152, 219, 0.1);
+    color: var(--nav);
+    transform: scale(1.1);
+}
+
+/* Reuse existing button/input styles */
+.buttonRow {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 0.5rem;
+    width: 100%;
+}
+
+.buttonRow button {
+    flex: 1;
+}
+
+/* Applied Jobs Styles */
+.appliedJobs {
+    align-items: center;
+    gap: 1.5rem;
+    padding: 0 2rem 1rem;
+    flex-wrap: wrap;
+    justify-content: flex-start;
     justify-self: center;
+    display: flex;
+    width: 100%;
+}
+
+.jobCard {
+    position: relative;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    width: 300px; /* Fixed width for better grid */
+    height: 15rem;
+    flex-grow: 0;
+    transition: all 0.25s ease;
+    overflow: hidden;
+}
+
+.jobCard::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--button));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.jobCard:hover::before {
+    transform: scaleX(1);
+}
+
+.jobCard:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 24px rgba(52, 152, 219, 0.15);
+    border-color: rgba(52, 152, 219, 0.3);
+    background: #f8fcff;
+}
+
+.jobCompany {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.jobCompany img {
+    border-radius: 0.375rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    padding: 0.25rem;
+    background: white;
+    transition: transform 0.25s ease;
+}
+
+.jobCard:hover .jobCompany img {
+    transform: scale(1.1);
+}
+
+.jobDetails {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: #1e293b;
+}
+
+/* Status styles */
+.status {
+    border-radius: 0.375rem;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    padding: 0.4rem 0.8rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    transition: all 0.25s ease;
+}
+
+.status svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.status.pending {
+    background-color: #fffdf1;
+    color: #f97316;
+    border: 1px solid rgba(249, 115, 22, 0.2);
+}
+
+.status.referred {
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--accent) 85%, transparent),
+        color-mix(in srgb, var(--button) 70%, transparent)
+    );
+    color: white;
+    border: 1px solid rgba(128, 231, 177, 0.3);
+}
+
+/* Mobile Media Queries */
+@media (max-width: 768px) {
+    .profileDetailsContent {
+        width: 90%;
+        padding: 2rem 1rem;
+    }
+    
+    .hamburgerButton {
+        top: 1rem;
+        left: 1rem;
+    }
+}
+
+/* Hamburger Button */
+.hamburgerButton {
+    position: fixed;
+    top: 5rem;
+    left: 1rem;
+    z-index: 100;
+    background: white;
+    border: 1px solid rgba(52, 152, 219, 0.2);
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.hamburgerButton:hover {
+    background: #f0f9ff;
+    border-color: var(--accent);
+}
+
+.hamburgerButton svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: var(--text);
+}
+
+/* Sidebar / Drawer */
+.sidebarOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 98;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.sidebarOverlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    background: white;
+    z-index: 99;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+    padding-top: 5rem; /* Space for top header if needed */
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar.open {
+    transform: translateX(0);
+}
+
+/* Profile Details - Centered Card Style */
+.profileDetailsContainer {
+    width: 100%;
+    max-width: 800px;
+    background-color: transparent; /* Remove white background from container itself, card has it */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    margin: 0 auto;
+}
+
+.profileDetailsContent {
+    background: white;
+    width: 95%; /* Wider width */
+    max-width: 1400px; /* Much larger max-width */
+    padding: 4rem 3rem;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
+    min-height: 80vh; /* Make it look expansive vertically too */
+}
+
+/* Profile Picture */
+.profilePicWrapper {
+    position: relative;
+    display: inline-block;
+    width: 180px; /* Larger */
+    height: 180px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.profilePic {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: filter 0.3s;
+}
+
+.nameContainer h4 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #1e293b;
+    letter-spacing: -0.5px;
+    text-align: center;
+}
+
+/* Profile Info Rows (Phone, Email, etc) */
+.profileDetailsInfo {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center; /* Center the text items */
+}
+
+/* Text-only style for the centered view (like the screenshot) */
+.infoRowText {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #334155;
+}
+
+.infoRowText strong {
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #0f172a;
+    min-width: 60px; /* Align labels slightly */
+}
+
+/* Keep the editable form styles but maybe adjust */
+.infoRow {
+    width: 100%;
+    background: #f8fcff;
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Navigation List in Sidebar */
+.profileOptionsNav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.profileOptionsNav li {
+    padding: 1rem 2rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.profileOptionsNav li:hover {
+    background: #f8fcff;
+    color: var(--nav);
+}
+
+.profileOptionsNav li.active {
+    color: var(--nav);
+    background: #f0f9ff;
+    border-left-color: var(--nav);
+}
+
+/* Resume and other sections container */
+.sectionContainer {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+/* Reused Elements */
+.editIcon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 2rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    z-index: 2;
+}
+
+.profilePicWrapper:hover .profilePic {
+    filter: brightness(0.5);
+}
+
+.profilePicWrapper:hover .editIcon {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.fileInput {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    left: 0;
+    top: 0;
+    cursor: pointer;
+    z-index: 3;
+}
+
+.editNameButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+    color: #64748b;
+}
+
+.editNameButton svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.editNameButton:hover {
+    background: rgba(52, 152, 219, 0.1);
+    color: var(--nav);
+    transform: scale(1.1);
+}
+
+/* Reuse existing button/input styles */
+.buttonRow {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 0.5rem;
+    width: 100%;
+}
+
+.buttonRow button {
+    flex: 1;
+}
+
+/* Applied Jobs Styles */
+.appliedJobs {
+    align-items: center;
+    gap: 1.5rem;
+    padding: 0 2rem 1rem;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    justify-self: center;
+    display: flex;
+    width: 100%;
+}
+
+.jobCard {
+    position: relative;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    width: 300px; /* Fixed width for better grid */
+    height: 15rem;
+    flex-grow: 0;
+    transition: all 0.25s ease;
+    overflow: hidden;
+}
+
+.jobCard::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--button));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.jobCard:hover::before {
+    transform: scaleX(1);
+}
+
+.jobCard:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 24px rgba(52, 152, 219, 0.15);
+    border-color: rgba(52, 152, 219, 0.3);
+    background: #f8fcff;
+}
+
+.jobCompany {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.jobCompany img {
+    border-radius: 0.375rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    padding: 0.25rem;
+    background: white;
+    transition: transform 0.25s ease;
+}
+
+.jobCard:hover .jobCompany img {
+    transform: scale(1.1);
+}
+
+.jobDetails {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: #1e293b;
+}
+
+/* Status styles */
+.status {
+    border-radius: 0.375rem;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    padding: 0.4rem 0.8rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    transition: all 0.25s ease;
+}
+
+.status svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.status.pending {
+    background-color: #fffdf1;
+    color: #f97316;
+    border: 1px solid rgba(249, 115, 22, 0.2);
+}
+
+.status.referred {
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--accent) 85%, transparent),
+        color-mix(in srgb, var(--button) 70%, transparent)
+    );
+    color: white;
+    border: 1px solid rgba(128, 231, 177, 0.3);
+}
+
+/* Mobile Media Queries */
+@media (max-width: 768px) {
+    .profileDetailsContent {
+        width: 90%;
+        padding: 2rem 1rem;
+    }
+    
+    .hamburgerButton {
+        top: 4.5rem;
+    }
 }
 
 .profileDetailsContainer,
@@ -150,98 +1015,52 @@
     position: relative;
 }
 
-.infoRow:hover {
-    border-color: rgba(52, 152, 219, 0.2);
-    background: #ffffff;
-}
-
-.infoLabel {
+/* Text-only style for the centered view (like the screenshot) */
+.infoRowText {
     display: flex;
-    align-items: center;
+    align-items: center; /* Align items vertically */
     gap: 0.5rem;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #64748b;
-    font-weight: 600;
-}
-
-.infoLabel svg {
-    width: 1rem;
-    height: 1rem;
-    color: var(--accent);
-}
-
-.infoRow p,
-.infoValue {
-    font-size: 0.875rem;
-    color: var(--text);
-    font-weight: 500;
-    margin: 0;
-    word-break: break-word;
-}
-
-.infoRow input {
+    font-size: 0.9rem;
+    color: #000;
+    line-height: 1.6;
     width: 100%;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    outline: none;
-    padding: 0.75rem 1rem;
-    border-radius: 0.25rem;
-    border: 1px solid rgba(52, 152, 219, 0.1);
-    transition: all 0.25s ease;
-    font-size: 0.875rem;
+    justify-content: flex-start; /* Left align the content */
+    padding-left: 2rem; /* Add some padding to look centered visually but aligned left */
 }
 
-.infoRow input:focus {
-    border-color: var(--accent);
-    box-shadow:
-        rgba(128, 231, 177, 0.3) 0px 6px 24px 0px,
-        rgba(128, 231, 177, 0.5) 0px 0px 0px 2px,
-        0 0 0 4px rgba(128, 231, 177, 0.1);
+.infoLabelText {
+    font-weight: 900;
+    color: #000;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    white-space: nowrap; /* Keep label on one line */
 }
 
-.editButton {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0.25rem;
-    transition: all 0.2s ease;
-    color: #64748b;
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
+.infoValueText {
+    color: #4b5563;
+    font-weight: 500;
+    font-size: 0.9rem;
 }
 
-.editButton svg {
-    width: 1rem;
-    height: 1rem;
-}
-
-.editButton:hover {
-    background: rgba(52, 152, 219, 0.1);
-    color: var(--nav);
-    transform: scale(1.1);
-}
-
-.profileDetailsInfo > button {
+/* Grey Edit Button */
+.greyButton {
+    background-color: #808080 !important; /* Grey color */
+    color: white !important;
+    padding: 0.75rem 3rem !important; /* Wide button */
+    border-radius: 4px !important;
+    font-weight: bold !important;
+    font-size: 0.8rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    margin-top: 2rem !important;
+    border: none !important;
+    transition: background-color 0.2s ease;
     align-self: center;
-    margin-top: 0.5rem;
 }
 
-.buttonRow {
-    display: flex;
-    gap: 0.75rem;
-    justify-content: center;
-    margin-top: 0.5rem;
-}
-
-.buttonRow button {
-    flex: 1;
-    max-width: 150px;
+.greyButton:hover {
+    background-color: #666666 !important;
+    transform: none !important; /* Remove scale effect if any */
 }
 
 .profileOptionsContainer {
