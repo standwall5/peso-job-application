@@ -58,7 +58,7 @@ export default function AdminLayout({
         onClose={() => setShowFirstLoginModal(false)}
         currentPictureUrl={profilePicture}
         onProfileUpdate={(url) => setProfilePicture(url)}
-        isFirstLogin={true}
+        isFirstLogin={false}
       />
     </div>
   );
