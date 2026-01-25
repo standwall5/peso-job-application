@@ -51,18 +51,18 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
 
   // Track which exam is selected for this job
   const [selectedExamId, setSelectedExamId] = useState<number | null>(
-    job?.exam_id ?? null
+    job?.exam_id ?? null,
   );
 
   // Track skills
   const [selectedSkills, setSelectedSkills] = useState<string[]>(
-    job?.skills || []
+    job?.skills || [],
   );
 
   // Icon upload states
   const [iconFile, setIconFile] = useState<File | null>(null);
   const [iconPreview, setIconPreview] = useState<string | null>(
-    job?.icon_url || null
+    job?.icon_url || null,
   );
   const [showCropModal, setShowCropModal] = useState(false);
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
@@ -196,7 +196,7 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
 
   const getCroppedImg = async (
     imageSrc: string,
-    pixelCrop: Area
+    pixelCrop: Area,
   ): Promise<string> => {
     const image = new Image();
     image.src = imageSrc;
@@ -220,7 +220,7 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
       0,
       0,
       pixelCrop.width,
-      pixelCrop.height
+      pixelCrop.height,
     );
 
     return new Promise((resolve) => {
@@ -506,15 +506,6 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
                   {isNewJob ? "Create Job" : "Save Changes"}
                 </Button>
               </form>
-            </div>
-
-            <div className={styles.exam}>
-              <h3>Pre-Screening Exams</h3>
-              <ExamList
-                exams={exams}
-                selectedExamId={selectedExamId}
-                onSelect={(exam) => handleExamSelect(exam.id)}
-              />
             </div>
           </div>
         </div>

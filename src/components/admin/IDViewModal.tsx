@@ -44,7 +44,17 @@ export default function IDViewModal({
   const [verifying, setVerifying] = useState(false);
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
+  const [customReason, setCustomReason] = useState("");
   const [rejecting, setRejecting] = useState(false);
+
+  // Predefined rejection reasons
+  const REJECTION_REASONS = [
+    "Blurry image",
+    "Incomplete details",
+    "Expired ID",
+    "Mismatched information",
+    "Other",
+  ];
 
   useEffect(() => {
     fetchVerificationStatus();
@@ -94,8 +104,17 @@ export default function IDViewModal({
   };
 
   const handleRequestIDChange = async () => {
-    if (!rejectionReason.trim()) {
+    // Determine the final reason to send
+    const finalReason =
+      rejectionReason === "Other" ? customReason.trim() : rejectionReason;
+
+    if (!finalReason) {
       alert("Please provide a reason for ID update request");
+      return;
+    }
+
+    if (rejectionReason === "Other" && !customReason.trim()) {
+      alert("Please specify the custom reason");
       return;
     }
 
@@ -106,7 +125,7 @@ export default function IDViewModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           applicantId,
-          reason: rejectionReason,
+          reason: finalReason,
         }),
       });
 
@@ -283,27 +302,59 @@ export default function IDViewModal({
               display: loading || error ? "none" : "block",
             }}
           />
-          {!loading && !error && (
-            <div className={styles.watermarkOverlay}>CONFIDENTIAL</div>
-          )}
         </div>
 
         <div className={styles.footer}>
           {showRejectForm ? (
             <div className={styles.rejectForm}>
               <h3>Request ID Update</h3>
-              <textarea
-                value={rejectionReason}
-                onChange={(e) => setRejectionReason(e.target.value)}
-                placeholder="Enter reason for ID update request (e.g., 'Photo is blurry', 'ID appears expired', etc.)..."
-                className={styles.reasonTextarea}
-                rows={4}
-              />
+              <div className={styles.reasonSelector}>
+                <label
+                  htmlFor="rejection-reason"
+                  className={styles.reasonLabel}
+                >
+                  Select reason:
+                </label>
+                <select
+                  id="rejection-reason"
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  className={styles.reasonDropdown}
+                >
+                  <option value="">-- Select a reason --</option>
+                  {REJECTION_REASONS.map((reason) => (
+                    <option key={reason} value={reason}>
+                      {reason}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {rejectionReason === "Other" && (
+                <div className={styles.customReasonWrapper}>
+                  <label htmlFor="custom-reason" className={styles.reasonLabel}>
+                    Specify reason:
+                  </label>
+                  <textarea
+                    id="custom-reason"
+                    value={customReason}
+                    onChange={(e) => setCustomReason(e.target.value)}
+                    placeholder="Enter custom reason for ID update request..."
+                    className={styles.reasonTextarea}
+                    rows={3}
+                  />
+                </div>
+              )}
+
               <div className={styles.rejectActions}>
                 <Button
                   variant="danger"
                   onClick={handleRequestIDChange}
-                  disabled={rejecting || !rejectionReason.trim()}
+                  disabled={
+                    rejecting ||
+                    !rejectionReason ||
+                    (rejectionReason === "Other" && !customReason.trim())
+                  }
                 >
                   {rejecting ? "Sending..." : "Send Request"}
                 </Button>
@@ -312,6 +363,7 @@ export default function IDViewModal({
                   onClick={() => {
                     setShowRejectForm(false);
                     setRejectionReason("");
+                    setCustomReason("");
                   }}
                   disabled={rejecting}
                 >

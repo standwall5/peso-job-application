@@ -17,9 +17,9 @@ export async function GET(request: Request) {
 
     console.log("[Cron] Starting auto-archive job...");
 
-    // Archive users inactive for 180 days (6 months)
-    // You can adjust this value based on your requirements
-    const INACTIVE_DAYS = 180;
+    // Archive users inactive for 30 days (1 month)
+    // Adjusted from 180 days to meet new business requirements
+    const INACTIVE_DAYS = 30;
 
     const result = await autoArchiveInactiveUsers(INACTIVE_DAYS);
 

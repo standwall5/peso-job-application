@@ -103,7 +103,7 @@ const ManageCompany = ({
     const response = await fetch(`/api/getCompaniesAdmin`);
     const data = await response.json();
     const updatedCompany = data.companies.find(
-      (c: CompanyWithStats) => c.id === company.id
+      (c: CompanyWithStats) => c.id === company.id,
     );
     if (updatedCompany) {
       setJobs(updatedCompany.jobs);
@@ -174,7 +174,7 @@ const ManageCompany = ({
       console.error("Error saving company:", error);
       showToast(
         "Update Failed",
-        error instanceof Error ? error.message : "Failed to update company."
+        error instanceof Error ? error.message : "Failed to update company.",
       );
     } finally {
       setSaving(false);
@@ -465,7 +465,7 @@ const ManageCompany = ({
     <section className={styles.createCompanyWrapper}>
       <div className={styles.nav}>
         <ul className={styles.tabList}>
-          {["createCompany", "postJobs", "createExam"].map((tab, idx) => (
+          {["createCompany", "postJobs"].map((tab, idx) => (
             <li
               key={tab}
               ref={(el) => {
@@ -479,7 +479,6 @@ const ManageCompany = ({
             >
               {tab === "createCompany" && "EDIT COMPANY PROFILE"}
               {tab === "postJobs" && "POST JOBS"}
-              {tab === "createExam" && "CREATE PRE-SCREENING QUESTIONS"}
             </li>
           ))}
           <div
@@ -494,7 +493,6 @@ const ManageCompany = ({
       <div className={styles.content}>
         {nav === "createCompany" && createCompanyTab()}
         {nav === "postJobs" && postJobsTab()}
-        {nav === "createExam" && createExamTab()}
       </div>
 
       {/* Toast Notification */}

@@ -1,15 +1,17 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Bar } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  BarElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend,
+  Filler,
 } from "chart.js";
 
 import ChartDataLabels from "chartjs-plugin-datalabels";
@@ -23,10 +25,12 @@ import OneEightyRing from "@/components/OneEightyRing";
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  BarElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend,
+  Filler,
   ChartDataLabels,
 );
 
@@ -93,41 +97,100 @@ const DashboardChart = () => {
       {
         label: "Applications",
         data: applicationsData,
-        backgroundColor: "#2bb3a8",
-        stack: "Stack 0",
+        borderColor: "#2bb3a8",
+        backgroundColor: "rgba(43, 179, 168, 0.1)",
+        borderWidth: 3,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        pointBackgroundColor: "#2bb3a8",
+        pointBorderColor: "#fff",
+        pointBorderWidth: 2,
+        fill: true,
+        tension: 0.4,
       },
       {
         label: "Referrals",
         data: referralsData,
-        backgroundColor: "#1278d4",
-        stack: "Stack 0",
+        borderColor: "#1278d4",
+        backgroundColor: "rgba(18, 120, 212, 0.1)",
+        borderWidth: 3,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        pointBackgroundColor: "#1278d4",
+        pointBorderColor: "#fff",
+        pointBorderWidth: 2,
+        fill: true,
+        tension: 0.4,
       },
     ],
   };
 
   const options = {
     responsive: true,
+    maintainAspectRatio: true,
     plugins: {
-      legend: { position: "top" as const },
+      legend: {
+        position: "top" as const,
+        labels: {
+          usePointStyle: true,
+          padding: 15,
+        },
+      },
       title: {
         display: true,
-        text: "Monthly Application and Referral Statistics",
-      },
-      datalabels: {
-        anchor: "end" as const,
-        align: "start" as const,
-        color: "#d3fff9ff",
+        text: "Monthly Application and Referral Trends",
         font: {
+          size: 16,
           weight: "bold" as const,
         },
-        formatter: function (value: number) {
-          return value || "";
+        padding: 20,
+      },
+      datalabels: {
+        display: false, // Disable data labels for cleaner line chart
+      },
+      tooltip: {
+        mode: "index" as const,
+        intersect: false,
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        padding: 12,
+        cornerRadius: 8,
+        titleFont: {
+          size: 14,
+          weight: "bold" as const,
+        },
+        bodyFont: {
+          size: 13,
         },
       },
     },
     scales: {
-      x: { stacked: true },
-      y: { stacked: true },
+      x: {
+        grid: {
+          display: false,
+        },
+        ticks: {
+          font: {
+            size: 12,
+          },
+        },
+      },
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: "rgba(0, 0, 0, 0.05)",
+        },
+        ticks: {
+          font: {
+            size: 12,
+          },
+          precision: 0, // Whole numbers only
+        },
+      },
+    },
+    interaction: {
+      mode: "nearest" as const,
+      axis: "x" as const,
+      intersect: false,
     },
   };
 
@@ -180,8 +243,10 @@ const DashboardChart = () => {
           ))}
         </select>
       </div>
-      <Bar data={data} options={options} />
-      <p style={{ marginTop: "1rem" }}>Application & Referral Reports</p>
+      <Line data={data} options={options} />
+      <p style={{ marginTop: "1rem", textAlign: "center", color: "#6b7280" }}>
+        Application & Referral Trend Reports
+      </p>
     </div>
   );
 };

@@ -45,7 +45,7 @@ export default function AppliedJobsTab({
   const endIndex = startIndex + itemsPerPage;
   const currentApplications = applications.slice(startIndex, endIndex);
   const [selectedJobSeeker, setSelectedJobSeeker] = useState<Jobseeker | null>(
-    jobseeker
+    jobseeker,
   );
   const [selectedApplication, setSelectedApplication] =
     useState<JobApplication | null>(null);
@@ -224,8 +224,8 @@ export default function AppliedJobsTab({
                         app.status.toLowerCase() === "pending"
                           ? "#e5e7eb"
                           : app.status.toLowerCase() === "referred"
-                          ? "#10b981"
-                          : "#3b82f6",
+                            ? "#10b981"
+                            : "#3b82f6",
                       color:
                         app.status.toLowerCase() === "pending"
                           ? "#64748b"
@@ -237,16 +237,6 @@ export default function AppliedJobsTab({
                 </div>
               </div>
               <div className={styles.viewActions}>
-                <button
-                  className={styles.examResultBtn}
-                  onClick={async (e) => {
-                    e.stopPropagation();
-                    if (onApplicationClick) onApplicationClick(app.id);
-                    await handleOpenExamModal(app);
-                  }}
-                >
-                  PRE-SCREENING
-                </button>
                 <button
                   className={styles.validIdBtn}
                   onClick={(e) => {
@@ -309,7 +299,7 @@ export default function AppliedJobsTab({
                     >
                       {page}
                     </button>
-                  )
+                  ),
                 )}
 
                 <button

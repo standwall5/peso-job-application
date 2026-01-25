@@ -273,12 +273,6 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({
                   Preview Resume
                 </li>
                 <li
-                  className={activeTab === "exam" ? jobStyle.active : ""}
-                  onClick={() => handleTabChange("exam")}
-                >
-                  Pre-Screening Questions
-                </li>
-                <li
                   className={activeTab === "verifiedId" ? jobStyle.active : ""}
                   onClick={() => handleTabChange("verifiedId")}
                 >
@@ -317,19 +311,6 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({
                         onEditResume={handleEditResume}
                       />
                     )}
-                  </div>
-
-                  <div
-                    style={{ display: activeTab === "exam" ? "block" : "none" }}
-                  >
-                    <ExamTab
-                      loadingAttempt={loadingAttempt}
-                      loadingExam={loadingExam}
-                      examAttempt={examAttempt}
-                      examData={examData}
-                      hasApplied={hasApplied}
-                      onExamSubmit={onExamSubmit}
-                    />
                   </div>
 
                   <div

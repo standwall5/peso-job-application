@@ -5,7 +5,7 @@ import { getSupabaseClient } from "../client";
 
 // Archive users who haven't logged in for specified days
 export async function autoArchiveInactiveUsers(
-  inactiveDays: number = 180,
+  inactiveDays: number = 30, // Changed from 180 to 30 days
 ): Promise<{ archived: number; errors: string[] }> {
   const supabase = await getSupabaseClient();
   const errors: string[] = [];
@@ -17,7 +17,9 @@ export async function autoArchiveInactiveUsers(
     cutoffDate.setDate(cutoffDate.getDate() - inactiveDays);
     const cutoffISO = cutoffDate.toISOString();
 
-    console.log(`[Auto-Archive] Checking for users inactive since: ${cutoffISO}`);
+    console.log(
+      `[Auto-Archive] Checking for users inactive since: ${cutoffISO}`,
+    );
 
     // Find inactive users (last_login older than cutoff or null)
     const { data: inactiveUsers, error: fetchError } = await supabase
@@ -27,7 +29,10 @@ export async function autoArchiveInactiveUsers(
       .eq("is_archived", false);
 
     if (fetchError) {
-      console.error("[Auto-Archive] Error fetching inactive users:", fetchError);
+      console.error(
+        "[Auto-Archive] Error fetching inactive users:",
+        fetchError,
+      );
       errors.push(fetchError.message);
       return { archived, errors };
     }
@@ -51,19 +56,31 @@ export async function autoArchiveInactiveUsers(
           .eq("id", user.id);
 
         if (archiveError) {
-          console.error(`[Auto-Archive] Failed to archive user ${user.id}:`, archiveError);
-          errors.push(`Failed to archive ${user.name}: ${archiveError.message}`);
+          console.error(
+            `[Auto-Archive] Failed to archive user ${user.id}:`,
+            archiveError,
+          );
+          errors.push(
+            `Failed to archive ${user.name}: ${archiveError.message}`,
+          );
         } else {
           archived++;
-          console.log(`[Auto-Archive] Archived user: ${user.name} (ID: ${user.id})`);
+          console.log(
+            `[Auto-Archive] Archived user: ${user.name} (ID: ${user.id})`,
+          );
         }
       } catch (err) {
-        console.error(`[Auto-Archive] Exception archiving user ${user.id}:`, err);
+        console.error(
+          `[Auto-Archive] Exception archiving user ${user.id}:`,
+          err,
+        );
         errors.push(`Exception archiving ${user.name}: ${String(err)}`);
       }
     }
 
-    console.log(`[Auto-Archive] Completed. Archived: ${archived}, Errors: ${errors.length}`);
+    console.log(
+      `[Auto-Archive] Completed. Archived: ${archived}, Errors: ${errors.length}`,
+    );
     return { archived, errors };
   } catch (error) {
     console.error("[Auto-Archive] Unexpected error:", error);
@@ -98,7 +115,7 @@ export async function updateLastLogin(userId: number): Promise<void> {
 
 // Get inactive users count without archiving
 export async function getInactiveUsersCount(
-  inactiveDays: number = 180,
+  inactiveDays: number = 30, // Changed from 180 to 30 days
 ): Promise<number> {
   const supabase = await getSupabaseClient();
 
@@ -126,7 +143,7 @@ export async function getInactiveUsersCount(
 }
 
 // Get list of inactive users for review
-export async function getInactiveUsers(inactiveDays: number = 180): Promise<
+export async function getInactiveUsers(inactiveDays: number = 30): Promise<
   {
     id: number;
     name: string;
