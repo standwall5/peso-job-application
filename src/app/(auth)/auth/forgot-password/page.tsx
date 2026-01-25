@@ -21,6 +21,37 @@ export default function ForgotPasswordPage({
   return (
     <div className={styles.authContainer}>
       <div className={styles.authContent}>
+        {/* Lock Icon */}
+        <div style={{ textAlign: "center", marginBottom: "24px" }}>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "80px",
+              height: "80px",
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              borderRadius: "50%",
+              boxShadow: "0 8px 24px rgba(102, 126, 234, 0.3)",
+              animation: "bounce 2s ease-in-out infinite",
+            }}
+          >
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </div>
+        </div>
+
         <h1 className={styles.authTitle}>Reset Your Password</h1>
         <p className={styles.authSubtitle}>
           Enter your email address and we&apos;ll send you instructions to reset
@@ -63,9 +94,21 @@ export default function ForgotPasswordPage({
 
         <div className={styles.centerLink}>
           <Link href="/login" className={styles.link}>
-            Back to login
+            ← Back to login
           </Link>
         </div>
+
+        <style jsx>{`
+          @keyframes bounce {
+            0%,
+            100% {
+              transform: translateY(0);
+            }
+            50% {
+              transform: translateY(-10px);
+            }
+          }
+        `}</style>
       </div>
     </div>
   );

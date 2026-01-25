@@ -19,7 +19,7 @@ interface WorkExperience {
 }
 
 interface ResumeProps {
-  profilePicUrl: string | null;
+  profilePicUrl?: string | null; // Optional now, not used in Harvard style
   name?: string;
   birthDate?: string;
   address?: string;
@@ -57,47 +57,42 @@ const Resume = forwardRef<HTMLDivElement, ResumeProps>(
         className={styles.resumeRoot}
         data-html2canvas-ignore-transparency="true"
       >
+        {/* Harvard Style Header - Clean, professional, centered */}
         <div className={styles.resumeHeader}>
-          <img
-            src={profilePicUrl || "/default-profile.png"}
-            alt="Profile"
-            className={styles.profilePic}
-            crossOrigin="anonymous"
-          />
-          <div className={styles.headerInfo}>
-            <h2 className={styles.resumeName}>{name}</h2>
-            <hr className={styles.resumeHr} />
+          <h1 className={styles.resumeName}>{name}</h1>
+          <div className={styles.contactInfo}>
+            <span>
+              {address}, {barangay}, {district}, Parañaque City
+            </span>
+            <span className={styles.contactDivider}>•</span>
+            <span>{phone}</span>
+            <span className={styles.contactDivider}>•</span>
+            <span>{email}</span>
           </div>
         </div>
 
         <section className={styles.section}>
-          <h6 className={styles.sectionTitle}>Personal Information</h6>
+          <h6 className={styles.sectionTitle}>PERSONAL INFORMATION</h6>
           <div className={styles.personalInfo}>
-            <div>Birth Date: {birthDate}</div>
             <div>
-              {address}, {barangay}
+              <strong>Date of Birth:</strong> {birthDate}
             </div>
-            <div>{district}, Paranaque City</div>
-            <div>{email}</div>
-            <div>{phone}</div>
           </div>
         </section>
 
         <section className={styles.section}>
-          <h6 className={styles.sectionTitle}>Overview</h6>
+          <h6 className={styles.sectionTitle}>PROFESSIONAL SUMMARY</h6>
           <div className={styles.profileText}>
             <p>{profileIntroduction}</p>
           </div>
         </section>
 
         <section className={styles.section}>
-          <h6 className={styles.sectionTitle}>
-            Highest Educational Attainment
-          </h6>
+          <h6 className={styles.sectionTitle}>EDUCATION</h6>
           <div className={styles.educationRow}>
             <div className={styles.educationLeft}>
-              <strong>{education?.school}</strong>
-              <div>{education?.degree}</div>
+              <strong>{education?.degree}</strong>
+              <div>{education?.school}</div>
             </div>
             <div className={styles.educationRight}>
               <div>{education?.location}</div>
@@ -109,7 +104,7 @@ const Resume = forwardRef<HTMLDivElement, ResumeProps>(
         </section>
 
         <section className={styles.section}>
-          <h6 className={styles.sectionTitle}>Skills & Interests</h6>
+          <h6 className={styles.sectionTitle}>SKILLS</h6>
           <ul className={styles.skillsList}>
             {(skills ?? []).map((skill: string, idx: number) => (
               <li key={idx}>{skill}</li>
@@ -127,7 +122,7 @@ const Resume = forwardRef<HTMLDivElement, ResumeProps>(
               work.end_date?.trim(),
           ).length > 0 && (
             <section className={styles.section}>
-              <h6 className={styles.sectionTitle}>Work Experiences</h6>
+              <h6 className={styles.sectionTitle}>WORK EXPERIENCE</h6>
               {workExperiences
                 .filter(
                   (work) =>

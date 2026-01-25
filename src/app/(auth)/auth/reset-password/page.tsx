@@ -23,6 +23,9 @@ export default function ResetPasswordPage() {
   const [showPwd, setShowPwd] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [passwordStrength, setPasswordStrength] = useState<
+    "weak" | "medium" | "strong" | null
+  >(null);
 
   // Attempt to exchange the URL code/token for a session on the client.
   useEffect(() => {
@@ -44,6 +47,26 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     if (localError) setLocalError(null);
   }, [password, confirm]);
+
+  const calculatePasswordStrength = (
+    pwd: string,
+  ): "weak" | "medium" | "strong" | null => {
+    if (!pwd) return null;
+    let strength = 0;
+    if (pwd.length >= 8) strength++;
+    if (pwd.length >= 12) strength++;
+    if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) strength++;
+    if (/\d/.test(pwd)) strength++;
+    if (/[^a-zA-Z0-9]/.test(pwd)) strength++;
+
+    if (strength <= 2) return "weak";
+    if (strength <= 3) return "medium";
+    return "strong";
+  };
+
+  useEffect(() => {
+    setPasswordStrength(calculatePasswordStrength(password));
+  }, [password]);
 
   const validate = (): string | null => {
     if (!password || !confirm)
@@ -95,6 +118,36 @@ export default function ResetPasswordPage() {
   return (
     <div className={styles.authContainer}>
       <div className={styles.authContent}>
+        {/* Key Icon */}
+        <div style={{ textAlign: "center", marginBottom: "24px" }}>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "80px",
+              height: "80px",
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              borderRadius: "50%",
+              boxShadow: "0 8px 24px rgba(102, 126, 234, 0.3)",
+              animation: "pulse 2s ease-in-out infinite",
+            }}
+          >
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+            </svg>
+          </div>
+        </div>
+
         <h1 className={styles.authTitle}>Reset Your Password</h1>
 
         <p className={styles.authSubtitle}>
@@ -158,6 +211,73 @@ export default function ResetPasswordPage() {
                 {showPwd ? "👁️" : "👁️‍🗨️"}
               </button>
             </div>
+            {/* Password Strength Indicator */}
+            {password && (
+              <div style={{ marginTop: "8px" }}>
+                <div
+                  style={{ display: "flex", gap: "4px", marginBottom: "4px" }}
+                >
+                  <div
+                    style={{
+                      flex: 1,
+                      height: "4px",
+                      borderRadius: "2px",
+                      background:
+                        passwordStrength === "weak"
+                          ? "#ef4444"
+                          : passwordStrength === "medium"
+                            ? "#f59e0b"
+                            : passwordStrength === "strong"
+                              ? "#22c55e"
+                              : "#e5e7eb",
+                    }}
+                  />
+                  <div
+                    style={{
+                      flex: 1,
+                      height: "4px",
+                      borderRadius: "2px",
+                      background:
+                        passwordStrength === "medium" ||
+                        passwordStrength === "strong"
+                          ? passwordStrength === "medium"
+                            ? "#f59e0b"
+                            : "#22c55e"
+                          : "#e5e7eb",
+                    }}
+                  />
+                  <div
+                    style={{
+                      flex: 1,
+                      height: "4px",
+                      borderRadius: "2px",
+                      background:
+                        passwordStrength === "strong" ? "#22c55e" : "#e5e7eb",
+                    }}
+                  />
+                </div>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: "12px",
+                    color:
+                      passwordStrength === "weak"
+                        ? "#ef4444"
+                        : passwordStrength === "medium"
+                          ? "#f59e0b"
+                          : "#22c55e",
+                    fontWeight: 600,
+                  }}
+                >
+                  Password strength:{" "}
+                  {passwordStrength === "weak"
+                    ? "Weak"
+                    : passwordStrength === "medium"
+                      ? "Medium"
+                      : "Strong"}
+                </p>
+              </div>
+            )}
           </div>
 
           <div className={styles.field}>
@@ -203,9 +323,23 @@ export default function ResetPasswordPage() {
 
         <div className={styles.centerLink}>
           <Link href="/login" className={styles.link}>
-            Back to Login
+            ← Back to Login
           </Link>
         </div>
+
+        <style jsx>{`
+          @keyframes pulse {
+            0%,
+            100% {
+              transform: scale(1);
+              box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+            }
+            50% {
+              transform: scale(1.05);
+              box-shadow: 0 12px 32px rgba(102, 126, 234, 0.4);
+            }
+          }
+        `}</style>
       </div>
     </div>
   );

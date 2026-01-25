@@ -1,8 +1,10 @@
 // src/app/(user)/profile/components/sections/ResumeViewSection.tsx
-import React from "react";
+import React, { useState } from "react";
 import Resume from "../Resume";
 import styles from "../Profile.module.css";
 import { User, ResumeData, WorkExperience } from "../../types/profile.types";
+import { ResumeUploader } from "@/components/resume/ResumeUploader";
+import { ParsedResumeData } from "@/lib/utils/resume-parser";
 
 interface ResumeViewSectionProps {
   user: User;
@@ -11,6 +13,7 @@ interface ResumeViewSectionProps {
   resumeRef: React.RefObject<HTMLDivElement | null>;
   onEdit: () => void;
   onDownload: () => void;
+  onResumeDataParsed?: (data: ParsedResumeData) => void;
 }
 
 export const ResumeViewSection: React.FC<ResumeViewSectionProps> = ({
@@ -20,7 +23,17 @@ export const ResumeViewSection: React.FC<ResumeViewSectionProps> = ({
   resumeRef,
   onEdit,
   onDownload,
+  onResumeDataParsed,
 }) => {
+  const [showResumeUploader, setShowResumeUploader] = useState(false);
+
+  const handleParsedData = (data: ParsedResumeData) => {
+    if (onResumeDataParsed) {
+      onResumeDataParsed(data);
+    }
+    // Optionally switch to edit mode after upload
+    onEdit();
+  };
   if (!resume) {
     return (
       <div
@@ -64,6 +77,26 @@ export const ResumeViewSection: React.FC<ResumeViewSectionProps> = ({
       <div className={styles.resume}>
         <div className={styles.resumeIconButtons}>
           <button
+            className={`${styles.resumeIconButton} ${styles.resumeUploadButton}`}
+            onClick={() => setShowResumeUploader(true)}
+            title="Upload Resume"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="black"
+              style={{ width: "1.25rem", height: "1.25rem" }}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+              />
+            </svg>
+          </button>
+          <button
             className={`${styles.resumeIconButton} ${styles.resumeEditButton}`}
             onClick={onEdit}
             title="Edit Resume"
@@ -106,11 +139,6 @@ export const ResumeViewSection: React.FC<ResumeViewSectionProps> = ({
         </div>
         <Resume
           ref={resumeRef}
-          profilePicUrl={
-            user.profile_pic_url
-              ? user.profile_pic_url + "?t=" + dateNow
-              : "/assets/images/default_profile.png"
-          }
           name={user?.name}
           birthDate={user?.birth_date}
           address={user?.address}
@@ -130,6 +158,14 @@ export const ResumeViewSection: React.FC<ResumeViewSectionProps> = ({
           profileIntroduction={resume?.profile_introduction}
         />
       </div>
+
+      {/* Resume Upload Modal */}
+      {showResumeUploader && (
+        <ResumeUploader
+          onParsedData={handleParsedData}
+          onClose={() => setShowResumeUploader(false)}
+        />
+      )}
     </div>
   );
 };

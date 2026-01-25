@@ -1,0 +1,467 @@
+/* src/components/resume/ResumeUploader.module.css */
+
+/* Modal Overlay - Rendered via Portal */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+    min-width: 100vw;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999999;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+    overflow-y: auto;
+}
+
+.uploaderContainer {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    max-width: 700px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+}
+
+.uploaderHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 28px;
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+    border-radius: 12px 12px 0 0;
+}
+
+.uploaderHeader h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    font-size: 32px;
+    color: #6b7280;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.2s;
+    line-height: 1;
+    padding: 0;
+}
+
+.closeButton:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+.uploaderBody {
+    padding: 28px;
+    flex: 1;
+}
+
+/* Dropzone Styles */
+.dropzone {
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    padding: 48px 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f9fafb;
+    margin-bottom: 24px;
+}
+
+.dropzone:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+
+.dropzoneActive {
+    border-color: #3b82f6;
+    background: #dbeafe;
+    transform: scale(1.02);
+}
+
+.dropzoneDisabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.uploadIcon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    color: #3b82f6;
+}
+
+.dropzone h3 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.dropzone p {
+    margin: 0 0 12px 0;
+    color: #6b7280;
+    font-size: 15px;
+}
+
+.fileTypes {
+    display: inline-block;
+    padding: 6px 12px;
+    background: #e5e7eb;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #4b5563;
+    font-weight: 500;
+}
+
+/* Loading State */
+.loadingState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.loadingState p {
+    margin: 0;
+    font-size: 16px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #e5e7eb;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.buttonSpinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+/* Progress Bar */
+.progressBar {
+    width: 100%;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 12px;
+}
+
+.progressFill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -100% 0;
+    }
+    100% {
+        background-position: 100% 0;
+    }
+}
+
+/* Info Box */
+.infoBox {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 16px;
+}
+
+.infoBox h4 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #0c4a6e;
+}
+
+.infoBox ul {
+    margin: 0 0 16px 0;
+    padding-left: 24px;
+    color: #0c4a6e;
+}
+
+.infoBox li {
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+.infoBox li strong {
+    font-weight: 600;
+}
+
+.tip {
+    margin: 0;
+    padding: 12px;
+    background: white;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #0c4a6e;
+    border-left: 3px solid #3b82f6;
+}
+
+.tip strong {
+    font-weight: 600;
+}
+
+/* Parsed Data Preview */
+.parsedDataPreview {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.parsedDataPreview h3 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #059669;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.reviewText {
+    margin: 0 0 24px 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.previewGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.previewField {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 12px;
+    align-items: start;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.previewField label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 14px;
+}
+
+.previewField span {
+    color: #1f2937;
+    font-size: 14px;
+    word-break: break-word;
+}
+
+.skillsList {
+    display: block;
+    line-height: 1.6;
+}
+
+/* Action Buttons */
+.actionButtons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 24px;
+}
+
+.cancelButton,
+.confirmButton {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 140px;
+}
+
+.cancelButton {
+    background: white;
+    color: #6b7280;
+    border: 1px solid #d1d5db;
+}
+
+.cancelButton:hover:not(:disabled) {
+    background: #f9fafb;
+    border-color: #9ca3af;
+    color: #374151;
+}
+
+.confirmButton {
+    background: #3b82f6;
+    color: white;
+}
+
+.confirmButton:hover:not(:disabled) {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.cancelButton:disabled,
+.confirmButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Message Boxes */
+.warningBox,
+.errorBox,
+.successBox {
+    padding: 16px;
+    border-radius: 8px;
+    margin-top: 16px;
+    font-size: 14px;
+}
+
+.warningBox {
+    background: #fef3c7;
+    border: 1px solid #fbbf24;
+    color: #92400e;
+}
+
+.warningBox h4 {
+    margin: 0 0 8px 0;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.warningBox ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.warningBox li {
+    margin-bottom: 4px;
+}
+
+.errorBox {
+    background: #fee2e2;
+    border: 1px solid #ef4444;
+    color: #991b1b;
+}
+
+.successBox {
+    background: #d1fae5;
+    border: 1px solid #10b981;
+    color: #065f46;
+}
+
+.errorBox strong,
+.successBox strong {
+    font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .modalOverlay {
+        padding: 0;
+    }
+
+    .uploaderContainer {
+        max-width: 100%;
+        max-height: 100vh;
+        border-radius: 0;
+    }
+
+    .uploaderHeader {
+        padding: 20px;
+        border-radius: 0;
+    }
+
+    .uploaderHeader h2 {
+        font-size: 20px;
+    }
+
+    .uploaderBody {
+        padding: 20px;
+    }
+
+    .dropzone {
+        padding: 32px 20px;
+    }
+
+    .uploadIcon {
+        width: 48px;
+        height: 48px;
+    }
+
+    .dropzone h3 {
+        font-size: 18px;
+    }
+
+    .previewField {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    .actionButtons {
+        flex-direction: column;
+    }
+
+    .cancelButton,
+    .confirmButton {
+        width: 100%;
+    }
+}

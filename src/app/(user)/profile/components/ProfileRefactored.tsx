@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useSearchParams } from "next/navigation";
 import styles from "./Profile.module.css";
 import BlocksWave from "@/components/BlocksWave";
@@ -49,9 +50,28 @@ const Profile = () => {
 
   // Drawer State
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   const dateNow = Date.now();
   const resumeRef = useRef<HTMLDivElement>(null);
+
+  // Handle mounting for portal
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
+
+  // Lock body scroll when sidebar is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMenuOpen]);
 
   // Handle tab parameter from URL (e.g., from notifications)
   useEffect(() => {
@@ -216,47 +236,57 @@ const Profile = () => {
         }
       />
 
-      {/* Hamburger Button */}
-      <button
-        className={`${styles.hamburgerButton} ${isMenuOpen ? styles.shifted : ""}`}
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-        aria-label={isMenuOpen ? "Close Menu" : "Open Menu"}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-          stroke="currentColor"
-        >
-          {isMenuOpen ? (
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          ) : (
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-            />
-          )}
-        </svg>
-      </button>
+      {/* Hamburger Button & Sidebar Drawer - Rendered via Portal */}
+      {isMounted &&
+        createPortal(
+          <>
+            {/* Hamburger Button */}
+            <button
+              className={`${styles.hamburgerButton} ${isMenuOpen ? styles.shifted : ""}`}
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label={isMenuOpen ? "Close Menu" : "Open Menu"}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+              >
+                {isMenuOpen ? (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                ) : (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                  />
+                )}
+              </svg>
+            </button>
 
-      {/* Sidebar Drawer */}
-      <div
-        className={`${styles.sidebarOverlay} ${isMenuOpen ? styles.open : ""}`}
-        onClick={() => setIsMenuOpen(false)}
-      />
+            {/* Sidebar Overlay */}
+            <div
+              className={`${styles.sidebarOverlay} ${isMenuOpen ? styles.open : ""}`}
+              onClick={() => setIsMenuOpen(false)}
+            />
 
-      <div className={`${styles.sidebar} ${isMenuOpen ? styles.open : ""}`}>
-        <ProfileNavigation
-          activeTab={profileOptionsNav}
-          onTabChange={handleNavChange}
-        />
-      </div>
+            {/* Sidebar */}
+            <div
+              className={`${styles.sidebar} ${isMenuOpen ? styles.open : ""}`}
+            >
+              <ProfileNavigation
+                activeTab={profileOptionsNav}
+                onTabChange={handleNavChange}
+              />
+            </div>
+          </>,
+          document.body,
+        )}
 
       {/* Main Content Area */}
       <div

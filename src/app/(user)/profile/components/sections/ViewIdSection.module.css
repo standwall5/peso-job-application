@@ -1,327 +1,511 @@
 .container {
-  padding: 1.5rem;
-  min-height: 400px;
+    padding: 1.5rem;
+    min-height: 400px;
 }
 
 /* Verification Badge */
 .verificationBadge {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: #d1fae5;
-  border: 1px solid #10b981;
-  border-radius: 0.5rem;
-  margin-bottom: 1.5rem;
-  width: fit-content;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: #d1fae5;
+    border: 1px solid #10b981;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    width: fit-content;
 }
 
 .verifiedIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .verifiedText {
-  color: #047857;
-  font-weight: 600;
-  font-size: 0.875rem;
+    color: #047857;
+    font-weight: 600;
+    font-size: 0.875rem;
 }
 
 .header {
-  margin-bottom: 1.75rem;
+    margin-bottom: 1.75rem;
 }
 
 .headerContent {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.5rem;
 }
 
 .headerContent > div {
-  flex: 1;
+    flex: 1;
 }
 
 .header h2 {
-  margin: 0 0 0.5rem 0;
-  color: #1e293b;
-  font-size: 1.5rem;
-  font-weight: 600;
-  font-family: var(--font-poppins-sans, sans-serif);
+    margin: 0 0 0.5rem 0;
+    color: #1e293b;
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-family: var(--font-poppins-sans, sans-serif);
 }
 
 .subtitle {
-  margin: 0.5rem 0;
-  color: #64748b;
-  font-size: 0.875rem;
+    margin: 0.5rem 0;
+    color: #64748b;
+    font-size: 0.875rem;
 }
 
 .subtitle strong {
-  color: #1e293b;
-  font-weight: 600;
+    color: #1e293b;
+    font-weight: 600;
 }
 
 .uploadDate {
-  margin: 0.25rem 0 0 0;
-  color: #94a3b8;
-  font-size: 0.8125rem;
+    margin: 0.25rem 0 0 0;
+    color: #94a3b8;
+    font-size: 0.8125rem;
 }
 
 /* Empty State */
 .emptyState {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 1.5rem;
-  text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    text-align: center;
 }
 
 .emptyIcon {
-  width: 80px;
-  height: 80px;
-  color: #cbd5e1;
-  margin-bottom: 1rem;
+    width: 80px;
+    height: 80px;
+    color: #cbd5e1;
+    margin-bottom: 1rem;
 }
 
 .emptyState h3 {
-  margin: 0 0 0.5rem 0;
-  color: #64748b;
-  font-size: 1.25rem;
-  font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    color: #64748b;
+    font-size: 1.25rem;
+    font-weight: 600;
 }
 
 .emptyState p {
-  margin: 0;
-  color: #94a3b8;
-  font-size: 0.875rem;
-  max-width: 400px;
+    margin: 0;
+    color: #94a3b8;
+    font-size: 0.875rem;
+    max-width: 400px;
 }
 
 /* Image Grid */
 .imageGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.75rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.75rem;
 }
 
 .imageCard {
-  background: white;
-  border-radius: 0.5rem;
-  padding: 1.25rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(52, 152, 219, 0.1);
-  transition: all 0.25s ease;
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.25rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    transition: all 0.25s ease;
 }
 
 .imageCard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(52, 152, 219, 0.15);
-  border-color: rgba(52, 152, 219, 0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(52, 152, 219, 0.15);
+    border-color: rgba(52, 152, 219, 0.3);
 }
 
 .imageLabel {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  color: #64748b;
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    color: #64748b;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .labelIcon {
-  width: 20px;
-  height: 20px;
-  color: var(--accent);
+    width: 20px;
+    height: 20px;
+    color: var(--accent);
 }
 
 .imageWrapper {
-  position: relative;
-  width: 100%;
-  padding-top: 65%;
-  border-radius: 0.375rem;
-  overflow: hidden;
-  cursor: pointer;
-  background: #f1f5f9;
+    position: relative;
+    width: 100%;
+    padding-top: 65%;
+    border-radius: 0.375rem;
+    overflow: hidden;
+    cursor: pointer;
+    background: #f1f5f9;
 }
 
 .idImage {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.25s ease;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.25s ease;
 }
 
 .imageOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.25s ease;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s ease;
 }
 
 .imageOverlay span {
-  color: white;
-  font-size: 0.875rem;
-  font-weight: 600;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 600;
 }
 
 .imageWrapper:hover .idImage {
-  transform: scale(1.05);
+    transform: scale(1.05);
 }
 
 .imageWrapper:hover .imageOverlay {
-  opacity: 1;
+    opacity: 1;
 }
 
 /* Modal */
 .modalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  animation: fadeIn 0.2s ease;
-  padding: 2rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.2s ease;
+    padding: 2rem;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 .modal {
-  position: relative;
-  max-width: 90vw;
-  max-height: 90vh;
-  animation: slideIn 0.25s ease;
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    animation: slideIn 0.25s ease;
 }
 
 @keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .modalImage {
-  max-width: 100%;
-  max-height: 90vh;
-  border-radius: 0.375rem;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
 .closeButton {
-  position: absolute;
-  top: -3rem;
-  right: 0;
-  background: white;
-  border: none;
-  border-radius: 0.25rem;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 1.5rem;
-  color: #1e293b;
-  transition: all 0.25s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    top: -3rem;
+    right: 0;
+    background: white;
+    border: none;
+    border-radius: 0.25rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #1e293b;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .closeButton:hover {
-  transform: scale(1.1);
-  background: #f1f5f9;
+    transform: scale(1.1);
+    background: #f1f5f9;
 }
 
 /* Tablet */
 @media (max-width: 768px) {
-  .container {
-    padding: 1.25rem;
-  }
+    .container {
+        padding: 1.25rem;
+    }
 
-  .headerContent {
-    flex-direction: column;
-    gap: 1rem;
-  }
+    .headerContent {
+        flex-direction: column;
+        gap: 1rem;
+    }
 
-  .imageGrid {
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
-  }
+    .imageGrid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
 
-  .imageCard {
-    padding: 1rem;
-  }
+    .imageCard {
+        padding: 1rem;
+    }
 
-  .emptyIcon {
-    width: 64px;
-    height: 64px;
-  }
+    .emptyIcon {
+        width: 64px;
+        height: 64px;
+    }
 
-  .modalOverlay {
-    padding: 1rem;
-  }
+    .modalOverlay {
+        padding: 1rem;
+    }
 
-  .closeButton {
-    top: -2.5rem;
-    width: 36px;
-    height: 36px;
-    font-size: 1.25rem;
-  }
+    .closeButton {
+        top: -2.5rem;
+        width: 36px;
+        height: 36px;
+        font-size: 1.25rem;
+    }
 }
 
 /* Mobile */
 @media (max-width: 480px) {
-  .container {
-    padding: 1rem;
-  }
+    .container {
+        padding: 1rem;
+    }
 
-  .header h2 {
+    .header h2 {
+        font-size: 1.25rem;
+    }
+
+    .imageGrid {
+        gap: 1rem;
+    }
+
+    .imageCard {
+        padding: 0.875rem;
+    }
+
+    .imageLabel {
+        font-size: 0.75rem;
+    }
+
+    .labelIcon {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+/* Verification Summary */
+.verificationSummary {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e5e7eb;
+}
+
+.summaryHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.summaryTitle {
+    margin: 0;
+    color: #1e293b;
     font-size: 1.25rem;
-  }
+    font-weight: 700;
+}
 
-  .imageGrid {
-    gap: 1rem;
-  }
+.verificationCounter {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+}
 
-  .imageCard {
-    padding: 0.875rem;
-  }
+.counterText {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #10b981;
+    line-height: 1;
+}
 
-  .imageLabel {
+.counterLabel {
     font-size: 0.75rem;
-  }
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
 
-  .labelIcon {
-    width: 16px;
-    height: 16px;
-  }
+/* ID List */
+.idList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.idItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.idItem.verified {
+    background: #ecfdf5;
+    border: 2px solid #a7f3d0;
+}
+
+.idItem.pending {
+    background: #fef3c7;
+    border: 2px solid #fde68a;
+}
+
+.idInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.idType {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.verifiedDate {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.idStatus {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.statusText {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.idItem.verified .statusText {
+    color: #10b981;
+}
+
+.idItem.pending .statusText {
+    color: #f59e0b;
+}
+
+/* No IDs Message */
+.noIdsMessage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+    color: #94a3b8;
+}
+
+.noIdsMessage svg {
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.noIdsMessage p {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    max-width: 400px;
+}
+
+/* Mobile Responsive for Verification Summary */
+@media (max-width: 768px) {
+    .summaryHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .verificationCounter {
+        align-items: flex-start;
+    }
+
+    .counterText {
+        font-size: 1.5rem;
+    }
+
+    .idItem {
+        padding: 0.875rem 1rem;
+    }
+
+    .idType {
+        font-size: 0.9375rem;
+    }
+
+    .verifiedDate {
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .verificationSummary {
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .summaryTitle {
+        font-size: 1.125rem;
+    }
+
+    .idItem {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .idStatus {
+        align-self: flex-end;
+    }
 }

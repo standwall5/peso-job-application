@@ -289,11 +289,12 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
   };
 
   const renderUploadArea = (
-    type: "front" | "back" | "selfie",
+    position: "front" | "back" | "selfie",
     preview: string | null,
     inputRef: React.RefObject<HTMLInputElement | null>,
     label: string,
   ) => {
+    const isVerified = existingId?.is_verified || false;
     return (
       <div className={styles.uploadSection}>
         <label className={styles.uploadLabel}>{label}</label>
@@ -340,7 +341,7 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
                   d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                 />
               </svg>
-              {type === "front" && (
+              {position === "front" && (
                 <div className={styles.placeholderIcon}>
                   <svg viewBox="0 0 100 60" className={styles.idCardIcon}>
                     <rect
@@ -379,7 +380,7 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
                   </svg>
                 </div>
               )}
-              {type === "back" && (
+              {position === "back" && (
                 <div className={styles.placeholderIcon}>
                   <svg viewBox="0 0 100 60" className={styles.idCardIcon}>
                     <rect
@@ -425,7 +426,7 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
                   </svg>
                 </div>
               )}
-              {type === "selfie" && (
+              {position === "selfie" && (
                 <div className={styles.placeholderIcon}>
                   <svg
                     viewBox="0 0 24 24"
@@ -448,7 +449,7 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
             type="file"
             accept="image/jpeg,image/jpg,image/png"
             onChange={(e) =>
-              handleFileSelect(type, e.target.files?.[0] || null)
+              handleFileSelect(position, e.target.files?.[0] || null)
             }
             className={styles.fileInput}
             disabled={readOnly}
@@ -467,7 +468,7 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
             <button
               type="button"
               className={styles.removeLink}
-              onClick={() => handleRemove(type)}
+              onClick={() => handleRemove(position)}
               data-testid="remove-button"
             >
               REMOVE
@@ -528,19 +529,104 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
             {uploadedCount} / {REQUIRED_ID_COUNT}
           </span>
         </div>
-        <div style={{ color: "#64748b", fontSize: "0.9rem" }}>
-          {idTypes.length > 0 ? idTypes.join(", ") : "No IDs uploaded yet."}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.5rem",
+          }}
+        >
+          {idTypes.length > 0 ? (
+            idTypes.map((type, index) => {
+              const idData = allIds.find((id) => id.id_type === type);
+              const isVerified = idData?.is_verified || false;
+              return (
+                <div
+                  key={index}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "0.5rem 0.75rem",
+                    background: isVerified ? "#ecfdf5" : "#ffffff",
+                    border: isVerified
+                      ? "1px solid #a7f3d0"
+                      : "1px solid #e5e7eb",
+                    borderRadius: "0.5rem",
+                  }}
+                >
+                  <span
+                    style={{
+                      color: "#1e293b",
+                      fontSize: "0.9rem",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {type}
+                  </span>
+                  {isVerified ? (
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.25rem",
+                        color: "#10b981",
+                        fontWeight: 600,
+                        fontSize: "0.85rem",
+                      }}
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <circle cx="8" cy="8" r="8" fill="#10b981" />
+                        <path
+                          d="M5 8l2 2 4-4"
+                          stroke="white"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      Verified
+                    </div>
+                  ) : (
+                    <span
+                      style={{
+                        color: "#94a3b8",
+                        fontSize: "0.85rem",
+                        fontWeight: 500,
+                      }}
+                    >
+                      Pending
+                    </span>
+                  )}
+                </div>
+              );
+            })
+          ) : (
+            <div style={{ color: "#64748b", fontSize: "0.9rem" }}>
+              No IDs uploaded yet.
+            </div>
+          )}
         </div>
         {!hasRequiredIds && (
           <div
             style={{
-              marginTop: "0.5rem",
+              marginTop: "0.75rem",
+              padding: "0.75rem",
+              background: "#fef3c7",
+              border: "1px solid #fbbf24",
+              borderRadius: "0.5rem",
               color: "#b45309",
               fontSize: "0.9rem",
               fontWeight: 600,
             }}
           >
-            Please upload 3 valid IDs
+            ⚠️ Please upload 3 valid IDs to proceed with applications
           </div>
         )}
       </div>

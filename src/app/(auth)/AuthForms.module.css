@@ -6,7 +6,22 @@
     justify-content: center;
     align-items: flex-start;
     padding: 40px 16px;
-    background: transparent;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    position: relative;
+}
+
+.authContainer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,101.3C1248,85,1344,75,1392,69.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>')
+        no-repeat bottom;
+    background-size: cover;
+    pointer-events: none;
 }
 
 /* Content panel (mirrors SignUp content panel) */
@@ -14,26 +29,44 @@
     width: 100%;
     max-width: 560px;
     background: #ffffff;
-    border-radius: 4px;
+    border-radius: 16px;
     box-shadow:
-        rgba(0, 0, 0, 0.05) 0px 6px 24px,
-        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
-    padding: 24px;
+        0 20px 60px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    position: relative;
+    z-index: 1;
+    animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Title + subtitle (consistent typography) */
 .authTitle {
-    margin: 0 0 8px 0;
-    font-size: 24px;
+    margin: 0 0 12px 0;
+    font-size: 28px;
     font-weight: 700;
-    color: #111827;
+    color: #1f2937;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .authSubtitle {
-    margin: 0 0 16px 0;
-    color: #4b5563;
-    line-height: 1.6;
-    font-size: 14px;
+    margin: 0 0 24px 0;
+    color: #6b7280;
+    line-height: 1.7;
+    font-size: 15px;
 }
 
 /* Generic notice bar (like form notice) */
@@ -64,8 +97,26 @@
 
 .alertSuccess {
     color: #0f5132;
-    background: #d1e7dd;
+    background: linear-gradient(135deg, #d1f4e0 0%, #d1e7dd 100%);
     border-color: #badbcc;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.alertSuccess::before {
+    content: "✓";
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background: #22c55e;
+    color: white;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 12px;
+    flex-shrink: 0;
 }
 
 .alertInfo {
@@ -141,8 +192,9 @@
 .input:focus,
 .select:focus,
 .textarea:focus {
-    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2) !important;
-    border-color: transparent;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25) !important;
+    border-color: #667eea;
+    transform: translateY(-1px);
 }
 
 /* Error input look (red glow) */
@@ -246,11 +298,39 @@
 }
 
 .blueButton {
-    background: #2563eb;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.blueButton::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    transition: left 0.5s;
+}
+
+.blueButton:hover::before {
+    left: 100%;
 }
 
 .blueButton:hover {
-    background: #1e4fd4;
+    background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.blueButton:active {
+    transform: translateY(0);
 }
 
 .greenButton {
@@ -292,19 +372,45 @@
 }
 
 .link {
-    color: #2563eb;
+    color: #667eea;
     text-decoration: none;
     font-weight: 600;
+    position: relative;
+    transition: color 0.2s;
+}
+
+.link::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transition: width 0.3s ease;
 }
 
 .link:hover {
-    text-decoration: underline;
+    color: #764ba2;
+}
+
+.link:hover::after {
+    width: 100%;
 }
 
 /* Responsive */
 @media (max-width: 600px) {
+    .authContainer {
+        padding: 20px 12px;
+    }
+
     .authContent {
-        padding: 16px;
+        padding: 28px 20px;
+        border-radius: 12px;
+    }
+
+    .authTitle {
+        font-size: 24px;
     }
 
     .blueButton,
