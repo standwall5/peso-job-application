@@ -217,27 +217,33 @@ const Profile = () => {
       />
 
       {/* Hamburger Button */}
-      {!isMenuOpen && (
-        <button
-          className={styles.hamburgerButton}
-          onClick={() => setIsMenuOpen(true)}
-          aria-label="Open Menu"
+      <button
+        className={`${styles.hamburgerButton} ${isMenuOpen ? styles.shifted : ""}`}
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        aria-label={isMenuOpen ? "Close Menu" : "Open Menu"}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-          >
+          {isMenuOpen ? (
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          ) : (
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
               d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
             />
-          </svg>
-        </button>
-      )}
+          )}
+        </svg>
+      </button>
 
       {/* Sidebar Drawer */}
       <div
@@ -246,43 +252,6 @@ const Profile = () => {
       />
 
       <div className={`${styles.sidebar} ${isMenuOpen ? styles.open : ""}`}>
-        <div
-          style={{
-            padding: "1.5rem",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-start",
-          }}
-        >
-          <button
-            onClick={() => setIsMenuOpen(false)}
-            style={{
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#64748b",
-            }}
-            aria-label="Close Menu"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              style={{ width: "1.5rem", height: "1.5rem" }}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-              />
-            </svg>
-          </button>
-        </div>
         <ProfileNavigation
           activeTab={profileOptionsNav}
           onTabChange={handleNavChange}
@@ -290,23 +259,16 @@ const Profile = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className={styles.profileContainer}>
+      <div
+        className={`${styles.profileContainer} ${isMenuOpen ? styles.contentShifted : ""}`}
+      >
         {/* VIEW 1: Centered Profile Details (Home) */}
         {profileOptionsNav === "profileDetails" && (
           <ProfileHeader
             user={user}
+            resume={resume}
             dateNow={dateNow}
-            showEdit={showEdit}
-            editPreferredPoa={profileEditHook.editPreferredPoa}
-            editApplicantType={profileEditHook.editApplicantType}
-            onShowEditToggle={() => {
-              setShowEdit((prev) => !prev);
-              setShowEditSuccess(false);
-            }}
             onProfilePicClick={() => profilePictureHook.setShowModal(true)}
-            onSaveProfileDetails={handleProfileDetailsSave}
-            setEditPreferredPoa={profileEditHook.setEditPreferredPoa}
-            setEditApplicantType={profileEditHook.setEditApplicantType}
             onDataRefresh={async () => {
               await Promise.all([refreshUser(), refreshResume()]);
               // setShowEditSuccess(true); // Don't show toast just for load, only save

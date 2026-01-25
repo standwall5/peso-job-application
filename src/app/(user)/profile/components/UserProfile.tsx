@@ -1,6 +1,6 @@
 "use client";
 import BlocksWave from "@/components/BlocksWave";
-import styles from "./Resume.module.css";
+import styles from "./Profile.module.css";
 import { useState, useEffect } from "react";
 
 interface Education {
@@ -41,7 +41,7 @@ interface User {
   applicant_type: string;
 }
 
-const Resume = () => {
+const UserProfile = () => {
   const [user, setUser] = useState<User | null>(null);
   const [resume, setResume] = useState<ResumeData | null>(null);
 
@@ -65,7 +65,7 @@ const Resume = () => {
           const json = await resumeResponse.json();
           resumeData =
             json && Object.keys(json).length > 0 ? (json as ResumeData) : null;
-        } // non-OK (e.g. 404) => keep as null
+        }
 
         setUser(userData);
         setResume(resumeData);
@@ -81,113 +81,69 @@ const Resume = () => {
   if (!user || !resume) {
     return <BlocksWave />;
   }
+
   return (
-    <div className={styles.resumeRoot} style={{ zoom: "60%" }}>
-      <div className={styles.resumeHeader}>
-        <img
-          src={user.profile_pic_url || "/assets/images/default_profile.png"}
-          alt="Profile"
-          className={styles.profilePic}
-        />
-        <div className={styles.headerInfo}>
-          <h2 className={styles.resumeName}>{user.name}</h2>
-          <hr className={styles.resumeHr} />
+    <div className={styles.profileContainer}>
+      {/* Left Card - Profile Picture and Name */}
+      <div className={styles.profileCard}>
+        <div className={styles.profileImageWrapper}>
+          <img
+            src={user.profile_pic_url || "/assets/images/default_profile.png"}
+            alt={user.name}
+            className={styles.profileImage}
+          />
         </div>
+        <h1 className={styles.profileName}>{user.name}</h1>
+        <p className={styles.profileOverview}>
+          {resume.profile_introduction || "No overview available"}
+        </p>
       </div>
 
-      <section className={styles.section}>
-        <h6 className={styles.sectionTitle}>Personal Information</h6>
-        <div className={styles.personalInfo}>
-          <div>BirthDate: {user.birth_date}</div>
-          <div>
-            {user.address}, {user.barangay}
+      {/* Right Card - Contact Info and Skills */}
+      <div className={styles.infoCard}>
+        <div className={styles.contactSection}>
+          <div className={styles.contactItem}>
+            <span className={styles.contactLabel}>EMAIL:</span>
+            <span className={styles.contactValue}>{user.email}</span>
           </div>
-          <div>{user.district}, Paranaque City</div>
-          <div>{user.email}</div>
-          <div>{user.phone}</div>
-        </div>
-      </section>
 
-      <section className={styles.section}>
-        <h6 className={styles.sectionTitle}>Highest Educational Attainment</h6>
-        <div className={styles.educationRow}>
-          <div className={styles.educationLeft}>
-            <strong>{resume.education?.school}</strong>
-            <div>{resume.education?.degree}</div>
+          <div className={styles.contactItem}>
+            <span className={styles.contactLabel}>PHONE:</span>
+            <span className={styles.contactValue}>{user.phone}</span>
           </div>
-          <div className={styles.educationRight}>
-            <div>{resume.education?.location}</div>
-            <div>
-              {resume.education?.start_date} - {resume.education?.end_date}
-            </div>
+
+          <div className={styles.contactItem}>
+            <span className={styles.contactLabel}>
+              PREFERRED PLACE OF ASSIGNMENT:
+            </span>
+            <span className={styles.contactValue}>{user.preferred_poa}</span>
+          </div>
+
+          <div className={styles.contactItem}>
+            <span className={styles.contactLabel}>APPLICANT TYPE:</span>
+            <span className={styles.contactValue}>{user.applicant_type}</span>
           </div>
         </div>
-      </section>
 
-      <section className={styles.section}>
-        <h6 className={styles.sectionTitle}>Skills & Interests</h6>
-        <ul className={styles.skillsList}>
-          {(resume.skills ?? []).map((skill: string, idx: number) => (
-            <li key={idx}>{skill}</li>
-          ))}
-        </ul>
-      </section>
-
-      <section className={styles.section}>
-        <h6 className={styles.sectionTitle}>Work Experiences</h6>
-        {(Array.isArray(resume.work_experiences)
-          ? resume.work_experiences
-          : []
-        ).map((work: WorkExperience, idx: number) => (
-          <div className={styles.workExpRow} key={idx}>
-            <div className={styles.workExpLeft}>
-              <strong>{work.company}</strong>
-              <div>{work.position}</div>
-            </div>
-            <div className={styles.workExpRight}>
-              <div>{work.location}</div>
-              <div>
-                {work.start_date} - {work.end_date}
-              </div>
-            </div>
+        <div className={styles.skillsSection}>
+          <h2 className={styles.skillsTitle}>SKILLS</h2>
+          <div className={styles.skillsGrid}>
+            {resume.skills && resume.skills.length > 0 ? (
+              resume.skills.map((skill: string, idx: number) => (
+                <div key={idx} className={styles.skillBadge}>
+                  {skill}
+                </div>
+              ))
+            ) : (
+              <p className={styles.noSkills}>No skills added yet</p>
+            )}
           </div>
-        ))}
-      </section>
-
-      <section className={styles.section}>
-        <h6 className={styles.sectionTitle}>Overview</h6>
-        <div className={styles.profileText}>
-          <p>{resume.profile_introduction}</p>
         </div>
-      </section>
-
-      {/* Certification Statement */}
-      <section
-        className={styles.section}
-        style={{
-          marginTop: "2rem",
-          borderTop: "1px solid #ddd",
-          paddingTop: "1rem",
-        }}
-      >
-        <div
-          className={styles.profileText}
-          style={{
-            fontStyle: "italic",
-            fontSize: "0.9rem",
-            textAlign: "center",
-          }}
-        >
-          <p>
-            I hereby certify that the above information is true and correct to
-            the best of my knowledge and belief.
-          </p>
-        </div>
-      </section>
+      </div>
     </div>
   );
 };
 
-Resume.displayName = "Resume";
+UserProfile.displayName = "UserProfile";
 
-export default Resume;
+export default UserProfile;

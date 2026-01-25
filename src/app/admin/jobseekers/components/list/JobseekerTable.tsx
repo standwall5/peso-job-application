@@ -245,17 +245,18 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
             DATE APPLIED {getSortIcon("date")}
           </div>
         </div>
-        <div>ACTIONS</div>
+        <div>STATUS</div>
         <div></div>
       </div>
 
       {currentApplications.map((app) => (
         <React.Fragment key={app.applicant.id}>
-          <div className={styles.tableRow}>
-            <div
-              className={`${styles.jobseekersDetails}`}
-              // onClick={() => handleRowClick(app.applicant.id)}
-            >
+          <div
+            className={styles.tableRow}
+            onClick={() => onViewDetails(app)}
+            style={{ cursor: "pointer" }}
+          >
+            <div className={`${styles.jobseekersDetails}`}>
               <div className={styles.avatarCell}>
                 <img
                   src={
@@ -271,16 +272,15 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
               <div>{app.applicant.preferred_poa || "N/A"}</div>
               <div>{formatAppliedDate(app.applied_date, !!app.status)}</div>
             </div>
-            <div>
-              <button
-                className={styles.detailsBtn}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onViewDetails(app);
-                }}
-              >
-                View Details
-              </button>
+            <div onClick={(e) => e.stopPropagation()}>
+              {app.status && (
+                <span
+                  className={styles.statusBadge}
+                  data-status={app.status.toLowerCase()}
+                >
+                  {app.status}
+                </span>
+              )}
             </div>
             <div
               className={styles.selectIndicator}

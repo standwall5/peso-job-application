@@ -42,6 +42,11 @@ export async function updateProfileDetails(updates: {
   preferred_poa?: string;
   applicant_type?: string;
   name?: string;
+  birth_date?: string;
+  address?: string;
+  sex?: string;
+  barangay?: string;
+  district?: string;
 }) {
   const supabase = await getSupabaseClient();
   const user = await getCurrentUser();
@@ -56,6 +61,21 @@ export async function updateProfileDetails(updates: {
   }
   if (updates.name !== undefined) {
     updateData.name = updates.name;
+  }
+  if (updates.birth_date !== undefined) {
+    updateData.birth_date = updates.birth_date;
+  }
+  if (updates.address !== undefined) {
+    updateData.address = updates.address;
+  }
+  if (updates.sex !== undefined) {
+    updateData.sex = updates.sex;
+  }
+  if (updates.barangay !== undefined) {
+    updateData.barangay = updates.barangay;
+  }
+  if (updates.district !== undefined) {
+    updateData.district = updates.district;
   }
 
   if (Object.keys(updateData).length === 0) {

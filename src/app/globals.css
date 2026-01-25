@@ -520,11 +520,6 @@ footer img {
     flex-direction: column;
 }
 
-.content {
-    flex: 1;
-    /* background: #f9f9f9; */
-}
-
 /* Mobile Media Queries */
 @media (max-width: 768px) {
     /* Navigation */

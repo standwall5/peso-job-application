@@ -1,9 +1,11 @@
 // src/app/(user)/profile/components/sections/ProfileHeader.tsx
-import React, { useState } from "react";
+"use client";
+import React, { useState, useEffect } from "react";
 import Button from "@/components/Button";
-import styles from "../Profile.module.css";
-import { User } from "../../types/profile.types";
-import { EditContactModal } from "../modals/EditContactModal";
+import styles from "./ProfileHeader.module.css";
+import { User, ResumeData } from "../../types/profile.types";
+import { SkillsAutocomplete } from "../SkillsAutocomplete";
+import { updateResumeAction } from "../../actions/profile.actions";
 
 // Import constants from signup
 const PREFERRED_PLACES = ["Paranaque", "Las Piñas", "Muntinlupa"] as const;
@@ -23,66 +25,142 @@ const APPLICANT_TYPES = [
 
 interface ProfileHeaderProps {
   user: User;
+  resume?: ResumeData | null;
   dateNow: number;
-  showEdit: boolean;
-  editPreferredPoa: string;
-  editApplicantType: string;
-  onShowEditToggle: () => void;
   onProfilePicClick: () => void;
-  onSaveProfileDetails: (e: React.FormEvent) => void;
-  setEditPreferredPoa: (value: string) => void;
-  setEditApplicantType: (value: string) => void;
   onDataRefresh: () => void;
 }
 
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   user,
+  resume,
   dateNow,
-  showEdit,
-  editPreferredPoa,
-  editApplicantType,
-  onShowEditToggle,
   onProfilePicClick,
-  onSaveProfileDetails,
-  setEditPreferredPoa,
-  setEditApplicantType,
   onDataRefresh,
 }) => {
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editType, setEditType] = useState<"email" | "phone" | "name">("email");
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editableSkills, setEditableSkills] = useState<string[]>([]);
+  const [editableOverview, setEditableOverview] = useState("");
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
 
-  const handleOpenEditModal = (type: "email" | "phone" | "name") => {
-    setEditType(type);
-    setShowEditModal(true);
+  // Editable contact info
+  const [editableEmail, setEditableEmail] = useState("");
+  const [editablePhone, setEditablePhone] = useState("");
+  const [editablePreferredPoa, setEditablePreferredPoa] = useState("");
+  const [editableApplicantType, setEditableApplicantType] = useState("");
+
+  // Initialize editable skills and overview from resume
+  useEffect(() => {
+    if (resume?.skills) {
+      setEditableSkills(resume.skills);
+    }
+    setEditableOverview(resume?.profile_introduction || "");
+  }, [resume?.skills, resume?.profile_introduction]);
+
+  // Initialize editable contact info
+  useEffect(() => {
+    setEditableEmail(user.email || "");
+    setEditablePhone(user.phone || "");
+    setEditablePreferredPoa(user.preferred_poa || "");
+    setEditableApplicantType(user.applicant_type || "");
+  }, [user]);
+
+  const handleSaveProfile = async () => {
+    setIsSavingProfile(true);
+    try {
+      // Ensure work_experiences is always an array
+      const workExps = resume?.work_experiences
+        ? Array.isArray(resume.work_experiences)
+          ? resume.work_experiences
+          : [resume.work_experiences]
+        : [];
+
+      // Update resume data
+      await updateResumeAction({
+        name: user.name,
+        birth_date: user.birth_date,
+        address: user.address,
+        sex: user.sex,
+        barangay: user.barangay,
+        district: user.district,
+        education: {
+          school: resume?.education?.school || "",
+          degree: resume?.education?.degree || "",
+          attainment: resume?.education?.attainment || "",
+          location: resume?.education?.location || "",
+          start_date: resume?.education?.start_date || "",
+          end_date: resume?.education?.end_date || "",
+        },
+        skills: editableSkills,
+        work_experiences: workExps,
+        profile_introduction: editableOverview,
+      });
+
+      // Update contact info via contact actions
+      const { updatePhoneAction } =
+        await import("../../actions/contact.actions");
+      const { updateProfileDetailsAction } =
+        await import("../../actions/profile.actions");
+
+      if (editablePhone !== user.phone) {
+        await updatePhoneAction(editablePhone);
+      }
+
+      await updateProfileDetailsAction({
+        preferred_poa: editablePreferredPoa,
+        applicant_type: editableApplicantType,
+      });
+
+      setIsEditingProfile(false);
+      onDataRefresh();
+    } catch (error) {
+      console.error("Failed to save profile:", error);
+    } finally {
+      setIsSavingProfile(false);
+    }
   };
 
-  const handleModalSuccess = () => {
-    // Trigger parent component to refresh data
-    onDataRefresh();
+  const handleCancelProfileEdit = () => {
+    setEditableSkills(resume?.skills || []);
+    setEditableOverview(resume?.profile_introduction || "");
+    setEditableEmail(user.email || "");
+    setEditablePhone(user.phone || "");
+    setEditablePreferredPoa(user.preferred_poa || "");
+    setEditableApplicantType(user.applicant_type || "");
+    setIsEditingProfile(false);
   };
 
   return (
     <>
-      <EditContactModal
-        show={showEditModal}
-        type={editType}
-        currentValue={
-          editType === "email"
-            ? user.email
-            : editType === "phone"
-              ? user.phone
-              : user.name
-        }
-        onClose={() => setShowEditModal(false)}
-        onSuccess={handleModalSuccess}
-      />
-
-      <div className={styles.profileDetailsContainer}>
-        <div className={styles.profileDetailsContent}>
-          <div className={styles.profileDetailsImage}>
+      <div className={styles.profileWrapper}>
+        <div className={styles.profileContainer}>
+          {/* Edit Button */}
+          {!isEditingProfile && (
+            <button
+              type="button"
+              className={styles.editProfileButton}
+              onClick={() => setIsEditingProfile(true)}
+              title="Edit profile and skills"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13L2 21l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l12.932-12.931Zm0 0L19.5 7.125"
+                />
+              </svg>
+            </button>
+          )}
+          {/* Left Card - Profile Picture and Overview */}
+          <div className={styles.profileCard}>
             <div
-              className={styles.profilePicWrapper}
-              style={{ cursor: "pointer" }}
+              className={styles.profileImageWrapper}
               onClick={onProfilePicClick}
             >
               <img
@@ -91,9 +169,8 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     ? user.profile_pic_url + "?t=" + dateNow
                     : "/assets/images/default_profile.png"
                 }
-                alt="Profile"
-                className={styles.profilePic}
-                style={{ borderRadius: "50%" }}
+                alt={user.name}
+                className={styles.profileImage}
               />
               <span className={styles.editIcon}>
                 <svg
@@ -102,7 +179,6 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="size-6"
                 >
                   <path
                     strokeLinecap="round"
@@ -112,221 +188,169 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 </svg>
               </span>
             </div>
+
+            <h1 className={styles.profileName}>{user.name}</h1>
+
+            {isEditingProfile ? (
+              <textarea
+                value={editableOverview}
+                onChange={(e) => setEditableOverview(e.target.value)}
+                className={styles.overviewTextarea}
+                placeholder="Write a brief introduction about yourself, your skills, and what you're looking for..."
+                rows={6}
+              />
+            ) : (
+              <p className={styles.profileOverview}>
+                {resume?.profile_introduction ||
+                  "No profile overview yet. Click 'Edit Profile' to add an introduction about yourself."}
+              </p>
+            )}
           </div>
 
-          <div className={styles.nameContainer}>
-            <h4>{user?.name || "No name"}</h4>
-          </div>
+          {/* Right Card - Contact Info and Skills */}
+          <div className={styles.infoCard}>
+            <div className={styles.contactSection}>
+              {isEditingProfile ? (
+                <>
+                  <div className={styles.contactItem}>
+                    <span className={styles.contactLabel}>EMAIL:</span>
+                    <input
+                      type="email"
+                      value={editableEmail}
+                      onChange={(e) => setEditableEmail(e.target.value)}
+                      className={styles.selectInput}
+                      placeholder="Enter email"
+                      disabled
+                      title="Email cannot be changed in this mode"
+                    />
+                  </div>
 
-          {showEdit ? (
-            <form
-              className={styles.profileDetailsInfo}
-              onSubmit={onSaveProfileDetails}
-            >
-              <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"
+                  <div className={styles.contactItem}>
+                    <span className={styles.contactLabel}>PHONE:</span>
+                    <input
+                      type="tel"
+                      value={editablePhone}
+                      onChange={(e) => setEditablePhone(e.target.value)}
+                      className={styles.selectInput}
+                      placeholder="Enter phone number"
                     />
-                  </svg>
-                  PHONE
-                </span>
-                <span className={styles.infoValue}>
-                  {user?.phone || "Not set"}
-                </span>
-                <button
-                  type="button"
-                  className={styles.editButton}
-                  onClick={() => handleOpenEditModal("phone")}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13L2 21l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l12.932-12.931Zm0 0L19.5 7.125"
-                    />
-                  </svg>
-                </button>
-              </div>
+                  </div>
 
-              <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
-                    />
-                  </svg>
-                  EMAIL
-                </span>
-                <span className={styles.infoValue}>
-                  {user?.email || "Not set"}
-                </span>
-                <button
-                  type="button"
-                  className={styles.editButton}
-                  onClick={() => handleOpenEditModal("email")}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13L2 21l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l12.932-12.931Zm0 0L19.5 7.125"
-                    />
-                  </svg>
-                </button>
-              </div>
+                  <div className={styles.contactItem}>
+                    <span className={styles.contactLabel}>
+                      PREFERRED PLACE OF ASSIGNMENT:
+                    </span>
+                    <select
+                      value={editablePreferredPoa}
+                      onChange={(e) => setEditablePreferredPoa(e.target.value)}
+                      className={styles.selectInput}
+                    >
+                      <option value="">Select preferred place</option>
+                      {PREFERRED_PLACES.map((place) => (
+                        <option key={place} value={place}>
+                          {place}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-              <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
-                    />
-                  </svg>
-                  PREFERRED PLACE
-                </span>
-                <select
-                  value={editPreferredPoa}
-                  name="preferred_poa"
-                  onChange={(e) => setEditPreferredPoa(e.target.value)}
-                  style={{
-                    padding: "0.5rem",
-                    borderRadius: "0.25rem",
-                    border: "1px solid #cbd5e1",
-                    fontSize: "0.875rem",
-                  }}
-                >
-                  <option value="">Select preferred place</option>
-                  {PREFERRED_PLACES.map((place) => (
-                    <option key={place} value={place}>
-                      {place}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  <div className={styles.contactItem}>
+                    <span className={styles.contactLabel}>APPLICANT TYPE:</span>
+                    <select
+                      value={editableApplicantType}
+                      onChange={(e) => setEditableApplicantType(e.target.value)}
+                      className={styles.selectInput}
+                    >
+                      <option value="">Select applicant type</option>
+                      {APPLICANT_TYPES.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className={styles.contactItem}>
+                    <span className={styles.contactLabel}>EMAIL:</span>
+                    <span className={styles.contactValue}>{user.email}</span>
+                  </div>
 
-              <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
-                    />
-                  </svg>
-                  APPLICANT TYPE
-                </span>
-                <select
-                  value={editApplicantType}
-                  name="applicant_type"
-                  onChange={(e) => setEditApplicantType(e.target.value)}
-                  style={{
-                    padding: "0.5rem",
-                    borderRadius: "0.25rem",
-                    border: "1px solid #cbd5e1",
-                    fontSize: "0.875rem",
-                  }}
-                >
-                  <option value="">Select applicant type</option>
-                  {APPLICANT_TYPES.map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  <div className={styles.contactItem}>
+                    <span className={styles.contactLabel}>PHONE:</span>
+                    <span className={styles.contactValue}>{user.phone}</span>
+                  </div>
 
-              <div className={styles.buttonRow}>
+                  <div className={styles.contactItem}>
+                    <span className={styles.contactLabel}>
+                      PREFERRED PLACE OF ASSIGNMENT:
+                    </span>
+                    <span className={styles.contactValue}>
+                      {user.preferred_poa || "Not set"}
+                    </span>
+                  </div>
+
+                  <div className={styles.contactItem}>
+                    <span className={styles.contactLabel}>APPLICANT TYPE:</span>
+                    <span className={styles.contactValue}>
+                      {user.applicant_type || "Not set"}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className={styles.skillsSection}>
+              <h2 className={styles.skillsTitle}>SKILLS</h2>
+
+              {isEditingProfile ? (
+                <div className={styles.skillsEditContainer}>
+                  <SkillsAutocomplete
+                    selectedSkills={editableSkills}
+                    onSkillsChange={setEditableSkills}
+                    placeholder="Type to add skills..."
+                  />
+                </div>
+              ) : (
+                <div className={styles.skillsGrid}>
+                  {resume?.skills && resume.skills.length > 0 ? (
+                    resume.skills.map((skill: string, idx: number) => (
+                      <div key={idx} className={styles.skillBadge}>
+                        {skill}
+                      </div>
+                    ))
+                  ) : (
+                    <p className={styles.noSkills}>
+                      No skills added yet. Click &apos;Edit Profile&apos; to add
+                      your skills.
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {isEditingProfile && (
+              <div className={styles.profileEditButtonRow}>
                 <Button
                   type="button"
                   variant="warning"
-                  onClick={onShowEditToggle}
+                  onClick={handleCancelProfileEdit}
+                  disabled={isSavingProfile}
                 >
                   Cancel
                 </Button>
-                <Button variant="success">Save Changes</Button>
+                <Button
+                  type="button"
+                  variant="success"
+                  onClick={handleSaveProfile}
+                  disabled={isSavingProfile}
+                >
+                  {isSavingProfile ? "Saving..." : "Save Changes"}
+                </Button>
               </div>
-            </form>
-          ) : (
-            <div className={styles.profileDetailsInfo}>
-              <div className={styles.infoRowText}>
-                <span className={styles.infoLabelText}>PHONE :</span>
-                <span className={styles.infoValueText}>{user?.phone || "Not set"}</span>
-              </div>
-
-              <div className={styles.infoRowText}>
-                <span className={styles.infoLabelText}>EMAIL :</span>
-                <span className={styles.infoValueText}>{user?.email || "Not set"}</span>
-              </div>
-
-              <div className={styles.infoRowText}>
-                <span className={styles.infoLabelText}>PREFERRED PLACE OF ASSIGNMENT:</span>
-                <span className={styles.infoValueText}>{user?.preferred_poa || "Not set"}</span>
-              </div>
-
-              <div className={styles.infoRowText}>
-                <span className={styles.infoLabelText}>APPLICANT TYPE:</span>
-                <span className={styles.infoValueText}>{user?.applicant_type || "Not set"}</span>
-              </div>
-
-            <Button
-              className={styles.greyButton}
-              onClick={onShowEditToggle}
-              type="button"
-              variant="outline"
-            >
-              EDIT
-            </Button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </>
