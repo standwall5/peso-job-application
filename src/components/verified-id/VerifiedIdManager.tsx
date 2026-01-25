@@ -18,6 +18,7 @@ interface VerifiedIdManagerProps {
   jobId?: number;
   hasApplied?: boolean;
   isVerified?: boolean;
+  hideSummary?: boolean;
 }
 
 const ID_TYPES = [
@@ -46,6 +47,7 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
   jobId, // Reserved for future use (e.g., fetching job-specific ID requirements)
   hasApplied = false,
   isVerified = false,
+  hideSummary = false,
 }) => {
   const [selectedIdType, setSelectedIdType] = useState<string>("NATIONAL ID");
   const [frontPreview, setFrontPreview] = useState<string | null>(null);
@@ -505,131 +507,151 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
         </select>
       </div>
 
-      <div
-        style={{
-          marginBottom: "1.5rem",
-          background: "#f8fafc",
-          border: "1px solid #e2e8f0",
-          borderRadius: "0.75rem",
-          padding: "1rem",
-        }}
-      >
+      {!hideSummary && (
         <div
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "0.5rem",
+            marginBottom: "1.5rem",
+            background: "#f8fafc",
+            border: "1px solid #e2e8f0",
+            borderRadius: "0.75rem",
+            padding: "1rem",
           }}
         >
-          <span style={{ fontWeight: 600, color: "#1e293b" }}>
-            Uploaded IDs
-          </span>
-          <span style={{ fontWeight: 600, color: "#1e293b" }}>
-            {uploadedCount} / {REQUIRED_ID_COUNT}
-          </span>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "0.5rem",
-          }}
-        >
-          {idTypes.length > 0 ? (
-            idTypes.map((type, index) => {
-              const idData = allIds.find((id) => id.id_type === type);
-              const isVerified = idData?.is_verified || false;
-              return (
-                <div
-                  key={index}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "0.5rem 0.75rem",
-                    background: isVerified ? "#ecfdf5" : "#ffffff",
-                    border: isVerified
-                      ? "1px solid #a7f3d0"
-                      : "1px solid #e5e7eb",
-                    borderRadius: "0.5rem",
-                  }}
-                >
-                  <span
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "0.5rem",
+            }}
+          >
+            <span style={{ fontWeight: 600, color: "#1e293b" }}>
+              Uploaded IDs
+            </span>
+            <span style={{ fontWeight: 600, color: "#1e293b" }}>
+              {uploadedCount} / {REQUIRED_ID_COUNT}
+            </span>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.5rem",
+            }}
+          >
+            {idTypes.length > 0 ? (
+              idTypes.map((type, index) => {
+                const idData = allIds.find((id) => id.id_type === type);
+                const isVerified = idData?.is_verified || false;
+                return (
+                  <div
+                    key={index}
                     style={{
-                      color: "#1e293b",
-                      fontSize: "0.9rem",
-                      fontWeight: 500,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "0.5rem 0.75rem",
+                      background: isVerified ? "#ecfdf5" : "#ffffff",
+                      border: isVerified
+                        ? "1px solid #a7f3d0"
+                        : "1px solid #e5e7eb",
+                      borderRadius: "0.5rem",
                     }}
                   >
-                    {type}
-                  </span>
-                  {isVerified ? (
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.25rem",
-                        color: "#10b981",
-                        fontWeight: 600,
-                        fontSize: "0.85rem",
-                      }}
-                    >
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <circle cx="8" cy="8" r="8" fill="#10b981" />
-                        <path
-                          d="M5 8l2 2 4-4"
-                          stroke="white"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                      Verified
-                    </div>
-                  ) : (
                     <span
                       style={{
-                        color: "#94a3b8",
-                        fontSize: "0.85rem",
+                        color: "#1e293b",
+                        fontSize: "0.9rem",
                         fontWeight: 500,
                       }}
                     >
-                      Pending
+                      {type}
                     </span>
-                  )}
-                </div>
-              );
-            })
-          ) : (
-            <div style={{ color: "#64748b", fontSize: "0.9rem" }}>
-              No IDs uploaded yet.
+                    {isVerified ? (
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.25rem",
+                          color: "#10b981",
+                          fontWeight: 600,
+                          fontSize: "0.85rem",
+                        }}
+                      >
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <circle cx="8" cy="8" r="8" fill="#10b981" />
+                          <path
+                            d="M5 8l2 2 4-4"
+                            stroke="white"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        Verified
+                      </div>
+                    ) : (
+                      <span
+                        style={{
+                          color: "#94a3b8",
+                          fontSize: "0.85rem",
+                          fontWeight: 500,
+                        }}
+                      >
+                        Pending
+                      </span>
+                    )}
+                  </div>
+                );
+              })
+            ) : (
+              <div style={{ color: "#64748b", fontSize: "0.9rem" }}>
+                No IDs uploaded yet.
+              </div>
+            )}
+          </div>
+          {!hasRequiredIds && (
+            <div
+              style={{
+                marginTop: "0.75rem",
+                padding: "0.75rem",
+                background: "#fef3c7",
+                border: "1px solid #fbbf24",
+                borderRadius: "0.5rem",
+                color: "#b45309",
+                fontSize: "0.9rem",
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+              }}
+            >
+              <svg
+                style={{ width: "20px", height: "20px", flexShrink: 0 }}
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+                />
+              </svg>
+              <span>
+                Please upload 3 valid IDs to proceed with applications
+              </span>
             </div>
           )}
         </div>
-        {!hasRequiredIds && (
-          <div
-            style={{
-              marginTop: "0.75rem",
-              padding: "0.75rem",
-              background: "#fef3c7",
-              border: "1px solid #fbbf24",
-              borderRadius: "0.5rem",
-              color: "#b45309",
-              fontSize: "0.9rem",
-              fontWeight: 600,
-            }}
-          >
-            ⚠️ Please upload 3 valid IDs to proceed with applications
-          </div>
-        )}
-      </div>
+      )}
 
       <div className={styles.uploadGrid}>
         {renderUploadArea("front", frontPreview, frontInputRef, "FRONT SIDE")}

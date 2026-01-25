@@ -87,11 +87,11 @@
 }
 
 .profileImageWrapper:hover {
-    border-color: #3b82f6;
+    border-color: var(--accent);
     transform: scale(1.02);
 }
 
-.profileImageWrapper:hover .editIcon {
+.profileImageWrapper:hover .imageOverlay {
     opacity: 1;
 }
 
@@ -99,28 +99,43 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: all 0.3s ease;
 }
 
-.editIcon {
+.profileImageWrapper:hover .profileImage {
+    filter: brightness(0.7);
+}
+
+.imageOverlay {
     position: absolute;
-    bottom: 8px;
-    right: 8px;
-    background: #3b82f6;
-    color: white;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 8px;
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: all 0.3s ease;
     pointer-events: none;
 }
 
-.editIcon svg {
-    width: 20px;
-    height: 20px;
+.cameraIcon {
+    width: 48px;
+    height: 48px;
+    color: white;
+    stroke-width: 1.5;
+}
+
+.changePhotoText {
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .profileName {
