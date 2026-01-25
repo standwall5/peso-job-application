@@ -16,7 +16,6 @@ import ApplicationSuccessModal from "../[companyId]/components/application/Appli
 import Toast from "@/components/toast/Toast";
 import { useToast } from "../[companyId]/hooks/useToast";
 import { useApplicationProgress } from "../[companyId]/hooks/useApplicationProgress";
-import { useExam } from "../[companyId]/hooks/useExam";
 import { useUserApplications } from "../[companyId]/hooks/useUserApplications";
 import { Job } from "../[companyId]/types/job.types";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -68,16 +67,6 @@ const PrivateCompanyListWithRecommendations = ({
   const { toast, showToast, hideToast } = useToast();
   const { applicationProgress, fetchProgress, updateProgress, clearProgress } =
     useApplicationProgress();
-  const {
-    examData,
-    loadingExam,
-    examAttempt,
-    loadingAttempt,
-    fetchExam,
-    fetchExamAttempt,
-    handleExamSubmit,
-    resetExamData,
-  } = useExam();
   const { userApplications, fetchUserApplications, submitFinalApplication } =
     useUserApplications();
 
@@ -138,44 +127,16 @@ const PrivateCompanyListWithRecommendations = ({
   // Modal handlers
   const handleJobClick = (job: Job) => {
     setSelectedJob(job);
-    resetExamData();
 
     // Mark resume as viewed if not already applied
     const hasApplied = userApplications.includes(job.id);
     if (!hasApplied) {
       updateProgress(job.id, { resume_viewed: true });
     }
-
-    // Fetch exam data if available
-    if (job.exam_id) {
-      fetchExam(job.exam_id);
-    }
   };
 
   const handleCloseModal = () => {
     setSelectedJob(null);
-    resetExamData();
-  };
-
-  const handleExamSubmitWrapper = async (
-    answers: Record<number, number | number[] | string>,
-  ) => {
-    if (!selectedJob) return;
-
-    await handleExamSubmit(selectedJob.id, selectedJob.exam_id || 0, answers);
-    showToast("Success", "Pre-screening questions submitted successfully!");
-    updateProgress(selectedJob.id, { exam_completed: true });
-
-    // Fetch exam attempt to get the score
-    if (selectedJob.exam_id) {
-      await fetchExamAttempt(selectedJob.id, selectedJob.exam_id);
-    }
-  };
-
-  const handleContinueToExam = () => {
-    if (!selectedJob?.exam_id) return;
-    fetchExamAttempt(selectedJob.id, selectedJob.exam_id);
-    updateProgress(selectedJob.id, { exam_completed: false });
   };
 
   const handleIdUploaded = () => {
@@ -193,11 +154,6 @@ const PrivateCompanyListWithRecommendations = ({
     // Close application modal and show success modal
     handleCloseModal();
     setShowSuccessModal(true);
-  };
-
-  const handleFetchExamAttempt = () => {
-    if (!selectedJob?.exam_id) return;
-    fetchExamAttempt(selectedJob.id, selectedJob.exam_id);
   };
 
   return (
@@ -329,17 +285,10 @@ const PrivateCompanyListWithRecommendations = ({
         <ApplicationModal
           job={selectedJob}
           hasApplied={userApplications.includes(selectedJob.id)}
-          examData={examData}
-          loadingExam={loadingExam}
-          examAttempt={examAttempt}
-          loadingAttempt={loadingAttempt}
           progress={applicationProgress[selectedJob.id]}
           onClose={handleCloseModal}
-          onExamSubmit={handleExamSubmitWrapper}
-          onContinueToExam={handleContinueToExam}
           onIdUploaded={handleIdUploaded}
           onSubmitFinalApplication={handleSubmitFinalApplication}
-          onFetchExamAttempt={handleFetchExamAttempt}
         />
       )}
 

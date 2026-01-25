@@ -3,12 +3,10 @@
 import React from "react";
 import VerifiedIdManager from "@/components/verified-id/VerifiedIdManager";
 import { ApplicationProgress } from "../../types/application.types";
-import { ExamAttemptData } from "../../types/application.types";
 import jobStyle from "../../JobsOfCompany.module.css";
 
 interface VerifiedIdTabProps {
   hasApplied: boolean;
-  examAttempt: ExamAttemptData | null;
   progress: ApplicationProgress | undefined;
   jobId: number;
   applicationId?: number | null;

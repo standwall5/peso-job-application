@@ -65,7 +65,6 @@ const CompanyProfiles = () => {
               totalJobsAllCompanies,
             } as CompanyWithStats
           }
-          exam={exams}
           onJobsUpdated={fetchCompanies}
         />
       </section>

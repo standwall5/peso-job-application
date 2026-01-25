@@ -270,31 +270,6 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
               <div>{app.applicant.applicant_type}</div>
               <div>{app.applicant.preferred_poa || "N/A"}</div>
               <div>{formatAppliedDate(app.applied_date, !!app.status)}</div>
-              <div className={styles.expandIcon}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                  style={{
-                    width: "20px",
-                    height: "20px",
-                    transform: "rotate(0deg)",
-                    // transform:
-                    //   expandedApplicantId === app.applicant.id
-                    //     ? "rotate(180deg)"
-                    //     : "rotate(0deg)",
-                    transition: "transform 0.3s ease",
-                  }}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                  />
-                </svg>
-              </div>
             </div>
             <div>
               <button

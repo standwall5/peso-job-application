@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "./PostJobsModal.module.css";
 import ConfirmCloseModal from "./ConfirmCloseModal";
-import { Exam as ExamType } from "../exam/Exam";
-import ExamList from "../exam/ExamList";
 import Button from "@/components/Button";
 import SkillsInput from "@/components/SkillsInput";
 import { CompanyWithStats } from "../../types/company.types";
@@ -32,8 +30,6 @@ interface Jobs {
 interface PostJobsModalProps {
   company: CompanyWithStats;
   job: Jobs;
-  exams: ExamType[];
-  fetchExams: () => void;
   onClose?: () => void;
   refetchJobs?: () => void;
 }
@@ -42,8 +38,6 @@ const PostJobsModal: React.FC<PostJobsModalProps> = ({
   company,
   job,
   onClose,
-  exams,
-  fetchExams,
   refetchJobs,
 }) => {
   // Determine if this is a new job or editing existing

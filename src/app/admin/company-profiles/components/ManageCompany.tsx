@@ -4,10 +4,9 @@ import React, { useState, useRef, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import styles from "./ManageCompany.module.css";
 import PostJobsModal from "./modals/PostJobsModal";
-import Exam from "./exam/Exam";
 import Button from "@/components/Button";
 import Toast from "@/components/toast/Toast";
-import { CompanyWithStats, Exam as ExamType } from "../types/company.types";
+import { CompanyWithStats } from "../types/company.types";
 
 interface Job {
   id: number;
@@ -43,11 +42,9 @@ interface Question {
 
 const ManageCompany = ({
   company,
-  exam,
   onJobsUpdated,
 }: {
   company: CompanyWithStats;
-  exam: ExamType;
   onJobsUpdated?: () => void;
 }) => {
   const [nav, setNav] = useState("createCompany");
@@ -57,7 +54,6 @@ const ManageCompany = ({
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [jobs, setJobs] = useState(company.jobs);
-  const [exams, setExams] = useState<ExamType[]>([]);
   const [saving, setSaving] = useState(false);
 
   // Form state
@@ -93,12 +89,6 @@ const ManageCompany = ({
     },
   });
 
-  const fetchExams = () => {
-    fetch("/api/exams")
-      .then((response) => response.json())
-      .then((data) => setExams(data));
-  };
-
   const refetchJobs = async () => {
     const response = await fetch(`/api/getCompaniesAdmin`);
     const data = await response.json();
@@ -109,10 +99,6 @@ const ManageCompany = ({
       setJobs(updatedCompany.jobs);
     }
   };
-
-  useEffect(() => {
-    fetchExams();
-  }, []);
 
   useEffect(() => {
     const currentTab = tabRefs.current[activeIndex];
@@ -443,21 +429,11 @@ const ManageCompany = ({
           <PostJobsModal
             company={company}
             job={selectedJob} // Will have id: 0 for new job, or actual id for editing
-            exams={exams}
-            fetchExams={fetchExams}
             refetchJobs={refetchJobs}
             onClose={() => setShowModal(false)}
           />
         )}
       </>
-    );
-  };
-
-  const createExamTab = () => {
-    return exams ? (
-      <Exam exam={exams} fetchExams={fetchExams} />
-    ) : (
-      <div>No pre-screening question available</div>
     );
   };
 

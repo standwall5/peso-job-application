@@ -3,11 +3,10 @@
 import React, { useState } from "react";
 import jobStyle from "../../JobsOfCompany.module.css";
 import ResumePreviewTab from "./ResumePreviewTab";
-import ExamTab from "./ExamTab";
 import VerifiedIdTab from "./VerifiedIdTab";
 import WithdrawConfirmModal from "./WithdrawConfirmModal";
 import Button from "@/components/Button";
-import { Job, Exam } from "../../types/job.types";
+import { Job } from "../../types/job.types";
 import {
   ApplicationProgress,
   ExamAttemptData,
@@ -22,17 +21,9 @@ import Toast from "@/components/toast/Toast";
 interface ApplicationModalProps {
   job: Job;
   hasApplied: boolean;
-  examData: Exam | null;
-  loadingExam: boolean;
-  examAttempt: ExamAttemptData | null;
-  loadingAttempt: boolean;
   progress: ApplicationProgress | undefined;
   applicationId?: number | null;
   onClose: () => void;
-  onExamSubmit: (
-    answers: Record<number, number | number[] | string>,
-  ) => Promise<void>;
-  onContinueToExam: () => void;
   onIdUploaded: () => void;
   onSubmitFinalApplication: () => void;
   onFetchExamAttempt: () => void;
@@ -42,10 +33,6 @@ interface ApplicationModalProps {
 const ApplicationModal: React.FC<ApplicationModalProps> = ({
   job,
   hasApplied,
-  examData,
-  loadingExam,
-  examAttempt,
-  loadingAttempt,
   progress,
   applicationId,
   onClose,

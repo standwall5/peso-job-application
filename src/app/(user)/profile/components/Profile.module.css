@@ -1283,13 +1283,9 @@
 }
 
 .status.referred {
-    background: linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--accent) 85%, transparent),
-        color-mix(in srgb, var(--button) 70%, transparent)
-    );
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
     color: white;
-    border: 1px solid rgba(128, 231, 177, 0.3);
+    border: 1px solid rgba(59, 130, 246, 0.4);
 }
 
 /* Mobile Media Queries */
