@@ -7,7 +7,6 @@
     align-items: flex-start;
     justify-self: center;
     position: relative;
-    background-color: #f8fcff; /* Light bluish background like image */
     padding-top: 0;
     justify-content: center; /* Center vertically if possible */
 }
@@ -386,11 +385,6 @@
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
-}
-
-.hamburgerButton:hover {
-    /*background: #f0f9ff;*/
-    /*border-color: var(--accent);*/
 }
 
 .hamburgerButton svg {
