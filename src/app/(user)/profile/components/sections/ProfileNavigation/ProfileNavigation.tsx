@@ -1,7 +1,7 @@
 // src/app/(user)/profile/components/sections/ProfileNavigation.tsx
 import React from "react";
-import styles from "../Profile.module.css";
-import { ProfileTab } from "../../types/profile.types";
+import styles from "./ProfileNavigation.module.css";
+import { ProfileTab } from "../../../types/profile.types";
 
 interface ProfileNavigationProps {
   activeTab: ProfileTab;

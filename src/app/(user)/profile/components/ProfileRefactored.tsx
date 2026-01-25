@@ -17,7 +17,7 @@ import { useProfilePicture } from "../hooks/useProfilePicture";
 import { ProfileTab } from "../types/profile.types";
 import { ProfilePictureModal } from "./modals/ProfilePictureModal";
 import { ProfileHeader } from "./sections/ProfileHeader";
-import { ProfileNavigation } from "./sections/ProfileNavigation";
+import { ProfileNavigation } from "./sections/ProfileNavigation/ProfileNavigation";
 import { ResumeViewSection } from "./sections/ResumeViewSection";
 import { ResumeEditSection } from "./sections/ResumeEditSection";
 import { ApplicationsSection } from "./sections/ApplicationsSection";
@@ -42,11 +42,11 @@ const Profile = () => {
   const [showEditResume, setShowEditResume] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [showEditSuccess, setShowEditSuccess] = useState(false);
-  
+
   // Default to "profileDetails" to show the centered card first
   const [profileOptionsNav, setProfileOptionsNav] =
     useState<ProfileTab>("profileDetails");
-    
+
   // Drawer State
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -89,12 +89,12 @@ const Profile = () => {
         name: user?.name || "",
       });
       setShowEditSuccess(true);
-      setShowEdit(false); 
+      setShowEdit(false);
     } catch (error) {
       console.error("Failed to update profile:", error);
     }
   };
-  
+
   // Handle resume save
   const handleResumeSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -218,34 +218,71 @@ const Profile = () => {
 
       {/* Hamburger Button */}
       {!isMenuOpen && (
-      <button 
-        className={styles.hamburgerButton}
-        onClick={() => setIsMenuOpen(true)}
-        aria-label="Open Menu"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-        </svg>
-      </button>
+        <button
+          className={styles.hamburgerButton}
+          onClick={() => setIsMenuOpen(true)}
+          aria-label="Open Menu"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+            />
+          </svg>
+        </button>
       )}
 
       {/* Sidebar Drawer */}
-      <div 
-        className={`${styles.sidebarOverlay} ${isMenuOpen ? styles.open : ''}`}
+      <div
+        className={`${styles.sidebarOverlay} ${isMenuOpen ? styles.open : ""}`}
         onClick={() => setIsMenuOpen(false)}
       />
-      
-      <div className={`${styles.sidebar} ${isMenuOpen ? styles.open : ''}`}>
-        <div style={{ padding: "1.5rem", display: "flex", alignItems: "center", justifyContent: "flex-start" }}>
-            <button 
-              onClick={() => setIsMenuOpen(false)}
-              style={{ background: "transparent", border: "none", cursor: "pointer", padding: "0.5rem", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b" }}
-              aria-label="Close Menu"
+
+      <div className={`${styles.sidebar} ${isMenuOpen ? styles.open : ""}`}>
+        <div
+          style={{
+            padding: "1.5rem",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-start",
+          }}
+        >
+          <button
+            onClick={() => setIsMenuOpen(false)}
+            style={{
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              padding: "0.5rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#64748b",
+            }}
+            aria-label="Close Menu"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              style={{ width: "1.5rem", height: "1.5rem" }}
             >
-             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: "1.5rem", height: "1.5rem" }}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+              />
             </svg>
-            </button>
+          </button>
         </div>
         <ProfileNavigation
           activeTab={profileOptionsNav}
@@ -253,71 +290,69 @@ const Profile = () => {
         />
       </div>
 
-
       {/* Main Content Area */}
       <div className={styles.profileContainer}>
-        
         {/* VIEW 1: Centered Profile Details (Home) */}
         {profileOptionsNav === "profileDetails" && (
-            <ProfileHeader
-              user={user}
-              dateNow={dateNow}
-              showEdit={showEdit}
-              editPreferredPoa={profileEditHook.editPreferredPoa}
-              editApplicantType={profileEditHook.editApplicantType}
-              onShowEditToggle={() => {
-                setShowEdit((prev) => !prev);
-                setShowEditSuccess(false);
-              }}
-              onProfilePicClick={() => profilePictureHook.setShowModal(true)}
-              onSaveProfileDetails={handleProfileDetailsSave}
-              setEditPreferredPoa={profileEditHook.setEditPreferredPoa}
-              setEditApplicantType={profileEditHook.setEditApplicantType}
-              onDataRefresh={async () => {
-                await Promise.all([refreshUser(), refreshResume()]);
-                // setShowEditSuccess(true); // Don't show toast just for load, only save
-              }}
-            />
+          <ProfileHeader
+            user={user}
+            dateNow={dateNow}
+            showEdit={showEdit}
+            editPreferredPoa={profileEditHook.editPreferredPoa}
+            editApplicantType={profileEditHook.editApplicantType}
+            onShowEditToggle={() => {
+              setShowEdit((prev) => !prev);
+              setShowEditSuccess(false);
+            }}
+            onProfilePicClick={() => profilePictureHook.setShowModal(true)}
+            onSaveProfileDetails={handleProfileDetailsSave}
+            setEditPreferredPoa={profileEditHook.setEditPreferredPoa}
+            setEditApplicantType={profileEditHook.setEditApplicantType}
+            onDataRefresh={async () => {
+              await Promise.all([refreshUser(), refreshResume()]);
+              // setShowEditSuccess(true); // Don't show toast just for load, only save
+            }}
+          />
         )}
 
         {/* VIEW 2: Resume */}
         {profileOptionsNav === "viewResume" && (
-            <div className={styles.sectionContainer}>
-                {showEditResume ? (
-                  <ResumeEditSection
-                    user={user}
-                    {...profileEditHook}
-                    onCancel={() => setShowEditResume(false)}
-                    onSave={handleResumeSave}
-                  />
-                ) : (
-                  <ResumeViewSection
-                    user={user}
-                    resume={resume}
-                    dateNow={dateNow}
-                    resumeRef={resumeRef}
-                    onEdit={() => setShowEditResume(true)}
-                    onDownload={handleDownload}
-                  />
-                )}
-            </div>
+          <div className={styles.sectionContainer}>
+            {showEditResume ? (
+              <ResumeEditSection
+                user={user}
+                {...profileEditHook}
+                onCancel={() => setShowEditResume(false)}
+                onSave={handleResumeSave}
+              />
+            ) : (
+              <ResumeViewSection
+                user={user}
+                resume={resume}
+                dateNow={dateNow}
+                resumeRef={resumeRef}
+                onEdit={() => setShowEditResume(true)}
+                onDownload={handleDownload}
+              />
+            )}
+          </div>
         )}
 
         {/* VIEW 3: Applications */}
         {profileOptionsNav === "applications" && (
-            <div className={styles.sectionContainer}>
-              <ApplicationsSection
-                jobs={jobs}
-                userApplications={userApplications}
-              />
-            </div>
+          <div className={styles.sectionContainer}>
+            <ApplicationsSection
+              jobs={jobs}
+              userApplications={userApplications}
+            />
+          </div>
         )}
 
         {/* VIEW 4: View ID */}
         {profileOptionsNav === "viewId" && (
-            <div className={styles.sectionContainer}>
-                <ViewIdSection />
-            </div>
+          <div className={styles.sectionContainer}>
+            <ViewIdSection />
+          </div>
         )}
       </div>
     </>
