@@ -511,7 +511,18 @@ function AdminChatPanel({
                 viewBox="0 0 24 24"
                 fill="currentColor"
                 className={styles.tabIcon}
-              Search Input */}
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              Closed Chats
+            </button>
+          </div>
+
+          {/* Search Input */}
           <div className={styles.searchContainer}>
             <input
               type="text"
@@ -530,7 +541,7 @@ function AdminChatPanel({
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                   fill="currentColor"
-                  style={{ width: '1rem', height: '1rem' }}
+                  style={{ width: "1rem", height: "1rem" }}
                 >
                   <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
                 </svg>
@@ -540,31 +551,16 @@ function AdminChatPanel({
 
           {/* Chat List */}
           <div className={styles.chatList}>
-            {(() => {
-              console.log("[AdminChatPanel] Rendering chat list:", {
-                activeTab,
-                chatRequestsLength: filteredChats.length,
-                chatRequestsStatuses: filteredChats.map((r) => r.status),
-              });
-              return null;
-            })()}
             {filteredChats.length === 0 ? (
               <div className={styles.emptyState}>
-                <p>{searchQuery ? `No results for "${searchQuery}"` : `No ${activeTab} chats`}</p>
+                <p>
+                  {searchQuery
+                    ? `No results for "${searchQuery}"`
+                    : `No ${activeTab} chats`}
+                </p>
               </div>
             ) : (
-              filteredChab,
-                chatRequestsLength: chatRequests.length,
-                chatRequestsStatuses: chatRequests.map((r) => r.status),
-              });
-              return null;
-            })()}
-            {chatRequests.length === 0 ? (
-              <div className={styles.emptyState}>
-                <p>No {activeTab} chats</p>
-              </div>
-            ) : (
-              chatRequests.map((request) => (
+              filteredChats.map((request) => (
                 <div
                   key={request.id}
                   className={`${styles.chatItem} ${
