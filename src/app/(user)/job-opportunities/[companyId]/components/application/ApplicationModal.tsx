@@ -1,16 +1,14 @@
 // src/app/(user)/job-opportunities/[companyId]/components/application/ApplicationModal.tsx
 "use client";
 import React, { useState } from "react";
+import Image from "next/image";
 import jobStyle from "../../JobsOfCompany.module.css";
 import ResumePreviewTab from "./ResumePreviewTab";
 import VerifiedIdTab from "./VerifiedIdTab";
 import WithdrawConfirmModal from "./WithdrawConfirmModal";
 import Button from "@/components/Button";
 import { Job } from "../../types/job.types";
-import {
-  ApplicationProgress,
-  ExamAttemptData,
-} from "../../types/application.types";
+import { ApplicationProgress } from "../../types/application.types";
 import { withdrawApplication } from "@/lib/db/services/application.service";
 import { ResumeEditSection } from "@/app/(user)/profile/components/sections/ResumeEditSection";
 import { useProfileData } from "@/app/(user)/profile/hooks/useProfileData";
@@ -26,8 +24,8 @@ interface ApplicationModalProps {
   onClose: () => void;
   onIdUploaded: () => void;
   onSubmitFinalApplication: () => void;
-  onFetchExamAttempt: () => void;
   onWithdrawSuccess?: () => void;
+  onContinueToExam: () => void;
 }
 
 const ApplicationModal: React.FC<ApplicationModalProps> = ({
@@ -36,19 +34,16 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({
   progress,
   applicationId,
   onClose,
-  onExamSubmit,
-  onContinueToExam,
   onIdUploaded,
   onSubmitFinalApplication,
-  onFetchExamAttempt,
   onWithdrawSuccess,
+  onContinueToExam,
 }) => {
   const [activeTab, setActiveTab] = useState<
     "previewResume" | "exam" | "verifiedId"
   >("previewResume");
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [isWithdrawing, setIsWithdrawing] = useState(false);
-  const [examDataFetched, setExamDataFetched] = useState(false);
   const [showEditResume, setShowEditResume] = useState(false);
   const [showEditSuccess, setShowEditSuccess] = useState(false);
 
@@ -58,20 +53,11 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({
 
   const handleTabChange = (tab: "previewResume" | "exam" | "verifiedId") => {
     setActiveTab(tab);
-    // Only fetch exam data once
-    if ((tab === "exam" || tab === "verifiedId") && !examDataFetched) {
-      onFetchExamAttempt();
-      setExamDataFetched(true);
-    }
   };
 
   const handleNextTab = () => {
     if (activeTab === "previewResume") {
       setActiveTab("exam");
-      if (!examDataFetched) {
-        onFetchExamAttempt();
-        setExamDataFetched(true);
-      }
     } else if (activeTab === "exam") {
       setActiveTab("verifiedId");
     }
@@ -196,12 +182,12 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({
             <div className={jobStyle.applicationJobCompany}>
               <div className={jobStyle.companyInformation}>
                 {job.companies?.logo && (
-                  <img
+                  <Image
                     src={job.companies.logo}
                     alt={job.companies.name + " logo"}
+                    width={80}
+                    height={80}
                     style={{
-                      width: "80px",
-                      height: "80px",
                       objectFit: "contain",
                     }}
                   />
@@ -307,7 +293,6 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({
                   >
                     <VerifiedIdTab
                       hasApplied={hasApplied}
-                      examAttempt={examAttempt}
                       progress={progress}
                       jobId={job.id}
                       applicationId={applicationId}

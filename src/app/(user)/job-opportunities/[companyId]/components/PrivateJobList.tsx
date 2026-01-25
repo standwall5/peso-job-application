@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import Image from "next/image";
+
 import styles from "@/app/(user)/job-opportunities/JobHome.module.css";
 import jobStyle from "../JobsOfCompany.module.css";
 import BlocksWave from "@/components/BlocksWave";
@@ -40,7 +40,7 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
   // State
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [companyName, setCompanyName] = useState<string>("");
-  const [companyLogo, setCompanyLogo] = useState<string | null>(null);
+
   const [userSkills, setUserSkills] = useState<string[]>([]);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showDeployedModal, setShowDeployedModal] = useState(false);
@@ -55,16 +55,7 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
     updateProgress,
     clearProgress,
   } = useApplicationProgress();
-  const {
-    examData,
-    loadingExam,
-    examAttempt,
-    loadingAttempt,
-    fetchExam,
-    fetchExamAttempt,
-    handleExamSubmit,
-    resetExamData,
-  } = useExam();
+  const { fetchExam, resetExamData } = useExam();
   const {
     userApplications,
     loading,
@@ -121,7 +112,6 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
 
       if (data && !error) {
         setCompanyName(data.name);
-        setCompanyLogo(data.logo);
       }
     }
 
@@ -185,54 +175,10 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
     resetExamData();
   };
 
-  const handleExamSubmitWrapper = async (
-    answers: Record<number, number | number[] | string>
-  ) => {
-    if (!selectedJob?.exam_id || !selectedJob?.id) {
-      showToast("Error", "Job or exam information is missing");
-      return;
-    }
-
-    try {
-      const result = await handleExamSubmit(
-        selectedJob.exam_id,
-        selectedJob.id,
-        answers
-      );
-
-      if (result.success) {
-        // Mark exam as completed in progress
-        await updateProgress(selectedJob.id, { exam_completed: true });
-
-        // Build the toast message
-        let message = "";
-        if (result.autoGradedCount > 0) {
-          if (result.score !== null) {
-            message += `Auto-graded score: ${result.score}% (${result.correctCount}/${result.autoGradedCount} correct)\n`;
-          }
-        }
-        if (result.paragraphCount > 0) {
-          message += `${result.paragraphCount} paragraph question(s) pending admin review.`;
-        }
-        if (!message) {
-          message = "Your answers have been submitted successfully!";
-        }
-
-        showToast("Pre-Screening Submitted! 🎉", message.trim());
-      }
-    } catch (error) {
-      console.error("Error submitting pre-screening:", error);
-      showToast(
-        "Pre-Screening Submission Failed",
-        error instanceof Error ? error.message : "Unknown error"
-      );
-    }
-  };
-
   const handleContinueToExam = () => {
     showToast(
       "Resume Reviewed ✓",
-      "Please proceed to answer the pre-screening questions."
+      "Please proceed to answer the pre-screening questions.",
     );
   };
 
@@ -241,7 +187,7 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
       updateProgress(selectedJob.id, { verified_id_uploaded: true });
       showToast(
         "Verified ID Uploaded! ✓",
-        "All steps complete. You can now submit your application."
+        "All steps complete. You can now submit your application.",
       );
     }
   };
@@ -260,14 +206,8 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
       console.error("Error submitting application:", error);
       showToast(
         "Submission Failed",
-        error instanceof Error ? error.message : "Unknown error"
+        error instanceof Error ? error.message : "Unknown error",
       );
-    }
-  };
-
-  const handleFetchExamAttempt = () => {
-    if (selectedJob?.id && selectedJob?.exam_id) {
-      fetchExamAttempt(selectedJob.id, selectedJob.exam_id);
     }
   };
 
@@ -275,7 +215,7 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
     setShowDeployedModal(false);
     // Open chat widget
     const chatButton = document.querySelector(
-      "[data-chat-widget]"
+      "[data-chat-widget]",
     ) as HTMLElement;
     if (chatButton) {
       chatButton.click();
@@ -346,17 +286,11 @@ const PrivateJobList = ({ searchParent }: PrivateJobListProps) => {
         <ApplicationModal
           job={selectedJob}
           hasApplied={userApplications.includes(selectedJob.id)}
-          examData={examData}
-          loadingExam={loadingExam}
-          examAttempt={examAttempt}
-          loadingAttempt={loadingAttempt}
           progress={applicationProgress[selectedJob.id]}
           onClose={handleCloseModal}
-          onExamSubmit={handleExamSubmitWrapper}
           onContinueToExam={handleContinueToExam}
           onIdUploaded={handleIdUploaded}
           onSubmitFinalApplication={handleSubmitFinalApplication}
-          onFetchExamAttempt={handleFetchExamAttempt}
         />
       )}
 

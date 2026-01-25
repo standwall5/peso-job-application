@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import styles from "@/app/admin/Admin.module.css";
 import { useSuperAdmin } from "@/app/admin/hooks/useSuperAdmin";
 
 const Sidebar = () => {
   const [openMenus, setOpenMenus] = useState<string[]>([]);
+  const [isExpanded, setIsExpanded] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  // const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null);
   const pathname = usePathname();
   const router = useRouter();
   const { loading, isSuperAdmin } = useSuperAdmin();
@@ -22,15 +23,7 @@ const Sidebar = () => {
   };
 
   if (loading) {
-    return (
-      // <section className={styles.sideBar}>
-      //   <div className={styles.sideBarPeso}>
-      //     <img src="/assets/pesoLogo.png" alt="PESO" />
-      //     <span>PESO</span>
-      //   </div>
-      // </section>
-      null
-    );
+    return null;
   }
 
   // Super Admin Only - Manage Staff - Sidebar has no use, therefore nothing should be returned
@@ -40,7 +33,7 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* Burger Button */}
+      {/* Mobile Burger Button */}
       <button
         className={styles.burgerButton}
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -51,7 +44,7 @@ const Sidebar = () => {
         <span className={styles.burgerLine}></span>
       </button>
 
-      {/* Backdrop overlay */}
+      {/* Backdrop overlay for mobile */}
       {mobileMenuOpen && (
         <div
           className={styles.mobileBackdrop}
@@ -60,107 +53,87 @@ const Sidebar = () => {
       )}
 
       <section
-        className={`${styles.sideBar} ${mobileMenuOpen ? styles.mobileOpen : ""}`}
+        className={`${styles.sideBar} ${isExpanded ? styles.expanded : styles.collapsed} ${mobileMenuOpen ? styles.mobileOpen : ""}`}
       >
-        <div
-          className={styles.sideBarPeso}
-          style={{ cursor: "pointer" }}
-          onClick={() => {
-            if (isSuperAdmin) {
-              router.push("/admin/manage-admin");
-            } else {
+        {/* Logo and Hamburger Toggle */}
+        <div className={styles.sideBarHeader}>
+          <div
+            className={styles.sideBarPeso}
+            style={{ cursor: "pointer" }}
+            onClick={() => {
               router.push("/admin");
-            }
-            setMobileMenuOpen(false);
-          }}
-        >
-          <img src="/assets/pesoLogo.png" alt="PESO" />
-          <span>PESO</span>
+              setMobileMenuOpen(false);
+            }}
+          >
+            <Image
+              src="/assets/pesoLogo.png"
+              alt="PESO"
+              width={48}
+              height={48}
+              priority
+            />
+            {isExpanded && <span>PESO</span>}
+          </div>
+
+          {/* Desktop Hamburger Toggle */}
+          <button
+            className={styles.toggleButton}
+            onClick={() => setIsExpanded(!isExpanded)}
+            aria-label="Toggle sidebar"
+            title={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
+          >
+            {/* Heroicon: Bars3 */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className={styles.hamburgerIcon}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+              />
+            </svg>
+          </button>
         </div>
+
         <ul className={styles.sideBarList}>
-          {/* Super Admin Only - Manage Staff */}
-          {isSuperAdmin && (
-            <>
-              <li
-                className={`${styles.menuItem} ${
-                  pathname === "/admin/manage-admin" ? styles.active : ""
-                }`}
-                onClick={() => {
-                  handleToggle("manageCompany");
-                  router.push("/admin/manage-admin");
-                }}
+          {/* Dashboard with Dropdown */}
+          <li
+            className={`${styles.menuItem} ${
+              openMenus.includes("dashboard") ? styles.active : ""
+            }`}
+            onClick={() => isExpanded && handleToggle("dashboard")}
+            title={!isExpanded ? "Dashboard" : ""}
+          >
+            <div className={styles.menuItemContent}>
+              {/* Heroicon: ChartBarSquare */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className={styles.menuIcon}
               >
-                <span>Manage Admins</span>
-              </li>
-              <li
-                className={`${styles.menuItem} ${
-                  pathname === "/admin/create-admin" ? styles.active : ""
-                }`}
-                onClick={() => {
-                  handleToggle("manageCompany");
-                  router.push("/admin/create-admin");
-                }}
-              >
-                <span>Create Admin Account</span>
-              </li>
-            </>
-
-            // Kept incase dropdown styling is ever needed
-            // <li
-            //   className={styles.menuItem}
-            //   onClick={() => handleToggle("manageStaff")}
-            // >
-            //   <span>Manage Staff</span>
-            //   <ul
-            //     className={`${styles.subMenu} ${
-            //       openMenus.includes("manageStaff") ? styles.open : ""
-            //     }`}
-            //     onClick={(e) => e.stopPropagation()}
-            //   >
-            //     <li
-            //       className={`${
-            //         pathname === "/admin/manage-admin" ? styles.active : ""
-            //       }`}
-            //       onClick={() => router.push("/admin/manage-admin")}
-            //     >
-            //       Admins
-            //     </li>
-            //     <li
-            //       className={`${
-            //         pathname === "/admin/create-admin" ? styles.active : ""
-            //       }`}
-            //       onClick={() => router.push("/admin/create-admin")}
-            //     >
-            //       Create Admin Account
-            //     </li>
-            //   </ul>
-            // </li>
-          )}
-
-          {/* Regular Admin Only - Other Menu Items */}
-          {!isSuperAdmin && (
-            <>
-              <li
-                className={`${styles.menuItem} ${
-                  openMenus.includes("dashboard") ? styles.active : ""
-                }`}
-                onClick={() => handleToggle("dashboard")}
-              >
-                <span
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    width: "100%",
-                  }}
-                >
-                  Dashboard
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z"
+                />
+              </svg>
+              {isExpanded && (
+                <>
+                  <span>Dashboard</span>
+                  {/* Heroicon: ChevronDown */}
                   <svg
                     className={`${styles.dropdownIcon} ${openMenus.includes("dashboard") ? styles.rotated : ""}`}
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
                     fill="currentColor"
-                    style={{ width: "1.25rem", height: "1.25rem" }}
                   >
                     <path
                       fillRule="evenodd"
@@ -168,80 +141,126 @@ const Sidebar = () => {
                       clipRule="evenodd"
                     />
                   </svg>
-                </span>
-                <ul
-                  className={`${styles.subMenu} ${
-                    openMenus.includes("dashboard") ? styles.open : ""
+                </>
+              )}
+            </div>
+            {isExpanded && (
+              <ul
+                className={`${styles.subMenu} ${
+                  openMenus.includes("dashboard") ? styles.open : ""
+                }`}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <li
+                  className={`${
+                    pathname === "/admin/jobseekers" ? styles.active : ""
                   }`}
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={() => {
+                    router.push("/admin/jobseekers");
+                    setMobileMenuOpen(false);
+                  }}
                 >
-                  <li
-                    className={`${
-                      pathname === "/admin/jobseekers" ? styles.active : ""
-                    }`}
-                    onClick={() => {
-                      router.push("/admin/jobseekers");
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Jobseekers
-                  </li>
-                  <li
-                    className={`${
-                      pathname === "/admin/deployed-jobseekers"
-                        ? styles.active
-                        : ""
-                    }`}
-                    onClick={() => {
-                      router.push("/admin/deployed-jobseekers");
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Deployed Jobseekers
-                  </li>
-                  <li
-                    className={`${
-                      pathname === "/admin/archived-jobseekers"
-                        ? styles.active
-                        : ""
-                    }`}
-                    onClick={() => {
-                      router.push("/admin/archived-jobseekers");
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Archived Jobseekers
-                  </li>
-                </ul>
-              </li>
-              <li
-                className={`${styles.menuItem} ${
-                  pathname === "/admin/company-profiles" ||
-                  pathname === "/admin/create-company"
-                    ? styles.active
-                    : ""
-                }`}
-                onClick={() => {
-                  handleToggle("manageCompany");
-                  router.push("/admin/company-profiles");
-                  setMobileMenuOpen(false);
-                }}
+                  Jobseekers
+                </li>
+                <li
+                  className={`${
+                    pathname === "/admin/deployed-jobseekers"
+                      ? styles.active
+                      : ""
+                  }`}
+                  onClick={() => {
+                    router.push("/admin/deployed-jobseekers");
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  Deployed Jobseekers
+                </li>
+                <li
+                  className={`${
+                    pathname === "/admin/archived-jobseekers"
+                      ? styles.active
+                      : ""
+                  }`}
+                  onClick={() => {
+                    router.push("/admin/archived-jobseekers");
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  Archived Jobseekers
+                </li>
+              </ul>
+            )}
+          </li>
+
+          {/* Manage Company */}
+          <li
+            className={`${styles.menuItem} ${
+              pathname === "/admin/company-profiles" ||
+              pathname === "/admin/create-company"
+                ? styles.active
+                : ""
+            }`}
+            onClick={() => {
+              router.push("/admin/company-profiles");
+              setMobileMenuOpen(false);
+            }}
+            title={!isExpanded ? "Manage Company" : ""}
+          >
+            <div className={styles.menuItemContent}>
+              {/* Heroicon: BuildingOffice2 */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className={styles.menuIcon}
               >
-                <span>Manage Company</span>
-              </li>
-              <li
-                className={`${styles.menuItem} ${
-                  pathname === "/admin/reports" ? styles.active : ""
-                }`}
-                onClick={() => {
-                  router.push("/admin/reports");
-                  setMobileMenuOpen(false);
-                }}
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Z"
+                />
+              </svg>
+              {isExpanded && <span>Manage Company</span>}
+            </div>
+          </li>
+
+          {/* Reports & Analytics */}
+          <li
+            className={`${styles.menuItem} ${
+              pathname === "/admin/reports" ? styles.active : ""
+            }`}
+            onClick={() => {
+              router.push("/admin/reports");
+              setMobileMenuOpen(false);
+            }}
+            title={!isExpanded ? "Reports & Analytics" : ""}
+          >
+            <div className={styles.menuItemContent}>
+              {/* Heroicon: ChartPie */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className={styles.menuIcon}
               >
-                <span>Reports & Analytics</span>
-              </li>
-            </>
-          )}
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z"
+                />
+              </svg>
+              {isExpanded && <span>Reports & Analytics</span>}
+            </div>
+          </li>
         </ul>
       </section>
     </>

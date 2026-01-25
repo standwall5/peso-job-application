@@ -3,12 +3,13 @@
 import React from "react";
 import styles from "@/app/(user)/job-opportunities/JobHome.module.css";
 import jobStyle from "../../JobsOfCompany.module.css";
+import skillStyles from "./JobCardSkills.module.css";
 import Button from "@/components/Button";
-import { Job } from "../../types/job.types";
+import { Job } from "../../../types/job.types";
 import SkillMatchBadge from "@/components/SkillMatchBadge";
 
 interface JobCardProps {
-  job: Job;
+  job: Job & { matchPercentage?: number };
   hasApplied: boolean;
   onClick: () => void;
   userSkills?: string[];
@@ -20,12 +21,20 @@ const JobCard: React.FC<JobCardProps> = ({
   onClick,
   userSkills,
 }) => {
+  // Calculate which skills match
+  const matchingSkills =
+    userSkills && job.skills
+      ? job.skills.filter((skill) =>
+          userSkills.some((us) => us.toLowerCase() === skill.toLowerCase()),
+        )
+      : [];
+
   return (
     <div
       key={job.id}
       className={`${styles.jobCard} ${jobStyle.jobSpecificCard} ${jobStyle.jobCard}`}
       onClick={onClick}
-      style={{ height: "50rem" }}
+      style={{ minHeight: "50rem" }}
     >
       <div className={`${styles.jobCompany} ${jobStyle.companyInformation}`}>
         <img
@@ -40,6 +49,7 @@ const JobCard: React.FC<JobCardProps> = ({
         />
         <span>{job.companies?.name}</span>
       </div>
+
       <div className={jobStyle.jobDetails}>
         <h2>{job.title}</h2>
         <p>{job.place_of_assignment}</p>
@@ -56,7 +66,43 @@ const JobCard: React.FC<JobCardProps> = ({
             : "No date"}
         </p>
 
-        <Button variant="success" disabled={hasApplied}>
+        {/* Show Skill Match Badge */}
+        {job.matchPercentage !== undefined && job.matchPercentage > 0 && (
+          <div className={skillStyles.matchBadgeContainer}>
+            <SkillMatchBadge percentage={job.matchPercentage} size="small" />
+          </div>
+        )}
+
+        {/* Show Required Skills */}
+        {job.skills && job.skills.length > 0 && (
+          <div className={skillStyles.skillsSection}>
+            <h4 className={skillStyles.skillsTitle}>Required Skills:</h4>
+            <div className={skillStyles.skillsList}>
+              {job.skills.map((skill, idx) => {
+                const isMatched = matchingSkills.includes(skill);
+                return (
+                  <span
+                    key={idx}
+                    className={`${skillStyles.skillTag} ${
+                      isMatched ? skillStyles.matched : skillStyles.unmatched
+                    }`}
+                  >
+                    {skill}
+                    {isMatched && (
+                      <span className={skillStyles.checkmark}> ✓</span>
+                    )}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        <Button
+          variant="success"
+          disabled={hasApplied}
+          style={{ marginTop: "1rem" }}
+        >
           {hasApplied ? "Applied" : "Apply"}
         </Button>
       </div>
