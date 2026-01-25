@@ -4,6 +4,7 @@ import styles from "./VerifiedIdManager.module.css";
 import Button from "@/components/Button";
 import {
   getMyID,
+  getMyAllIDs,
   uploadApplicantID,
   ApplicantIDData,
 } from "@/lib/db/services/applicant-id.service";
@@ -34,6 +35,8 @@ const ID_TYPES = [
   "SENIOR CITIZEN ID",
 ];
 
+const REQUIRED_ID_COUNT = 3;
+
 const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
   showSubmitButton = false,
   onSubmitFinalApplication,
@@ -57,6 +60,10 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
   const [showDefaultModal, setShowDefaultModal] = useState(false);
   const [pendingUploadData, setPendingUploadData] =
     useState<ApplicantIDData | null>(null);
+  const [allIds, setAllIds] = useState<ApplicantIDData[]>([]);
+  const [idTypes, setIdTypes] = useState<string[]>([]);
+  const uploadedCount = allIds.length;
+  const hasRequiredIds = uploadedCount >= REQUIRED_ID_COUNT;
 
   const frontInputRef = useRef<HTMLInputElement | null>(null);
   const backInputRef = useRef<HTMLInputElement | null>(null);
@@ -64,6 +71,7 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
 
   useEffect(() => {
     loadExistingId();
+    loadAllIds();
   }, []);
 
   useEffect(() => {
@@ -95,6 +103,19 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
       console.error("Error loading ID:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadAllIds = async () => {
+    try {
+      const ids = await getMyAllIDs();
+      setAllIds(ids);
+      const types = Array.from(new Set(ids.map((id) => id.id_type)));
+      setIdTypes(types);
+    } catch (error) {
+      console.error("Error loading ID list:", error);
+      setAllIds([]);
+      setIdTypes([]);
     }
   };
 
@@ -205,6 +226,7 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
       if (result.success) {
         const uploadedData = result.data || null;
         setExistingId(uploadedData);
+        await loadAllIds();
         // Clear file states but keep previews
         setFrontFile(null);
         setBackFile(null);
@@ -482,6 +504,47 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
         </select>
       </div>
 
+      <div
+        style={{
+          marginBottom: "1.5rem",
+          background: "#f8fafc",
+          border: "1px solid #e2e8f0",
+          borderRadius: "0.75rem",
+          padding: "1rem",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "0.5rem",
+          }}
+        >
+          <span style={{ fontWeight: 600, color: "#1e293b" }}>
+            Uploaded IDs
+          </span>
+          <span style={{ fontWeight: 600, color: "#1e293b" }}>
+            {uploadedCount} / {REQUIRED_ID_COUNT}
+          </span>
+        </div>
+        <div style={{ color: "#64748b", fontSize: "0.9rem" }}>
+          {idTypes.length > 0 ? idTypes.join(", ") : "No IDs uploaded yet."}
+        </div>
+        {!hasRequiredIds && (
+          <div
+            style={{
+              marginTop: "0.5rem",
+              color: "#b45309",
+              fontSize: "0.9rem",
+              fontWeight: 600,
+            }}
+          >
+            Please upload 3 valid IDs
+          </div>
+        )}
+      </div>
+
       <div className={styles.uploadGrid}>
         {renderUploadArea("front", frontPreview, frontInputRef, "FRONT SIDE")}
         {renderUploadArea("back", backPreview, backInputRef, "BACK SIDE")}
@@ -502,10 +565,7 @@ const VerifiedIdManager: React.FC<VerifiedIdManagerProps> = ({
             <Button
               variant="success"
               onClick={onSubmitFinalApplication}
-              disabled={
-                uploading ||
-                (!existingId && (!frontFile || !backFile || !selfieFile))
-              }
+              disabled={uploading || !hasRequiredIds}
               style={{ width: "100%" }}
             >
               {uploading ? "Uploading..." : "SUBMIT APPLICATION"}
