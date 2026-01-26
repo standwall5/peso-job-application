@@ -402,7 +402,7 @@
 
 .resumeEditButton {
     color: white !important;
-    background-color: #10b981 !important;
+    background-color: #f5d176 !important;
 }
 
 .resumeEditButton svg {
@@ -410,12 +410,12 @@
 }
 
 .resumeEditButton:hover {
-    background-color: #059669 !important;
+    background-color: #cfaf5d !important;
 }
 
 .resumeDownloadButton {
     color: white !important;
-    background-color: #3b82f6 !important;
+    background-color: #6b7280 !important;
 }
 
 .resumeDownloadButton svg {
@@ -423,7 +423,7 @@
 }
 
 .resumeDownloadButton:hover {
-    background-color: #2563eb !important;
+    background-color: #4b5563 !important;
 }
 
 .resumeEditIcon {
@@ -560,7 +560,7 @@
     float: right;
     width: 2.5rem;
     height: 2.5rem;
-    background: black;
+    background: #f5d176;
     border: none;
     border-radius: 0.25rem;
     cursor: pointer;
@@ -580,6 +580,7 @@
 
 .enlargedEditIcon:hover {
     transform: translateY(-2px);
+    background: #cfaf5d;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
