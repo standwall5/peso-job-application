@@ -48,7 +48,7 @@ const DeployedJobseekers = () => {
     setSelectedJobseekers((prev) =>
       prev.includes(applicantId)
         ? prev.filter((id) => id !== applicantId)
-        : [...prev, applicantId]
+        : [...prev, applicantId],
     );
   };
 
@@ -57,7 +57,7 @@ const DeployedJobseekers = () => {
 
     if (
       !confirm(
-        `Are you sure you want to mark ${selectedJobseekers.length} jobseeker(s) as not deployed?`
+        `Are you sure you want to mark ${selectedJobseekers.length} jobseeker(s) as not deployed?`,
       )
     )
       return;
@@ -81,7 +81,7 @@ const DeployedJobseekers = () => {
     } catch (error) {
       console.error("Error marking jobseekers as not deployed:", error);
       alert(
-        "Failed to mark some jobseekers as not deployed. Please try again."
+        "Failed to mark some jobseekers as not deployed. Please try again.",
       );
     }
   };
@@ -161,6 +161,9 @@ const DeployedJobseekers = () => {
           setSortBy={setSortBy}
           selectedJobseekers={selectedJobseekers}
           onToggleSelect={handleToggleSelect}
+          selectedCount={selectedJobseekers.length}
+          onSelectAll={handleSelectAll}
+          onArchiveSelected={handleMarkAsNotDeployedSelected}
         />
       )}
     </section>
