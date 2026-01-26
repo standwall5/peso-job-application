@@ -48,8 +48,8 @@
     border-radius: 0.75rem;
     width: 100%;
     max-width: 1000px;
-    max-height: 92vh;
-    overflow: hidden;
+    max-height: 90vh;
+    overflow-y: auto;
     position: relative;
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
     animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -104,13 +104,14 @@
 
 /* === Header Section === */
 .header {
-    padding: 2.5rem 2.5rem 2rem 2.5rem;
+    padding: 2rem 2.5rem 1.5rem 2.5rem;
     border-bottom: 2px solid var(--border-light);
     background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
     color: white;
     position: relative;
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+    flex-shrink: 0;
 }
 
 .header::before {
@@ -126,8 +127,8 @@
 }
 
 .header h2 {
-    margin: 0 0 1rem 0;
-    font-size: 1.875rem;
+    margin: 0 0 0.75rem 0;
+    font-size: 1.5rem;
     font-weight: 700;
     line-height: 1.2;
     position: relative;
@@ -144,10 +145,10 @@
 }
 
 .warning {
-    margin: 0 0 1.25rem 0;
-    font-size: 0.875rem;
+    margin: 0 0 0.75rem 0;
+    font-size: 0.8125rem;
     background: rgba(255, 255, 255, 0.2);
-    padding: 0.875rem 1.25rem;
+    padding: 0.625rem 1rem;
     border-radius: 0.5rem;
     border-left: 4px solid #fbbf24;
     backdrop-filter: blur(12px);
@@ -156,7 +157,7 @@
     gap: 0.625rem;
     position: relative;
     z-index: 1;
-    line-height: 1.6;
+    line-height: 1.5;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -169,22 +170,23 @@
 .tabs {
     display: flex;
     gap: 0.375rem;
-    padding: 0 2rem;
+    padding: 0 1.5rem;
     background: #ffffff;
     border-bottom: 2px solid var(--border-light);
     flex-wrap: wrap;
     position: relative;
+    flex-shrink: 0;
 }
 
 .tab {
     flex: 1;
     min-width: 140px;
-    padding: 1rem 1.5rem;
+    padding: 0.75rem 1.25rem;
     background: transparent;
     border: none;
     border-bottom: 3px solid transparent;
     cursor: pointer;
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     font-weight: 600;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     color: var(--text-muted);
@@ -209,9 +211,10 @@
 /* === Image Container === */
 .imageContainer {
     position: relative;
-    padding: 3rem;
+    padding: 2rem;
     background: #fafbfc;
-    min-height: 520px;
+    min-height: 400px;
+    max-height: 500px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -226,7 +229,7 @@
 
 .idImage {
     max-width: 100%;
-    max-height: 640px;
+    max-height: 450px;
     object-fit: contain;
     border-radius: 0.75rem;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
@@ -303,23 +306,24 @@
 
 /* === Footer Section === */
 .footer {
-    padding: 2rem 2.5rem;
+    padding: 1.5rem 2rem;
     border-top: 2px solid var(--border-light);
     background: #fafbfc;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
+    flex-shrink: 0;
 }
 
 .disclaimer {
     margin: 0;
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     color: var(--text-secondary);
-    line-height: 1.6;
+    line-height: 1.5;
     display: flex;
     align-items: flex-start;
-    gap: 0.625rem;
-    padding: 0.875rem 1.25rem;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
     background: #f0f9ff;
     border-radius: 0.5rem;
     border-left: 3px solid #3b82f6;
@@ -372,11 +376,11 @@
     }
 
     .header {
-        padding: 1.5rem;
+        padding: 1.25rem 1.5rem;
     }
 
     .header h2 {
-        font-size: 1.25rem;
+        font-size: 1rem;
     }
 
     .warning {
@@ -403,11 +407,12 @@
 
     .imageContainer {
         padding: 1rem;
-        min-height: 300px;
+        min-height: 250px;
+        max-height: 350px;
     }
 
     .idImage {
-        max-height: 400px;
+        max-height: 300px;
     }
 
     .watermarkOverlay {
@@ -444,7 +449,8 @@
 
     .imageContainer {
         padding: 0.75rem;
-        min-height: 250px;
+        min-height: 200px;
+        max-height: 300px;
     }
 
     .watermarkOverlay {
@@ -469,16 +475,16 @@
 }
 
 .idTypeDropdown {
-    padding: 0.625rem 1.25rem;
+    padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     border: 2px solid rgba(255, 255, 255, 0.4);
     background: rgba(255, 255, 255, 0.98);
     color: var(--text-primary);
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    min-width: 220px;
+    min-width: 200px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -497,9 +503,9 @@
 .verificationControls {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.75rem;
     flex-wrap: wrap;
-    padding: 1.25rem;
+    padding: 1rem;
     background: white;
     border-radius: 0.75rem;
     border: 2px solid var(--border-light);
@@ -509,8 +515,8 @@
 .verifiedBadge {
     display: flex;
     align-items: center;
-    gap: 1.25rem;
-    padding: 1rem 1.5rem;
+    gap: 1rem;
+    padding: 0.875rem 1.25rem;
     background: var(--success-bg);
     border-radius: 0.75rem;
     border: 2px solid var(--success-border);
@@ -545,7 +551,7 @@
 /* Reject Form */
 .rejectForm {
     width: 100%;
-    padding: 1.5rem;
+    padding: 1.25rem;
     background: var(--danger-bg);
     border: 2px solid var(--danger-border);
     border-radius: 0.75rem;
@@ -553,9 +559,9 @@
 }
 
 .rejectForm h3 {
-    margin: 0 0 1.25rem 0;
+    margin: 0 0 1rem 0;
     color: #dc2626;
-    font-size: 1.125rem;
+    font-size: 1rem;
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -568,23 +574,23 @@
 }
 
 .reasonSelector {
-    margin-bottom: 1rem;
+    margin-bottom: 0.875rem;
 }
 
 .reasonLabel {
     display: block;
-    margin-bottom: 0.625rem;
-    font-size: 0.9375rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
     font-weight: 700;
     color: #1e293b;
 }
 
 .reasonDropdown {
     width: 100%;
-    padding: 0.875rem 1rem;
+    padding: 0.625rem 0.875rem;
     border: 2px solid var(--danger-border);
     border-radius: 0.5rem;
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     font-weight: 500;
     font-family: inherit;
     background-color: white;
@@ -600,19 +606,19 @@
 }
 
 .customReasonWrapper {
-    margin-bottom: 1rem;
+    margin-bottom: 0.875rem;
 }
 
 .reasonTextarea {
     width: 100%;
-    padding: 0.875rem 1rem;
+    padding: 0.625rem 0.875rem;
     border: 2px solid var(--danger-border);
     border-radius: 0.5rem;
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     font-family: inherit;
     resize: vertical;
-    min-height: 100px;
-    line-height: 1.6;
+    min-height: 80px;
+    line-height: 1.5;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
@@ -629,7 +635,7 @@
 
 .rejectActions {
     display: flex;
-    gap: 1rem;
+    gap: 0.75rem;
     justify-content: flex-end;
     margin-top: 0.5rem;
 }

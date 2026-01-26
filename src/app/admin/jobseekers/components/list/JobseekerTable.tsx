@@ -16,6 +16,10 @@ interface JobseekerTableProps {
   setSortBy: (sort: string) => void;
   selectedJobseekers: number[];
   onToggleSelect: (applicantId: number) => void;
+  selectedCount: number;
+  onSelectAll: () => void;
+  onArchiveSelected: () => void;
+  isArchived?: boolean;
 }
 
 const JobseekerTable: React.FC<JobseekerTableProps> = ({
@@ -25,6 +29,10 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
   setSortBy,
   selectedJobseekers,
   onToggleSelect,
+  selectedCount,
+  onSelectAll,
+  onArchiveSelected,
+  isArchived = false,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   // const [expandedApplicantId, setExpandedApplicantId] = useState<number | null>(
@@ -215,8 +223,17 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
     );
   };
 
+  const handleArchiveClick = () => {
+    if (selectedCount === 0) {
+      alert("Please select at least one jobseeker to archive.");
+      return;
+    }
+    onArchiveSelected();
+  };
+
   return (
     <div className={styles.jobseekersTable}>
+      {/* HEADER */}
       <div className={styles.tableHeader}>
         <div className={styles.jobseekersDetailsHeader}>
           <div style={{ width: "5.8rem" }}></div>
@@ -245,18 +262,42 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
             DATE APPLIED {getSortIcon("date")}
           </div>
         </div>
-        <div>STATUS</div>
-        <div></div>
+        <div className={styles.bottomRowControls}>
+          <button className={styles.selectAllButton} onClick={onSelectAll}>
+            SELECT ALL
+          </button>
+          <button className={styles.archiveButton} onClick={handleArchiveClick}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              style={{ width: "1.25rem", height: "1.25rem" }}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m6 4.125l2.25 2.25m0 0l2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"
+              />
+            </svg>
+            {isArchived ? "UNARCHIVE" : "ARCHIVE"}{" "}
+            {selectedCount > 0 && `(${selectedCount})`}
+          </button>
+        </div>
+        {/* Column space for checkbox*/}
       </div>
+
+      {/* Bottom row controls: Select All and Archive */}
 
       {currentApplications.map((app) => (
         <React.Fragment key={app.applicant.id}>
-          <div
-            className={styles.tableRow}
-            onClick={() => onViewDetails(app)}
-            style={{ cursor: "pointer" }}
-          >
-            <div className={`${styles.jobseekersDetails}`}>
+          <div className={styles.tableRow}>
+            <div
+              className={`${styles.jobseekersDetails}`}
+              onClick={() => onViewDetails(app)}
+              style={{ cursor: "pointer" }}
+            >
               <div className={styles.avatarCell}>
                 <img
                   src={
@@ -272,7 +313,9 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
               <div>{app.applicant.preferred_poa || "N/A"}</div>
               <div>{formatAppliedDate(app.applied_date, !!app.status)}</div>
             </div>
-            <div onClick={(e) => e.stopPropagation()}>
+
+            {/* Comment out status jobseeker */}
+            {/*<div onClick={(e) => e.stopPropagation()}>
               {app.status && (
                 <span
                   className={styles.statusBadge}
@@ -281,7 +324,7 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
                   {app.status}
                 </span>
               )}
-            </div>
+            </div>*/}
             <div
               className={styles.selectIndicator}
               onClick={(e) => {
@@ -292,19 +335,17 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
               {selectedJobseekers.includes(app.applicant.id) && (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
+                  width="32"
+                  height="32"
                   viewBox="0 0 24 24"
-                  fill="currentColor"
-                  style={{
-                    width: "1.5rem",
-                    height: "1.5rem",
-                    color: "var(--accent)",
-                  }}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="feather feather-check"
                 >
-                  <path
-                    fillRule="evenodd"
-                    d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z"
-                    clipRule="evenodd"
-                  />
+                  <polyline points="20 6 9 17 4 12" />
                 </svg>
               )}
             </div>

@@ -123,9 +123,6 @@ const Jobseekers = () => {
         <JobseekerSearchBar
           search={search}
           setSearch={setSearch}
-          selectedCount={selectedJobseekers.length}
-          onSelectAll={handleSelectAll}
-          onArchiveSelected={handleArchiveSelected}
           sortBy={sortBy}
           setSortBy={setSortBy}
           selectedApplicantTypes={selectedApplicantTypes}
@@ -142,6 +139,9 @@ const Jobseekers = () => {
         setSortBy={setSortBy}
         selectedJobseekers={selectedJobseekers}
         onToggleSelect={handleToggleSelect}
+        selectedCount={selectedJobseekers.length}
+        onSelectAll={handleSelectAll}
+        onArchiveSelected={handleArchiveSelected}
       />
     </section>
   );

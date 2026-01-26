@@ -78,9 +78,7 @@ export default function ExamResultModal({
             </div>
 
             {loadingAttempt ? (
-              <div className={styles.scoreDisplay}>
-                <BlocksWave />
-              </div>
+              <BlocksWave />
             ) : examAttempt ? (
               <div style={{ marginTop: "1.5rem" }}>
                 <ExamResultView

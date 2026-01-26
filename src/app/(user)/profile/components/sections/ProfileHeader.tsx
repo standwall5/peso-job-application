@@ -5,10 +5,28 @@ import Button from "@/components/Button";
 import styles from "./ProfileHeader.module.css";
 import { User, ResumeData } from "../../types/profile.types";
 import { SkillsAutocomplete } from "../SkillsAutocomplete";
+import { DropdownChecklist } from "@/components/DropdownChecklist";
 import { updateResumeAction } from "../../actions/profile.actions";
 
 // Import constants from signup
-const PREFERRED_PLACES = ["Paranaque", "Las Piñas", "Muntinlupa"] as const;
+const PREFERRED_PLACES = [
+  "Baclaran",
+  "Don Galo",
+  "La Huerta",
+  "San Dionisio",
+  "Santo Niño",
+  "Tambo",
+  "Vitalez",
+  "BF Homes",
+  "Don Bosco",
+  "Marcelo Green",
+  "Merville",
+  "Moonwalk",
+  "San Antonio",
+  "San Isidro",
+  "San Martin de Porres",
+  "Sun Valley",
+] as const;
 
 const APPLICANT_TYPES = [
   "Student",
@@ -47,7 +65,9 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   const [editableEmail, setEditableEmail] = useState("");
   const [editablePhone, setEditablePhone] = useState("");
   const [editablePreferredPoa, setEditablePreferredPoa] = useState("");
-  const [editableApplicantType, setEditableApplicantType] = useState("");
+  const [editableApplicantType, setEditableApplicantType] = useState<string[]>(
+    [],
+  );
 
   // Initialize editable skills and overview from resume
   useEffect(() => {
@@ -62,7 +82,14 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     setEditableEmail(user.email || "");
     setEditablePhone(user.phone || "");
     setEditablePreferredPoa(user.preferred_poa || "");
-    setEditableApplicantType(user.applicant_type || "");
+    // Parse applicant_type from comma-separated string to array
+    if (user.applicant_type) {
+      setEditableApplicantType(
+        user.applicant_type.split(",").map((type) => type.trim()),
+      );
+    } else {
+      setEditableApplicantType([]);
+    }
   }, [user]);
 
   const handleSaveProfile = async () => {
@@ -108,7 +135,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
       await updateProfileDetailsAction({
         preferred_poa: editablePreferredPoa,
-        applicant_type: editableApplicantType,
+        applicant_type: editableApplicantType.join(", "),
       });
 
       setIsEditingProfile(false);
@@ -126,8 +153,23 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     setEditableEmail(user.email || "");
     setEditablePhone(user.phone || "");
     setEditablePreferredPoa(user.preferred_poa || "");
-    setEditableApplicantType(user.applicant_type || "");
+    // Parse applicant_type from comma-separated string to array
+    if (user.applicant_type) {
+      setEditableApplicantType(
+        user.applicant_type.split(",").map((type) => type.trim()),
+      );
+    } else {
+      setEditableApplicantType([]);
+    }
     setIsEditingProfile(false);
+  };
+
+  const handleApplicantTypeChange = (type: string, checked: boolean) => {
+    if (checked) {
+      setEditableApplicantType([...editableApplicantType, type]);
+    } else {
+      setEditableApplicantType(editableApplicantType.filter((t) => t !== type));
+    }
   };
 
   return (
@@ -262,18 +304,14 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
                   <div className={styles.contactItem}>
                     <span className={styles.contactLabel}>APPLICANT TYPE:</span>
-                    <select
-                      value={editableApplicantType}
-                      onChange={(e) => setEditableApplicantType(e.target.value)}
-                      className={styles.selectInput}
-                    >
-                      <option value="">Select applicant type</option>
-                      {APPLICANT_TYPES.map((type) => (
-                        <option key={type} value={type}>
-                          {type}
-                        </option>
-                      ))}
-                    </select>
+                    <div style={{ marginTop: "0.5rem" }}>
+                      <DropdownChecklist
+                        options={APPLICANT_TYPES}
+                        selectedValues={editableApplicantType}
+                        onChange={handleApplicantTypeChange}
+                        placeholder="Select applicant type(s)"
+                      />
+                    </div>
                   </div>
                 </>
               ) : (

@@ -39,6 +39,7 @@ interface AdminChatPanelProps {
   activeChats: ChatRequest[];
   closedChats: ChatRequest[];
   onRefresh: () => void;
+  initiatedApplicantId?: number | null;
 }
 
 function AdminChatPanel({
@@ -48,6 +49,7 @@ function AdminChatPanel({
   activeChats,
   closedChats,
   onRefresh,
+  initiatedApplicantId,
 }: AdminChatPanelProps) {
   const [activeTab, setActiveTab] = useState<"pending" | "active" | "closed">(
     "pending",
@@ -100,6 +102,23 @@ function AdminChatPanel({
       chat.concern.toLowerCase().includes(query)
     );
   });
+
+  // Auto-select chat when initiated from external component
+  useEffect(() => {
+    if (initiatedApplicantId && isOpen) {
+      // Switch to active tab
+      setActiveTab("active");
+
+      // Find and select the chat with the initiated applicant
+      const initiatedChat = activeChats.find(
+        (chat) => chat.userId === initiatedApplicantId,
+      );
+
+      if (initiatedChat) {
+        setActiveChat(initiatedChat);
+      }
+    }
+  }, [initiatedApplicantId, isOpen, activeChats]);
 
   // Auto-scroll to bottom
   useEffect(() => {

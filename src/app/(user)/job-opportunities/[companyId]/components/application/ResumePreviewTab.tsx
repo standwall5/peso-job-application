@@ -114,11 +114,7 @@ const ResumePreviewTab: React.FC<ResumePreviewTabProps> = ({
       : [];
 
   if (loading) {
-    return (
-      <div className={jobStyle.applicantDetail}>
-        <BlocksWave color="var(--accent)" />
-      </div>
-    );
+    return <BlocksWave color="var(--accent)" />;
   }
 
   if (!user || !resume) {

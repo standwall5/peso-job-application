@@ -137,13 +137,13 @@ export async function getUnreadMessageCount(): Promise<number> {
     return 0;
   }
 
-  // Count unread messages from admin
+  // Count unread messages from admin (check for both false and null)
   const { count, error } = await supabase
     .from("chat_messages")
     .select("*", { count: "exact", head: true })
     .eq("chat_session_id", activeSession.id)
     .eq("sender", "admin")
-    .eq("read_by_user", false);
+    .or("read_by_user.is.null,read_by_user.eq.false");
 
   if (error) {
     console.error("Error counting unread messages:", error);
@@ -224,7 +224,7 @@ export async function createChatRequest(concern: string): Promise<ChatSession> {
 
 // Get messages for a chat session
 export async function getChatMessages(
-  chatSessionId: string
+  chatSessionId: string,
 ): Promise<ChatMessage[]> {
   const supabase = await getSupabaseClient();
   await getCurrentUser();
@@ -247,7 +247,7 @@ export async function getChatMessages(
 // Send a chat message
 export async function sendChatMessage(
   chatSessionId: string,
-  message: string
+  message: string,
 ): Promise<ChatMessage> {
   const supabase = await getSupabaseClient();
   await getCurrentUser();

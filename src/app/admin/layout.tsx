@@ -10,8 +10,9 @@ import Header from "./components/Header";
 import Footer from "@/components/Footer";
 import AdminChatWidget from "@/components/chat/AdminChatWidget";
 import { getAdminProfileAction } from "@/app/admin/actions/admin.actions";
+import { AdminChatProvider, useAdminChat } from "@/contexts/AdminChatContext";
 
-export default function AdminLayout({
+function AdminLayoutContent({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -19,6 +20,7 @@ export default function AdminLayout({
   const router = useRouter();
   const [isSuperAdmin, setIsSuperAdmin] = useState<boolean | null>(null);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
+  const { chatWidgetRef } = useAdminChat();
 
   useEffect(() => {
     const checkAdminRole = async () => {
@@ -54,7 +56,19 @@ export default function AdminLayout({
       </div>
 
       {/* Floating Admin Chat Widget - Only for regular admins */}
-      {isSuperAdmin === false && <AdminChatWidget />}
+      {isSuperAdmin === false && <AdminChatWidget ref={chatWidgetRef} />}
     </div>
+  );
+}
+
+export default function AdminLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <AdminChatProvider>
+      <AdminLayoutContent>{children}</AdminLayoutContent>
+    </AdminChatProvider>
   );
 }

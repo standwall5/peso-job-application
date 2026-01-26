@@ -6,10 +6,6 @@ import styles from "../Jobseekers.module.css";
 interface JobseekerSearchBarProps {
   search: string;
   setSearch: (search: string) => void;
-  selectedCount: number;
-  onSelectAll: () => void;
-  onArchiveSelected: () => void;
-  isArchived?: boolean;
   sortBy: string;
   setSortBy: (sort: string) => void;
   selectedApplicantTypes: string[];
@@ -36,10 +32,6 @@ const PREFERRED_PLACES = ["Paranaque", "Las Piñas", "Muntinlupa"];
 const JobseekerSearchBar: React.FC<JobseekerSearchBarProps> = ({
   search,
   setSearch,
-  selectedCount,
-  onSelectAll,
-  onArchiveSelected,
-  isArchived = false,
   sortBy,
   setSortBy,
   selectedApplicantTypes,
@@ -65,16 +57,6 @@ const JobseekerSearchBar: React.FC<JobseekerSearchBarProps> = ({
         ? prev.filter((p: string) => p !== place)
         : [...prev, place],
     );
-  };
-
-  const handleArchiveClick = () => {
-    if (selectedCount === 0) {
-      alert(
-        `Please select at least one jobseeker to ${isArchived ? "unarchive" : "archive"}.`,
-      );
-      return;
-    }
-    onArchiveSelected();
   };
 
   return (
@@ -250,31 +232,6 @@ const JobseekerSearchBar: React.FC<JobseekerSearchBarProps> = ({
               </div>
             )}
           </div>
-        </div>
-
-        {/* Bottom row: Select All and Archive */}
-        <div className={styles.bottomRowControls}>
-          <button className={styles.selectAllButton} onClick={onSelectAll}>
-            SELECT ALL
-          </button>
-          <button className={styles.archiveButton} onClick={handleArchiveClick}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              style={{ width: "1.25rem", height: "1.25rem" }}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m6 4.125l2.25 2.25m0 0l2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"
-              />
-            </svg>
-            {isArchived ? "UNARCHIVE" : "ARCHIVE"}{" "}
-            {selectedCount > 0 && `(${selectedCount})`}
-          </button>
         </div>
       </div>
     </div>

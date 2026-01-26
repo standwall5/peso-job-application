@@ -57,8 +57,8 @@
     border-radius: 16px;
     width: 95%;
     max-width: 1400px;
-    max-height: 90vh;
-    overflow: hidden;
+    max-height: 95vh;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     box-shadow:
@@ -171,8 +171,7 @@
     display: grid;
     grid-template-columns: 45% 55%;
     gap: 0;
-    overflow-y: auto;
-    flex: 1;
+    flex-shrink: 0;
 }
 
 .leftColumn,
@@ -434,7 +433,7 @@
 @media (max-width: 768px) {
     .modal {
         width: 100%;
-        max-height: 95vh;
+        max-height: 98vh;
         border-radius: 12px;
         border-width: 2px;
     }

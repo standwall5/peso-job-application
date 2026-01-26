@@ -94,17 +94,7 @@ const PublicCompanyList = ({
 
       <div className={styles.jobList}>
         {loading ? (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              minHeight: "60vh",
-              width: "100%",
-            }}
-          >
-            <BlocksWave />
-          </div>
+          <BlocksWave />
         ) : paginatedCompanies.length > 0 ? (
           paginatedCompanies.map((company) => (
             <a key={company.id} href={`/job-opportunities/${company.id}`}>

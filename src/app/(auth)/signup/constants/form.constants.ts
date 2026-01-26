@@ -59,9 +59,22 @@ export const BARANGAYS = {
 } as const;
 
 export const PREFERRED_PLACES = [
-  "Paranaque",
-  "Las Piñas",
-  "Muntinlupa",
+  "Baclaran",
+  "Don Galo",
+  "La Huerta",
+  "San Dionisio",
+  "Santo Niño",
+  "Tambo",
+  "Vitalez",
+  "BF Homes",
+  "Don Bosco",
+  "Marcelo Green",
+  "Merville",
+  "Moonwalk",
+  "San Antonio",
+  "San Isidro",
+  "San Martin de Porres",
+  "Sun Valley",
 ] as const;
 
 export const EXT_NAME_OPTIONS = ["Jr.", "Sr.", "II", "III", "IV"] as const;

@@ -1,6 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
 import { createClient } from "@/utils/supabase/client";
 import AdminChatButton from "./AdminChatButton";
 import AdminChatPanel from "./AdminChatPanel";
@@ -17,11 +24,18 @@ interface ChatRequest {
   closedAt: Date | null;
 }
 
-export default function AdminChatWidget() {
+export interface AdminChatWidgetRef {
+  initiateChat: (applicantId: number, applicantName: string) => Promise<void>;
+}
+
+const AdminChatWidget = forwardRef<AdminChatWidgetRef>((props, ref) => {
   const [isOpen, setIsOpen] = useState(false);
   const [pendingChats, setPendingChats] = useState<ChatRequest[]>([]);
   const [activeChats, setActiveChats] = useState<ChatRequest[]>([]);
   const [closedChats, setClosedChats] = useState<ChatRequest[]>([]);
+  const [initiatedApplicantId, setInitiatedApplicantId] = useState<
+    number | null
+  >(null);
   const isFetchingRef = useRef(false);
   const fetchDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -135,6 +149,40 @@ export default function AdminChatWidget() {
     prevIsOpenRef.current = isOpen;
   }, [isOpen, fetchAllChats]);
 
+  // Expose initiateChat method to parent components
+  useImperativeHandle(ref, () => ({
+    initiateChat: async (applicantId: number, applicantName: string) => {
+      try {
+        const response = await fetch("/api/admin/chat/initiate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            applicantId,
+            initialMessage: `Hello ${applicantName}, how can I help you?`,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to initiate chat");
+        }
+
+        const data = await response.json();
+
+        // Refresh chats to show the new session
+        await fetchAllChats();
+
+        // Open the panel and set it to active chats
+        setIsOpen(true);
+        setInitiatedApplicantId(applicantId);
+
+        return data;
+      } catch (error) {
+        console.error("Error initiating chat:", error);
+        throw error;
+      }
+    },
+  }));
+
   return (
     <>
       <AdminChatButton
@@ -144,12 +192,20 @@ export default function AdminChatWidget() {
       />
       <AdminChatPanel
         isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
+        onClose={() => {
+          setIsOpen(false);
+          setInitiatedApplicantId(null);
+        }}
         pendingChats={pendingChats}
         activeChats={activeChats}
         closedChats={closedChats}
         onRefresh={fetchAllChats}
+        initiatedApplicantId={initiatedApplicantId}
       />
     </>
   );
-}
+});
+
+AdminChatWidget.displayName = "AdminChatWidget";
+
+export default AdminChatWidget;

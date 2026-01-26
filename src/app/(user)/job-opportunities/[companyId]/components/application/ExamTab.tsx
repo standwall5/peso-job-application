@@ -28,11 +28,7 @@ const ExamTab: React.FC<ExamTabProps> = ({
   onExamSubmit,
 }) => {
   if (loadingAttempt || loadingExam) {
-    return (
-      <div className={jobStyle.applicantDetail}>
-        <BlocksWave />
-      </div>
-    );
+    return <BlocksWave />;
   }
 
   // User has taken exam - show results

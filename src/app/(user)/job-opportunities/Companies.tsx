@@ -95,19 +95,7 @@ export const CompaniesContent = () => {
   }, [searchParams]);
 
   if (loading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-          width: "100%",
-        }}
-      >
-        <BlocksWave />
-      </div>
-    );
+    return <BlocksWave />;
   }
 
   if (!user) {
@@ -131,20 +119,7 @@ export const CompaniesContent = () => {
 
 const Companies = () => {
   return (
-    <Suspense
-      fallback={
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            minHeight: "100vh",
-          }}
-        >
-          <BlocksWave />
-        </div>
-      }
-    >
+    <Suspense fallback={<BlocksWave />}>
       <CompaniesContent />
     </Suspense>
   );

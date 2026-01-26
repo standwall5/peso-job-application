@@ -166,11 +166,7 @@ export default function VerifiedIdUpload({
   };
 
   if (loadingExisting) {
-    return (
-      <div className={styles.container}>
-        <BlocksWave />
-      </div>
-    );
+    return <BlocksWave />;
   }
 
   // VIEW MODE: Existing ID

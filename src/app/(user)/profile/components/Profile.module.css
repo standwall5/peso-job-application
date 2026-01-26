@@ -8,7 +8,7 @@
     justify-self: center;
     position: relative;
     padding-top: 0;
-    justify-content: center; /* Center vertically if possible */
+    justify-content: flex-start; /* Center vertically if possible */
 }
 
 /* Sidebar / Drawer */
@@ -85,6 +85,7 @@
     aspect-ratio: 1/1 !important; /* Force square aspect ratio */
     flex-shrink: 0 !important; /* Prevent shrinking */
     margin: 0 auto;
+    top: 0;
 }
 
 .profilePic {

@@ -47,10 +47,13 @@ export default function ChatButton({
         (payload) => {
           const newMsg = payload.new as {
             sender: string;
-            read_by_user: boolean;
+            read_by_user: boolean | null;
           };
-          // If message is from admin and unread, increment count
-          if (newMsg.sender === "admin" && !newMsg.read_by_user) {
+          // If message is from admin and unread (null or false), increment count
+          if (
+            newMsg.sender === "admin" &&
+            (newMsg.read_by_user === false || newMsg.read_by_user === null)
+          ) {
             console.log("[ChatButton] New unread message from admin");
             fetchUnreadCount();
           }
@@ -66,6 +69,45 @@ export default function ChatButton({
         () => {
           // Messages marked as read, update count
           fetchUnreadCount();
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "chat_sessions",
+        },
+        (payload) => {
+          const newSession = payload.new as {
+            status: string;
+            admin_id: number | null;
+          };
+          // If admin initiated a new chat session, show notification
+          if (newSession.admin_id) {
+            console.log("[ChatButton] New chat session initiated by admin");
+            fetchUnreadCount();
+          }
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "chat_sessions",
+        },
+        (payload) => {
+          const updatedSession = payload.new as {
+            status: string;
+          };
+          // Session status changed, update count
+          if (
+            updatedSession.status === "active" ||
+            updatedSession.status === "closed"
+          ) {
+            fetchUnreadCount();
+          }
         },
       )
       .subscribe();

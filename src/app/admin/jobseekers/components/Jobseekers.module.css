@@ -147,6 +147,8 @@
 .bottomRowControls {
     display: flex;
     align-items: center;
+    justify-content: center;
+    margin-right: -7.5rem;
     gap: 1rem;
 }
 
@@ -207,14 +209,18 @@
     border-radius: 0 0 0.375rem 0.375rem;
 }
 
+.archiveButton,
 .selectAllButton {
-    padding: 0.75rem 1.5rem;
+    font-size: 0.7rem;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+}
+
+.selectAllButton {
     border-radius: 0.25rem;
     background: white;
     color: var(--text-primary);
     border: 2px solid var(--accent);
-    font-weight: 600;
-    font-size: 0.875rem;
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
@@ -229,23 +235,20 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
     border-radius: 0.25rem;
-    background: #dc2626;
+    background: #4d4b4b9e;
     color: white;
     border: none;
-    font-weight: 600;
-    font-size: 0.875rem;
+
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+    box-shadow: 0 0px px #3634349e;
     white-space: nowrap;
 }
 
 .archiveButton:hover {
-    background: #b91c1c;
+    background: #4d4b4b9e;
     transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3);
 }
 
 .archiveButton:active {
@@ -325,7 +328,7 @@
 .tableHeader,
 .tableRow {
     display: grid;
-    grid-template-columns: 4fr 1fr 0.2fr;
+    grid-template-columns: 4fr 0.5fr;
     align-items: center;
     justify-content: center;
     width: 100%;
@@ -1350,6 +1353,38 @@
     color: #64748b;
 }
 
+.messageJobseekerBtn {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.2);
+}
+
+.messageJobseekerBtn:hover {
+    background: var(--button);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.messageJobseekerBtn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(52, 152, 219, 0.2);
+}
+
+.messageJobseekerBtn svg {
+    flex-shrink: 0;
+}
+
 /* Resume Container */
 .resumeContainer {
     display: flex;
@@ -1545,6 +1580,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    place-self: center;
     width: 2rem;
     height: 2rem;
     cursor: pointer;
@@ -1553,6 +1589,12 @@
 }
 .selectIndicator:hover {
     background: rgba(128, 231, 177, 0.1);
+}
+
+.selectIndicator svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--accent);
 }
 
 /* Active row styling */

@@ -186,17 +186,7 @@ const PrivateCompanyListWithRecommendations = ({
 
           {loading ? (
             <div className={panelStyles.companiesGrid}>
-              <div
-                style={{
-                  gridColumn: "1 / -1",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  minHeight: "40vh",
-                }}
-              >
-                <BlocksWave />
-              </div>
+              <BlocksWave />
             </div>
           ) : sortedCompanies.length > 0 ? (
             <>

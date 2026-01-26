@@ -74,13 +74,14 @@ export async function POST(request: Request) {
     );
   }
 
-  // Insert message
+  // Insert message (set read_by_user to false so user sees notification)
   const { data: newMessage, error: messageError } = await supabase
     .from("chat_messages")
     .insert({
       chat_session_id: chatId,
       sender: "admin",
       message: message.trim(),
+      read_by_user: false,
     })
     .select()
     .single();
