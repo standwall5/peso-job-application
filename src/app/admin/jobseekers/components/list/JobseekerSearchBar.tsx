@@ -12,6 +12,10 @@ interface JobseekerSearchBarProps {
   setSelectedApplicantTypes: React.Dispatch<React.SetStateAction<string[]>>;
   selectedPlaces: string[];
   setSelectedPlaces: React.Dispatch<React.SetStateAction<string[]>>;
+  selectedCount?: number;
+  onSelectAll?: () => void;
+  onArchiveSelected?: () => Promise<void>;
+  isArchived?: boolean;
 }
 
 const APPLICANT_TYPES = [
@@ -38,6 +42,10 @@ const JobseekerSearchBar: React.FC<JobseekerSearchBarProps> = ({
   setSelectedApplicantTypes,
   selectedPlaces,
   setSelectedPlaces,
+  selectedCount = 0,
+  onSelectAll,
+  onArchiveSelected,
+  isArchived = false,
 }) => {
   const [showSortMenu, setShowSortMenu] = React.useState(false);
   const [showTypeFilter, setShowTypeFilter] = React.useState(false);
@@ -61,6 +69,22 @@ const JobseekerSearchBar: React.FC<JobseekerSearchBarProps> = ({
 
   return (
     <div className={styles.topBar}>
+      {/* Left - Selection and Archive Controls (only when handlers are provided) */}
+      {onSelectAll && onArchiveSelected && (
+        <div className={styles.leftControls}>
+          <button className={styles.selectAllButton} onClick={onSelectAll}>
+            {selectedCount > 0 ? "Deselect All" : "Select All"}
+          </button>
+          {selectedCount > 0 && (
+            <button
+              className={styles.archiveButton}
+              onClick={onArchiveSelected}
+            >
+              {isArchived ? "Unarchive" : "Archive"} ({selectedCount})
+            </button>
+          )}
+        </div>
+      )}
       {/* Center - Search */}
       <div className={styles.searchContainer}>
         <div className={styles.search}>

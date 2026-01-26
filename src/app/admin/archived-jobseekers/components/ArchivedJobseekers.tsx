@@ -159,6 +159,10 @@ const ArchivedJobseekers = () => {
           setSortBy={setSortBy}
           selectedJobseekers={selectedJobseekers}
           onToggleSelect={handleToggleSelect}
+          selectedCount={selectedJobseekers.length}
+          onSelectAll={handleSelectAll}
+          onArchiveSelected={handleUnarchiveSelected}
+          isArchived={true}
         />
       )}
     </section>
