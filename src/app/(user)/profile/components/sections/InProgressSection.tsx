@@ -261,20 +261,14 @@ export const InProgressSection: React.FC<InProgressSectionProps> = ({
         <ApplicationModal
           job={convertToModalJob(selectedJob)}
           hasApplied={false}
-          examData={examData}
-          loadingExam={loadingExam}
-          examAttempt={examAttempt}
-          loadingAttempt={loadingAttempt}
           progress={applicationProgress[selectedJob.id]}
           onClose={handleCloseModal}
-          onExamSubmit={handleExamSubmitWrapper}
           onContinueToExam={() => {}}
           onIdUploaded={() => {
             showToast("ID Uploaded", "Your ID has been uploaded successfully!");
             loadInProgressJobs();
           }}
           onSubmitFinalApplication={handleSubmitFinalApplication}
-          onFetchExamAttempt={handleFetchExamAttempt}
         />
       )}
 

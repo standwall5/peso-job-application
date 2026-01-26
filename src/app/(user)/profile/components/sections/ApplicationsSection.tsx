@@ -231,14 +231,9 @@ export const ApplicationsSection: React.FC<ApplicationsSectionProps> = ({
         <ApplicationModal
           job={convertToModalJob(selectedJob)}
           hasApplied={true}
-          examData={examData}
-          loadingExam={loadingExam}
-          examAttempt={examAttempt}
-          loadingAttempt={loadingAttempt}
           progress={applicationProgress[selectedJob.id]}
           applicationId={selectedApplicationId}
           onClose={handleCloseModal}
-          onExamSubmit={handleExamSubmitWrapper}
           onContinueToExam={() => {
             showToast("Note", "You have already applied to this job.");
           }}
@@ -248,7 +243,6 @@ export const ApplicationsSection: React.FC<ApplicationsSectionProps> = ({
           onSubmitFinalApplication={() => {
             showToast("Note", "You have already applied to this job.");
           }}
-          onFetchExamAttempt={handleFetchExamAttempt}
         />
       )}
 
