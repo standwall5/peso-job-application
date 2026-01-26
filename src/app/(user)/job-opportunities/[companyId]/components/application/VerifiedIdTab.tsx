@@ -16,7 +16,6 @@ interface VerifiedIdTabProps {
 
 const VerifiedIdTab: React.FC<VerifiedIdTabProps> = ({
   hasApplied,
-  examAttempt,
   progress,
   jobId,
   applicationId,

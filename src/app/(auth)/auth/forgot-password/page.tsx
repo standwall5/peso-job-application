@@ -11,12 +11,13 @@ async function resetAction(formData: FormData) {
   redirect("/auth/forgot-password?status=success");
 }
 
-export default function ForgotPasswordPage({
+export default async function ForgotPasswordPage({
   searchParams,
 }: {
-  searchParams?: { status?: string };
+  searchParams?: Promise<{ status?: string }>;
 }) {
-  const status = searchParams?.status;
+  const params = await searchParams;
+  const status = params?.status;
 
   return (
     <div className={styles.authContainer}>
