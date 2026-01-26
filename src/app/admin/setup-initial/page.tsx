@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import styles from "./SetupInitial.module.css";
 import { ProfilePictureUpload } from "../components/ProfilePictureUpload";
@@ -10,18 +10,22 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function AdminSetupInitialPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [hasUploadedPicture, setHasUploadedPicture] = useState(false);
   const [hasSelectedPicture, setHasSelectedPicture] = useState(false);
   const profileUploadHandlerRef = useRef<
     (() => Promise<{ success: boolean; url?: string }>) | null
   >(null);
   const [adminName, setAdminName] = useState("");
+  const [currentPictureUrl, setCurrentPictureUrl] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     const checkSetupStatus = async () => {
@@ -59,6 +63,7 @@ export default function AdminSetupInitialPage() {
         // If picture already uploaded, mark it
         if (adminData.profile_picture_url) {
           setHasUploadedPicture(true);
+          setCurrentPictureUrl(adminData.profile_picture_url);
         }
 
         setLoading(false);
@@ -77,7 +82,7 @@ export default function AdminSetupInitialPage() {
 
     // Validate profile picture
     if (!hasUploadedPicture && !hasSelectedPicture) {
-      setError("Please select a profile picture to continue.");
+      setError("Please upload a profile picture to continue.");
       return;
     }
 
@@ -161,6 +166,13 @@ export default function AdminSetupInitialPage() {
     }
   };
 
+  const allRequirementsMet =
+    newPassword.length >= 8 &&
+    /[A-Z]/.test(newPassword) &&
+    /[a-z]/.test(newPassword) &&
+    /\d/.test(newPassword) &&
+    /[^A-Za-z0-9]/.test(newPassword);
+
   if (loading) {
     return (
       <div className={styles.container}>
@@ -170,122 +182,206 @@ export default function AdminSetupInitialPage() {
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.card}>
+    <div className={styles.overlay}>
+      <div className={styles.modal}>
         <div className={styles.header}>
-          <div className={styles.iconContainer}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className={styles.icon}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
-              />
-            </svg>
+          <div className={styles.headerContent}>
+            <div className={styles.iconContainer}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className={styles.icon}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+                />
+              </svg>
+            </div>
+            <div>
+              <h1 className={styles.title}>Welcome, {adminName}!</h1>
+              <p className={styles.subtitle}>
+                Complete your profile to access the admin panel
+              </p>
+            </div>
           </div>
-          <h1 className={styles.title}>Welcome, {adminName}!</h1>
-          <p className={styles.subtitle}>
-            Complete your profile to access the admin panel
-          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className={styles.form}>
-          {error && <div className={styles.error}>{error}</div>}
+        <form onSubmit={handleSubmit}>
+          {error && (
+            <div className={styles.errorBanner}>
+              <span className={styles.errorIcon}>⚠️</span>
+              {error}
+            </div>
+          )}
 
-          <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>Profile Picture</h3>
-            <ProfilePictureUpload
-              currentPictureUrl={null}
-              onUploadSuccess={(url) => {
-                setHasUploadedPicture(!!url);
-                setHasSelectedPicture(false);
-              }}
-              onFileSelected={(file) => {
-                setHasSelectedPicture(!!file);
-              }}
-              onUploadHandlerReady={(handler) => {
-                profileUploadHandlerRef.current = handler;
-              }}
-              showUploadButton={false}
-              showRemoveButton={false}
-              showSuccessAlerts={false}
-            />
+          <div className={styles.twoColumnContent}>
+            {/* LEFT COLUMN - Profile Picture */}
+            <div className={styles.leftColumn}>
+              <h3 className={styles.columnTitle}>
+                Profile Picture
+                <span className={styles.requiredBadge}>Required</span>
+              </h3>
+              <p className={styles.sectionDescription}>
+                Upload a professional profile picture. This will be visible to
+                all users in the system.
+              </p>
+              <div className={styles.profileSection}>
+                <ProfilePictureUpload
+                  currentPictureUrl={currentPictureUrl}
+                  onUploadSuccess={(url) => {
+                    console.log("✅ Profile picture uploaded:", url);
+                    setHasUploadedPicture(!!url);
+                    setHasSelectedPicture(false);
+                    setCurrentPictureUrl(url);
+                  }}
+                  onFileSelected={(file) => {
+                    setHasSelectedPicture(!!file);
+                  }}
+                  onUploadHandlerReady={(handler) => {
+                    profileUploadHandlerRef.current = handler;
+                  }}
+                  onUploadStart={() => {
+                    console.log("⏳ Starting profile picture upload...");
+                  }}
+                  showUploadButton={false}
+                  showRemoveButton={false}
+                  showSuccessAlerts={false}
+                />
+              </div>
+            </div>
+
+            {/* RIGHT COLUMN - Set Password */}
+            <div className={styles.rightColumn}>
+              <h3 className={styles.columnTitle}>
+                Set Your Password
+                <span className={styles.requiredBadge}>Required</span>
+              </h3>
+              <p className={styles.sectionDescription}>
+                Create a secure password for your admin account. You can change
+                this later in your account settings.
+              </p>
+
+              <div className={styles.passwordForm}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="newPassword" className={styles.label}>
+                    New Password <span className={styles.required}>*</span>
+                  </label>
+                  <div className={styles.passwordInputWrapper}>
+                    <input
+                      type={showNewPassword ? "text" : "password"}
+                      id="newPassword"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className={styles.input}
+                      placeholder="Enter your password"
+                      required
+                      disabled={submitting}
+                    />
+                    <button
+                      type="button"
+                      className={styles.passwordToggle}
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      tabIndex={-1}
+                    >
+                      {showNewPassword ? "👁️" : "👁️‍🗨️"}
+                    </button>
+                  </div>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="confirmPassword" className={styles.label}>
+                    Confirm Password <span className={styles.required}>*</span>
+                  </label>
+                  <div className={styles.passwordInputWrapper}>
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      id="confirmPassword"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className={styles.input}
+                      placeholder="Confirm your password"
+                      required
+                      disabled={submitting}
+                    />
+                    <button
+                      type="button"
+                      className={styles.passwordToggle}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      tabIndex={-1}
+                    >
+                      {showConfirmPassword ? "👁️" : "👁️‍🗨️"}
+                    </button>
+                  </div>
+                </div>
+
+                {newPassword && (
+                  <div className={styles.passwordRequirements}>
+                    <p className={styles.requirementsTitle}>
+                      Password must contain:
+                    </p>
+                    <ul className={styles.requirementsList}>
+                      <li className={newPassword.length >= 8 ? styles.met : ""}>
+                        At least 8 characters
+                      </li>
+                      <li
+                        className={/[A-Z]/.test(newPassword) ? styles.met : ""}
+                      >
+                        One uppercase letter
+                      </li>
+                      <li
+                        className={/[a-z]/.test(newPassword) ? styles.met : ""}
+                      >
+                        One lowercase letter
+                      </li>
+                      <li className={/\d/.test(newPassword) ? styles.met : ""}>
+                        One number
+                      </li>
+                      <li
+                        className={
+                          /[^A-Za-z0-9]/.test(newPassword) ? styles.met : ""
+                        }
+                      >
+                        One special character
+                      </li>
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
-          <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>Set Your Password</h3>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="newPassword" className={styles.label}>
-                New Password <span className={styles.required}>*</span>
-              </label>
-              <input
-                type="password"
-                id="newPassword"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className={styles.input}
-                placeholder="Enter your password"
-                required
-                disabled={submitting}
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="confirmPassword" className={styles.label}>
-                Confirm Password <span className={styles.required}>*</span>
-              </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className={styles.input}
-                placeholder="Confirm your password"
-                required
-                disabled={submitting}
-              />
-            </div>
-
-            <div className={styles.requirements}>
-              <p className={styles.requirementsTitle}>Password must contain:</p>
-              <ul className={styles.requirementsList}>
-                <li className={newPassword.length >= 8 ? styles.met : ""}>
-                  At least 8 characters
-                </li>
-                <li className={/[A-Z]/.test(newPassword) ? styles.met : ""}>
-                  One uppercase letter
-                </li>
-                <li className={/[a-z]/.test(newPassword) ? styles.met : ""}>
-                  One lowercase letter
-                </li>
-                <li className={/\d/.test(newPassword) ? styles.met : ""}>
-                  One number
-                </li>
-                <li
-                  className={/[^A-Za-z0-9]/.test(newPassword) ? styles.met : ""}
-                >
-                  One special character
-                </li>
-              </ul>
-            </div>
+          <div className={styles.footer}>
+            <Button
+              type="submit"
+              disabled={
+                submitting ||
+                (!hasUploadedPicture && !hasSelectedPicture) ||
+                !allRequirementsMet
+              }
+              style={{ width: "100%", maxWidth: "400px" }}
+            >
+              {submitting
+                ? "Setting up your account..."
+                : "Complete Setup & Continue"}
+            </Button>
+            {!hasUploadedPicture && !hasSelectedPicture && (
+              <p className={styles.footerHelper}>
+                Please upload a profile picture to continue
+              </p>
+            )}
+            {!allRequirementsMet && newPassword.length > 0 && (
+              <p className={styles.footerHelper}>
+                Please meet all password requirements to continue
+              </p>
+            )}
           </div>
-
-          <Button
-            type="submit"
-            disabled={
-              submitting || (!hasUploadedPicture && !hasSelectedPicture)
-            }
-            style={{ width: "100%", marginTop: "1rem" }}
-          >
-            {submitting ? "Setting up..." : "Complete Setup"}
-          </Button>
         </form>
       </div>
     </div>

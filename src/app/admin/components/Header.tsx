@@ -16,7 +16,6 @@ const Header = () => {
   const router = useRouter();
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [isProfileIncomplete, setIsProfileIncomplete] = useState(false);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [adminName, setAdminName] = useState<string>("");
   const [profileTimestamp, setProfileTimestamp] = useState(Date.now());
@@ -44,18 +43,6 @@ const Header = () => {
             );
             router.push("/admin/setup-initial");
             return;
-          }
-
-          // Check if profile is incomplete (no profile picture)
-          // This can happen if admin was invited but never completed setup
-          const incomplete = !admin.profile_picture_url;
-          setIsProfileIncomplete(incomplete);
-
-          if (incomplete) {
-            console.log(
-              "⚠️ [Header] Incomplete profile detected - forcing modal",
-            );
-            setShowProfileModal(true);
           }
 
           if (admin.profile_picture_url) {
@@ -236,22 +223,14 @@ const Header = () => {
       {/* Profile Modal (AD01) */}
       <AdminProfileModal
         isOpen={showProfileModal}
-        onClose={() => {
-          // Only allow closing if profile is complete
-          if (!isProfileIncomplete) {
-            setShowProfileModal(false);
-          } else {
-            console.log("⚠️ [Header] Cannot close modal - profile incomplete");
-          }
-        }}
+        onClose={() => setShowProfileModal(false)}
         currentPictureUrl={profilePicture}
         onProfileUpdate={(url) => {
           console.log("✅ [Header] Profile updated with new picture:", url);
           setProfilePicture(url);
           setProfileTimestamp(Date.now()); // Update timestamp to force refresh
-          setIsProfileIncomplete(false); // Profile is now complete
         }}
-        isForced={isProfileIncomplete}
+        isForced={false}
       />
     </div>
   );

@@ -169,27 +169,23 @@ export const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className={styles.header}>
-          <h2>{isForced ? "⚠️ Complete Your Profile" : "Account Settings"}</h2>
-          {isForced && (
-            <p className={styles.requiredNote}>
-              ⚠️ You must complete your profile to access the admin panel
-            </p>
-          )}
-          {!isForced && (
-            <button className={styles.closeButton} onClick={handleClose}>
-              ×
-            </button>
-          )}
+          <h2>Account Settings</h2>
+          <button className={styles.closeButton} onClick={handleClose}>
+            ×
+          </button>
         </div>
 
         <div className={styles.twoColumnContent}>
-          {/* LEFT COLUMN - Profile Picture */}
+          {/* LEFT COLUMN - Profile Picture (Optional) */}
           <div className={styles.leftColumn}>
-            <h3
-              className={`${styles.columnTitle} ${isForced ? styles.required : ""}`}
-            >
+            <h3 className={styles.columnTitle}>
               Profile Picture
+              <span className={styles.optionalBadge}>Optional</span>
             </h3>
+            <p className={styles.sectionDescription}>
+              Upload a profile picture to personalize your admin account. You
+              can skip this and add it later.
+            </p>
             <div className={styles.profileSection}>
               <ProfilePictureUpload
                 currentPictureUrl={currentPictureUrl}
@@ -204,14 +200,6 @@ export const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
                     message: "Profile picture uploaded and saved to database!",
                     type: "success",
                   });
-
-                  // If in forced mode, close modal after successful upload
-                  if (isForced) {
-                    console.log("✅ Profile complete - closing forced modal");
-                    setTimeout(() => {
-                      onClose();
-                    }, 1500);
-                  }
                 }}
                 onFileSelected={(file) => {
                   if (file) {
@@ -230,15 +218,22 @@ export const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
                   console.log("⏳ Starting profile picture upload...");
                 }}
                 showUploadButton={true}
-                showRemoveButton={!isForced}
+                showRemoveButton={true}
                 showSuccessAlerts={false}
               />
             </div>
           </div>
 
-          {/* RIGHT COLUMN - Change Password */}
+          {/* RIGHT COLUMN - Change Password (Optional) */}
           <div className={styles.rightColumn}>
-            <h3 className={styles.columnTitle}>Change Password</h3>
+            <h3 className={styles.columnTitle}>
+              Change Password
+              <span className={styles.optionalBadge}>Optional</span>
+            </h3>
+            <p className={styles.sectionDescription}>
+              Update your password to keep your account secure. Leave blank to
+              keep your current password.
+            </p>
             <form onSubmit={handleSubmit} className={styles.passwordForm}>
               {error && <div className={styles.error}>{error}</div>}
 
@@ -314,43 +309,49 @@ export const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
                 </div>
               </div>
 
-              <div className={styles.passwordRequirements}>
-                <p>Password must contain:</p>
-                <ul>
-                  <li className={newPassword.length >= 8 ? styles.met : ""}>
-                    At least 8 characters
-                  </li>
-                  <li className={/[A-Z]/.test(newPassword) ? styles.met : ""}>
-                    One uppercase letter
-                  </li>
-                  <li className={/[a-z]/.test(newPassword) ? styles.met : ""}>
-                    One lowercase letter
-                  </li>
-                  <li className={/\d/.test(newPassword) ? styles.met : ""}>
-                    One number
-                  </li>
-                  <li
-                    className={
-                      /[^A-Za-z0-9]/.test(newPassword) ? styles.met : ""
-                    }
+              {newPassword && (
+                <div className={styles.passwordRequirements}>
+                  <p>Password must contain:</p>
+                  <ul>
+                    <li className={newPassword.length >= 8 ? styles.met : ""}>
+                      At least 8 characters
+                    </li>
+                    <li className={/[A-Z]/.test(newPassword) ? styles.met : ""}>
+                      One uppercase letter
+                    </li>
+                    <li className={/[a-z]/.test(newPassword) ? styles.met : ""}>
+                      One lowercase letter
+                    </li>
+                    <li className={/\d/.test(newPassword) ? styles.met : ""}>
+                      One number
+                    </li>
+                    <li
+                      className={
+                        /[^A-Za-z0-9]/.test(newPassword) ? styles.met : ""
+                      }
+                    >
+                      One special character
+                    </li>
+                  </ul>
+                </div>
+              )}
+
+              {(currentPassword || newPassword || confirmPassword) && (
+                <>
+                  <Button
+                    type="submit"
+                    disabled={loading || !allRequirementsMet}
+                    style={{ width: "100%" }}
                   >
-                    One special character
-                  </li>
-                </ul>
-              </div>
+                    {loading ? "Changing Password..." : "Change Password"}
+                  </Button>
 
-              <Button
-                type="submit"
-                disabled={loading || !allRequirementsMet}
-                style={{ width: "100%" }}
-              >
-                {loading ? "Changing Password..." : "Change Password"}
-              </Button>
-
-              {!allRequirementsMet && newPassword.length > 0 && (
-                <p className={styles.buttonHelper}>
-                  Please meet all password requirements to continue
-                </p>
+                  {!allRequirementsMet && newPassword.length > 0 && (
+                    <p className={styles.buttonHelper}>
+                      Please meet all password requirements to continue
+                    </p>
+                  )}
+                </>
               )}
             </form>
           </div>

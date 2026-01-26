@@ -174,7 +174,16 @@ export default function AppliedJobsTab({
   }
 
   return (
-    <div style={{ width: "90%", maxWidth: "1400px" }}>
+    <div
+      style={{
+        width: "90%",
+        maxWidth: "1400px",
+        margin: "0 auto",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
       <div className={styles.jobseekersTable}>
         <div className={styles.tableHeader}>
           <div className={styles.jobseekersDetailsHeader}>

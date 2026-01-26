@@ -254,6 +254,8 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({
                           padding: "1rem",
                           overflowY: "auto",
                           height: "100%",
+                          maxWidth: "900px",
+                          margin: "0 auto",
                         }}
                       >
                         <ResumeEditSection

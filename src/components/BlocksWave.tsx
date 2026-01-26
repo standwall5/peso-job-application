@@ -13,6 +13,7 @@ export default function BlocksWave({
       fill={color}
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
+      style={{ alignSelf: "center", justifySelf: "center" }}
     >
       <rect x="1" y="1" width="7.33" height="7.33">
         <animate

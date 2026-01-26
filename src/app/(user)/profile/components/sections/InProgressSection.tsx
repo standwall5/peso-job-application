@@ -204,56 +204,106 @@ export const InProgressSection: React.FC<InProgressSectionProps> = ({
 
   return (
     <>
-      <div className={styles.appliedJobs}>
-        {inProgressJobs.map((job) => {
-          const progress = getProgress(job.id);
-          const percentComplete = (progress.completed / progress.total) * 100;
+      <div style={{ marginBottom: "2rem" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.75rem",
+            marginBottom: "0.5rem",
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="var(--accent)"
+            style={{ width: "1.75rem", height: "1.75rem" }}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+            />
+          </svg>
+          <h2
+            style={{
+              fontSize: "1.5rem",
+              fontWeight: "700",
+              color: "#111827",
+              margin: 0,
+              textTransform: "uppercase",
+              letterSpacing: "0.5px",
+            }}
+          >
+            In Progress Applications
+          </h2>
+        </div>
+        <div
+          style={{
+            height: "3px",
+            background: "var(--accent)",
+            borderRadius: "2px",
+            width: "100%",
+          }}
+        />
+      </div>
+      <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
+        <div
+          className={styles.appliedJobs}
+          style={{ maxWidth: "1400px", margin: "0 auto" }}
+        >
+          {inProgressJobs.map((job) => {
+            const progress = getProgress(job.id);
+            const percentComplete = (progress.completed / progress.total) * 100;
 
-          return (
-            <div
-              key={job.id}
-              className={`${styles.jobCard}`}
-              onClick={() => handleJobClick(job)}
-              style={{ cursor: "pointer" }}
-            >
-              <div className={`${styles.jobCompany}`}>
-                <img
-                  src={
-                    job.companies.logo || "/assets/images/default_profile.png"
-                  }
-                  alt={job.companies.name + " logo"}
-                  className={styles.companyLogo}
-                  style={{
-                    width: "64px",
-                    height: "64px",
-                    objectFit: "contain",
-                  }}
-                />
-                <span>{job.companies?.name}</span>
-                <span>{job.title}</span>
-              </div>
-              <div className={styles.jobDetails}>
-                <div className={inProgressStyles.progressInfo}>
-                  <span className={inProgressStyles.progressText}>
-                    {progress.completed} of {progress.total} steps completed
-                  </span>
-                  <div className={inProgressStyles.progressBar}>
-                    <div
-                      className={inProgressStyles.progressFill}
-                      style={{ width: `${percentComplete}%` }}
-                    />
-                  </div>
+            return (
+              <div
+                key={job.id}
+                className={`${styles.jobCard}`}
+                onClick={() => handleJobClick(job)}
+                style={{ cursor: "pointer" }}
+              >
+                <div className={`${styles.jobCompany}`}>
+                  <img
+                    src={
+                      job.companies.logo || "/assets/images/default_profile.png"
+                    }
+                    alt={job.companies.name + " logo"}
+                    className={styles.companyLogo}
+                    style={{
+                      width: "64px",
+                      height: "64px",
+                      objectFit: "contain",
+                    }}
+                  />
+                  <span>{job.companies?.name}</span>
+                  <span>{job.title}</span>
                 </div>
-                <Button
-                  variant="primary"
-                  style={{ marginTop: "0.5rem", width: "100%" }}
-                >
-                  Continue Application
-                </Button>
+                <div className={styles.jobDetails}>
+                  <div className={inProgressStyles.progressInfo}>
+                    <span className={inProgressStyles.progressText}>
+                      {progress.completed} of {progress.total} steps completed
+                    </span>
+                    <div className={inProgressStyles.progressBar}>
+                      <div
+                        className={inProgressStyles.progressFill}
+                        style={{ width: `${percentComplete}%` }}
+                      />
+                    </div>
+                  </div>
+                  <Button
+                    variant="primary"
+                    style={{ marginTop: "0.5rem", width: "100%" }}
+                  >
+                    Continue Application
+                  </Button>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       {/* Application Modal */}
