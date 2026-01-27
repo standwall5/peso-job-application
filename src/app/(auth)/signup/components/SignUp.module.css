@@ -317,6 +317,7 @@
     height: 16px;
     margin: 0;
     cursor: pointer;
+    accent-color: var(--accent);
 }
 
 /* Address Section without surrounding box */
@@ -583,7 +584,7 @@
 }
 
 .blueButton {
-    background: #337ab7;
+    background: var(--accent);
     color: white;
     border: none;
     padding: 0.6rem 1rem;
@@ -621,8 +622,8 @@
 
 .expandTermsButton {
     background: transparent;
-    border: 1px solid #337ab7;
-    color: #337ab7;
+    border: 1px solid var(--accent);
+    color: var(--accent);
     padding: 0.4rem;
     border-radius: 4px;
     cursor: pointer;
@@ -640,7 +641,7 @@
 }
 
 .expandTermsButton:hover {
-    background: #337ab7;
+    background: var(--accent);
     color: white;
 }
 
@@ -711,7 +712,7 @@
 
 .termsModalSection p:first-child {
     margin-bottom: 0.5rem;
-    color: #337ab7;
+    color: var(--accent);
     font-size: 1.05rem;
 }
 
@@ -749,7 +750,7 @@
 }
 
 .termsAcceptButton {
-    background: #337ab7;
+    background: var(--accent);
     color: white;
     border: none;
     padding: 0.75rem 1.5rem;
@@ -761,7 +762,7 @@
 }
 
 .termsAcceptButton:hover {
-    background: #2863a0;
+    background: var(--accent);
 }
 
 /* Scrollbar styling for terms modal content */
