@@ -1,5 +1,5 @@
 // src/app/(auth)/signup/components/sections/AddressSection.tsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styles from "../SignUp.module.css";
 import { FieldError } from "../fields";
 import {
@@ -43,22 +43,40 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
   onInputChange,
   errors,
 }) => {
+  // Local state for preferred place district filter (Parañaque only, not submitted)
+  const [preferredDistrictFilter, setPreferredDistrictFilter] =
+    useState<string>("");
+
   const selectedCity = city as City;
   const availableDistricts = selectedCity
     ? getDistrictsForCity(selectedCity)
     : [];
-  const availableBarangays =
-    selectedCity && district
-      ? getBarangaysForCityAndDistrict(selectedCity, district)
-      : [];
   const hasCityDistricts = selectedCity
     ? cityHasDistricts(selectedCity)
     : false;
 
-  // Get all barangays from all districts for preferred place of assignment
-  const allBarangaysForCity = selectedCity
-    ? Object.values(BARANGAYS[selectedCity] || {}).flat()
+  // Get barangays: for cities with districts, filter by district; for cities without, get all
+  const availableBarangays = selectedCity
+    ? hasCityDistricts
+      ? district
+        ? getBarangaysForCityAndDistrict(selectedCity, district)
+        : []
+      : Object.values(BARANGAYS[selectedCity] || {}).flat()
     : [];
+
+  // For Preferred Place of Assignment: Always use Parañaque barangays
+  const paranaqueDistricts = getDistrictsForCity("Parañaque");
+  const preferredPlaceBarangays = preferredDistrictFilter
+    ? getBarangaysForCityAndDistrict("Parañaque", preferredDistrictFilter)
+    : Object.values(BARANGAYS["Parañaque"] || {}).flat();
+
+  // Filter out Parañaque from city options for non-residents
+  const nonResidentCities = CITIES.filter((c) => c !== "Parañaque");
+
+  // Reset preferred district filter when residency changes
+  useEffect(() => {
+    setPreferredDistrictFilter("");
+  }, [residency]);
 
   return (
     <div className={styles.addressSection}>
@@ -136,7 +154,7 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
               <option value="" disabled>
                 Select City
               </option>
-              {CITIES.map((c) => (
+              {nonResidentCities.map((c) => (
                 <option key={c} value={c}>
                   {c}
                 </option>
@@ -230,9 +248,39 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
             </div>
           )}
 
-          {/* Preferred Place of Assignment - Full Width */}
-          <div className={styles.fullRow}>
-            <div style={{ flex: 1 }}>
+          {/* Preferred Place of Assignment - Parañaque Only with District Filter */}
+          <div className={styles.geographicalRow}>
+            {/* District Filter (not submitted, just for filtering) */}
+            <div className={styles.leftColumn}>
+              <label
+                htmlFor="preferredDistrictFilter"
+                className={styles.fieldLabel}
+              >
+                Preferred District (Filter)
+              </label>
+              <select
+                id="preferredDistrictFilter"
+                value={preferredDistrictFilter}
+                onChange={(e) => {
+                  setPreferredDistrictFilter(e.target.value);
+                  // Clear preferred place when district filter changes
+                  onPreferredPlaceChange({
+                    target: { value: "" },
+                  } as React.ChangeEvent<HTMLSelectElement>);
+                }}
+                className={styles.selectInput}
+              >
+                <option value="">All Parañaque Barangays</option>
+                {paranaqueDistricts.map((dist) => (
+                  <option key={dist} value={dist}>
+                    {dist}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Preferred Place of Assignment */}
+            <div className={styles.rightColumn}>
               <label
                 htmlFor="preferredPlaceOfAssignment"
                 className={styles.fieldLabel}
@@ -252,7 +300,7 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
                 <option value="" disabled>
                   Select Preferred Place of Assignment
                 </option>
-                {allBarangaysForCity.map((place) => (
+                {preferredPlaceBarangays.map((place) => (
                   <option key={place} value={place}>
                     {place}
                   </option>

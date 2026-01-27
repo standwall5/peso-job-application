@@ -2,7 +2,7 @@
 .signUpContainer {
     width: 80vw;
     max-width: 1200px;
-    height: 80vh;
+    min-height: 80vh;
     background-color: white;
     /*box-shadow:
         rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
@@ -324,7 +324,6 @@
 .addressSection {
     grid-column: span 4;
     margin: 15px 0;
-    padding: 0;
     background-color: transparent;
     border-radius: 0;
     border: none;
