@@ -123,7 +123,7 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
       <div className={styles.fullRow}>
         <div style={{ flex: 1 }}>
           <label htmlFor="address" className={styles.fieldLabel}>
-            (House No./Street/Subdivision/City/Province){" "}
+            (House No./Street/Subdivision){" "}
             <span className={styles.redAsterisk}>*</span>
           </label>
           <input
@@ -132,6 +132,17 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
             type="text"
             onChange={onInputChange}
             className={errors["address"] ? styles.errorInput : ""}
+            style={{
+              backgroundColor: "#fefffe",
+              boxShadow:
+                "rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px",
+              padding: "0 0.8rem",
+              height: "2.6rem",
+              borderRadius: "3px",
+              border: "none",
+              width: "100%",
+              boxSizing: "border-box",
+            }}
           />
           <FieldError error={errors["address"]} />
         </div>
