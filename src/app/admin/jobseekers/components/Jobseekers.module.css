@@ -21,15 +21,15 @@
 }
 
 .statusBadge[data-status="pending"] {
-    background-color: #fff7ed;
-    color: #ea580c;
-    border: 1px solid #fdba74;
+    background-color: #fffdf1;
+    color: #f97316;
+    border: 1px solid rgba(249, 115, 22, 0.2);
 }
 
 .statusBadge[data-status="referred"] {
-    background-color: #eff6ff;
-    color: #2563eb;
-    border: 1px solid #93c5fd;
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+    color: white;
+    border: 1px solid rgba(59, 130, 246, 0.4);
 }
 
 .statusBadge[data-status="deployed"] {
@@ -671,8 +671,12 @@
     color: #fff;
 }
 .status.referred {
-    background: #b2e5c8;
-    color: #081761;
+    background: #93c5fd;
+    color: #1e40af;
+}
+.status.deployed {
+    background: #86efac;
+    color: #166534;
 }
 .status.pending {
     background: #ffa726;
@@ -1184,9 +1188,10 @@
 /* View Actions */
 .viewActions {
     display: flex;
-    gap: 0.5rem;
+    gap: 1rem;
     justify-content: center;
     align-items: center;
+    padding: 0.75rem 0.5rem;
 }
 
 .examResultBtn,

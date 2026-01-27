@@ -228,18 +228,7 @@ export default function AppliedJobsTab({
                 <div>
                   <span
                     className={styles.statusBadge}
-                    style={{
-                      backgroundColor:
-                        app.status.toLowerCase() === "pending"
-                          ? "#e5e7eb"
-                          : app.status.toLowerCase() === "referred"
-                            ? "#10b981"
-                            : "#3b82f6",
-                      color:
-                        app.status.toLowerCase() === "pending"
-                          ? "#64748b"
-                          : "#ffffff",
-                    }}
+                    data-status={app.status.toLowerCase()}
                   >
                     {app.status.toUpperCase()}
                   </span>
