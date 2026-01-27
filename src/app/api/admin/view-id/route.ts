@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server";
+import { createClient, createAdminClient } from "@/utils/supabase/server";
 
-// GET /api/admin/view-id?applicantId=...&imageType=front|back|selfie&applicationId=...
+// GET /api/admin/view-id?applicantId=...&imageType=front|back|selfie&idType=...&applicationId=...
 export async function GET(req: Request) {
-  const supabase = await createClient();
+  const userSupabase = await createClient();
   const { searchParams } = new URL(req.url);
 
   const applicantId = searchParams.get("applicantId");
@@ -11,9 +11,10 @@ export async function GET(req: Request) {
     | "front"
     | "back"
     | "selfie";
+  const idType = searchParams.get("idType");
   const applicationId = searchParams.get("applicationId");
 
-  if (!applicantId || !imageType) {
+  if (!applicantId || !imageType || !idType) {
     return NextResponse.json(
       { error: "Missing required parameters" },
       { status: 400 },
@@ -24,18 +25,22 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Invalid image type" }, { status: 400 });
   }
 
-  // Verify admin authentication
+  // Verify admin authentication using regular client
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
+    data: { session },
+  } = await userSupabase.auth.getSession();
+
+  if (!session?.user) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
+
+  // Use admin client for all database and storage operations
+  const supabase = createAdminClient();
 
   const { data: admin, error: adminError } = await supabase
     .from("peso")
     .select("id, name")
-    .eq("auth_id", user.id)
+    .eq("auth_id", session.user.id)
     .single();
 
   if (adminError || !admin) {
@@ -45,12 +50,40 @@ export async function GET(req: Request) {
     );
   }
 
-  // Get applicant ID data
-  const { data: idData, error: idError } = await supabase
+  // Try to get the specific ID type requested
+  let { data: idData, error: idError } = await supabase
     .from("applicant_ids")
     .select("*")
     .eq("applicant_id", parseInt(applicantId))
-    .single();
+    .eq("id_type", idType)
+    .maybeSingle();
+
+  // If not found, try to get preferred ID
+  if (!idData && !idError) {
+    const preferredResult = await supabase
+      .from("applicant_ids")
+      .select("*")
+      .eq("applicant_id", parseInt(applicantId))
+      .eq("is_preferred", true)
+      .maybeSingle();
+
+    idData = preferredResult.data;
+    idError = preferredResult.error;
+  }
+
+  // If still not found, get most recent ID
+  if (!idData && !idError) {
+    const anyResult = await supabase
+      .from("applicant_ids")
+      .select("*")
+      .eq("applicant_id", parseInt(applicantId))
+      .order("uploaded_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    idData = anyResult.data;
+    idError = anyResult.error;
+  }
 
   if (idError || !idData) {
     return NextResponse.json({ error: "ID not found" }, { status: 404 });
@@ -184,9 +217,7 @@ export async function GET(req: Request) {
         .toBuffer();
 
       isWatermarked = true;
-      console.log("Successfully applied watermark to ID image");
     } catch (sharpError) {
-      // Fallback to original image without watermark if sharp fails
       console.warn(
         "Sharp watermarking failed, serving original image:",
         sharpError,

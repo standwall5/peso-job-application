@@ -3,7 +3,15 @@
 import { useEffect, useState } from "react";
 import Button from "@/components/Button";
 import styles from "./IDViewModal.module.css";
-import { createIdChangeNotification } from "@/lib/db/services/notification.service";
+import {
+  XMarkIcon,
+  IdentificationIcon,
+  DocumentTextIcon,
+  UserCircleIcon,
+  ExclamationTriangleIcon,
+  CheckCircleIcon,
+  ShieldCheckIcon,
+} from "@heroicons/react/24/outline";
 
 interface IDViewModalProps {
   applicantId: number;
@@ -27,6 +35,14 @@ const ID_TYPES = [
   "SENIOR CITIZEN ID",
 ];
 
+const rejectionReasons = [
+  "Blurry image",
+  "Incomplete details",
+  "Expired ID",
+  "Mismatched information",
+  "Other",
+];
+
 export default function IDViewModal({
   applicantId,
   applicantName,
@@ -47,18 +63,61 @@ export default function IDViewModal({
   const [customReason, setCustomReason] = useState("");
   const [rejecting, setRejecting] = useState(false);
 
-  // Predefined rejection reasons
-  const REJECTION_REASONS = [
-    "Blurry image",
-    "Incomplete details",
-    "Expired ID",
-    "Mismatched information",
-    "Other",
-  ];
-
   useEffect(() => {
     fetchVerificationStatus();
   }, [applicantId]);
+
+  // reload image when view changes
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+    setImageKey((prev) => prev + 1);
+  }, [currentView, selectedIdType]);
+
+  // security stuff
+  useEffect(() => {
+    const preventRightClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest(`.${styles.imageContainer}`)) {
+        e.preventDefault();
+      }
+    };
+
+    const preventSaveAndPrint = (e: KeyboardEvent) => {
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        (e.key === "s" || e.key === "p" || e.key === "S" || e.key === "P")
+      ) {
+        e.preventDefault();
+        alert("Saving or printing is disabled for security reasons.");
+        return;
+      }
+
+      if (e.key === "PrintScreen") {
+        e.preventDefault();
+        alert("Screenshots are disabled for security reasons.");
+        return;
+      }
+
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    const preventDrag = (e: DragEvent) => {
+      e.preventDefault();
+    };
+
+    document.addEventListener("contextmenu", preventRightClick);
+    document.addEventListener("keydown", preventSaveAndPrint);
+    document.addEventListener("dragstart", preventDrag);
+
+    return () => {
+      document.removeEventListener("contextmenu", preventRightClick);
+      document.removeEventListener("keydown", preventSaveAndPrint);
+      document.removeEventListener("dragstart", preventDrag);
+    };
+  }, [onClose]);
 
   const fetchVerificationStatus = async () => {
     try {
@@ -69,14 +128,15 @@ export default function IDViewModal({
         const data = await response.json();
         setIsVerified(data.id_verified || false);
       }
-    } catch (error) {
-      console.error("Error fetching verification status:", error);
+    } catch (err) {
+      console.error("Error fetching verification status:", err);
     }
   };
 
   const handleVerifyID = async () => {
+    setVerifying(true);
+
     try {
-      setVerifying(true);
       const response = await fetch("/api/admin/verify-id", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -86,17 +146,17 @@ export default function IDViewModal({
         }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        const data = await response.json();
         setIsVerified(true);
         alert(data.message || "ID verified successfully!");
-        await fetchVerificationStatus();
+        fetchVerificationStatus();
       } else {
-        const error = await response.json();
-        alert(error.error || "Failed to verify ID");
+        alert(data.error || "Failed to verify ID");
       }
-    } catch (error) {
-      console.error("Error verifying ID:", error);
+    } catch (err) {
+      console.error("Error verifying ID:", err);
       alert("An error occurred while verifying ID");
     } finally {
       setVerifying(false);
@@ -104,124 +164,70 @@ export default function IDViewModal({
   };
 
   const handleRequestIDChange = async () => {
-    // Determine the final reason to send
-    const finalReason =
+    const reason =
       rejectionReason === "Other" ? customReason.trim() : rejectionReason;
 
-    if (!finalReason) {
+    if (!reason) {
       alert("Please provide a reason for ID update request");
       return;
     }
 
-    if (rejectionReason === "Other" && !customReason.trim()) {
-      alert("Please specify the custom reason");
-      return;
-    }
+    setRejecting(true);
 
     try {
-      setRejecting(true);
       const response = await fetch("/api/admin/request-id-change", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           applicantId,
-          reason: finalReason,
+          reason: reason,
         }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        const data = await response.json();
         alert(data.message || "ID update request sent to applicant");
         setShowRejectForm(false);
         setRejectionReason("");
+        setCustomReason("");
         setIsVerified(false);
-        await fetchVerificationStatus();
+        fetchVerificationStatus();
       } else {
-        const error = await response.json();
-        alert(error.error || "Failed to send ID update request");
+        alert(data.error || "Failed to send ID update request");
       }
-    } catch (error) {
-      console.error("Error requesting ID change:", error);
+    } catch (err) {
+      console.error("Error requesting ID change:", err);
       alert("An error occurred while sending ID update request");
     } finally {
       setRejecting(false);
     }
   };
 
-  // Prevent right-click and keyboard shortcuts
-  useEffect(() => {
-    const handleContextMenu = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.closest(`.${styles.imageContainer}`)) {
-        e.preventDefault();
-        return false;
-      }
-    };
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Prevent Ctrl+S, Ctrl+P, PrintScreen, etc.
-      if (
-        (e.ctrlKey || e.metaKey) &&
-        (e.key === "s" || e.key === "p" || e.key === "S" || e.key === "P")
-      ) {
-        e.preventDefault();
-        alert("Saving or printing is disabled for security reasons.");
-        return false;
-      }
-      // Prevent PrintScreen
-      if (e.key === "PrintScreen") {
-        e.preventDefault();
-        alert("Screenshots are disabled for security reasons.");
-        return false;
-      }
-    };
-
-    // Prevent drag and drop
-    const handleDragStart = (e: DragEvent) => {
-      e.preventDefault();
-      return false;
-    };
-
-    // Prevent Escape key from closing (optional - remove if you want ESC to close)
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    };
-
-    document.addEventListener("contextmenu", handleContextMenu);
-    document.addEventListener("keydown", handleKeyDown);
-    document.addEventListener("keydown", handleEscape);
-    document.addEventListener("dragstart", handleDragStart);
-
-    return () => {
-      document.removeEventListener("contextmenu", handleContextMenu);
-      document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("keydown", handleEscape);
-      document.removeEventListener("dragstart", handleDragStart);
-    };
-  }, [onClose]);
-
-  // Reset loading state when switching tabs or ID type
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-    setImageKey((prev) => prev + 1);
-  }, [currentView, selectedIdType]);
-
   const imageUrl = `/api/admin/view-id?applicantId=${applicantId}&imageType=${currentView}&idType=${encodeURIComponent(
     selectedIdType,
   )}${applicationId ? `&applicationId=${applicationId}` : ""}&t=${imageKey}`;
 
-  const getTabLabel = (type: "front" | "back" | "selfie") => {
+  const renderTabIcon = (type: "front" | "back" | "selfie") => {
+    const iconProps = {
+      className: "w-5 h-5",
+      style: { color: "var(--accent)" },
+    };
+
     switch (type) {
       case "front":
-        return "📄 Front ID";
+        return <IdentificationIcon {...iconProps} />;
       case "back":
-        return "📄 Back ID";
+        return <DocumentTextIcon {...iconProps} />;
       case "selfie":
-        return "🤳 Selfie with ID";
+        return <UserCircleIcon {...iconProps} />;
     }
+  };
+
+  const getTabLabel = (type: "front" | "back" | "selfie") => {
+    if (type === "front") return "Front ID";
+    if (type === "back") return "Back ID";
+    return "Selfie with ID";
   };
 
   return (
@@ -232,12 +238,29 @@ export default function IDViewModal({
           onClick={onClose}
           aria-label="Close modal"
         >
-          ✕
+          <XMarkIcon className="w-6 h-6" />
         </button>
 
         <div className={styles.header}>
-          <h2>ID Verification - {applicantName}</h2>
-          <p className={styles.warning}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem",
+              marginBottom: "0.75rem",
+            }}
+          >
+            <ShieldCheckIcon
+              className="w-7 h-7"
+              style={{ color: "white", flexShrink: 0 }}
+            />
+            <h2 style={{ margin: 0 }}>ID Verification</h2>
+          </div>
+          <p className={styles.applicantName}>{applicantName}</p>
+          <p
+            className={styles.warning}
+            style={{ color: "white", fontSize: "0.875rem" }}
+          >
             This document is confidential and watermarked. Unauthorized
             distribution is prohibited.
           </p>
@@ -268,7 +291,8 @@ export default function IDViewModal({
               onClick={() => setCurrentView(type)}
               aria-label={`View ${type} ID`}
             >
-              {getTabLabel(type)}
+              {renderTabIcon(type)}
+              <span>{getTabLabel(type)}</span>
             </button>
           ))}
         </div>
@@ -282,7 +306,11 @@ export default function IDViewModal({
           )}
           {error && (
             <div className={styles.error}>
-              <p>❌ {error}</p>
+              <ExclamationTriangleIcon
+                className="w-6 h-6"
+                style={{ color: "var(--danger)" }}
+              />
+              <p>{error}</p>
             </div>
           )}
           <img
@@ -322,7 +350,7 @@ export default function IDViewModal({
                   className={styles.reasonDropdown}
                 >
                   <option value="">-- Select a reason --</option>
-                  {REJECTION_REASONS.map((reason) => (
+                  {rejectionReasons.map((reason) => (
                     <option key={reason} value={reason}>
                       {reason}
                     </option>
@@ -373,27 +401,43 @@ export default function IDViewModal({
             </div>
           ) : (
             <div className={styles.verificationControls}>
-              {!isVerified && (
+              {!isVerified ? (
                 <>
                   <Button
                     variant="success"
                     onClick={handleVerifyID}
                     disabled={verifying}
                   >
-                    {verifying ? "Verifying..." : "✓ Mark ID as Verified"}
+                    <CheckCircleIcon
+                      className="w-5 h-5"
+                      style={{ display: "inline", marginRight: "0.5rem" }}
+                    />
+                    {verifying ? "Verifying..." : "Mark ID as Verified"}
                   </Button>
                   <Button
                     variant="danger"
                     onClick={() => setShowRejectForm(true)}
                     disabled={verifying}
                   >
-                    ⚠️ Request ID Update
+                    <ExclamationTriangleIcon
+                      className="w-5 h-5"
+                      style={{ display: "inline", marginRight: "0.5rem" }}
+                    />
+                    Request ID Update
                   </Button>
                 </>
-              )}
-              {isVerified && (
+              ) : (
                 <div className={styles.verifiedBadge}>
-                  <span className={styles.verifiedStatus}>✓ ID Verified</span>
+                  <span
+                    className={styles.verifiedStatus}
+                    style={{ color: "var(--accent)" }}
+                  >
+                    <CheckCircleIcon
+                      className="w-5 h-5"
+                      style={{ display: "inline", marginRight: "0.5rem" }}
+                    />
+                    ID Verified
+                  </span>
                   <Button
                     variant="danger"
                     onClick={() => setShowRejectForm(true)}
@@ -404,7 +448,10 @@ export default function IDViewModal({
               )}
             </div>
           )}
-          <p className={styles.disclaimer}>
+          <p
+            className={styles.disclaimer}
+            style={{ fontSize: "0.8rem", opacity: 0.7 }}
+          >
             This view is logged for security and audit purposes. Access
             timestamp and administrator details are recorded.
           </p>
