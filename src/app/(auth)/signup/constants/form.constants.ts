@@ -59,6 +59,8 @@ export const BARANGAYS = {
 } as const;
 
 export const PREFERRED_PLACES = [
+  "District 1",
+  "District 2",
   "Baclaran",
   "Don Galo",
   "La Huerta",

@@ -20,7 +20,45 @@ interface JobseekerTableProps {
   onSelectAll: () => void;
   onArchiveSelected: () => void;
   isArchived?: boolean;
+  selectedApplicantTypes: string[];
+  setSelectedApplicantTypes: React.Dispatch<React.SetStateAction<string[]>>;
+  selectedPlaces: string[];
+  setSelectedPlaces: React.Dispatch<React.SetStateAction<string[]>>;
 }
+
+const APPLICANT_TYPES = [
+  "Student",
+  "Indigenous Person (IP)",
+  "Out of School Youth",
+  "Person with Disability (PWD)",
+  "Rehabilitation Program Graduate",
+  "Reintegrated Individual (Former Detainee)",
+  "Returning Overseas Filipino Worker (OFW)",
+  "Senior Citizen",
+  "Solo Parent/Single Parent",
+  "Others",
+];
+
+const BARANGAYS = [
+  "District 1",
+  "District 2",
+  "Baclaran",
+  "Don Galo",
+  "La Huerta",
+  "San Dionisio",
+  "Santo Niño",
+  "Tambo",
+  "Vitalez",
+  "BF Homes",
+  "Don Bosco",
+  "Marcelo Green",
+  "Merville",
+  "Moonwalk",
+  "San Antonio",
+  "San Isidro",
+  "San Martin de Porres",
+  "Sun Valley",
+];
 
 const JobseekerTable: React.FC<JobseekerTableProps> = ({
   applications,
@@ -33,8 +71,14 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
   onSelectAll,
   onArchiveSelected,
   isArchived = false,
+  selectedApplicantTypes,
+  setSelectedApplicantTypes,
+  selectedPlaces,
+  setSelectedPlaces,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [showTypeFilter, setShowTypeFilter] = useState(false);
+  const [showPlaceFilter, setShowPlaceFilter] = useState(false);
   // const [expandedApplicantId, setExpandedApplicantId] = useState<number | null>(
   //   null,
   // );
@@ -161,29 +205,24 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
     return `${day} ${formatted}`;
   };
 
-  if (applications.length === 0) {
-    return (
-      <div className={styles.notFound}>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
-          />
-        </svg>
-        <h3>No applicants found.</h3>
-      </div>
-    );
-  }
-
   const handleHeaderClick = (sortKey: string) => {
     setSortBy(sortKey);
+  };
+
+  const toggleApplicantType = (type: string) => {
+    setSelectedApplicantTypes((prev: string[]) =>
+      prev.includes(type)
+        ? prev.filter((t: string) => t !== type)
+        : [...prev, type],
+    );
+  };
+
+  const togglePlace = (place: string) => {
+    setSelectedPlaces((prev: string[]) =>
+      prev.includes(place)
+        ? prev.filter((p: string) => p !== place)
+        : [...prev, place],
+    );
   };
 
   const getSortIcon = (sortKey: string) => {
@@ -233,7 +272,7 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
 
   return (
     <div className={styles.jobseekersTable}>
-      {/* HEADER */}
+      {/* HEADER - Always show so filters can be changed */}
       <div className={styles.tableHeader}>
         <div className={styles.jobseekersDetailsHeader}>
           <div style={{ width: "5.8rem" }}></div>
@@ -245,15 +284,185 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
           </div>
           <div
             className={styles.sortableHeader}
-            onClick={() => handleHeaderClick("type")}
+            style={{ position: "relative" }}
           >
-            TYPE OF APPLICANT {getSortIcon("type")}
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowTypeFilter(!showTypeFilter);
+                setShowPlaceFilter(false);
+              }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                cursor: "pointer",
+              }}
+            >
+              TYPE OF APPLICANT
+              {selectedApplicantTypes.length > 0 && (
+                <span
+                  style={{
+                    background: "var(--accent)",
+                    color: "white",
+                    borderRadius: "10px",
+                    padding: "0.1rem 0.4rem",
+                    fontSize: "0.75rem",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {selectedApplicantTypes.length}
+                </span>
+              )}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                style={{ width: "16px", height: "16px" }}
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            {showTypeFilter && (
+              <div
+                className={styles.filterDropdown}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div
+                  style={{
+                    padding: "0.5rem",
+                    borderBottom: "1px solid #e5e7eb",
+                    fontWeight: "600",
+                    fontSize: "0.875rem",
+                  }}
+                >
+                  Filter by Type
+                </div>
+                {APPLICANT_TYPES.map((type) => (
+                  <label key={type} className={styles.filterCheckbox}>
+                    <input
+                      type="checkbox"
+                      checked={selectedApplicantTypes.includes(type)}
+                      onChange={() => toggleApplicantType(type)}
+                    />
+                    <span>{type}</span>
+                  </label>
+                ))}
+                {selectedApplicantTypes.length > 0 && (
+                  <button
+                    onClick={() => setSelectedApplicantTypes([])}
+                    style={{
+                      width: "100%",
+                      padding: "0.5rem",
+                      background: "#f3f4f6",
+                      border: "none",
+                      borderTop: "1px solid #e5e7eb",
+                      cursor: "pointer",
+                      fontSize: "0.875rem",
+                      fontWeight: "600",
+                      color: "#dc2626",
+                    }}
+                  >
+                    Clear Filters
+                  </button>
+                )}
+              </div>
+            )}
           </div>
           <div
             className={styles.sortableHeader}
-            onClick={() => handleHeaderClick("place")}
+            style={{ position: "relative" }}
           >
-            PLACE OF ASSIGNMENT {getSortIcon("place")}
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowPlaceFilter(!showPlaceFilter);
+                setShowTypeFilter(false);
+              }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                cursor: "pointer",
+              }}
+            >
+              PLACE OF ASSIGNMENT
+              {selectedPlaces.length > 0 && (
+                <span
+                  style={{
+                    background: "var(--accent)",
+                    color: "white",
+                    borderRadius: "10px",
+                    padding: "0.1rem 0.4rem",
+                    fontSize: "0.75rem",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {selectedPlaces.length}
+                </span>
+              )}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                style={{ width: "16px", height: "16px" }}
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            {showPlaceFilter && (
+              <div
+                className={styles.filterDropdown}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div
+                  style={{
+                    padding: "0.5rem",
+                    borderBottom: "1px solid #e5e7eb",
+                    fontWeight: "600",
+                    fontSize: "0.875rem",
+                  }}
+                >
+                  Filter by Place
+                </div>
+                {BARANGAYS.map((place) => (
+                  <label key={place} className={styles.filterCheckbox}>
+                    <input
+                      type="checkbox"
+                      checked={selectedPlaces.includes(place)}
+                      onChange={() => togglePlace(place)}
+                    />
+                    <span>{place}</span>
+                  </label>
+                ))}
+                {selectedPlaces.length > 0 && (
+                  <button
+                    onClick={() => setSelectedPlaces([])}
+                    style={{
+                      width: "100%",
+                      padding: "0.5rem",
+                      background: "#f3f4f6",
+                      border: "none",
+                      borderTop: "1px solid #e5e7eb",
+                      cursor: "pointer",
+                      fontSize: "0.875rem",
+                      fontWeight: "600",
+                      color: "#dc2626",
+                    }}
+                  >
+                    Clear Filters
+                  </button>
+                )}
+              </div>
+            )}
           </div>
           <div
             className={styles.sortableHeader}
@@ -290,32 +499,62 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
 
       {/* Bottom row controls: Select All and Archive */}
 
-      {currentApplications.map((app) => (
-        <React.Fragment key={app.applicant.id}>
-          <div className={styles.tableRow}>
-            <div
-              className={`${styles.jobseekersDetails}`}
-              onClick={() => onViewDetails(app)}
-              style={{ cursor: "pointer" }}
-            >
-              <div className={styles.avatarCell}>
-                <img
-                  src={
-                    app.applicant.profile_pic_url ??
-                    "/assets/images/default_profile.png"
-                  }
-                  alt={app.applicant.name}
-                  className={styles.avatar}
-                />
-              </div>
-              <div className={styles.applicantName}>{app.applicant.name}</div>
-              <div>{app.applicant.applicant_type}</div>
-              <div>{app.applicant.preferred_poa || "N/A"}</div>
-              <div>{formatAppliedDate(app.applied_date, !!app.status)}</div>
-            </div>
+      {applications.length === 0 ? (
+        <div className={styles.notFound}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
+            />
+          </svg>
+          <h3>No applicants found.</h3>
+          <p
+            style={{
+              fontSize: "0.875rem",
+              color: "#6b7280",
+              marginTop: "0.5rem",
+            }}
+          >
+            Try adjusting your filters or search criteria
+          </p>
+        </div>
+      ) : (
+        <>
+          {currentApplications.map((app) => (
+            <React.Fragment key={app.applicant.id}>
+              <div className={styles.tableRow}>
+                <div
+                  className={`${styles.jobseekersDetails}`}
+                  onClick={() => onViewDetails(app)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className={styles.avatarCell}>
+                    <img
+                      src={
+                        app.applicant.profile_pic_url ??
+                        "/assets/images/default_profile.png"
+                      }
+                      alt={app.applicant.name}
+                      className={styles.avatar}
+                    />
+                  </div>
+                  <div className={styles.applicantName}>
+                    {app.applicant.name}
+                  </div>
+                  <div>{app.applicant.applicant_type}</div>
+                  <div>{app.applicant.preferred_poa || "N/A"}</div>
+                  <div>{formatAppliedDate(app.applied_date, !!app.status)}</div>
+                </div>
 
-            {/* Comment out status jobseeker */}
-            {/*<div onClick={(e) => e.stopPropagation()}>
+                {/* Comment out status jobseeker */}
+                {/*<div onClick={(e) => e.stopPropagation()}>
               {app.status && (
                 <span
                   className={styles.statusBadge}
@@ -325,93 +564,93 @@ const JobseekerTable: React.FC<JobseekerTableProps> = ({
                 </span>
               )}
             </div>*/}
-            <div
-              className={styles.selectIndicator}
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleSelect(app.applicant.id);
-              }}
-            >
-              {selectedJobseekers.includes(app.applicant.id) && (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="32"
-                  height="32"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="feather feather-check"
+                <div
+                  className={styles.selectIndicator}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleSelect(app.applicant.id);
+                  }}
                 >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              )}
-            </div>
-          </div>
+                  {selectedJobseekers.includes(app.applicant.id) && (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="32"
+                      height="32"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="feather feather-check"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
+                </div>
+              </div>
 
-          {/* Expanded row showing applied jobs - COMMENTED OUT AS NOT NEEDED */}
-          {/* {expandedApplicantId === app.applicant.id && (
+              {/* Expanded row showing applied jobs - COMMENTED OUT AS NOT NEEDED */}
+              {/* {expandedApplicantId === app.applicant.id && (
             <AppliedJobsRow
               jobs={appliedJobs}
               loading={loadingJobs}
               onStatusChange={handleStatusChange}
             />
           )} */}
-        </React.Fragment>
-      ))}
+            </React.Fragment>
+          ))}
 
-      {/* Pagination Controls */}
-      {applications.length > 0 && (
-        <div className={styles.paginationContainer}>
-          <div className={styles.paginationInfo}>
-            Showing {startIndex + 1}-{Math.min(endIndex, applications.length)}{" "}
-            of {applications.length}{" "}
-            {applications.length === 1 ? "jobseeker" : "jobseekers"}
-          </div>
-
-          {totalPages > 1 && (
-            <div className={styles.pagination}>
-              <button
-                className={styles.paginationBtn}
-                onClick={handlePrevious}
-                disabled={currentPage === 1}
-              >
-                Previous
-              </button>
-
-              {getPageNumbers().map((page, index) =>
-                page === "..." ? (
-                  <span
-                    key={`ellipsis-${index}`}
-                    className={styles.paginationEllipsis}
-                  >
-                    ...
-                  </span>
-                ) : (
-                  <button
-                    key={page}
-                    className={`${styles.paginationNumber} ${
-                      currentPage === page ? styles.paginationActive : ""
-                    }`}
-                    onClick={() => handlePageChange(page as number)}
-                  >
-                    {page}
-                  </button>
-                ),
-              )}
-
-              <button
-                className={styles.paginationBtn}
-                onClick={handleNext}
-                disabled={currentPage === totalPages}
-              >
-                Next
-              </button>
+          {/* Pagination Controls */}
+          <div className={styles.paginationContainer}>
+            <div className={styles.paginationInfo}>
+              Showing {startIndex + 1}-{Math.min(endIndex, applications.length)}{" "}
+              of {applications.length}{" "}
+              {applications.length === 1 ? "jobseeker" : "jobseekers"}
             </div>
-          )}
-        </div>
+
+            {totalPages > 1 && (
+              <div className={styles.pagination}>
+                <button
+                  className={styles.paginationBtn}
+                  onClick={handlePrevious}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </button>
+
+                {getPageNumbers().map((page, index) =>
+                  page === "..." ? (
+                    <span
+                      key={`ellipsis-${index}`}
+                      className={styles.paginationEllipsis}
+                    >
+                      ...
+                    </span>
+                  ) : (
+                    <button
+                      key={page}
+                      className={`${styles.paginationNumber} ${
+                        currentPage === page ? styles.paginationActive : ""
+                      }`}
+                      onClick={() => handlePageChange(page as number)}
+                    >
+                      {page}
+                    </button>
+                  ),
+                )}
+
+                <button
+                  className={styles.paginationBtn}
+                  onClick={handleNext}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </div>
+        </>
       )}
     </div>
   );

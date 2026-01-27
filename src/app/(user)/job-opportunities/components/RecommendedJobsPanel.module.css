@@ -1,7 +1,4 @@
 .panel {
-    position: sticky;
-    top: 6rem;
-    margin-top: 2rem;
     background: #dedddd;
     border-radius: 0.5rem;
     padding: 2.5rem;
@@ -10,7 +7,8 @@
     border: 1px solid rgba(52, 152, 219, 0.15);
     display: flex;
     flex-direction: column;
-    height: 90%;
+    height: calc(100lvh - 2rem);
+    overflow-y: auto;
     gap: 1rem;
 }
 

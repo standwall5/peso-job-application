@@ -198,10 +198,23 @@
     gap: 20px;
 }
 
+.editFormGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 24px;
+}
+
 .contactItem {
     display: flex;
     flex-direction: column;
     gap: 8px;
+}
+
+.contactItemFullWidth {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    grid-column: 1 / -1;
 }
 
 .contactLabel {
@@ -383,6 +396,15 @@
     .skillsGrid {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     }
+
+    .editFormGrid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .contactItemFullWidth {
+        grid-column: 1;
+    }
 }
 
 /* Mobile */
@@ -423,6 +445,15 @@
 
     .contactSection {
         gap: 16px;
+    }
+
+    .editFormGrid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .contactItemFullWidth {
+        grid-column: 1;
     }
 
     .contactLabel {

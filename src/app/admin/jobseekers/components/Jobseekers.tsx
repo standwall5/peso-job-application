@@ -120,16 +120,7 @@ const Jobseekers = () => {
           totalJobseekers={uniqueApplicants.length}
           activeApplications={activeApplicationsCount}
         />
-        <JobseekerSearchBar
-          search={search}
-          setSearch={setSearch}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          selectedApplicantTypes={selectedApplicantTypes}
-          setSelectedApplicantTypes={setSelectedApplicantTypes}
-          selectedPlaces={selectedPlaces}
-          setSelectedPlaces={setSelectedPlaces}
-        />
+        <JobseekerSearchBar search={search} setSearch={setSearch} />
       </div>
 
       <JobseekerTable
@@ -142,6 +133,10 @@ const Jobseekers = () => {
         selectedCount={selectedJobseekers.length}
         onSelectAll={handleSelectAll}
         onArchiveSelected={handleArchiveSelected}
+        selectedApplicantTypes={selectedApplicantTypes}
+        setSelectedApplicantTypes={setSelectedApplicantTypes}
+        selectedPlaces={selectedPlaces}
+        setSelectedPlaces={setSelectedPlaces}
       />
     </section>
   );

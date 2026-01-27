@@ -7,26 +7,14 @@ import { User, ResumeData } from "../../types/profile.types";
 import { SkillsAutocomplete } from "../SkillsAutocomplete";
 import { DropdownChecklist } from "@/components/DropdownChecklist";
 import { updateResumeAction } from "../../actions/profile.actions";
-
-// Import constants from signup
-const PREFERRED_PLACES = [
-  "Baclaran",
-  "Don Galo",
-  "La Huerta",
-  "San Dionisio",
-  "Santo Niño",
-  "Tambo",
-  "Vitalez",
-  "BF Homes",
-  "Don Bosco",
-  "Marcelo Green",
-  "Merville",
-  "Moonwalk",
-  "San Antonio",
-  "San Isidro",
-  "San Martin de Porres",
-  "Sun Valley",
-] as const;
+import {
+  CITIES,
+  getDistrictsForCity,
+  getBarangaysForCityAndDistrict,
+  cityHasDistricts,
+  getAllBarangaysForCity,
+  type City,
+} from "@/constants/locationData";
 
 const APPLICANT_TYPES = [
   "Student",
@@ -64,6 +52,9 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   // Editable contact info
   const [editableEmail, setEditableEmail] = useState("");
   const [editablePhone, setEditablePhone] = useState("");
+  const [editableCity, setEditableCity] = useState("");
+  const [editableDistrict, setEditableDistrict] = useState("");
+  const [editableAddress, setEditableAddress] = useState("");
   const [editablePreferredPoa, setEditablePreferredPoa] = useState("");
   const [editableApplicantType, setEditableApplicantType] = useState<string[]>(
     [],
@@ -81,6 +72,9 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   useEffect(() => {
     setEditableEmail(user.email || "");
     setEditablePhone(user.phone || "");
+    setEditableCity(user.city || "Parañaque");
+    setEditableDistrict(user.district || "");
+    setEditableAddress(user.address || "");
     setEditablePreferredPoa(user.preferred_poa || "");
     // Parse applicant_type from comma-separated string to array
     if (user.applicant_type) {
@@ -91,6 +85,23 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       setEditableApplicantType([]);
     }
   }, [user]);
+
+  // Get available districts and barangays based on selected city
+  const availableDistricts = editableCity
+    ? getDistrictsForCity(editableCity as City)
+    : [];
+  const availableBarangays =
+    editableCity && editableDistrict
+      ? getBarangaysForCityAndDistrict(editableCity as City, editableDistrict)
+      : [];
+  const hasCityDistricts = editableCity
+    ? cityHasDistricts(editableCity as City)
+    : false;
+
+  // Get all barangays from city for preferred place of assignment
+  const allBarangaysForCity = editableCity
+    ? getAllBarangaysForCity(editableCity as City)
+    : [];
 
   const handleSaveProfile = async () => {
     setIsSavingProfile(true);
@@ -106,10 +117,10 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       await updateResumeAction({
         name: user.name,
         birth_date: user.birth_date,
-        address: user.address,
+        address: editableAddress,
         sex: user.sex,
-        barangay: user.barangay,
-        district: user.district,
+        barangay: user.barangay, // Keep the user's actual barangay (home address)
+        district: editableDistrict,
         education: {
           school: resume?.education?.school || "",
           degree: resume?.education?.degree || "",
@@ -152,6 +163,9 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     setEditableOverview(resume?.profile_introduction || "");
     setEditableEmail(user.email || "");
     setEditablePhone(user.phone || "");
+    setEditableCity(user.city || "Parañaque");
+    setEditableDistrict(user.district || "");
+    setEditableAddress(user.address || "");
     setEditablePreferredPoa(user.preferred_poa || "");
     // Parse applicant_type from comma-separated string to array
     if (user.applicant_type) {
@@ -170,6 +184,19 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     } else {
       setEditableApplicantType(editableApplicantType.filter((t) => t !== type));
     }
+  };
+
+  const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newCity = e.target.value;
+    setEditableCity(newCity);
+    setEditableDistrict(""); // Reset district when city changes
+    setEditablePreferredPoa(""); // Reset preferred place when city changes
+  };
+
+  const handleDistrictChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newDistrict = e.target.value;
+    setEditableDistrict(newDistrict);
+    setEditablePreferredPoa(""); // Reset preferred place when district changes
   };
 
   return (
@@ -259,7 +286,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             )}
             <div className={styles.contactSection}>
               {isEditingProfile ? (
-                <>
+                <div className={styles.editFormGrid}>
                   <div className={styles.contactItem}>
                     <span className={styles.contactLabel}>EMAIL:</span>
                     <input
@@ -285,6 +312,52 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   </div>
 
                   <div className={styles.contactItem}>
+                    <span className={styles.contactLabel}>CITY:</span>
+                    <select
+                      value={editableCity}
+                      onChange={handleCityChange}
+                      className={styles.selectInput}
+                    >
+                      <option value="">Select city</option>
+                      {CITIES.map((city) => (
+                        <option key={city} value={city}>
+                          {city}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {hasCityDistricts && (
+                    <div className={styles.contactItem}>
+                      <span className={styles.contactLabel}>DISTRICT:</span>
+                      <select
+                        value={editableDistrict}
+                        onChange={handleDistrictChange}
+                        className={styles.selectInput}
+                        disabled={!editableCity}
+                      >
+                        <option value="">Select district</option>
+                        {availableDistricts.map((district) => (
+                          <option key={district} value={district}>
+                            {district}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  <div className={styles.contactItem}>
+                    <span className={styles.contactLabel}>ADDRESS:</span>
+                    <input
+                      type="text"
+                      value={editableAddress}
+                      onChange={(e) => setEditableAddress(e.target.value)}
+                      className={styles.selectInput}
+                      placeholder="Enter street address"
+                    />
+                  </div>
+
+                  <div className={styles.contactItem}>
                     <span className={styles.contactLabel}>
                       PREFERRED PLACE OF ASSIGNMENT:
                     </span>
@@ -292,19 +365,20 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                       value={editablePreferredPoa}
                       onChange={(e) => setEditablePreferredPoa(e.target.value)}
                       className={styles.selectInput}
+                      disabled={!editableCity}
                     >
                       <option value="">Select preferred place</option>
-                      {PREFERRED_PLACES.map((place) => (
-                        <option key={place} value={place}>
-                          {place}
+                      {allBarangaysForCity.map((barangay) => (
+                        <option key={barangay} value={barangay}>
+                          {barangay}
                         </option>
                       ))}
                     </select>
                   </div>
 
-                  <div className={styles.contactItem}>
+                  <div className={styles.contactItemFullWidth}>
                     <span className={styles.contactLabel}>APPLICANT TYPE:</span>
-                    <div style={{ marginTop: "0.5rem" }}>
+                    <div style={{ marginTop: "0.5rem", position: "relative" }}>
                       <DropdownChecklist
                         options={APPLICANT_TYPES}
                         selectedValues={editableApplicantType}
@@ -313,7 +387,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                       />
                     </div>
                   </div>
-                </>
+                </div>
               ) : (
                 <>
                   <div className={styles.contactItem}>
@@ -324,6 +398,29 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   <div className={styles.contactItem}>
                     <span className={styles.contactLabel}>PHONE:</span>
                     <span className={styles.contactValue}>{user.phone}</span>
+                  </div>
+
+                  <div className={styles.contactItem}>
+                    <span className={styles.contactLabel}>CITY:</span>
+                    <span className={styles.contactValue}>
+                      {user.city || "Not set"}
+                    </span>
+                  </div>
+
+                  {user.district && (
+                    <div className={styles.contactItem}>
+                      <span className={styles.contactLabel}>DISTRICT:</span>
+                      <span className={styles.contactValue}>
+                        {user.district}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className={styles.contactItem}>
+                    <span className={styles.contactLabel}>ADDRESS:</span>
+                    <span className={styles.contactValue}>
+                      {user.address || "Not set"}
+                    </span>
                   </div>
 
                   <div className={styles.contactItem}>

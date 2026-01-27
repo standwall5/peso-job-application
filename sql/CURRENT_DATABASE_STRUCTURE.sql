@@ -167,6 +167,9 @@ CREATE TABLE public.chat_sessions (
   concern text,
   updated_at timestamp with time zone DEFAULT now(),
   last_user_message_at timestamp with time zone,
+  is_anonymous boolean DEFAULT false,
+  anonymous_id text,
+  anonymous_name text,
   CONSTRAINT chat_sessions_pkey PRIMARY KEY (id),
   CONSTRAINT chat_sessions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.applicants(id),
   CONSTRAINT chat_sessions_admin_id_fkey FOREIGN KEY (admin_id) REFERENCES public.peso(id)

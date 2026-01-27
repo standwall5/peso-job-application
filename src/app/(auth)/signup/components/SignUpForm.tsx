@@ -48,6 +48,7 @@ const SignUpForm = () => {
     genderOther: formHandlers.genderOther,
     emailValue: formHandlers.emailValue,
     residency: formHandlers.residency,
+    city: formHandlers.city,
     barangay: formHandlers.barangay,
     preferredPlace: formHandlers.preferredPlace,
     district: formHandlers.district,
@@ -116,10 +117,12 @@ const SignUpForm = () => {
 
           <AddressSection
             residency={formHandlers.residency}
+            city={formHandlers.city}
             district={formHandlers.district}
             barangay={formHandlers.barangay}
             preferredPlace={formHandlers.preferredPlace}
             onResidencyChange={formHandlers.handleResidencyChange}
+            onCityChange={formHandlers.handleCityChange}
             onDistrictChange={formHandlers.handleDistrictChange}
             onBarangayChange={formHandlers.handlebarangayChange}
             onPreferredPlaceChange={formHandlers.handlePreferredPlaceChange}

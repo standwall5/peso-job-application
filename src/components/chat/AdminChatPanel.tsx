@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Button from "@/components/Button";
 import BlocksWave from "@/components/BlocksWave";
 import Toast from "@/components/toast/Toast";
@@ -51,15 +51,26 @@ function AdminChatPanel({
   onRefresh,
   initiatedApplicantId,
 }: AdminChatPanelProps) {
-  const [activeTab, setActiveTab] = useState<"pending" | "active" | "closed">(
-    "pending",
-  );
+  const [activeTab, setActiveTab] = useState<
+    "pending" | "active" | "closed" | "new"
+  >("pending");
   const [activeChat, setActiveChat] = useState<ChatRequest | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [userTyping, setUserTyping] = useState(false);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [applicantSearchQuery, setApplicantSearchQuery] = useState("");
+  const [searchedApplicants, setSearchedApplicants] = useState<
+    Array<{
+      id: number;
+      name: string;
+      email: string;
+      phone: string | null;
+    }>
+  >([]);
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [initiatingChat, setInitiatingChat] = useState(false);
   const [toast, setToast] = useState({
     show: false,
     title: "",
@@ -76,21 +87,15 @@ function AdminChatPanel({
     null,
   );
 
-  function formatManilaTime(date: string | Date) {
-    return new Date(date).toLocaleTimeString("en-PH", {
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "Asia/Manila",
-    });
-  }
-
   // Get chat requests for current tab from props
   const chatRequests =
     activeTab === "pending"
       ? pendingChats
       : activeTab === "active"
         ? activeChats
-        : closedChats;
+        : activeTab === "closed"
+          ? closedChats
+          : [];
 
   // Filter chats based on search query
   const filteredChats = chatRequests.filter((chat) => {
@@ -102,6 +107,96 @@ function AdminChatPanel({
       chat.concern.toLowerCase().includes(query)
     );
   });
+
+  // Search all applicants (for "Start New Chat" tab)
+  const searchAllApplicants = async (query: string) => {
+    if (!query || query.trim().length < 2) {
+      setSearchedApplicants([]);
+      return;
+    }
+
+    setLoadingSearch(true);
+    try {
+      const response = await fetch(
+        `/api/admin/applicants/search?q=${encodeURIComponent(query)}`,
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setSearchedApplicants(data);
+      } else {
+        console.error("Failed to search applicants");
+        setSearchedApplicants([]);
+      }
+    } catch (error) {
+      console.error("Error searching applicants:", error);
+      setSearchedApplicants([]);
+    } finally {
+      setLoadingSearch(false);
+    }
+  };
+
+  // Debounce applicant search
+  useEffect(() => {
+    if (activeTab !== "new") return;
+
+    const timer = setTimeout(() => {
+      searchAllApplicants(applicantSearchQuery);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [applicantSearchQuery, activeTab]);
+
+  // Initiate chat with an applicant
+  const handleInitiateChat = async (
+    applicantId: number,
+    applicantName: string,
+  ) => {
+    setInitiatingChat(true);
+    try {
+      const response = await fetch("/api/admin/chat/initiate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          applicantId,
+          initialMessage: `Hello ${applicantName}, how can I help you?`,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to initiate chat");
+      }
+
+      const data = await response.json();
+
+      // Refresh chats to show the new/existing session
+      onRefresh();
+
+      // Switch to active tab and wait for refresh
+      setActiveTab("active");
+      setApplicantSearchQuery("");
+      setSearchedApplicants([]);
+
+      // Show success message
+      setToast({
+        show: true,
+        title: data.existing ? "Chat Already Exists" : "Chat Initiated",
+        message: data.existing
+          ? `You already have an active chat with ${applicantName}`
+          : `Chat with ${applicantName} has been started`,
+        type: data.existing ? "info" : "success",
+      });
+    } catch (error) {
+      console.error("Error initiating chat:", error);
+      setToast({
+        show: true,
+        title: "Failed to Initiate Chat",
+        message: error instanceof Error ? error.message : "Unknown error",
+        type: "error",
+      });
+    } finally {
+      setInitiatingChat(false);
+    }
+  };
 
   // Auto-select chat when initiated from external component
   useEffect(() => {
@@ -564,38 +659,141 @@ function AdminChatPanel({
                 </svg>
                 Closed Chats
               </button>
+
+              <button
+                className={`${styles.tab} ${activeTab === "new" ? styles.active : ""}`}
+                onClick={() => {
+                  setActiveTab("new");
+                  setActiveChat(null);
+                  setApplicantSearchQuery("");
+                  setSearchedApplicants([]);
+                }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className={styles.tabIcon}
+                >
+                  <path d="M5.25 6.375a4.125 4.125 0 1 1 8.25 0 4.125 4.125 0 0 1-8.25 0ZM2.25 19.125a7.125 7.125 0 0 1 14.25 0v.003l-.001.119a.75.75 0 0 1-.363.63 13.067 13.067 0 0 1-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 0 1-.364-.63l-.001-.122ZM18.75 7.5a.75.75 0 0 0-1.5 0v2.25H15a.75.75 0 0 0 0 1.5h2.25v2.25a.75.75 0 0 0 1.5 0v-2.25H21a.75.75 0 0 0 0-1.5h-2.25V7.5Z" />
+                </svg>
+                Start New Chat
+              </button>
             </div>
 
-            {/* Search Input */}
+            {/* Search Input - different behavior for "new" tab */}
             <div className={styles.searchContainer}>
-              <input
-                type="text"
-                placeholder="Search applicants..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={styles.searchInput}
-              />
-              {searchQuery && (
-                <button
-                  className={styles.clearSearch}
-                  onClick={() => setSearchQuery("")}
-                  aria-label="Clear search"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    style={{ width: "1rem", height: "1rem" }}
-                  >
-                    <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                  </svg>
-                </button>
+              {activeTab === "new" ? (
+                <>
+                  <input
+                    type="text"
+                    placeholder="Search all applicants by name or phone..."
+                    value={applicantSearchQuery}
+                    onChange={(e) => setApplicantSearchQuery(e.target.value)}
+                    className={styles.searchInput}
+                  />
+                  {applicantSearchQuery && (
+                    <button
+                      className={styles.clearSearch}
+                      onClick={() => {
+                        setApplicantSearchQuery("");
+                        setSearchedApplicants([]);
+                      }}
+                      aria-label="Clear search"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        style={{ width: "1rem", height: "1rem" }}
+                      >
+                        <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                      </svg>
+                    </button>
+                  )}
+                </>
+              ) : (
+                <>
+                  <input
+                    type="text"
+                    placeholder="Search applicants..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className={styles.searchInput}
+                  />
+                  {searchQuery && (
+                    <button
+                      className={styles.clearSearch}
+                      onClick={() => setSearchQuery("")}
+                      aria-label="Clear search"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        style={{ width: "1rem", height: "1rem" }}
+                      >
+                        <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                      </svg>
+                    </button>
+                  )}
+                </>
               )}
             </div>
 
-            {/* Chat List */}
+            {/* Chat List or Applicant Search Results */}
             <div className={styles.chatList}>
-              {filteredChats.length === 0 ? (
+              {activeTab === "new" ? (
+                // Show applicant search results for "Start New Chat" tab
+                <>
+                  {!applicantSearchQuery.trim() ? (
+                    <div className={styles.emptyState}>
+                      <p>Type to search for applicants...</p>
+                      <small
+                        style={{
+                          color: "var(--text-light)",
+                          marginTop: "0.5rem",
+                        }}
+                      >
+                        Search by name or phone number
+                      </small>
+                    </div>
+                  ) : loadingSearch ? (
+                    <div className={styles.emptyState}>
+                      <BlocksWave width={32} height={32} />
+                      <p style={{ marginTop: "0.5rem" }}>Searching...</p>
+                    </div>
+                  ) : searchedApplicants.length === 0 ? (
+                    <div className={styles.emptyState}>
+                      <p>
+                        No applicants found for &quot;{applicantSearchQuery}
+                        &quot;
+                      </p>
+                    </div>
+                  ) : (
+                    searchedApplicants.map((applicant) => (
+                      <div key={applicant.id} className={styles.chatItem}>
+                        <div className={styles.chatItemHeader}>
+                          <strong>{applicant.name}</strong>
+                        </div>
+                        <div className={styles.chatItemEmail}>
+                          {applicant.email}
+                        </div>
+                        <Button
+                          variant="primary"
+                          onClick={() =>
+                            handleInitiateChat(applicant.id, applicant.name)
+                          }
+                          disabled={initiatingChat}
+                          className={styles.acceptButton}
+                        >
+                          {initiatingChat ? "Starting..." : "Start Chat"}
+                        </Button>
+                      </div>
+                    ))
+                  )}
+                </>
+              ) : filteredChats.length === 0 ? (
                 <div className={styles.emptyState}>
                   <p>
                     {searchQuery

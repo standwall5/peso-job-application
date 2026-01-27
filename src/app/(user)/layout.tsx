@@ -19,12 +19,12 @@ export default function RootLayout({
 
   return (
     <LanguageProvider>
+      <Navbar />
+
       <div className="page-container">
         <div className="overlay">
-          <Navbar />
-          <main className="content">
-            {children}
-          </main>
+          <main className="content">{children}</main>
+          <Footer />
         </div>
 
         {/* Chat System - Available on all applicant pages */}

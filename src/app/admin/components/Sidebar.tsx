@@ -106,7 +106,16 @@ const Sidebar = () => {
             className={`${styles.menuItem} ${
               openMenus.includes("dashboard") ? styles.active : ""
             }`}
-            onClick={() => isExpanded && handleToggle("dashboard")}
+            onClick={() => {
+              // Toggle when expanded, navigate when collapsed and not open
+              isExpanded
+                ? handleToggle("dashboard")
+                : !openMenus.includes("dashboard")
+                  ? handleToggle("dashboard")
+                  : null;
+
+              !isExpanded ? setIsExpanded(true) : null;
+            }}
             title={!isExpanded ? "Dashboard" : ""}
           >
             <div className={styles.menuItemContent}>

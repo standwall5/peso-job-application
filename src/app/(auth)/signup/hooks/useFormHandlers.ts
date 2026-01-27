@@ -11,6 +11,7 @@ export function useFormHandlers() {
   const [gender, setGender] = useState<string>("");
   const [genderOther, setGenderOther] = useState<string>("");
   const [residency, setResidency] = useState<string | null>(null);
+  const [city, setCity] = useState<string>("");
   const [district, setDistrict] = useState<string>("");
   const [barangay, setbarangay] = useState<string>("");
   const [preferredPlace, setPreferredPlace] = useState<string>("");
@@ -77,17 +78,47 @@ export function useFormHandlers() {
       setResidency(value);
       validationHook.clearError("residency");
 
-      if (value === "nonresident") {
-        setDistrict("");
-        setbarangay("");
-        setPreferredPlace("");
-        if (validationHook.isSubmitted) {
-          validationHook.clearErrors([
-            "district",
-            "barangay",
-            "preferredPlaceOfAssignment",
-          ]);
-        }
+      // Reset location fields when changing residency
+      setCity(value === "resident" ? "Parañaque" : "");
+      setDistrict("");
+      setbarangay("");
+      setPreferredPlace("");
+
+      if (validationHook.isSubmitted) {
+        validationHook.clearErrors([
+          "city",
+          "district",
+          "barangay",
+          "preferredPlaceOfAssignment",
+        ]);
+      }
+    },
+    [validationHook],
+  );
+
+  const handleCityChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const v = e.target.value;
+      setCity(v);
+
+      // Reset dependent fields when city changes
+      setDistrict("");
+      setbarangay("");
+      setPreferredPlace("");
+
+      if (v) {
+        validationHook.clearError("city");
+      } else if (validationHook.isSubmitted) {
+        validationHook.setError("city", "Please select city");
+      }
+
+      // Clear dependent field errors
+      if (validationHook.isSubmitted) {
+        validationHook.clearErrors([
+          "district",
+          "barangay",
+          "preferredPlaceOfAssignment",
+        ]);
       }
     },
     [validationHook],
@@ -126,10 +157,19 @@ export function useFormHandlers() {
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       const v = e.target.value;
       setDistrict(v);
+
+      // Reset barangay when district changes
+      setbarangay("");
+
       if (v) {
         validationHook.clearError("district");
       } else if (validationHook.isSubmitted) {
         validationHook.setError("district", "Please select District");
+      }
+
+      // Clear barangay error
+      if (validationHook.isSubmitted) {
+        validationHook.clearError("barangay");
       }
     },
     [validationHook],
@@ -178,6 +218,7 @@ export function useFormHandlers() {
     setGender("");
     setGenderOther("");
     setResidency(null);
+    setCity("");
     setDistrict("");
     setbarangay("");
     setPreferredPlace("");
@@ -193,6 +234,7 @@ export function useFormHandlers() {
     gender,
     genderOther,
     residency,
+    city,
     district,
     barangay,
     preferredPlace,
@@ -207,6 +249,7 @@ export function useFormHandlers() {
     setGender,
     setGenderOther,
     setResidency,
+    setCity,
     setDistrict,
     setbarangay,
     setPreferredPlace,
@@ -222,6 +265,7 @@ export function useFormHandlers() {
     handleSexOtherChange,
     handleEmailChange,
     handleResidencyChange,
+    handleCityChange,
     handlebarangayChange,
     handlePreferredPlaceChange,
     handleDistrictChange,

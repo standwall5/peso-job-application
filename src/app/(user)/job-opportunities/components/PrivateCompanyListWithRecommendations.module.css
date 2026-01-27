@@ -8,6 +8,7 @@
     position: relative;
     align-self: flex-start;
     align-items: flex-start;
+    min-height: 100vh;
     justify-content: flex-start;
     justify-self: flex-start;
 }
@@ -20,13 +21,20 @@
     gap: 1.5rem;
     padding: 0;
     margin: 0;
+    height: auto;
+    min-height: fit-content;
 }
 
 .sidebar {
     flex-shrink: 0;
     width: 400px;
-    position: relative;
+    /*position: relative;*/
     /*padding-right: 2rem;*/
+    height: auto;
+    max-height: calc(100vh - 8rem);
+    position: sticky;
+    top: 1rem;
+    align-self: flex-start;
 }
 
 .searchBox {
@@ -72,6 +80,8 @@
 .companiesSection {
     margin-bottom: 1.5rem;
     width: 100%;
+    height: auto;
+    min-height: fit-content;
 }
 
 .companiesHeader {
@@ -110,6 +120,8 @@
     gap: 1rem;
     margin-bottom: 1rem;
     justify-content: start;
+    transition: all 0.3s ease;
+    height: auto;
 }
 
 .showMoreButton {
@@ -130,6 +142,7 @@
     line-height: 1.4;
     min-height: 3rem;
     transition: all 0.2s ease;
+    position: relative;
 }
 
 .showMoreButton:hover {

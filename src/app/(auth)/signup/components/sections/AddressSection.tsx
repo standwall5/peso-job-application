@@ -3,17 +3,23 @@ import React from "react";
 import styles from "../SignUp.module.css";
 import { FieldError } from "../fields";
 import {
+  CITIES,
   DISTRICTS,
   BARANGAYS,
-  PREFERRED_PLACES,
-} from "../../constants/form.constants";
+  getDistrictsForCity,
+  getBarangaysForCityAndDistrict,
+  cityHasDistricts,
+  type City,
+} from "@/constants/locationData";
 
 interface AddressSectionProps {
   residency: string | null;
+  city: string;
   district: string;
   barangay: string;
   preferredPlace: string;
   onResidencyChange: (value: "resident" | "nonresident") => void;
+  onCityChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   onDistrictChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   onBarangayChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   onPreferredPlaceChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
@@ -25,16 +31,35 @@ interface AddressSectionProps {
 
 export const AddressSection: React.FC<AddressSectionProps> = ({
   residency,
+  city,
   district,
   barangay,
   preferredPlace,
   onResidencyChange,
+  onCityChange,
   onDistrictChange,
   onBarangayChange,
   onPreferredPlaceChange,
   onInputChange,
   errors,
 }) => {
+  const selectedCity = city as City;
+  const availableDistricts = selectedCity
+    ? getDistrictsForCity(selectedCity)
+    : [];
+  const availableBarangays =
+    selectedCity && district
+      ? getBarangaysForCityAndDistrict(selectedCity, district)
+      : [];
+  const hasCityDistricts = selectedCity
+    ? cityHasDistricts(selectedCity)
+    : false;
+
+  // Get all barangays from all districts for preferred place of assignment
+  const allBarangaysForCity = selectedCity
+    ? Object.values(BARANGAYS[selectedCity] || {}).flat()
+    : [];
+
   return (
     <div className={styles.addressSection}>
       <h3 className={styles.fieldLabelTitle}>
@@ -43,37 +68,38 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
       </h3>
 
       {/* Residency Radio Buttons */}
-      {/*<div
-        className={
-          errors["residency"]
-            ? `${styles.residencyOptions} ${styles.radioError}`
-            : styles.residencyOptions
-        }
-      >
-        <label>
-          <input
-            type="radio"
-            name="residency"
-            value="resident"
-            checked={residency === "resident"}
-            onChange={() => onResidencyChange("resident")}
-          />
-          Resident of Parañaque
-        </label>
-
-        <label>
-          <input
-            type="radio"
-            name="residency"
-            value="nonresident"
-            checked={residency === "nonresident"}
-            onChange={() => onResidencyChange("nonresident")}
-          />
-          Non-Resident of Parañaque
-        </label>
-      </div>*/}
-
-      <FieldError error={errors["residency"]} />
+      <div className={styles.fullRow}>
+        <div style={{ flex: 1 }}>
+          <label className={styles.fieldLabel}>
+            Residency <span className={styles.redAsterisk}>*</span>
+          </label>
+          <div className={styles.residencyOptions}>
+            <label>
+              <input
+                type="radio"
+                name="residency"
+                value="resident"
+                checked={residency === "resident"}
+                onChange={() => onResidencyChange("resident")}
+              />
+              <span className={styles.residencyLabelText}>
+                Parañaque Resident
+              </span>
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="residency"
+                value="nonresident"
+                checked={residency === "nonresident"}
+                onChange={() => onResidencyChange("nonresident")}
+              />
+              <span className={styles.residencyLabelText}>Non-Resident</span>
+            </label>
+          </div>
+          <FieldError error={errors["residency"]} />
+        </div>
+      </div>
 
       {/* Address Field */}
       <div className={styles.fullRow}>
@@ -93,36 +119,120 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
         </div>
       </div>
 
-      {/* Conditional fields for residents */}
-      {residency === "resident" && (
-        <div className={styles.geographicalRow}>
-          <div className={styles.leftColumn}>
-            {/* District */}
-            <div>
-              <label htmlFor="district" className={styles.fieldLabel}>
-                District <span className={styles.redAsterisk}>*</span>
-              </label>
-              <select
-                id="district"
-                name="district"
-                value={district}
-                onChange={onDistrictChange}
-                className={errors["district"] ? styles.errorInput : ""}
-              >
-                <option value="" disabled>
-                  Select District
+      {/* City Selection - Only show for non-residents */}
+      {residency === "nonresident" && (
+        <div className={styles.fullRow}>
+          <div style={{ flex: 1 }}>
+            <label htmlFor="city" className={styles.fieldLabel}>
+              City <span className={styles.redAsterisk}>*</span>
+            </label>
+            <select
+              id="city"
+              name="city"
+              value={city}
+              onChange={onCityChange}
+              className={errors["city"] ? styles.errorInput : ""}
+            >
+              <option value="" disabled>
+                Select City
+              </option>
+              {CITIES.map((c) => (
+                <option key={c} value={c}>
+                  {c}
                 </option>
-                {DISTRICTS.map((dist) => (
-                  <option key={dist} value={dist}>
-                    {dist}
-                  </option>
-                ))}
-              </select>
-              <FieldError error={errors["district"]} />
-            </div>
+              ))}
+            </select>
+            <FieldError error={errors["city"]} />
+          </div>
+        </div>
+      )}
 
-            {/* Preferred Place of Assignment */}
-            <div>
+      {/* Conditional fields based on residency and city selection */}
+      {residency && (residency === "resident" || city) && (
+        <>
+          {/* District and Barangay Row */}
+          {hasCityDistricts ? (
+            <div className={styles.geographicalRow}>
+              {/* District */}
+              <div className={styles.leftColumn}>
+                <label htmlFor="district" className={styles.fieldLabel}>
+                  District <span className={styles.redAsterisk}>*</span>
+                </label>
+                <select
+                  id="district"
+                  name="district"
+                  value={district}
+                  onChange={onDistrictChange}
+                  className={errors["district"] ? styles.errorInput : ""}
+                >
+                  <option value="" disabled>
+                    Select District
+                  </option>
+                  {availableDistricts.map((dist) => (
+                    <option key={dist} value={dist}>
+                      {dist}
+                    </option>
+                  ))}
+                </select>
+                <FieldError error={errors["district"]} />
+              </div>
+
+              {/* Barangay */}
+              <div className={styles.rightColumn}>
+                <label htmlFor="barangay" className={styles.fieldLabel}>
+                  Barangay <span className={styles.redAsterisk}>*</span>
+                </label>
+                <select
+                  id="barangay"
+                  name="barangay"
+                  value={barangay}
+                  onChange={onBarangayChange}
+                  className={errors["barangay"] ? styles.errorInput : ""}
+                  disabled={!district}
+                >
+                  <option value="" disabled>
+                    Select Barangay
+                  </option>
+                  {availableBarangays.map((brgy) => (
+                    <option key={brgy} value={brgy}>
+                      {brgy}
+                    </option>
+                  ))}
+                </select>
+                <FieldError error={errors["barangay"]} />
+              </div>
+            </div>
+          ) : (
+            /* Barangay Full Width when no districts */
+            <div className={styles.fullRow}>
+              <div style={{ flex: 1 }}>
+                <label htmlFor="barangay" className={styles.fieldLabel}>
+                  Barangay <span className={styles.redAsterisk}>*</span>
+                </label>
+                <select
+                  id="barangay"
+                  name="barangay"
+                  value={barangay}
+                  onChange={onBarangayChange}
+                  className={errors["barangay"] ? styles.errorInput : ""}
+                >
+                  <option value="" disabled>
+                    Select Barangay
+                  </option>
+                  {availableBarangays.map((brgy) => (
+                    <option key={brgy} value={brgy}>
+                      {brgy}
+                    </option>
+                  ))}
+                </select>
+                <FieldError error={errors["barangay"]} />
+              </div>
+            </div>
+          )}
+
+          {/* Preferred Place of Assignment - Full Width */}
+          <div className={styles.fullRow}>
+            <div style={{ flex: 1 }}>
               <label
                 htmlFor="preferredPlaceOfAssignment"
                 className={styles.fieldLabel}
@@ -142,7 +252,7 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
                 <option value="" disabled>
                   Select Preferred Place of Assignment
                 </option>
-                {PREFERRED_PLACES.map((place) => (
+                {allBarangaysForCity.map((place) => (
                   <option key={place} value={place}>
                     {place}
                   </option>
@@ -151,43 +261,7 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
               <FieldError error={errors["preferredPlaceOfAssignment"]} />
             </div>
           </div>
-
-          {/* RIGHT COLUMN */}
-          <div className={styles.rightColumn}>
-            {/* Barangay */}
-            <div>
-              <label htmlFor="barangay" className={styles.fieldLabel}>
-                Barangay <span className={styles.redAsterisk}>*</span>
-              </label>
-              <select
-                id="barangay"
-                name="barangay"
-                value={barangay}
-                onChange={onBarangayChange}
-                className={errors["barangay"] ? styles.errorInput : ""}
-              >
-                <option value="" disabled>
-                  Select Barangay
-                </option>
-
-                {district === "District 1" &&
-                  BARANGAYS["District 1"].map((brgy) => (
-                    <option key={brgy} value={brgy}>
-                      {brgy}
-                    </option>
-                  ))}
-
-                {district === "District 2" &&
-                  BARANGAYS["District 2"].map((brgy) => (
-                    <option key={brgy} value={brgy}>
-                      {brgy}
-                    </option>
-                  ))}
-              </select>
-              <FieldError error={errors["barangay"]} />
-            </div>
-          </div>
-        </div>
+        </>
       )}
     </div>
   );

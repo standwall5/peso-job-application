@@ -47,12 +47,11 @@
 
 .top {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     gap: 2rem;
     width: 95%;
     margin: 0 2rem;
-    margin-top: 2rem;
 }
 
 .spacer {
@@ -105,10 +104,10 @@
 /* Top Bar Layout */
 .topBar {
     display: flex;
-    justify-content: space-around;
     align-items: center;
+    justify-content: flex-start;
     gap: 7rem;
-    width: 100%;
+    width: 50%;
     padding: 0 2rem;
     position: relative;
 }
@@ -281,7 +280,7 @@
     right: 0;
     top: 50%;
     transform: translateY(-50%);
-    background-color: #98e780;
+    background-color: var(--accent);
     color: white;
     z-index: 10;
     width: 3rem;

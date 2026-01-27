@@ -30,6 +30,7 @@ export interface User {
   age: number;
   address: string;
   sex: string;
+  city: string;
   barangay: string;
   district: string;
   email: string;

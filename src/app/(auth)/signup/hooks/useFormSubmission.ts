@@ -8,6 +8,7 @@ import { useFormValidation } from "./useFormValidation";
 import { usePasswordValidation } from "./usePasswordValidation";
 import { usePhoneNumber } from "./usePhoneNumber";
 import { useBirthDate } from "./useBirthDate";
+import { cityHasDistricts, type City } from "@/constants/locationData";
 
 // ============================================
 // 🧪 TESTING CONFIGURATION
@@ -18,7 +19,7 @@ const TEST_MODE = {
 } as const;
 
 // 🔥 CHANGE THIS TO SWITCH BETWEEN TEST AND PRODUCTION
-const CURRENT_MODE: typeof TEST_MODE[keyof typeof TEST_MODE] = TEST_MODE.REAL;
+const CURRENT_MODE: (typeof TEST_MODE)[keyof typeof TEST_MODE] = TEST_MODE.REAL;
 
 // Mock scenarios - change to test different responses
 const MOCK_SCENARIO = {
@@ -136,6 +137,7 @@ interface UseFormSubmissionProps {
   genderOther: string;
   emailValue: string;
   residency: string | null;
+  city: string;
   barangay: string;
   preferredPlace: string;
   district: string;
@@ -159,6 +161,7 @@ export function useFormSubmission({
   genderOther,
   emailValue,
   residency,
+  city,
   barangay,
   preferredPlace,
   district,
@@ -239,17 +242,31 @@ export function useFormSubmission({
         newErrors.residency = "Residence is required";
       }
 
-      // Barangay validation (if resident)
-      if (residency === "resident") {
+      // City validation (only for non-residents, residents are auto-assigned Parañaque)
+      if (residency === "nonresident") {
+        if (!city || city.trim() === "") {
+          newErrors.city = "City is required";
+        }
+      }
+
+      // Determine the actual city to use for validation
+      const actualCity = residency === "resident" ? "Parañaque" : city;
+
+      // District validation (only if city has districts)
+      if (actualCity && cityHasDistricts(actualCity as City)) {
+        if (!district || district.trim() === "") {
+          newErrors.district = "District is required";
+        }
+      }
+
+      // Barangay validation (required for both residents and non-residents)
+      if (residency === "resident" || residency === "nonresident") {
         if (!barangay || barangay.trim() === "") {
           newErrors.barangay = "Barangay is required";
         }
         if (!preferredPlace || preferredPlace.trim() === "") {
           newErrors.preferredPlaceOfAssignment =
             "Preferred place of assignment is required";
-        }
-        if (!district || district.trim() === "") {
-          newErrors.district = "District is required";
         }
       }
 
@@ -302,6 +319,7 @@ export function useFormSubmission({
       phoneHook,
       emailValue,
       residency,
+      city,
       barangay,
       preferredPlace,
       district,
@@ -346,6 +364,7 @@ export function useFormSubmission({
       formData.set("birthDate", birthDateHook.birthDate);
       formData.set("email", emailValue);
       formData.set("residency", residency || "");
+      formData.set("city", city);
       formData.set("Barangay", barangay);
       formData.set("district", district);
       formData.set("preferredPlaceOfAssignment", preferredPlace);
@@ -401,6 +420,7 @@ export function useFormSubmission({
       birthDateHook,
       emailValue,
       residency,
+      city,
       barangay,
       district,
       preferredPlace,

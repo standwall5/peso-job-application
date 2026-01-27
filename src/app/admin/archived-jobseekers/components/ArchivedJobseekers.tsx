@@ -115,20 +115,7 @@ const ArchivedJobseekers = () => {
           activeApplications={0}
           isArchived={true}
         />
-        <JobseekerSearchBar
-          search={search}
-          setSearch={setSearch}
-          selectedCount={selectedJobseekers.length}
-          onSelectAll={handleSelectAll}
-          onArchiveSelected={handleUnarchiveSelected}
-          isArchived={true}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          selectedApplicantTypes={selectedApplicantTypes}
-          setSelectedApplicantTypes={setSelectedApplicantTypes}
-          selectedPlaces={selectedPlaces}
-          setSelectedPlaces={setSelectedPlaces}
-        />
+        <JobseekerSearchBar search={search} setSearch={setSearch} />
       </div>
 
       {sortedApplications.length === 0 ? (
@@ -163,6 +150,10 @@ const ArchivedJobseekers = () => {
           onSelectAll={handleSelectAll}
           onArchiveSelected={handleUnarchiveSelected}
           isArchived={true}
+          selectedApplicantTypes={selectedApplicantTypes}
+          setSelectedApplicantTypes={setSelectedApplicantTypes}
+          selectedPlaces={selectedPlaces}
+          setSelectedPlaces={setSelectedPlaces}
         />
       )}
     </section>

@@ -381,8 +381,8 @@
     width: auto;
     height: 2rem;
     transform: scale(0.8);
-    border-radius: 0.25rem;
-    border: 2px solid #9aa6b2;
+    border-radius: 50%;
+    border: 2px solid #d1d5db;
     background: #fff;
     position: relative;
     cursor: pointer;
@@ -408,10 +408,10 @@
     pointer-events: none;
 }
 
-/* checked => blue with white inner dot */
+/* checked => accent color with white inner dot */
 .residencyOptions input[type="radio"]:checked {
-    border-color: #007bff;
-    background: #007bff;
+    border-color: var(--accent);
+    background: var(--accent);
 }
 .residencyOptions input[type="radio"]:checked::after {
     background: #ffffff;
@@ -420,8 +420,8 @@
 /* focus ring for keyboard accessibility */
 .residencyOptions input[type="radio"]:focus {
     outline: none;
-    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.12);
-    border-color: #007bff;
+    box-shadow: 0 0 0 4px rgba(134, 170, 132, 0.12);
+    border-color: var(--accent);
 }
 
 /* ---- Error state: circular red ring around the radio (not a square) ----
@@ -432,10 +432,10 @@
     box-shadow: 0 0 0 4px rgba(217, 83, 79, 0.12); /* circular ring around the circle */
 }
 
-/* If the radio is both in error wrapper and checked, checked style should win (blue) */
+/* If the radio is both in error wrapper and checked, checked style should win (accent color) */
 .radioError input[type="radio"]:checked {
-    border-color: #007bff !important;
-    background: #007bff !important;
+    border-color: var(--accent) !important;
+    background: var(--accent) !important;
     box-shadow: 0 0 0 0 rgba(217, 83, 79, 0) !important; /* remove red ring once checked */
 }
 

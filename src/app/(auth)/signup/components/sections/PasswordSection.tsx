@@ -90,84 +90,108 @@ export const PasswordSection: React.FC<PasswordSectionProps> = ({
         />
       </div>
 
-      <div className={styles.passwordRequirements}>
+      {password.length > 0 && (
         <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: "8px",
-          }}
+          className={styles.fullRow}
+          style={{ marginTop: "-0.5rem", marginBottom: "0.5rem" }}
         >
-          <h4 style={{ margin: 0, color: strengthColor }}>{strengthLabel}</h4>
-          <span style={{ fontSize: "12px", color: "#666" }}>
-            {strengthPercent}%
-          </span>
+          <div style={{ flex: 1 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "4px",
+              }}
+            >
+              <span
+                style={{
+                  margin: 0,
+                  color: strengthColor,
+                  fontSize: "11px",
+                  fontWeight: 600,
+                }}
+              >
+                {strengthLabel}
+              </span>
+              <span style={{ fontSize: "10px", color: "#666" }}>
+                {strengthPercent}%
+              </span>
+            </div>
+            <div
+              style={{
+                width: "100%",
+                height: "4px",
+                background: "#e5e7eb",
+                borderRadius: "999px",
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  width: `${strengthPercent}%`,
+                  height: "100%",
+                  background: strengthColor,
+                  transition: "width 0.2s ease, background 0.2s ease",
+                }}
+              />
+            </div>
+            <div
+              style={{ marginTop: "4px", fontSize: "10px", lineHeight: 1.4 }}
+            >
+              <span
+                className={`${styles.requirementItem} ${
+                  passwordRequirements.length
+                    ? styles["valid"]
+                    : styles["neutral"]
+                }`}
+              >
+                8+ chars
+              </span>
+              {", "}
+              <span
+                className={`${styles.requirementItem} ${
+                  passwordRequirements.uppercase
+                    ? styles["valid"]
+                    : styles["neutral"]
+                }`}
+              >
+                uppercase
+              </span>
+              {", "}
+              <span
+                className={`${styles.requirementItem} ${
+                  passwordRequirements.lowercase
+                    ? styles["valid"]
+                    : styles["neutral"]
+                }`}
+              >
+                lowercase
+              </span>
+              {", "}
+              <span
+                className={`${styles.requirementItem} ${
+                  passwordRequirements.number
+                    ? styles["valid"]
+                    : styles["neutral"]
+                }`}
+              >
+                number
+              </span>
+              {", "}
+              <span
+                className={`${styles.requirementItem} ${
+                  passwordRequirements.special
+                    ? styles["valid"]
+                    : styles["neutral"]
+                }`}
+              >
+                special (!@#$%&)
+              </span>
+            </div>
+          </div>
         </div>
-        <div
-          style={{
-            width: "100%",
-            height: "8px",
-            background: "#e5e7eb",
-            borderRadius: "999px",
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              width: `${strengthPercent}%`,
-              height: "100%",
-              background: strengthColor,
-              transition: "width 0.2s ease, background 0.2s ease",
-            }}
-          />
-        </div>
-        <div style={{ marginTop: "8px" }}>
-          <span
-            className={`${styles.requirementItem} ${
-              passwordRequirements.length ? styles["valid"] : styles["neutral"]
-            }`}
-          >
-            At least 8 characters
-          </span>
-          {", "}
-          <span
-            className={`${styles.requirementItem} ${
-              passwordRequirements.uppercase
-                ? styles["valid"]
-                : styles["neutral"]
-            }`}
-          >
-            At least 1 uppercase letter
-          </span>
-          {", "}
-          <span
-            className={`${styles.requirementItem} ${
-              passwordRequirements.lowercase
-                ? styles["valid"]
-                : styles["neutral"]
-            }`}
-          >
-            At least 1 lowercase letter
-          </span>
-          {", "}
-          <span
-            className={`${styles.requirementItem} ${
-              passwordRequirements.number ? styles["valid"] : styles["neutral"]
-            }`}
-          >
-            At least 1 number
-          </span>
-          {", "}
-          <span
-            className={`${styles.requirementItem} ${
-              passwordRequirements.special ? styles["valid"] : styles["neutral"]
-            }`}
-          >
-            At least 1 special character (!@#$%&)
-          </span>
-        </div>
-      </div>
+      )}
     </>
   );
 };

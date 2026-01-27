@@ -24,9 +24,9 @@ export const FORCE_BOT_MODE = false;
 /**
  * TESTING: Set to true to always skip bot (admins "available")
  * Set to false to use normal business hours logic
- * PRODUCTION: Set to false to use actual business hours
+ * PRODUCTION: Set to true so chat requests require admin acceptance
  */
-export const FORCE_ADMIN_MODE = false;
+export const FORCE_ADMIN_MODE = true;
 
 /**
  * Check if current time is within business hours (Philippine Time)
